@@ -17,6 +17,7 @@ try{
 
  // ---- the checklist in Settings and the connection pill, on the page that is already open
  assert(await page.locator('#connectionPill').isHidden(),'no connection pill while online');
+ await page.waitForFunction(()=>Boolean(window.plcShell),null,{timeout:15000}); // the shell is drawn a moment after the page starts
  await page.evaluate(()=>window.plcShell.openSettings('models'));
  await page.waitForSelector('#offlineSection .off-item[data-id="app"]');
  await page.waitForFunction(()=>document.querySelector('#offlineSection .off-item[data-id="app"]')?.dataset.state==='ready',null,{timeout:20000});
@@ -48,6 +49,7 @@ try{
  assert(/provider needs a connection/i.test(await page.locator('#connectionPill').getAttribute('title')),'with a provider on the internet the pill says what will not work');
  assert(await page.locator('#refreshModelsBtn').isDisabled(),'refreshing the provider\'s model list is disabled while offline');
  assert(/connection/i.test(await page.locator('#refreshModelsBtn').getAttribute('title')),'and says why');
+ await page.waitForFunction(()=>Boolean(window.plcShell),null,{timeout:15000}); // the shell is drawn a moment after the page starts
  await page.evaluate(()=>window.plcShell.openSettings('models'));
  await page.waitForSelector('#offlineNote',{state:'visible'});
  assert(/waits for a connection/.test(await page.locator('#offlineNote').innerText()),'the Models page says what a download does offline');
