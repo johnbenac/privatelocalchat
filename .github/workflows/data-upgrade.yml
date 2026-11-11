@@ -1,0 +1,31 @@
+name: Data upgrade
+on:
+  pull_request:
+  push:
+    branches: [main, dev]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: data-upgrade-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  data-upgrade:
+    runs-on: ubuntu-24.04 # pinned: Playwright does not support the newer ubuntu-latest image yet
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # the release tags, for the rule that the newest snapshot is not too far behind the newest release
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+      - name: Data from every release (the snapshots in tests/fixtures/data, plain and with the encrypted vault)
+        # Each snapshot is restored into a fresh browser, the current build starts on it, and nothing the person had may be missing or changed (docs/DATA-COMPATIBILITY.md).
+        run: node tests/e2e/data-upgrade.e2e.mjs
+      - name: Newer data is left alone
+        run: node tests/e2e/format-guard.e2e.mjs

@@ -17,7 +17,7 @@ node scripts/snapshot.mjs compare <rev> [--allow GLOB]    # build <rev> and the 
 
 How it is reproducible: the build reads `GITHUB_SHA` and `DEPLOY_BRANCH` from the environment, and `SOURCE_DATE_EPOCH` (seconds) now sets the build time and the sitemap's date for the home page. With `SOURCE_DATE_EPOCH` unset, the build is unchanged: the clock and the last commit date are used. `tests/split-snapshot.test.mjs` builds twice and fails if the manifests ever differ.
 
-`docs/evidence/split/site-baseline.json` is the output as it stood before the split began. A change that is meant to alter the output either passes `--allow` for the files it touches or commits a new baseline with the reason in the commit message. `compare` works for any revision that contains `SOURCE_DATE_EPOCH` support in `scripts/build.mjs`; older revisions report that they cannot be compared byte for byte.
+`docs/evidence/split/site-baseline.json` is the output as it stood after the last change that meant to alter it. A change that is meant to alter the output either passes `--allow` for the files it touches or commits a new baseline with the reason in the commit message. `compare` works for any revision that contains `SOURCE_DATE_EPOCH` support in `scripts/build.mjs`; older revisions report that they cannot be compared byte for byte.
 
 Branches named `split/**` run `npm run snapshot:check` in CI (`.github/workflows/split-snapshot.yml`).
 

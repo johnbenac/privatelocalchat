@@ -1187,6 +1187,10 @@
       import(moduleBase() + 'chat/shell/shell.mjs').then(mod => { window.plcShell = mod.createShell(plcApp); renderThreadList(); })
         .catch(err => { console.error('The app shell failed to start.', err); showToast('Part of the app did not load. Reload the page; if it happens again, see Help.'); });
       initMarketing();
+      // saved data from a newer version of the app: this version left it unchanged, and says so (chat/vault/data-formats.mjs, chat/vault/format-guard-ui.mjs)
+      const showNewerData = state => import(moduleBase() + 'chat/vault/format-guard-ui.mjs').then(m => m.showFormatGuard(window.plcDialogs, state)).catch(() => {});
+      window.addEventListener('plc:format-guard', event => showNewerData(event.detail));
+      if (window.__plcFormatGuard?.blocked?.length || window.__plcFormatGuard?.databases?.length) showNewerData(window.__plcFormatGuard);
       window.__plcBooted = true;
     })();
   </script>
