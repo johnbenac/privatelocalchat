@@ -6,7 +6,7 @@
   "DEPLOY_BRANCH": "main",
   "SOURCE_DATE_EPOCH": "0"
  },
- "fileCount": 202,
+ "fileCount": 203,
  "files": {
   "404.html": {
    "bytes": 101,
@@ -229,8 +229,8 @@
    "sha256": "831fd90c3b77aa5957c8da60b1cc39d6c185cf7071045516e5e9d13fe3fe0312"
   },
   "releases/0000000000000000000000000000000000000000/chat/history/history-io.mjs": {
-   "bytes": 8105,
-   "sha256": "468f5b951d4319f852479a62fe74232aa541e3aa5c88fef25af1610bbf325e46"
+   "bytes": 9582,
+   "sha256": "a459deb2132a4dec3e0b3f23e752cdd2e972e1fa95f12768efd9db5ccea384d2"
   },
   "releases/0000000000000000000000000000000000000000/chat/icons.mjs": {
    "bytes": 9069,
@@ -373,20 +373,24 @@
    "sha256": "c4efeb601e361ea1650638128fff82e9c1fbafc0bd37d984fe183d7291a0fc8f"
   },
   "releases/0000000000000000000000000000000000000000/chat/threads.mjs": {
-   "bytes": 14661,
-   "sha256": "a32b3432ba61370a9df6cd7d672a878a0eb75b4acce5bb55a7a171958b93d09e"
+   "bytes": 15974,
+   "sha256": "bc6e1404b4bce3a245bbe52ee0c83085bf08f9718282224a2fcff9591281505f"
   },
   "releases/0000000000000000000000000000000000000000/chat/tools.mjs": {
    "bytes": 16179,
    "sha256": "e13cd2c356ef465cb652a3726d6d2f68c8a6ec7df7c5013b3ef78f0c528be761"
   },
   "releases/0000000000000000000000000000000000000000/chat/transfer/backups.mjs": {
-   "bytes": 4223,
-   "sha256": "643961b078522a0116f15e98e16b4ef2519c9f4abfc3730bd6370b87c1395e49"
+   "bytes": 4568,
+   "sha256": "33fdbac787f7de67bb82addaa5cd43c510c10c15afb129b0fdf40b80edea8b4d"
   },
   "releases/0000000000000000000000000000000000000000/chat/transfer/exports.mjs": {
    "bytes": 3103,
    "sha256": "87747e32150714463c6f32293b76f28916086a6b99dfa084c99db1f10a4f7c0f"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/transfer/file-formats.mjs": {
+   "bytes": 3779,
+   "sha256": "adf3b182a85113660ce93f8114670ab288f5366b8951d33e31cb55557025ccf4"
   },
   "releases/0000000000000000000000000000000000000000/chat/transfer/foreign-import.mjs": {
    "bytes": 3987,
@@ -405,8 +409,8 @@
    "sha256": "fddfce76113bdf7b2f33ea3366b3f787482fd4cd4489bad861af760f319283e3"
   },
   "releases/0000000000000000000000000000000000000000/chat/transfer/settings-transfer.mjs": {
-   "bytes": 16741,
-   "sha256": "4565a28c2abf62de70429ed9409e432a6359b46f93773c27c7536dc404d43054"
+   "bytes": 17120,
+   "sha256": "b71d863b34198f815b749c81da1d29dd7dfd5f0502868baf6412a724623e1c96"
   },
   "releases/0000000000000000000000000000000000000000/chat/transfer/transfer-glue.mjs": {
    "bytes": 9244,
@@ -593,8 +597,8 @@
    "sha256": "0916d12ec38c0411fbd30c5141b1620861987b1cb8d239b97977cc45efc123d2"
   },
   "releases/0000000000000000000000000000000000000000/release.json": {
-   "bytes": 25697,
-   "sha256": "3da492a05be2a94a2b195de6b23bfae7c38654ec47b1501d4e0a9338be0d93de"
+   "bytes": 25849,
+   "sha256": "c17a576b47a54326f62734aa2faa2f38859f8420f7cde306561b1d087310db58"
   },
   "releases/0000000000000000000000000000000000000000/runtime/auto-load.mjs": {
    "bytes": 565,
@@ -801,8 +805,8 @@
    "sha256": "186344eff8c1febe93b4f0e754b86e9d2ca1acf7fe30214160193ce8a5607df3"
   },
   "sw.js": {
-   "bytes": 19943,
-   "sha256": "e891a5daf087eb035244daf319a00c9c87df8293080dcaddf72b6bdaecc1400c"
+   "bytes": 20027,
+   "sha256": "3e3a15068deac80e28d10cc1705c9c4f9defe5576c671b8a07c52212631fe542"
   },
   "updates/index.html": {
    "bytes": 29672,

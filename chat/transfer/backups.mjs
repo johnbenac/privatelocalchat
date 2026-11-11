@@ -31,16 +31,16 @@ export function createBackups(host) {
     }
   }
   // settings, memory, presets, projects and documents that travel with a full backup
-  async function restoreExtras(extras) {
+  // `skip` names the parts a newer version of the app owns in this browser (folders, memory, presets, prefs, docs): they are left as they are.
+  async function restoreExtras(extras, { skip = new Set() } = {}) {
     let added = 0;
-    (extras.folders || []).forEach(f => { if (f && f.id && f.name && !host.folders().some(x => x.id === f.id)) { host.folders().push({ id: f.id, name: f.name, instructions: f.instructions || '' }); added++; } });
-    saveFolders();
-    (extras.memory?.items || []).forEach(i => { if (i?.text && addMemory(i.text)) added++; });
-    (extras.presets || []).forEach(p => { if (p?.name && p.prompt && !assistant.customPresets.some(x => x.name === p.name)) { assistant.customPresets.push({ id: 'preset-' + generateThreadId(), name: p.name, prompt: p.prompt }); added++; } });
-    savePresets();
-    if (extras.prefs?.instructions && !prefs.instructions) { prefs.instructions = extras.prefs.instructions; added++; }
-    savePrefs();
-    if (extras.docs?.length) {
+    if (!skip.has('folders')) (extras.folders || []).forEach(f => { if (f && f.id && f.name && !host.folders().some(x => x.id === f.id)) { host.folders().push({ id: f.id, name: f.name, instructions: f.instructions || '' }); added++; } });
+    if (!skip.has('folders')) saveFolders();
+    if (!skip.has('memory')) (extras.memory?.items || []).forEach(i => { if (i?.text && addMemory(i.text)) added++; });
+    if (!skip.has('presets')) (extras.presets || []).forEach(p => { if (p?.name && p.prompt && !assistant.customPresets.some(x => x.name === p.name)) { assistant.customPresets.push({ id: 'preset-' + generateThreadId(), name: p.name, prompt: p.prompt }); added++; } });
+    if (!skip.has('presets')) savePresets();
+    if (!skip.has('prefs')) { if (extras.prefs?.instructions && !prefs.instructions) { prefs.instructions = extras.prefs.instructions; added++; } savePrefs(); }
+    if (extras.docs?.length && !skip.has('docs')) {
       const { docs, store } = await host.loadDocModules();
       for (const d of extras.docs) {
         try {
