@@ -51,7 +51,7 @@
   <div class="page-intro">
     <h1>Privacy</h1>
     <p class="lede">This page describes how Private Local Chat works today, written from the deployed app and its hosting setup. It says what stays on your device, what leaves it, and who receives it.</p>
-    <p class="page-meta">Last reviewed: <time class="last-updated" datetime="2026-11-04">2026-11-04</time></p>
+    <p class="page-meta">Last reviewed: <time class="last-updated" datetime="2026-11-11">2026-11-11</time></p>
     <div class="hero-actions">
       <a class="button primary" href="/">Open Private Local Chat</a>
       <a class="button" href="/help/#contact">Ask a question</a>
@@ -63,9 +63,9 @@
     <ul class="prose">
       <li>With on-device chat, your messages are processed in your browser and are not sent to a server to generate replies.</li>
       <li>With a connected provider, the content of each request goes straight from your browser to that provider, and its practices apply.</li>
-      <li>Conversations, documents and preferences are saved in your browser on your device. The app has no account system and no analytics or tracking scripts.</li>
+      <li>Conversations, documents and preferences are saved in your browser on your device. The app has no account system and no analytics or tracking scripts of its own.</li>
       <li>Files you create (exports, backups, settings files) and links you share can be read by whoever holds them, except where this page says a part is encrypted.</li>
-      <li>The site is hosted on Cloudflare, which handles ordinary web-server request data under its own policy.</li>
+      <li>The site is hosted on Cloudflare, which handles ordinary web-server request data under its own policy. On privatelocal.chat, Cloudflare also counts page loads with a cookieless script. It does not see what you type or do in the app, or whether the app is locked. A copy you download or host yourself has no such script.</li>
     </ul>
   </section>
 
@@ -166,7 +166,8 @@
     <h2 id="logging-title">Hosting, logs and analytics</h2>
     <p class="prose">The site is served by Cloudflare Pages, and the model files by project storage on Cloudflare. When your browser asks for a page or a file, the host receives standard web-server request data, such as your network address, the address requested, your browser and device type, the time and the page you came from. The hosting provider handles that data under its own retention policy: <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener">Cloudflare's privacy policy</a>. This page does not state log retention periods, because they are set by the provider and the hosting account rather than by the app.</p>
 <!--plc:hosting-logs--><!--/plc:hosting-logs-->
-    <p class="prose">The app itself contains no analytics, advertising or tracking scripts and sets no cookies. A review of the source for this release found its network requests to be only those listed above: its own files, <code>version.json</code>, model files from assets.privatelocal.chat, the small search model listed above and, in connected-provider mode, your chosen provider. Features that a hosting account can switch on at the provider's edge are outside the app's code. The separate development site includes developer diagnostics; they are excluded from this site's build, which an automated test checks.</p>
+    <p class="prose">The app itself contains no analytics, advertising or tracking scripts and sets no cookies. A review of the source for this release found its network requests to be only those listed above: its own files, <code>version.json</code>, model files from assets.privatelocal.chat, the small search model listed above and, in connected-provider mode, your chosen provider. Features that a hosting account can switch on at the provider's edge are outside the app's code, and one is in use, described next. The separate development site includes developer diagnostics; they are excluded from this site's build, which an automated test checks.</p>
+    <p class="prose" id="page-load-counting">Page-load counting at privatelocal.chat. When you open the app from privatelocal.chat, Cloudflare, which hosts the site, adds <a href="https://developers.cloudflare.com/web-analytics/" target="_blank" rel="noopener">Cloudflare Web Analytics</a> to the page at its own edge. It sets no cookies and uses no browser storage. It records that a page was loaded: the page address (including any <code>?</code> part but nothing after a <code>#</code>), where you came from, your approximate country, your browser and device type, and how quickly the page loaded and became usable, including the technical name of a page element involved in a slow measurement, never its contents. It does not receive your messages, files, settings or API keys, the app sends it nothing, and it cannot tell whether the app is locked. Nothing you do inside the app is counted: the app does not navigate or change its address as you use it, apart from removing a shared settings link from the address bar once you have opened it, which an automated test checks. Like any script on a page, it runs in the same page as the app, so we rely on Cloudflare's published description of what it collects. This counting is a setting of the hosting account and is not part of the app's code: a copy you download, export or host yourself does not include it. Cloudflare handles the data under its own policy, linked above.</p>
   </section>
 
   <section id="changes" aria-labelledby="changes-title">

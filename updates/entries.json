@@ -1,6 +1,21 @@
 {
   "entries": [
     {
+      "id": "page-load-counting",
+      "date": "2026-11-11",
+      "release": null,
+      "title": "Page loads are counted when you use privatelocal.chat",
+      "summary": "The privatelocal.chat site now counts how many times its pages load, using Cloudflare's cookieless Web Analytics, so we can tell whether anyone opens it. Copies you download or host yourself have no counting at all.",
+      "points": [
+        "It records that a page loaded: the page address, where you came from, your approximate country, your browser and device type, and how fast the page loaded. It sets no cookies and uses no browser storage.",
+        "It does not receive your messages, files, settings or API keys. It cannot tell whether the app is locked, and nothing you do inside the app is counted.",
+        "The counting is a setting of the hosting account, not part of the app's code. The app itself still has no analytics or tracking scripts. The Privacy page describes it in full under Hosting, logs and analytics."
+      ],
+      "models": null,
+      "help": [],
+      "issues": []
+    },
+    {
       "id": "encrypted-vault",
       "date": "2026-11-04",
       "release": null,

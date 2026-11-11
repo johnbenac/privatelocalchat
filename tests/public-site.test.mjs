@@ -130,8 +130,8 @@ test('the share panel is mounted on Help and About only',()=>{
 test('the Privacy page covers every required topic and records its review date',()=>{
  const html=source.privacy;
  for(const anchor of ['on-device','providers','speech','downloads','storage','app-lock','backups','chat-exports','product-sharing','settings-transfers','support','logging'])assert.ok(ids(html).includes(anchor),'#'+anchor);
- assert.ok(html.includes('Last reviewed: <time class="last-updated" datetime="2026-11-04">2026-11-04</time>'));
- for(const text of ['assets.privatelocal.chat','huggingface.co','raw.githubusercontent.com','chatThreads','plc-docs','Session storage','chatConfig','chatEndpointTokens','Cloudflare Pages','https://www.cloudflare.com/privacypolicy/','no analytics, advertising or tracking scripts','after the <code>#</code>','public'])assert.ok(html.includes(text),text);
+ assert.ok(html.includes('Last reviewed: <time class="last-updated" datetime="2026-11-11">2026-11-11</time>'));
+ for(const text of ['assets.privatelocal.chat','huggingface.co','raw.githubusercontent.com','chatThreads','plc-docs','Session storage','chatConfig','chatEndpointTokens','Cloudflare Pages','https://www.cloudflare.com/privacypolicy/','no analytics, advertising or tracking scripts','Cloudflare Web Analytics','Page-load counting at privatelocal.chat','after the <code>#</code>','public'])assert.ok(html.includes(text),text);
  assert.doesNotMatch(html,/\b\d+\s*(days|day|hours|months)\b.{0,40}(log|retention)/i,'no unverified retention periods');
 });
 

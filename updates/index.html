@@ -53,7 +53,7 @@
     <h1>Updates</h1>
     <p class="lede">What changed in Private Local Chat, newest first. Each entry has its date, the release it shipped in and links to the help that goes with it.</p>
 <!--plc:last-updated-->
-<p class="page-meta">Last updated: <time class="last-updated" datetime="2026-11-04">2026-11-04</time></p>
+<p class="page-meta">Last updated: <time class="last-updated" datetime="2026-11-11">2026-11-11</time></p>
 <!--/plc:last-updated-->
     <div class="hero-actions">
       <a class="button primary" href="/">Open Private Local Chat</a>
@@ -65,6 +65,16 @@
   <section id="updates" aria-labelledby="updates-title">
     <h2 id="updates-title">Release notes</h2>
 <!--plc:updates-list-->
+<article class="update" id="page-load-counting" aria-labelledby="page-load-counting-title">
+  <h3 id="page-load-counting-title"><a href="#page-load-counting">Page loads are counted when you use privatelocal.chat</a></h3>
+  <p class="update-meta"><time datetime="2026-11-11">11 November 2026</time> &middot; Release: the next published release after <a href="https://github.com/johnbenac/privatelocalchat/releases/tag/v0.12.0">v0.12.0</a></p>
+  <p>The privatelocal.chat site now counts how many times its pages load, using Cloudflare&#39;s cookieless Web Analytics, so we can tell whether anyone opens it. Copies you download or host yourself have no counting at all.</p>
+  <ul>
+    <li>It records that a page loaded: the page address, where you came from, your approximate country, your browser and device type, and how fast the page loaded. It sets no cookies and uses no browser storage.</li>
+    <li>It does not receive your messages, files, settings or API keys. It cannot tell whether the app is locked, and nothing you do inside the app is counted.</li>
+    <li>The counting is a setting of the hosting account, not part of the app&#39;s code. The app itself still has no analytics or tracking scripts. The Privacy page describes it in full under Hosting, logs and analytics.</li>
+  </ul>
+</article>
 <article class="update" id="encrypted-vault" aria-labelledby="encrypted-vault-title">
   <h3 id="encrypted-vault-title"><a href="#encrypted-vault">Encrypt everything on this device, and unlock with Face ID</a></h3>
   <p class="update-meta"><time datetime="2026-11-04">4 November 2026</time> &middot; Release: the next published release after <a href="https://github.com/johnbenac/privatelocalchat/releases/tag/v0.12.0">v0.12.0</a></p>

@@ -8,7 +8,7 @@ const {browser,origin}=h;
 const PAGES=[
  {path:'/help/',heading:'Help',text:['Getting started','Frequently asked questions','Private Local Chat lets you use AI in your web browser.','A model download stalls or keeps restarting','Known issues','Report a bug or ask for a feature on GitHub']},
  {path:'/about/',heading:'About Private Local Chat',text:['Private Local Chat is a free place to use AI in your browser. Run a supported model on your own device, or choose an outside provider. Use it to draft, explore ideas, and work through information.','Turn rough notes into a clear message','Share resources']},
- {path:'/privacy/',heading:'Privacy',text:['Last reviewed: 2026-11-04','Text processing on your device','Hosting, logs and analytics']},
+ {path:'/privacy/',heading:'Privacy',text:['Last reviewed: 2026-11-11','Text processing on your device','Hosting, logs and analytics']},
  {path:'/updates/',heading:'Updates',text:['Share, transfer settings, and help','On-device chat without a graphics card','Known issues']}
 ];
 const raw=path=>new Promise((resolve,reject)=>{get({host:'127.0.0.1',port:18281,path},res=>{res.resume();res.on('end',()=>resolve(res));}).on('error',reject);});
