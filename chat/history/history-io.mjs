@@ -4,14 +4,15 @@
 // host: el, M() (pure chat modules), moduleBase(), threads(), setThreads(list), currentThreadId(), clearCurrentThread(), prefs, savePrefs, saveThreads, getThread, ensureThreadExists,
 // selectThread, renderThreadList, updateChatAvailability, loadCrypto, askPassphrase, restoreExtras, openAppDialog, confirmDialog, showToast, THREAD_KEY, ACTIVE_THREAD_KEY,
 // importInput, threadTitleInput, systemPromptInput, messageInput, messagesEl
-import { appLocal } from "../vault/vault-store.mjs";
+import { app as appStorage, appLocal } from "../vault/vault-store.mjs";
+import { refuseIfNewer, buildHistoryFile } from "../transfer/file-formats.mjs";
 export function createHistoryIo(host) {
   const { el, prefs, savePrefs, saveThreads, getThread, ensureThreadExists, selectThread, renderThreadList, updateChatAvailability, loadCrypto,
     askPassphrase, restoreExtras, openAppDialog, confirmDialog, showToast, THREAD_KEY, ACTIVE_THREAD_KEY, importInput, threadTitleInput,
     systemPromptInput, messageInput, messagesEl } = host;
   function exportHistory() {
     prefs.lastExportAt = Date.now(); savePrefs();
-    const dataStr = JSON.stringify(host.threads().filter(t => !t.temporary), null, 2);
+    const dataStr = JSON.stringify(buildHistoryFile(host.threads().filter(t => !t.temporary), { app: window.APP_BUILD }), null, 2);
     const blob = new Blob([dataStr], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -22,6 +23,15 @@ export function createHistoryIo(host) {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
   }
+
+  // Stores that a newer version wrote are held read-only (stage 1): an import into one would say it worked and save nothing, so it says so first.
+  const heldReadOnly = keys => keys.filter(k => appStorage.blocked.includes(k));
+  // which of a backup's extras (projects, memory, presets, preferences) belong to a store held read-only; named by family, so the keys stay named only by their owners
+  const heldExtras = () => {
+    const held = new Set(appStorage.blocked.map(k => /^plc\.(folders|memory|presets|prefs)\./.exec(k)?.[1]).filter(Boolean));
+    if ((globalThis.__plcFormatGuard?.databases || []).includes('plc-docs')) held.add('docs');   // the document database was written by a newer version
+    return held;
+  };
 
   async function readImportFile(file) {
     if (/\.zip$/i.test(file.name) || file.type === 'application/zip') {
@@ -42,8 +52,10 @@ export function createHistoryIo(host) {
       const text = await readImportFile(file);
       let data;
       try { data = JSON.parse(text); } catch { throw new Error('The file is not valid JSON.'); }
+      refuseIfNewer(data);   // a file from a newer format is refused whole, before anything else is judged
+      if (heldReadOnly([THREAD_KEY]).length) throw new Error('The chats in this browser were saved by a newer version of the app, so this version cannot add to them.');
       let extras = null;
-      if ((await loadCrypto()).isEncryptedBackup(data)) { data = await askPassphrase(data); if (!data) return; }
+      if ((await loadCrypto()).isEncryptedBackup(data)) { data = await askPassphrase(data); if (!data) return; refuseIfNewer(data); }
       if (data && data.format === 'plc-backup/1') extras = data;
       const foreignModule = await import(host.moduleBase() + 'chat/transfer/foreign-import.mjs');
       const foreign = foreignModule.convertForeign(data);
@@ -94,7 +106,9 @@ export function createHistoryIo(host) {
         const result = host.M().model.mergeThreads(host.threads().filter(t => !t.temporary), incoming, { replace });
         host.setThreads(result.threads);
         saveThreads();
-        if (hasExtras && extrasBox.checked) restoreExtras(extras).then(n => { if (n) showToast('Restored ' + n + ' more item' + (n === 1 ? '' : 's') + ' from the backup.'); });
+        const skip = heldExtras(), held = hasExtras && extrasBox.checked ? [...skip].filter(k => extras[k] !== undefined) : [];
+        if (hasExtras && extrasBox.checked) restoreExtras(extras, { skip }).then(n => { if (n) showToast('Restored ' + n + ' more item' + (n === 1 ? '' : 's') + ' from the backup.'); });
+        if (held.length) showToast('Not restored: ' + held.join(', ') + '. A newer version of the app saved those here, so this version leaves them as they are.', 8000);
         const ensuredId = ensureThreadExists();
         const target = (replace ? host.M().model.listThreads(host.threads())[0] : getThread(host.currentThreadId())) || host.M().model.listThreads(host.threads())[0];
         renderThreadList();

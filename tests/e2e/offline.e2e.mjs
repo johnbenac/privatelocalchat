@@ -104,6 +104,7 @@ try{
   assert(new RegExp(heading,'i').test(await p.locator('h1').first().innerText()),path+' opens its own page offline');await p.close();
  }
  ok('offline: the public pages open');
+ await off.waitForFunction(()=>Boolean(window.plcShell),null,{timeout:15000}); // the shell is drawn a moment after the page starts
  await off.evaluate(()=>window.plcShell.openSettings('data'));
  await off.waitForSelector('#settingsPage',{state:'visible'});
  await off.keyboard.press('Escape');

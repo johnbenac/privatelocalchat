@@ -16,6 +16,22 @@ const str = (v, fallback = "") => (typeof v === "string" ? v : fallback);
 const num = (v, fallback) => (Number.isFinite(v) ? v : fallback);
 const ROLES = new Set(["system", "user", "assistant"]);
 
+// Fields this build does not know are kept, not dropped, so a chat that passed through a newer version (or a file made by one) comes out whole when it is saved or exported again.
+// Only plain data is kept, and a limited amount of it; the fields this build handles itself are never copied from here.
+const THREAD_FIELDS = new Set(["id", "title", "systemPrompt", "messages", "createdAt", "updatedAt", "pinned", "archived", "temporary", "deletedAt", "folderId", "summary", "presetId", "canvas"]);
+const MESSAGE_FIELDS = new Set(["id", "role", "content", "at", "notice", "excluded", "status", "error", "errorKind", "versions", "versionIndex", "model", "sources", "tools", "voiceNote", "voice", "local", "attachments"]);
+const MAX_EXTRA_KEYS = 40, MAX_EXTRA_BYTES = 20000;
+function keepUnknown(raw, known, out) {
+  let kept = 0, bytes = 0;
+  for (const key of Object.keys(raw)) {
+    if (known.has(key) || key === "__proto__" || key === "constructor" || key === "prototype" || kept >= MAX_EXTRA_KEYS) continue;
+    let text; try { text = JSON.stringify(raw[key]); } catch { continue; }
+    if (text === undefined || bytes + text.length > MAX_EXTRA_BYTES) continue;
+    out[key] = JSON.parse(text); kept++; bytes += text.length;
+  }
+  return out;
+}
+
 export function normalizeMessage(raw, at = Date.now()) {
   if (!raw || typeof raw !== "object" || !ROLES.has(raw.role) || typeof raw.content !== "string") return null;
   const m = { id: str(raw.id) || newId(), role: raw.role, content: raw.content, at: num(raw.at, at) };
@@ -41,7 +57,7 @@ export function normalizeMessage(raw, at = Date.now()) {
   if (raw.role === "user" && raw.voice && typeof raw.voice === "object" && Number.isFinite(raw.voice.seconds)) m.voice = { seconds: Math.min(86400, Math.max(1, Math.round(raw.voice.seconds))) };
   if (raw.role === "assistant" && raw.local === true) m.local = true; // answered on this device by a built-in tool, not by the model
   if (Array.isArray(raw.attachments) && raw.attachments.length) m.attachments = raw.attachments.filter((a) => a && typeof a === "object" && typeof a.name === "string").slice(0, 50).map((a) => ({ ...a, name: a.name.slice(0, 200) }));
-  return m;
+  return keepUnknown(raw, MESSAGE_FIELDS, m);
 }
 
 export function normalizeThread(raw, now = Date.now()) {
@@ -57,7 +73,7 @@ export function normalizeThread(raw, now = Date.now()) {
   if (raw.summary && typeof raw.summary.text === "string" && Number.isInteger(raw.summary.upTo) && raw.summary.upTo > 0) t.summary = { text: raw.summary.text, upTo: raw.summary.upTo };
   if (typeof raw.presetId === "string" && raw.presetId) t.presetId = raw.presetId;
   if (raw.canvas && typeof raw.canvas.text === "string") t.canvas = { text: raw.canvas.text.slice(0, 200000), updatedAt: num(raw.canvas.updatedAt, now) };
-  return t;
+  return keepUnknown(raw, THREAD_FIELDS, t);
 }
 
 // ---- titles & ordering --------------------------------------------------------------------------------------------

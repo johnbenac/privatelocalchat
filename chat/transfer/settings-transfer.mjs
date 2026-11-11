@@ -13,6 +13,7 @@
 //
 // The plaintext token and the password exist only inside createTransfer() and unlockToken() while they run; nothing here stores them.
 
+import { checkFormat, newerMessage } from "./file-formats.mjs";
 export const TRANSFER_FORMAT = "plc-settings-transfer/2";
 export const TOKEN_SUITE = "pbkdf2-sha256-aes256gcm/1";
 export const PBKDF2_ITERATIONS = 600_000;
@@ -142,7 +143,11 @@ function readTokenEnvelope(raw) {
 export function readEnvelope(raw) {
   if (!isPlain(raw)) return fail("malformed", "This is not a settings transfer.");
   if (typeof raw.format !== "string" || !raw.format.startsWith("plc-settings-transfer/")) return fail("unsupported-format", "This is not a Private Local Chat settings transfer.");
-  if (raw.format !== TRANSFER_FORMAT) return fail("unsupported-version", "This settings transfer was made by a different version of the app and cannot be read here.");
+  if (raw.format !== TRANSFER_FORMAT) {
+    // a number above this build's is a newer version: say so in the words used for every saved file; there is no earlier number of this format to read (earlier links and files are the legacy forms below)
+    const c = checkFormat(raw);
+    return c.state === "newer" ? fail("newer-format", newerMessage(c.label)) : fail("unsupported-version", "This settings transfer was made by a different version of the app and cannot be read here.");
+  }
   const s = raw.settings;
   if (!isPlain(s)) return fail("invalid-settings", "The transfer does not contain readable settings.");
   for (const key of ["endpoint", "model"]) if (typeof s[key] !== "string" || s[key].length > MAX_FIELD) return fail("invalid-settings", `The transfer's ${key} is not valid.`);
