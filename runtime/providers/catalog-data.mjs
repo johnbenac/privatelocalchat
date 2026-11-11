@@ -1328,7 +1328,7 @@ export const CATALOG_DATA = {
   "manifestConfigurationId": "qwen3.5-2b-text-q4_0-no-mtp-8k-f16-reasoning-off-wllama-3.5.1-bounded16m-native-tools-v2",
   "sourceRevision": "15852e8c16360a2fea060d615a32b45270f8a8fc",
   "totalBytes": 1202488640,
-  "baseUrl": "https://media.techofourown.com/speechtest/models/v1/candidates/qwen3.5-2b-text-q4_0-no-mtp-dd4623a74/",
+  "baseUrl": "https://assets.privatelocal.chat/models/Qwen3.5-2B/15852e8c16360a2fea060d615a32b45270f8a8fc/",
   "files": [
    {
     "path": "qwen3.5-2b-text-q4_0-no-mtp-dd4623a74-00001-of-00013.gguf",

@@ -5,7 +5,7 @@
   "licenseName": "LFM Open License v1.0",
   "note": "LiquidAI/LFM2.5-2.6B revision f4a289c8a200a5ca71005ba7abc2dad33058a450, quantised to Q3_K_M with llama.cpp dd4623a74, split into 6 GGUF files. Immutable.",
   "configurationId": "lfm-2.5-2.6b-q3-k-m-8k-f16-wllama-3.5.1-bounded16m-native-tools-token-count-v4",
-  "sourceBase": "https://media.techofourown.com/speechtest/models/v1/candidates/lfm-2.5-2.6b-q3-k-m-dd4623a74/",
+  "sourceBase": "https://assets.privatelocal.chat/models/LFM2.5-2.6B-Q3_K_M/f4a289c8a200a5ca71005ba7abc2dad33058a450/",
   "languageModel": {
    "id": "LiquidAI/LFM2.5-2.6B",
    "sourceRevision": "f4a289c8a200a5ca71005ba7abc2dad33058a450",
@@ -82,7 +82,7 @@
   "licenseName": "Apache-2.0",
   "note": "ibm-granite/granite-4.0-h-1b revision d18cca4c121edb87d022116d281ce212c9136f57, quantised to Q4_K_M with llama.cpp dd4623a74, split into 12 GGUF files. Immutable.",
   "configurationId": "granite-4.0-h-1b-q4-k-m-16k-f16-wllama-3.5.1-bounded16m-native-tools-v1",
-  "sourceBase": "https://media.techofourown.com/speechtest/models/v1/candidates/granite-4.0-h-1b-q4-k-m-dd4623a74/",
+  "sourceBase": "https://assets.privatelocal.chat/models/Granite-4.0-H-1B-Q4_K_M/d18cca4c121edb87d022116d281ce212c9136f57/",
   "languageModel": {
    "id": "ibm-granite/granite-4.0-h-1b",
    "sourceRevision": "d18cca4c121edb87d022116d281ce212c9136f57",

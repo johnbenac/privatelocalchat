@@ -178,9 +178,6 @@
    "chat/provider/endpoint-tokens.mjs",
    "chat/provider/endpoint-urls.mjs"
   ],
-  "media.techofourown.com": [
-   "runtime/providers/catalog-data.mjs"
-  ],
   "openrouter.ai": [
    "chat/provider/endpoint-options.mjs"
   ],

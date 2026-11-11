@@ -45,13 +45,13 @@ makes no request to it (Cache API).
 
 ## Task 3: stop depending on other hosts for models
 
-`docs/TECHNICAL-DEBT.md` item 15: the catalogue defaults still name Hugging Face, `raw.githubusercontent.com` and `media.techofourown.com`,
+`docs/TECHNICAL-DEBT.md` item 15: the catalogue defaults still name Hugging Face and `raw.githubusercontent.com`,
 overridden at run time by `local-models.js`. Make the defaults point at `assets.privatelocal.chat` so a forgotten override cannot change where
 files come from. Then simplify the three "No, a catalogue default" rows on the Privacy page.
 
 ## Adding another language model (the recipe used for LFM2.5 and Granite)
 
-1. Describe it in `ops/cloudflare/gguf-models.json` (source host, per-file size and SHA-256, destination prefix, licence file, load context and sampling).
+1. Describe it in `ops/cloudflare/gguf-models.json` (source host, per-file size and SHA-256, destination prefix, licence file, load context and sampling). For models already published, `sourceBase` is the published folder on `assets.privatelocal.chat`. For a new model, pass `--source` with the folder that holds your files: an `https://` address or a `file://` folder.
 2. `python3 ops/cloudflare/publish-gguf.py <key> --dry-run`, then without `--dry-run` (needs boto3 and the operator token; a throw-away venv works). It refuses to replace a different object.
 3. `python3 ops/cloudflare/update-catalog-index.py` adds it to the public `models/catalog.json` index and to `model-cdn-manifest.json`.
 4. Add it to `runtime/providers/catalog-data.mjs` and a tier in `runtime/providers/catalog.mjs`, a short note in `TIER_NOTES` (`chat/models/models-view.mjs`) (the model menus and Settings > Models list every catalogue tier on their own), the Privacy page and the Updates feed.
