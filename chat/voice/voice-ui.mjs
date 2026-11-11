@@ -8,6 +8,7 @@
 // host: el, events, icons() (the icon set, once it has loaded), createEmoji, actionButton, messageDecorators, messageActionHandlers, messageForm, messageInput, composerTools, moduleBase(), prefs(), savePrefs(),
 //       saveThreads, scheduleDraftSave, showToast, growComposer, updateSendButtonDisabled(), currentThread(), renderMessages(thread, opts), nodeFor(id), sendMessage(),
 //       isCallActive(), isTouchDevice(), loadDocModules(), loadVoiceChoice(), voiceRoute(), voiceOpts(), loadCallSounds(), robotName, clockText(seconds)
+import { siteLinks } from '../site/site-links.mjs';
 
 export function createVoiceUi(host) {
   const { el, events, createEmoji, actionButton, messageDecorators, messageActionHandlers, messageForm, messageInput, saveThreads, scheduleDraftSave, showToast, growComposer } = host;
@@ -75,7 +76,8 @@ export function createVoiceUi(host) {
   // Why speech recognition could not start, in words that say what to do. A blocked microphone is the person's to allow;
   // a browser that exposes speech recognition but never lets sites use it is not, so the controls go away.
   let speechFailures = 0;
-  const speechHelpAction = { label: 'Get help', run: () => window.open('/help/#speech-availability', '_blank', 'noopener') };
+  // a Get help button on the speech messages, only when this copy has a Help page (chat/site/site-links.mjs)
+  const speechHelpAction = siteLinks().has('help') ? { label: 'Get help', run: () => window.open(siteLinks().href('help', 'speech-availability'), '_blank', 'noopener') } : undefined;
   async function explainSpeechInputFailure(code) {
     const sp = await loadSpeech();
     if (code === 'audio-capture' || code === 'network') return sp.dictationMessage(code);

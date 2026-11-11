@@ -5,6 +5,7 @@
 
 import { rowParts, renderRowText } from "./model-row.mjs";
 import { buildOfflineSection } from "./offline-section.mjs";
+import { siteLinks } from "../site/site-links.mjs";
 import { languageRows, voiceRows, otherRows, stateLine, toggleAction, ACTION_LABEL, sizeText } from "../models/models-view.mjs";
 
 export function buildModelsPage({ app, h, row, btn, moved, chooseVoice, voiceHint }) {
@@ -46,7 +47,8 @@ export function buildModelsPage({ app, h, row, btn, moved, chooseVoice, voiceHin
       btn("Remove this download", async () => { if (await ask("Remove this download?", "Your conversations will be kept. You can download the model again later.", "Remove")) lm()?.removeSelected(); }, "danger"),
       copyBtn),
     diag,
-    h("p", { class: "hint-text" }, "Trouble? ", h("a", { href: "/help/#stalled-download", target: "_blank", rel: "noopener", text: "Download stuck" }), " · ", h("a", { href: "/help/#load-failure", target: "_blank", rel: "noopener", text: "Load failure" })));
+    // the Help sections for a stuck download and a load failure, drawn only when this copy has a Help page (chat/site/site-links.mjs)
+    siteLinks().has("help") ? h("p", { class: "hint-text" }, "Trouble? ", h("a", { href: siteLinks().href("help", "stalled-download"), target: "_blank", rel: "noopener", text: "Download stuck" }), " · ", h("a", { href: siteLinks().href("help", "load-failure"), target: "_blank", rel: "noopener", text: "Load failure" })) : null);
   langSection.append(row("Where replies run", "On this device, or an outside provider you choose.", seg), installed, langDetails, langStatus, langProgress, readiness, gpuBox, hint, reloadRow, details);
 
   async function useAndLoad(vm) { const L = lm(); L.setMode("local"); await L.selectTier(vm.id); await L.ensureReady().catch(() => {}); }

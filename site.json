@@ -1,0 +1,9 @@
+{
+ "format": "plc-site/1",
+ "pages": {
+  "help": "/help/",
+  "about": "/about/",
+  "privacy": "/privacy/",
+  "updates": "/updates/"
+ }
+}

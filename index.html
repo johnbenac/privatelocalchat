@@ -82,8 +82,12 @@
           b.onclick = action; notice.appendChild(b);
         }
         if (interrupts) { button('Reload anyway', true, reloadNow); button('Keep working', false, function () { drawNotice(v, null); }); return; }
-        var link = document.createElement('a'); link.href = '/updates/'; link.target = '_blank'; link.rel = 'noopener'; link.textContent = 'What changed';
-        link.style.cssText = 'color:#fff;text-decoration:underline;min-height:44px;display:inline-flex;align-items:center'; notice.appendChild(link);
+        // "What changed" is drawn only when the site that serves this copy has an Updates page (window.SITE_LINKS, written by the build from site.json, already validated)
+        var pages = (window.SITE_LINKS && window.SITE_LINKS.pages) || {};
+        if (typeof pages.updates === 'string' && pages.updates) {
+          var link = document.createElement('a'); link.href = pages.updates; link.target = '_blank'; link.rel = 'noopener'; link.textContent = 'What changed';
+          link.style.cssText = 'color:#fff;text-decoration:underline;min-height:44px;display:inline-flex;align-items:center'; notice.appendChild(link);
+        }
         button('Reload', true, function () { var r = guardReasons(); if (r.length) drawNotice(v, r); else reloadNow(); });
         button('Later', false, function () { dismissed = v && v.commit; if (notice && notice.parentNode) notice.parentNode.removeChild(notice); notice = null; });
       }
@@ -422,8 +426,8 @@
         </p>
 
         <div class="cta-row">
-          <a id="installLink" class="cta-link" href="/help/#install" target="_blank" rel="noopener">Install on this device<span class="sr-only"> (opens in a new tab)</span></a>
-          <a class="cta-link" href="/about/" target="_blank" rel="noopener">About Private Local Chat<span class="sr-only"> (opens in a new tab)</span></a>
+          <a id="installLink" class="cta-link" data-site-page="help" data-site-anchor="install" target="_blank" rel="noopener">Install on this device<span class="sr-only"> (opens in a new tab)</span></a>
+          <a class="cta-link" data-site-page="about" target="_blank" rel="noopener">About Private Local Chat<span class="sr-only"> (opens in a new tab)</span></a>
           <a class="cta-link" href="https://github.com/johnbenac/privatelocalchat/releases" target="_blank" rel="noopener">Release downloads<span class="sr-only"> (opens in a new tab)</span></a>
         </div>
       </div>
@@ -1219,6 +1223,9 @@
       window.plcApp = plcApp;
       import(moduleBase() + 'chat/shell/shell.mjs').then(mod => { window.plcShell = mod.createShell(plcApp); renderThreadList(); })
         .catch(err => { console.error('The app shell failed to start.', err); showToast('Part of the app did not load. Reload the page; if it happens again, see Help.'); });
+      // the welcome screen's links to our pages: set where this copy has the page, removed where it does not (chat/site/site-links.mjs)
+      { const links = (await import(moduleBase() + 'chat/site/site-links.mjs')).siteLinks();
+        for (const a of document.querySelectorAll('a[data-site-page]')) { const href = links.href(a.dataset.sitePage, a.dataset.siteAnchor); if (href) a.setAttribute('href', href); else a.remove(); } }
       initMarketing();
       // saved data from a newer version of the app: this version left it unchanged, and says so (chat/vault/data-formats.mjs, chat/vault/format-guard-ui.mjs)
       const showNewerData = state => import(moduleBase() + 'chat/vault/format-guard-ui.mjs').then(m => m.showFormatGuard(window.plcDialogs, state)).catch(() => {});
