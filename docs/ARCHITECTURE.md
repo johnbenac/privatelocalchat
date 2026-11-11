@@ -75,6 +75,7 @@ chat/context/           the context meter and the summary divider
 chat/storage/           the Storage and backups screen and the backup reminder
 chat/connection/        whether the app is online, and one sentence for everything that needs a connection
 chat/shell/             the app shell: rail, panel, Settings page and pickers
+chat/site/              where the pages of the site that serves this copy are (the site manifest); the app links to our pages only through it
 chat/vendor/            bundled third-party code (voice worker, embedding worker, pdf.js, qr)
 ops/                    publishing and build tooling for models and workers (not shipped)
 scripts/                the build, the local server, release verification, the e2e runner

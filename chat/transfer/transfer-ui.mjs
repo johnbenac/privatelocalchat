@@ -9,6 +9,7 @@ import { PRODUCT, mountProductShare, canShareNatively } from "./product-share.mj
 import { renderQr, fitsQr } from "./qr.mjs";
 import { ROBOT_NAME } from "../roberta/ivr-content.mjs";
 import { appSession } from "../vault/vault-store.mjs";
+import { siteLinks } from "../site/site-links.mjs";
 
 export const NOTICE_SETTINGS = "This transfer includes the settings listed below. These settings may contain sensitive information. Anyone with the link, QR code, or settings file can read the listed settings. An included API token is encrypted with your chosen password. Communicate that password separately.";
 export const NOTICE_EXPORT = "This file includes the conversations and items listed below. Anyone able to open the file can read its included content. Choose where to save it and who to give it to.";
@@ -57,17 +58,20 @@ export function createTransferUi({ app, el, openAppDialog, showToast, icon, doc 
       const sr = el("span", "sr-only", " (opens in a new tab)"); a.appendChild(sr);
       li.appendChild(a); if (note) li.appendChild(el("span", "hint-text", " " + note)); list.appendChild(li); return li;
     };
-    item("Getting started", "/help/#getting-started");
-    item("FAQ", "/help/#faq");
-    item("Troubleshooting", "/help/#troubleshooting");
-    item("Privacy", "/privacy/");
-    item("About", "/about/");
-    item("Updates", "/updates/");
-    item("Contact", "/help/#contact");
-    if (site.discussionsUrl) item("Community", "/help/#community");
+    // the pages of the site that serves this copy (chat/site/site-links.mjs): a page it does not have is not drawn, and with none the list and the sentence about it go
+    const links = siteLinks();
+    const page = (label, name, anchor) => { const href = links.href(name, anchor); if (href) item(label, href); };
+    page("Getting started", "help", "getting-started");
+    page("FAQ", "help", "faq");
+    page("Troubleshooting", "help", "troubleshooting");
+    page("Privacy", "privacy");
+    page("About", "about");
+    page("Updates", "updates");
+    page("Contact", "help", "contact");
+    if (site.discussionsUrl) page("Community", "help", "community");
     const body = el("div");
-    body.appendChild(scope("help", "Guides, answers and information about Private Local Chat. Each opens in a new tab, so your chat and draft stay here."));
-    body.appendChild(list);
+    body.appendChild(scope("help", list.children.length ? "Guides, answers and information about Private Local Chat. Each opens in a new tab, so your chat and draft stay here." : "Information about Private Local Chat."));
+    if (list.children.length) body.appendChild(list);
     const actions = el("div", "help-actions");
     if (app.callRoberta) { const call = button(`Call ${ROBOT_NAME}, the app's robot`, { id: "helpCallRoberta" }); call.addEventListener("click", () => { handle.close(); app.callRoberta(); }); actions.appendChild(call); }
     const about = button("Quick summary of this app"); about.addEventListener("click", () => { handle.close(); app.openAboutModal(); }); actions.appendChild(about);

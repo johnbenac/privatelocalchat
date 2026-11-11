@@ -6,7 +6,7 @@
   "DEPLOY_BRANCH": "main",
   "SOURCE_DATE_EPOCH": "0"
  },
- "fileCount": 203,
+ "fileCount": 204,
  "files": {
   "404.html": {
    "bytes": 101,
@@ -97,8 +97,8 @@
    "sha256": "5305e76e993c25a378ed821232564b3983e977f92a59b0138e2b994ab65981ad"
   },
   "index.html": {
-   "bytes": 79893,
-   "sha256": "f319c91b321ce8c95dd0b2f436b6db63b8e93aa25e4ebbd910c9ccad5fe2886d"
+   "bytes": 80835,
+   "sha256": "fdec081a90b87ee8ffc5761681c4c0bb86a3109ec101789bef027fef58dff3df"
   },
   "manifest.webmanifest": {
    "bytes": 633,
@@ -153,8 +153,8 @@
    "sha256": "612932ab55f22991a8329efb751ac00d65b0d581331b00967e8fc0a521239fec"
   },
   "releases/0000000000000000000000000000000000000000/chat/core/messages-view.mjs": {
-   "bytes": 20786,
-   "sha256": "0eca1d63019aa18736fe210b8b6d45b97019498fd1da38794beae65ee0f479a1"
+   "bytes": 21089,
+   "sha256": "11556b3236e29cf5632809415bcf6149e0345cd5ef75a6410963050742370d27"
   },
   "releases/0000000000000000000000000000000000000000/chat/core/page-chrome.mjs": {
    "bytes": 10667,
@@ -341,8 +341,8 @@
    "sha256": "ca8258242833124474ba87e2257bf6cd006497bee656f110d76d5776abed6a93"
   },
   "releases/0000000000000000000000000000000000000000/chat/shell/models-page.mjs": {
-   "bytes": 15711,
-   "sha256": "7c91e386f2ef7537578b14c23ec8159be991862342d588baa39ff36c08ef0b63"
+   "bytes": 15969,
+   "sha256": "13f0ee453d7052710033a6f56df81e4b9818a9427c364c04e097d60d89f286ee"
   },
   "releases/0000000000000000000000000000000000000000/chat/shell/offline-checklist.mjs": {
    "bytes": 2240,
@@ -357,8 +357,12 @@
    "sha256": "54174b1b0e1848cb5c6c3316ea269b33f76dbe9a9ff529a019a4396da6905094"
   },
   "releases/0000000000000000000000000000000000000000/chat/shell/shell.mjs": {
-   "bytes": 51922,
-   "sha256": "1943b95293a53f37b9820867b38af1c9a872d82445cd068a90c1fd68efe3e3ee"
+   "bytes": 52026,
+   "sha256": "ef5e1a69f8bf35d461b45874ab468e471e8a5ee8614e4e7ee4e9bfa01bb2145c"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/site/site-links.mjs": {
+   "bytes": 3541,
+   "sha256": "dfb1602da1871af63c74e1eaf6907d81adab266500334d33f3de469c5d298f5a"
   },
   "releases/0000000000000000000000000000000000000000/chat/storage-check.mjs": {
    "bytes": 2874,
@@ -417,8 +421,8 @@
    "sha256": "8d5d1624cd6d3e494416ee2ef4a1e6eaf720c7a07b5ed077a17b16f98c97188e"
   },
   "releases/0000000000000000000000000000000000000000/chat/transfer/transfer-ui.mjs": {
-   "bytes": 31954,
-   "sha256": "de8f7c40d042c887f2419849c1fe1d1eca9bfa6c40c8fd9cd5a2a9cd75bffb94"
+   "bytes": 32411,
+   "sha256": "44bcb49fb711d747b2e92e2809d4089a43b4b79ce3cd9e93c5a66d9543176807"
   },
   "releases/0000000000000000000000000000000000000000/chat/transfer/zip.mjs": {
    "bytes": 2224,
@@ -577,8 +581,8 @@
    "sha256": "2b88ed9ce462dd725d3805c01af14aadde61129a42a41baebb4bfcb60990a25e"
   },
   "releases/0000000000000000000000000000000000000000/chat/voice/voice-ui.mjs": {
-   "bytes": 17418,
-   "sha256": "52b22af1e544a6f75209c2e06b768fb3c851e704539ebae7022cb43d41daa3f3"
+   "bytes": 17637,
+   "sha256": "880f95652231eac7e3b61daaa6a2b612fabb398ea2a21f10d88ed2b5f6616cbe"
   },
   "releases/0000000000000000000000000000000000000000/chat/voice/voice.mjs": {
    "bytes": 15133,
@@ -597,8 +601,8 @@
    "sha256": "0916d12ec38c0411fbd30c5141b1620861987b1cb8d239b97977cc45efc123d2"
   },
   "releases/0000000000000000000000000000000000000000/release.json": {
-   "bytes": 25849,
-   "sha256": "c17a576b47a54326f62734aa2faa2f38859f8420f7cde306561b1d087310db58"
+   "bytes": 25995,
+   "sha256": "13d14168cbae722248546a8b238308d9624d35647f5ea4dbd8c110c78ddf90bd"
   },
   "releases/0000000000000000000000000000000000000000/runtime/auto-load.mjs": {
    "bytes": 565,
@@ -805,8 +809,8 @@
    "sha256": "186344eff8c1febe93b4f0e754b86e9d2ca1acf7fe30214160193ce8a5607df3"
   },
   "sw.js": {
-   "bytes": 20027,
-   "sha256": "3e3a15068deac80e28d10cc1705c9c4f9defe5576c671b8a07c52212631fe542"
+   "bytes": 20105,
+   "sha256": "b9d29673b273baea769310fd48ee49756b6a292bd996f10e801e2c0c0703b0a4"
   },
   "updates/index.html": {
    "bytes": 29672,

@@ -9,6 +9,7 @@ import { mountConnectionPill } from "./connection-pill.mjs";
 import { rowParts, renderRowText } from "./model-row.mjs";
 import { languageRows as langVMs, voiceRows as voiceVMs, stateLine as vmLine } from "../models/models-view.mjs";
 import { hybridSearch, passagesFor, defaultFilters } from "./hybrid-search.mjs";
+import { siteLinks } from "../site/site-links.mjs";
 
 // What the page hands the shell (createShell(app)): `app.parts` are the page controls the shell is documented to move or watch, `app.models` the chat model
 // controller, `app.dialogs` the page's dialogs, `app.build` the build info, `app.lock` the lock reminder setting. The shell asks for a part by name; a name the
@@ -464,7 +465,7 @@ function buildSettings({ app, shell, registry, moved }) {
     const w = h("div", {}, h("h2", { text: "About" }), card(
       row("Help & about", "How privacy works, install tips, and answers.", btn("Open", () => app.openHelp())),
       row("Share this app", null, btn("Share", () => app.openShare())),
-      row("Privacy", null, h("a", { class: "set-btn", href: "/privacy/", target: "_blank", rel: "noopener" }, "Read")),
+      siteLinks().has("privacy") ? row("Privacy", null, h("a", { class: "set-btn", href: siteLinks().href("privacy"), target: "_blank", rel: "noopener" }, "Read")) : null,
       row("Report a problem", "A GitHub account is needed. Leave out keys and private chats.", h("a", { class: "set-btn", href: "https://github.com/johnbenac/privatelocalchat/issues/new/choose", target: "_blank", rel: "noopener" }, "Open")),
       row("Source code", null, h("a", { class: "set-btn", href: "https://github.com/johnbenac/privatelocalchat", target: "_blank", rel: "noopener" }, "View"))));
     const foot = moved.footer; foot.classList.add("set-foot");

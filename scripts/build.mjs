@@ -1,13 +1,27 @@
 import {cp,readFile,writeFile,readdir,mkdir,rm,rename} from 'node:fs/promises';
+import {existsSync} from 'node:fs';
 import {execFileSync} from 'node:child_process';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {buildPublicSite,loadSiteConfig,siteConfigScript} from './public-site.mjs';
+import {checkSiteJson,normalizedSiteLinks} from '../chat/site/site-links.mjs';
 const LICENCE_FILES=['LICENSE','THIRD-PARTY-NOTICES.md'];
 const root=process.cwd(), out=path.resolve(root,process.env.BUILD_OUT_DIR||'dist'); // BUILD_OUT_DIR is for tests that must not touch dist/
 if(out===root||!out.startsWith(root+path.sep))throw new Error('The build output must be a folder inside the repository');
 // Release configuration (support address, discussion space, ...). Nothing is assumed: every value is null until the owner verifies it.
 const siteConfig=await loadSiteConfig(path.resolve(root,process.env.SITE_CONFIG_PATH||'site-config.json'));
+// Where the pages of the site that serves this copy are (chat/site/site-links.mjs, docs/PLAN stage 3). SITE_JSON_PATH names the manifest: unset means ./site.json if it exists, empty means none, and a
+// path that does not exist is an error. A copy without a manifest links to none of our pages. The manifest is checked here, so a typo stops the build, and the page gets it validated.
+const siteJsonEnv=process.env.SITE_JSON_PATH;
+const siteJsonPath=siteJsonEnv===''?null:path.resolve(root,siteJsonEnv??'site.json');
+if(siteJsonEnv&&!existsSync(siteJsonPath))throw new Error('SITE_JSON_PATH names a file that does not exist: '+siteJsonEnv);
+let siteJson;
+if(siteJsonPath&&existsSync(siteJsonPath)){
+ let raw;try{raw=JSON.parse(await readFile(siteJsonPath,'utf8'));}catch(error){throw new Error('The site manifest is not valid JSON: '+error.message);}
+ const problems=checkSiteJson(raw);
+ if(problems.length)throw new Error('The site manifest '+path.relative(root,siteJsonPath)+' has problems:\n - '+problems.join('\n - '));
+ siteJson=normalizedSiteLinks(raw);
+}else siteJson=normalizedSiteLinks(undefined);
 await rm(out,{recursive:true,force:true});await mkdir(out,{recursive:true});
 for(const p of ['index.html','local-models.js','local-models.css','conversation-messages.mjs','chat','runtime','brand']) await cp(p,path.join(out,p),{recursive:true});
 const pkg=JSON.parse(await readFile('package.json','utf8'));
@@ -35,7 +49,7 @@ for(const [file,pin] of Object.entries(productionNative.files)){
 }
 let html=await readFile(path.join(out,'index.html'),'utf8');
 const appBuildScript='<script>window.APP_BUILD='+JSON.stringify(build)+';</script>';
-html=html.replace('<script src="/build-info.js"></script>',appBuildScript+siteConfigScript(siteConfig));
+html=html.replace('<script src="/build-info.js"></script>',appBuildScript+siteConfigScript(siteConfig)+'<script>window.SITE_LINKS='+JSON.stringify(siteJson).replace(/</g,'\\u003c')+';</script>');
 html=html.replace('href="/chat/page.css"','href="/'+releasePath+'/chat/page.css"').replace('href="/chat/chat.css"','href="/'+releasePath+'/chat/chat.css"').replace('href="/chat/brand.css"','href="/'+releasePath+'/chat/brand.css"').replace('href="/chat/shell.css"','href="/'+releasePath+'/chat/shell.css"').replace('href="/local-models.css"','href="/'+releasePath+'/local-models.css"').replace('src="/local-models.js"','src="/'+releasePath+'/local-models.js"');
 if(branch==='dev') {
  const debugRuntime=path.join('dev-tools','native-runtime');

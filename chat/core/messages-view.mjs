@@ -6,6 +6,7 @@
 //
 // host: el, M() (pure modules), messagesEl, STATUS(), gen() (the running answer or null), currentThread(), currentThreadId(), updateContextMeter(thread), renderSummaryDivider,
 // actionButton, messageDecorators, events, openProviderSettings, openAbout, showToast, clockText, copyText, plus whatever a message needs (see the destructure below)
+import { siteLinks } from '../site/site-links.mjs';
 export function createMessagesView(host) {
   const { el, messagesEl, STATUS, showToast, clockText, renderSources, actionButton, messageDecorators, openProviderSettings, openAbout, currentThread, renderSummaryDivider } = host;
   const { } = host;
@@ -24,9 +25,11 @@ export function createMessagesView(host) {
   if (jumpLatestBtn) jumpLatestBtn.addEventListener('click', () => { scrollToLatest(true); messagesEl.focus({ preventScroll: true }); });
 
   const ROBOT_NAME = 'Roberta';  // the app's robot (chat/roberta/ivr-content.mjs holds the same name for the menu)
-  /** A link to the Help page section for a problem, opened in a new tab so the chat and draft stay put. */
+  /** A link to the Help page section for a problem, opened in a new tab so the chat and draft stay put. Null when this copy has no Help page (chat/site/site-links.mjs): draw nothing. */
   function helpLink(anchor, label) {
-    const a = el('a', 'help-link', label); a.href = '/help/#' + anchor; a.target = '_blank'; a.rel = 'noopener';
+    const href = siteLinks().href('help', anchor);
+    if (!href) return null;
+    const a = el('a', 'help-link', label); a.href = href; a.target = '_blank'; a.rel = 'noopener';
     a.appendChild(el('span', 'sr-only', ' (opens in a new tab)'));
     return a;
   }
@@ -71,7 +74,7 @@ export function createMessagesView(host) {
         phase.textContent = { starting: 'Starting\u2026', download: 'Downloading ' + nm, check: 'Checking the download\u2026', load: 'Loading ' + nm + ' into memory\u2026', offline: 'Waiting for a connection. Your progress is saved and the download will continue.', retrying: 'The download was interrupted. Trying again\u2026', stalled: 'The download stalled. Restarting it now; nothing already downloaded is lost.', 'another-tab': 'Another tab is downloading ' + nm + '. This one continues when it finishes.', ready: 'Ready.' }[p.phase] || 'Working\u2026';
         bar.classList.toggle('indeterminate', p.phase !== 'download');
         const anchor = p.phase === 'stalled' || p.phase === 'retrying' ? 'stalled-download' : p.phase === 'offline' ? 'offline-readiness' : null;
-        help.hidden = !anchor; help.textContent = ''; if (anchor) help.appendChild(helpLink(anchor, 'Download stuck? Get help'));
+        const helpA = anchor ? helpLink(anchor, 'Download stuck? Get help') : null; help.hidden = !helpA; help.textContent = ''; if (helpA) help.appendChild(helpA);
         actions.textContent = '';
         if (onCancelMessage) { const c = el('button', 'secondary', 'Cancel message'); c.type = 'button'; c.addEventListener('click', onCancelMessage); actions.appendChild(c); }
         if (onCancelDownload && ['starting', 'download', 'retrying', 'check', 'offline', 'stalled'].includes(p.phase)) { const c = el('button', 'link-btn', 'Cancel download'); c.type = 'button'; c.addEventListener('click', onCancelDownload); actions.appendChild(c); }
@@ -131,7 +134,8 @@ export function createMessagesView(host) {
       const meta = el('div', 'message-meta' + (note[1] ? ' failed' : ''));
       meta.appendChild(el('span', 'badge', note[0]));
       const anchor = note[1] && window.localModels?.mode === 'local' ? helpAnchorFor(msg.error || '') : null;
-      if (anchor) { meta.appendChild(document.createTextNode(' ')); meta.appendChild(helpLink(anchor, 'Get help')); }
+      const helpA = anchor ? helpLink(anchor, 'Get help') : null;
+      if (helpA) { meta.appendChild(document.createTextNode(' ')); meta.appendChild(helpA); }
       div.appendChild(meta);
     }
     if (msg.excluded) div.appendChild(el('div', 'message-meta', 'Left out of what the model sees. It stays in the saved conversation.'));
@@ -205,7 +209,7 @@ export function createMessagesView(host) {
       box.appendChild(el('h2', null, welcomeSetup.error ? 'Setup did not finish.' : 'Setting up on-device chat'));
       if (welcomeSetup.error) {
         box.appendChild(el('p', 'lede', welcomeSetup.error));
-        const hl = helpAnchorFor(welcomeSetup.error); if (hl) { const hp = el('p', 'hint-text'); hp.appendChild(helpLink(hl, 'Get help with this')); box.appendChild(hp); }
+        const hl = helpAnchorFor(welcomeSetup.error), hlink = hl ? helpLink(hl, 'Get help with this') : null; if (hlink) { const hp = el('p', 'hint-text'); hp.appendChild(hlink); box.appendChild(hp); }
         const again = el('button', 'primary', 'Try again'); again.type = 'button'; again.addEventListener('click', () => startWelcomeSetup()); box.appendChild(again);
       } else {
         welcomeSetup.card = buildPrepCard({ intro: 'You can start typing your first message now.', onCancelDownload: () => window.localModels.cancelDownload() });

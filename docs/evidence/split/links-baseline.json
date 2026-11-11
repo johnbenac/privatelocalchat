@@ -1,0 +1,108 @@
+{
+ "format": "plc-links-baseline/1",
+ "note": "The links to our pages on every surface, as recorded by scripts/links-snapshot.mjs from a build with our site manifest.",
+ "surfaces": {
+  "welcome": [
+   {
+    "text": "View source",
+    "href": "https://github.com/johnbenac/privatelocalchat",
+    "target": "_blank"
+   },
+   {
+    "text": "Install on this device",
+    "href": "/help/#install",
+    "target": "_blank"
+   },
+   {
+    "text": "About Private Local Chat",
+    "href": "/about/",
+    "target": "_blank"
+   },
+   {
+    "text": "Release downloads",
+    "href": "https://github.com/johnbenac/privatelocalchat/releases",
+    "target": "_blank"
+   }
+  ],
+  "help": [
+   {
+    "text": "Getting started",
+    "href": "/help/#getting-started",
+    "target": "_blank"
+   },
+   {
+    "text": "FAQ",
+    "href": "/help/#faq",
+    "target": "_blank"
+   },
+   {
+    "text": "Troubleshooting",
+    "href": "/help/#troubleshooting",
+    "target": "_blank"
+   },
+   {
+    "text": "Privacy",
+    "href": "/privacy/",
+    "target": "_blank"
+   },
+   {
+    "text": "About",
+    "href": "/about/",
+    "target": "_blank"
+   },
+   {
+    "text": "Updates",
+    "href": "/updates/",
+    "target": "_blank"
+   },
+   {
+    "text": "Contact",
+    "href": "/help/#contact",
+    "target": "_blank"
+   }
+  ],
+  "settingsAbout": [
+   {
+    "text": "Read",
+    "href": "/privacy/",
+    "target": "_blank"
+   },
+   {
+    "text": "Open",
+    "href": "https://github.com/johnbenac/privatelocalchat/issues/new/choose",
+    "target": "_blank"
+   },
+   {
+    "text": "View",
+    "href": "https://github.com/johnbenac/privatelocalchat",
+    "target": "_blank"
+   }
+  ],
+  "modelPage": [
+   {
+    "text": "Download stuck",
+    "href": "/help/#stalled-download",
+    "target": "_blank"
+   },
+   {
+    "text": "Load failure",
+    "href": "/help/#load-failure",
+    "target": "_blank"
+   }
+  ],
+  "failedReply": [
+   {
+    "text": "Get help",
+    "href": "/help/#stalled-download",
+    "target": "_blank"
+   }
+  ],
+  "updateNotice": [
+   {
+    "text": "What changed",
+    "href": "/updates/",
+    "target": "_blank"
+   }
+  ]
+ }
+}
