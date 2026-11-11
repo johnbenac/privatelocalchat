@@ -48,7 +48,7 @@ export function createVoiceChoice({
   outdated = async () => {
     const commit = globalThis.APP_BUILD?.commit;
     if (!commit || typeof fetch !== "function") return false;
-    try { const r = await fetch("/version.json", { cache: "no-store" }); const v = r.ok ? await r.json() : null; return Boolean(v?.commit && v.commit !== commit); } catch { return false; }
+    try { const r = await fetch("/version.json?check=" + Date.now(), { cache: "no-store" }); const v = r.ok ? await r.json() : null; return Boolean(v?.commit && v.commit !== commit); } catch { return false; }
   },
   acquireMemory = async () => ({ release() {} }),   // () -> lease: asks the model memory manager for the device before the voice works ("One model at a time")
   idleUnloadMs = 60000,                       // a loaded voice that has not read for this long is unloaded (its files stay on the device)

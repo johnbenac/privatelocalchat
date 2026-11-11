@@ -17,8 +17,8 @@ try{
  page.on('framenavigated',f=>{if(f===page.mainFrame())navigations++;});
  await page.evaluate(()=>sessionStorage.removeItem('plc.update.tried'));
  await page.reload();
- await page.waitForSelector('#startupBanner',{timeout:15000});
- assert(/newer version/.test(await page.textContent('#startupBanner')),'offers the update when it already tried');
+ await page.waitForSelector('#updateNotice',{timeout:15000});
+ assert(/new version/.test(await page.textContent('#updateNotice')),'offers the update when it already tried');
  assert(navigations<=3,'no reload loop: '+navigations);
  await page.waitForTimeout(1500);const settled=navigations;await page.waitForTimeout(1500);
  assert(navigations===settled,'stable after the repair');

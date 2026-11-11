@@ -78,6 +78,17 @@ await writeFile(path.join(out,'manifest.webmanifest'),JSON.stringify({name:'Priv
 await writeFile(path.join(out,'_headers'),'/*\n  Cross-Origin-Opener-Policy: same-origin\n  Cross-Origin-Embedder-Policy: require-corp\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n\n/sw.js\n  Cache-Control: no-cache\n\n/build-info.js\n  Cache-Control: no-cache\n\n/version.json\n  Cache-Control: no-cache\n\n/sitemap.xml\n  Cache-Control: public, max-age=3600\n\n/updates/rss.xml\n  Cache-Control: public, max-age=3600\n\n/LICENSE\n  Content-Type: text/plain; charset=utf-8\n  Cache-Control: public, max-age=3600\n\n/THIRD-PARTY-NOTICES.md\n  Content-Type: text/markdown; charset=utf-8\n  Cache-Control: public, max-age=3600\n');
 // Pages control files at the root (_headers, _worker.js, _redirects) are not part of the app. Matched by exact name: a file such as
 // vendor/noble-hashes/_md.js is an ordinary module that the app imports and must be saved for offline use.
+// What is in this release's folder, with a checksum for each file. A later deploy uses it to keep this folder available while tabs that started on this build are still open
+// (scripts/retain-releases.mjs, docs/UPGRADE-BEHAVIOUR.md). releases/index.json says which release folders this site holds: the current one, and the deploy adds the ones it keeps.
+{
+ const files=[];
+ async function list(dir){for(const ent of (await readdir(dir,{withFileTypes:true})).sort((a,b)=>a.name<b.name?-1:1)){const p=path.join(dir,ent.name);if(ent.isDirectory())await list(p);else files.push(p);}}
+ await list(path.join(out,releasePath));
+ const entries=[];
+ for(const file of files){const bytes=await readFile(file);entries.push({path:path.relative(path.join(out,releasePath),file).split(path.sep).join('/'),bytes:bytes.length,sha256:createHash('sha256').update(bytes).digest('hex')});}
+ await writeFile(path.join(out,releasePath,'release.json'),JSON.stringify({commit,files:entries},null,1)+'\n');
+ await writeFile(path.join(out,'releases','index.json'),JSON.stringify({current:commit,retained:[]})+'\n');
+}
 const NOT_SHELL_ROOT_FILES=['_headers','_worker.js','_redirects','_routes.json'];
 const shell=[];
 async function walk(dir){for(const ent of await readdir(dir,{withFileTypes:true})){const p=path.join(dir,ent.name);if(ent.isDirectory())await walk(p);else if(!(dir===out&&NOT_SHELL_ROOT_FILES.includes(ent.name))&&!(dir===out&&LICENCE_FILES.includes(ent.name))&&!/\/chat\/vendor\/voice\//.test('/'+path.relative(out,p).split(path.sep).join('/')))shell.push('/'+path.relative(out,p).split(path.sep).join('/'));}}

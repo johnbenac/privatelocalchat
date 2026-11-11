@@ -6,7 +6,7 @@
   "DEPLOY_BRANCH": "main",
   "SOURCE_DATE_EPOCH": "0"
  },
- "fileCount": 200,
+ "fileCount": 202,
  "files": {
   "404.html": {
    "bytes": 101,
@@ -97,8 +97,8 @@
    "sha256": "5305e76e993c25a378ed821232564b3983e977f92a59b0138e2b994ab65981ad"
   },
   "index.html": {
-   "bytes": 76488,
-   "sha256": "df84da5278b1913ee72d1118f8d3f13a8d031de2e39e392ee58d9177b36be408"
+   "bytes": 79893,
+   "sha256": "f319c91b321ce8c95dd0b2f436b6db63b8e93aa25e4ebbd910c9ccad5fe2886d"
   },
   "manifest.webmanifest": {
    "bytes": 633,
@@ -529,8 +529,8 @@
    "sha256": "46f32f2896617dc5f87dd22d8b629cf210045fef6004fd6e50cbb945387e8caa"
   },
   "releases/0000000000000000000000000000000000000000/chat/voice/voice-choice.mjs": {
-   "bytes": 27057,
-   "sha256": "fb24291f1903f4b84568f7ffec4224ecbabcd013bdf8ddc70d4b007e1614addd"
+   "bytes": 27077,
+   "sha256": "b1b15b21c913f7c452a3bce478677df9deea1b30e0b8b2aea24aaf541e912397"
   },
   "releases/0000000000000000000000000000000000000000/chat/voice/voice-engine.mjs": {
    "bytes": 17697,
@@ -589,8 +589,12 @@
    "sha256": "833817fc82390c96e9b64d2175f64c331410b204e44c0203ccdec98c043fd8bf"
   },
   "releases/0000000000000000000000000000000000000000/local-models.js": {
-   "bytes": 20271,
-   "sha256": "807eab90bd44dcae91eee94d01c37ca051f40268884eba2ea17e37337a46d8ac"
+   "bytes": 21107,
+   "sha256": "0916d12ec38c0411fbd30c5141b1620861987b1cb8d239b97977cc45efc123d2"
+  },
+  "releases/0000000000000000000000000000000000000000/release.json": {
+   "bytes": 25697,
+   "sha256": "3da492a05be2a94a2b195de6b23bfae7c38654ec47b1501d4e0a9338be0d93de"
   },
   "releases/0000000000000000000000000000000000000000/runtime/auto-load.mjs": {
    "bytes": 565,
@@ -784,6 +788,10 @@
    "bytes": 12713,
    "sha256": "a8e6f2c5d9b99d7dd1445c000f7d5d214562c816991e96fee59a76a5039156dd"
   },
+  "releases/index.json": {
+   "bytes": 69,
+   "sha256": "802e46c9e6bf5a295ed08ff9debdd12d3d5c3b6f16d898ffac0ed6a7b40b06f4"
+  },
   "robots.txt": {
    "bytes": 71,
    "sha256": "be882407f9631cc7f0c6dfdee36ed1ec290718c453cadc3ffd4284441b23dba5"
@@ -793,8 +801,8 @@
    "sha256": "186344eff8c1febe93b4f0e754b86e9d2ca1acf7fe30214160193ce8a5607df3"
   },
   "sw.js": {
-   "bytes": 18436,
-   "sha256": "84c8c736f30fa74448650c9ae09305545b40abbe9a660a5819800189774e7e13"
+   "bytes": 19824,
+   "sha256": "96cee28044c465f282b4302742617dca1ee48f250165273d7ca85487a9b9a3eb"
   },
   "updates/index.html": {
    "bytes": 29672,
