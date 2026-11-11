@@ -29,6 +29,6 @@ jobs:
         run: node tests/e2e/data-upgrade.e2e.mjs
       - name: Newer data is left alone
         run: node tests/e2e/format-guard.e2e.mjs
-      - name: Files from every release (the saved files in tests/fixtures/files: history, protected backup, settings)
+      - name: Files from every release (the saved files in tests/fixtures/files, that is history, protected backup and settings)
         # Each is opened through the app's own import in a browser that holds nothing; a file from a newer format is refused whole (docs/FILE-COMPATIBILITY.md).
         run: node tests/e2e/file-import.e2e.mjs
