@@ -111,13 +111,14 @@ async function cli(argv) {
   if (command === 'compare') {
     const rev = positional[0];
     if (!rev) throw new Error('Usage: snapshot.mjs compare REV');
-    const worktree = path.join(root, 'work/snapshot/rev');
-    await rm(worktree, {recursive: true, force: true});
-    await mkdir(path.dirname(worktree), {recursive: true});
-    execFileSync('git', ['worktree', 'add', '--detach', worktree, rev], {stdio: 'pipe'});
+    const tree = path.join(root, 'work/snapshot/rev');
+    await rm(tree, {recursive: true, force: true});
+    await mkdir(tree, {recursive: true});
+    // git archive extracts the revision without a working tree or hooks, so nothing is registered with git.
+    execFileSync('sh', ['-c', 'git archive "$0" | tar -x -C "$1"', rev, tree], {stdio: 'pipe'});
     try {
-      if (!(await readFile(path.join(worktree, 'scripts/build.mjs'), 'utf8')).includes('SOURCE_DATE_EPOCH')) throw new Error(rev + ' predates the reproducible build, so its output cannot be compared byte for byte.');
-      const baseDir = buildTo('out', {root: worktree});
+      if (!(await readFile(path.join(tree, 'scripts/build.mjs'), 'utf8')).includes('SOURCE_DATE_EPOCH')) throw new Error(rev + ' predates the reproducible build, so its output cannot be compared byte for byte.');
+      const baseDir = buildTo('out', {root: tree});
       const currentDir = buildTo('work/snapshot/site');
       const result = diffManifests(await manifestOf(baseDir), await manifestOf(currentDir), allow);
       console.log(formatReport(result));
@@ -129,7 +130,7 @@ async function cli(argv) {
       }
       return isClean(result) ? 0 : 1;
     } finally {
-      execFileSync('git', ['worktree', 'remove', '--force', worktree], {stdio: 'pipe'});
+      await rm(tree, {recursive: true, force: true});
     }
   }
   console.error('Usage: snapshot.mjs build [--out FILE] | diff BASELINE [CURRENT] [--allow GLOB] | compare REV [--allow GLOB]');
