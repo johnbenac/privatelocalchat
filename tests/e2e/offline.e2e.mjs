@@ -82,7 +82,7 @@ try{
  off.on('pageerror',e=>errors.push(e.message));
  // The app's own files must all load. Two failures are expected and are not files the app needs: the app's own reachability check (version.json with
  // a query, which is what tells it that it is offline) and, on a dev build only, the instrumented model runtime that the service worker does not save.
- off.on('requestfailed',r=>{const u=new URL(r.url());if(u.origin===origin&&!(u.pathname==='/version.json'&&u.search.startsWith('?probe='))&&!/\/vendor\/wllama\/v1q\//.test(u.pathname))failed.push(u.pathname);});
+ off.on('requestfailed',r=>{const u=new URL(r.url());if(u.origin===origin&&!(u.pathname==='/version.json'&&(u.search.startsWith('?probe=')||u.search.startsWith('?check=')))&&!/\/vendor\/wllama\/v1q\//.test(u.pathname))failed.push(u.pathname);});
  await off.goto(origin+'/');await off.waitForSelector('#messageInput',{timeout:20000});
  assert(await off.evaluate(()=>window.__plcBooted===true),'the page finished starting offline');
  assert(!/couldn.t start/i.test(await off.locator('body').innerText()),'no failure banner');

@@ -24,6 +24,10 @@ for(let attempt=0;attempt<20;attempt++){
    if(!body.includes(mustHave))throw Error(path+' does not look like the published page');
    if(path.endsWith('/')&&path!=='/'&&(body.includes('window.APP_BUILD')||body.includes('Preparing offline app')))throw Error(path+' served the app instead of its page');
   }
+  // the earlier builds this deploy kept are still served (scripts/retain-releases.mjs)
+  const held=await (await fetch(origin+'/releases/index.json?verify='+commit,{cache:'no-store'})).json();
+  if(held.current!==commit)throw Error('releases/index.json does not name this build');
+  for(const earlier of held.retained){const r=await fetch(origin+'/releases/'+earlier+'/release.json?verify='+commit,{cache:'no-store'});if(!r.ok)throw Error('The kept release '+earlier+' is not served (HTTP '+r.status+')');}
   console.log('Verified '+origin+' at '+commit+' ('+branch+')');process.exit(0);
  }catch(e){last=e;await new Promise(resolve=>setTimeout(resolve,3000));}
 }

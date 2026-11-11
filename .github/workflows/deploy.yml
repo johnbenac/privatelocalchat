@@ -51,6 +51,8 @@ jobs:
             project=privatelocalchat-dev
             url=https://dev.privatelocal.chat
           fi
+          # a deploy replaces the whole site: keep the earlier builds' folders so tabs that started on them keep working (docs/UPGRADE-BEHAVIOUR.md)
+          node scripts/retain-releases.mjs --site "https://$project.pages.dev"
           npx wrangler pages deploy dist --project-name "$project" --branch "$GITHUB_REF_NAME" --commit-hash "$GITHUB_SHA"
           DEPLOY_SITE_URL="https://$project.pages.dev" node scripts/verify-release.mjs
           echo "### Deployed [$url]($url)" >> "$GITHUB_STEP_SUMMARY"

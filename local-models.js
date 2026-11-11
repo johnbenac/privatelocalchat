@@ -157,6 +157,18 @@ window.addEventListener('online',()=>downloadRecovery.wake());
 window.addEventListener('connection-changed',()=>{if(state)render(host.getState());}); // the connection layer (chat/connection/) says offline or back
 window.addEventListener('pageshow',()=>downloadRecovery.synchronize());
 window.addEventListener('storage',event=>{if(event.key==='plc.downloadIntent.v1')downloadRecovery.synchronize();});
+// What a reload would interrupt, for the "new version ready" notice in index.html (docs/UPGRADE-BEHAVIOUR.md): it asks before reloading, and keeps an unsent message across the reload.
+window.plcUpdateGuard={
+  reason(){
+    const out=[],input=document.querySelector('#messageInput');
+    if(activeGeneration||document.querySelector('#stopGeneration')?.offsetParent)out.push('a reply being written');
+    if(downloadRecovery?.state.pending||state?.busy)out.push('a model download or load');
+    if(window.plcApp?.voiceBusy?.())out.push('a recording or voice call');
+    if(input&&input.value.trim())out.push('a message you have not sent');
+    return out;
+  },
+  prepare(){const input=document.querySelector('#messageInput');try{if(input&&input.value)appSession.setItem('plc.draft',input.value);}catch{/* the reload still works */}}
+};
 window.localModels={
   get downloadRecovery(){return downloadRecovery.state;},
   get mode(){return mode;},

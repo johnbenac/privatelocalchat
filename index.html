@@ -42,7 +42,7 @@
   <script src="/build-info.js"></script>
   <script>
     // Runs before the rest of the app, in plain old JavaScript, so it still works when a browser cannot run the rest.
-    // 1. If a newer build is published than the one running (an old saved copy), the saved copy is cleared and the page reloaded.
+    // 1. If a newer build is published than the one running when the page opens (an old saved copy), the saved copy is cleared and the page reloaded, once. After that, a newer build is only offered (see offer).
     // 2. If the app fails to start, say so with a way to fix it, instead of leaving a page whose buttons do nothing.
     (function () {
       var build = window.APP_BUILD || {}, tried = 'plc.update.tried', bar = null;
@@ -66,20 +66,53 @@
         Promise.all(jobs).then(done, done);
       }
       function updateNow() { clearSavedCopy(function () { location.reload(); }); }
+      // A tab keeps the build it started on. When a newer build is published this offers it and waits: it never reloads the page by itself once the app is open
+      // (docs/UPGRADE-BEHAVIOUR.md). The app registers window.plcUpdateGuard, which says what a reload would interrupt and keeps an unsent message across it.
+      var notice = null, dismissed = null;
+      function guardReasons() { try { var g = window.plcUpdateGuard; var r = g && g.reason ? g.reason() : []; return r && r.length ? r : []; } catch (e) { return []; } }
+      function reloadNow() { try { var g = window.plcUpdateGuard; if (g && g.prepare) g.prepare(); } catch (e) { /* the reload still works */ } location.reload(); }
+      function drawNotice(v, interrupts) {
+        notice.textContent = '';
+        var text = document.createElement('span'); text.style.flex = '1 1 14rem';
+        text.textContent = interrupts ? 'Reloading now would interrupt ' + interrupts.join(', ') + '.' : 'A new version of Private Local Chat is ready.';
+        notice.appendChild(text);
+        function button(label, primary, action) {
+          var b = document.createElement('button'); b.type = 'button'; b.textContent = label;
+          b.style.cssText = 'min-height:44px;padding:0 16px;border:' + (primary ? '0' : '1px solid #fff') + ';border-radius:10px;background:' + (primary ? '#fff' : 'transparent') + ';color:' + (primary ? '#182332' : '#fff') + ';font:inherit;font-weight:600';
+          b.onclick = action; notice.appendChild(b);
+        }
+        if (interrupts) { button('Reload anyway', true, reloadNow); button('Keep working', false, function () { drawNotice(v, null); }); return; }
+        var link = document.createElement('a'); link.href = '/updates/'; link.target = '_blank'; link.rel = 'noopener'; link.textContent = 'What changed';
+        link.style.cssText = 'color:#fff;text-decoration:underline;min-height:44px;display:inline-flex;align-items:center'; notice.appendChild(link);
+        button('Reload', true, function () { var r = guardReasons(); if (r.length) drawNotice(v, r); else reloadNow(); });
+        button('Later', false, function () { dismissed = v && v.commit; if (notice && notice.parentNode) notice.parentNode.removeChild(notice); notice = null; });
+      }
+      function offer(v) {
+        if (dismissed && v && dismissed === v.commit) return;
+        try {
+          if (!document.body) { document.addEventListener('DOMContentLoaded', function () { offer(v); }); return; }
+          if (notice && notice.parentNode) return; // already showing
+          notice = document.createElement('div'); notice.id = 'updateNotice'; notice.setAttribute('role', 'status');
+          notice.style.cssText = 'position:fixed;left:12px;right:12px;bottom:12px;max-width:42rem;margin:0 auto;z-index:99998;padding:10px 14px;border-radius:12px;background:#182332;color:#fff;font:15px/1.4 -apple-system,system-ui,sans-serif;display:flex;gap:12px;align-items:center;flex-wrap:wrap;box-shadow:0 4px 18px rgba(0,0,0,.3)';
+          document.body.appendChild(notice); drawNotice(v, null);
+        } catch (e) { /* nothing more can be done */ }
+      }
+      // The service worker asks each open tab which build it runs, so it keeps that build's saved copy.
+      try { if (navigator.serviceWorker) navigator.serviceWorker.addEventListener('message', function (e) { if (e.data && e.data.type === 'which-build' && e.ports && e.ports[0]) e.ports[0].postMessage({ commit: build.commit || null }); }); } catch (e) { /* no service worker */ }
       function newerBuild(then) {
         if (!build.commit || !window.fetch) return;
-        fetch('/version.json', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (v) { if (v && v.commit && v.commit !== build.commit) then(v); }, function () { /* offline: keep what is here */ });
+        fetch('/version.json?check=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (v) { if (v && v.commit && v.commit !== build.commit) then(v); }, function () { /* offline: keep what is here */ });
       }
       var lastCheck = Date.now();
-      newerBuild(function () {
+      newerBuild(function (v) {
         var once = false; try { once = sessionStorage.getItem(tried) === build.commit; sessionStorage.setItem(tried, build.commit); } catch (e) { /* private mode */ }
-        if (once) show('A newer version of PrivateLocal.Chat is available.', 'Update now', updateNow); else updateNow();
+        if (once) offer(v); else updateNow();
       });
-      window.addEventListener('plc-check-update', function () { newerBuild(function () { show('A newer version of PrivateLocal.Chat is available.', 'Update now', updateNow); }); });
+      window.addEventListener('plc-check-update', function () { newerBuild(offer); });
       document.addEventListener('visibilitychange', function () {
         if (document.hidden || Date.now() - lastCheck < 300000) return;
         lastCheck = Date.now();
-        newerBuild(function () { show('A newer version of PrivateLocal.Chat is available.', 'Update now', updateNow); });
+        newerBuild(offer);
       });
       function failed(detail) {
         if (window.__plcBooted || window.__plcVaultLocked || (bar && bar.dataset.failed)) return; // an encrypted vault waiting for its passphrase is not a failed start
@@ -1175,7 +1208,7 @@
         createProject: () => createFolder(),
         openLibrary: () => openLibrary(), openPreferences: () => openPreferences(), openStorage: () => openStorage(), openLockSettings: () => lock.openLockSettings(),
         openHelp: async () => (await loadTransferUi()).openHelp(), openShare: async () => (await loadTransferUi()).openShare(),
-        attachFiles: () => docsUi.attachFiles(), canRecordNote: () => voiceUi.recordAvailable(), toggleVoiceNote: () => voiceUi.toggleVoiceNote(),
+        attachFiles: () => docsUi.attachFiles(), voiceBusy: () => call.active || voiceUi.recorderOpen(), canRecordNote: () => voiceUi.recordAvailable(), toggleVoiceNote: () => voiceUi.toggleVoiceNote(),
         openSidebar: () => openSidebar(), closeSidebar: () => closeSidebar({ restoreFocus: true }),
         moveCurrentToProject: () => { if (currentThreadId) moveToFolder(currentThreadId); },
         setThreadView: view => { convoList.setView(view); renderThreadList(); },

@@ -20,9 +20,23 @@ self.addEventListener('install',event=>event.waitUntil((async()=>{
   self.skipWaiting();
   await cacheAll(cache,SHELL.filter(isBulk),{strict:false,workers:2});
 })()));
+// A tab keeps the build it started on for as long as it is open (docs/UPGRADE-BEHAVIOUR.md), so a saved copy is kept while any open tab runs it. Each tab answers with its build.
+async function buildsInUse(){
+  const found=new Set();
+  const windows=await self.clients.matchAll({type:'window',includeUncontrolled:true});
+  await Promise.all(windows.map(client=>new Promise(resolve=>{
+    const channel=new MessageChannel(),timer=setTimeout(resolve,1500);
+    channel.port1.onmessage=event=>{clearTimeout(timer);if(typeof event.data?.commit==='string')found.add(event.data.commit);resolve();};
+    try{client.postMessage({type:'which-build'},[channel.port2]);}catch{clearTimeout(timer);resolve();}
+  })));
+  return found;
+}
 self.addEventListener('activate',event=>event.waitUntil((async()=>{
   const previous=(await caches.keys()).filter(name=>name.startsWith('plc-shell-')&&name!==CACHE);
-  for(const name of previous.slice(0,-1))await caches.delete(name);
+  const inUse=await buildsInUse().catch(()=>new Set());
+  const keep=new Set(previous.slice(-1)); // the one before this, as before
+  for(const commit of inUse)keep.add('plc-shell-'+commit);
+  for(const name of previous)if(!keep.has(name))await caches.delete(name);
   await self.clients.claim();
 })()));
 // What the page asks for: whether this is the current saved copy and how many of the large model runtime files are saved (they are saved best-effort,
@@ -64,6 +78,10 @@ async function normalResponse(event,url){
   if(event.request.mode==='navigate'){
    // The public documents are separate pages. Offline, each one opens its own saved document; anything else gets the app.
    try{return await fetch(event.request);}catch{const saved=await cache.match(offlinePage(url.pathname));return saved?new Response(saved.body,{status:200,headers:saved.headers}):Response.error();}
+  }
+  // What says which build is current must come from the network, or an open tab would be told its own build is the newest for as long as the saved copy lasts.
+  if(url.pathname==='/version.json'||url.pathname==='/releases/index.json'){
+   try{return await fetch(event.request);}catch(error){if(url.search)throw error;const old=await cache.match(url.pathname);if(old)return old;throw error;} // a request with a query (the connection probe, the update check) must see a dead connection as one
   }
   const saved=await cache.match(event.request)||(url.pathname.startsWith('/releases/')?await caches.match(event.request):undefined); // a page from the previous version may still be open
   if(saved)return saved;
