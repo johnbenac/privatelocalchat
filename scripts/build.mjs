@@ -13,7 +13,9 @@ for(const p of ['index.html','local-models.js','local-models.css','conversation-
 const pkg=JSON.parse(await readFile('package.json','utf8'));
 const commit=process.env.GITHUB_SHA || execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
 const branch=process.env.DEPLOY_BRANCH || process.env.GITHUB_REF_NAME || 'local';
-const build={version:pkg.version,commit,branch,environment:branch==='main'?'production':branch==='dev'?'development':'local',builtAt:new Date().toISOString()};
+// SOURCE_DATE_EPOCH (seconds) makes the build time, and the sitemap's date for the home page, reproducible; unset, they are the clock and the last commit date.
+const buildTime=()=>process.env.SOURCE_DATE_EPOCH?new Date(Number(process.env.SOURCE_DATE_EPOCH)*1000):new Date();
+const build={version:pkg.version,commit,branch,environment:branch==='main'?'production':branch==='dev'?'development':'local',builtAt:buildTime().toISOString()};
 const developmentNative=branch==='dev'?JSON.parse(await readFile('dev-tools/native-runtime/manifest.json','utf8')):null;
 if(developmentNative?.compilerControl)build.developmentRuntime={nativeBuildId:developmentNative.buildId,variant:developmentNative.compilerControl.id,wasmSha256:developmentNative.files['compat.wasm'].sha256};
 const releasePath='releases/'+commit;
@@ -66,7 +68,7 @@ await writeFile(path.join(out,'index.html'),html);
 // The public documents (help/, about/, privacy/, updates/), sitemap.xml, robots.txt and updates/rss.xml are generated from their sources by
 // scripts/public-site.mjs: regions are filled from site-config.json and updates/entries.json, /chat/... references are rewritten to this
 // release's folder and every stylesheet, script and image a page names must exist in the output. See docs/PUBLIC-SITE.md.
-const rootLastmod=execFileSync('git',['show','-s','--format=%cs','HEAD'],{encoding:'utf8'}).trim();
+const rootLastmod=process.env.SOURCE_DATE_EPOCH?buildTime().toISOString().slice(0,10):execFileSync('git',['show','-s','--format=%cs','HEAD'],{encoding:'utf8'}).trim();
 await buildPublicSite({root,outDir:out,releasePath,config:siteConfig,rootLastmod});
 // The licence documents are published at /LICENSE and /THIRD-PARTY-NOTICES.md (GPL text and source offer; see docs/PUBLIC-SITE.md).
 for(const file of LICENCE_FILES)await cp(file,path.join(out,file));

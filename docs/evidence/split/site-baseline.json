@@ -1,0 +1,804 @@
+{
+ "format": "plc-snapshot/1",
+ "target": "site",
+ "environment": {
+  "GITHUB_SHA": "0000000000000000000000000000000000000000",
+  "DEPLOY_BRANCH": "main",
+  "SOURCE_DATE_EPOCH": "0"
+ },
+ "fileCount": 198,
+ "files": {
+  "404.html": {
+   "bytes": 101,
+   "sha256": "6e2ce07360188a9a9a2a48f16d76378816bec0532b413fee38762e05c69e2a3e"
+  },
+  "LICENSE": {
+   "bytes": 35149,
+   "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+  },
+  "THIRD-PARTY-NOTICES.md": {
+   "bytes": 9522,
+   "sha256": "66f894c1685669f8b0db48eaa0e91f830205e85cc9d9bb661e30069ac0a1ec97"
+  },
+  "_headers": {
+   "bytes": 598,
+   "sha256": "2b5c3f561683ef9534eea46b638e7aaed8d337db7b9e140df8a2f4e54357601d"
+  },
+  "about/index.html": {
+   "bytes": 13307,
+   "sha256": "a8cb9255661f9245137a3436316ab5f901f1d7f18ae9204ba1e6306239482577"
+  },
+  "brand/README.md": {
+   "bytes": 1020,
+   "sha256": "faeac533321d1f8828d6ba6da5a2c065179dba53dd85362a4f9d14112f17295b"
+  },
+  "brand/WORDMARK_FONT_LICENSE.txt": {
+   "bytes": 3859,
+   "sha256": "63d3ba759d12804c5b31a9d5940d855c1820d1f5999e6b0872eb1c7ff045fbc9"
+  },
+  "brand/app-icon-192.png": {
+   "bytes": 9472,
+   "sha256": "2aee63d939e32533a37d083d70830908c181dcf9d63d7afea6909c0b549ae019"
+  },
+  "brand/app-icon-512.png": {
+   "bytes": 25639,
+   "sha256": "ffa57cb09a9ff759109a5182101ed1f27790cd58a7b281fb9ac260f2f40274d9"
+  },
+  "brand/app-icon-maskable-512.png": {
+   "bytes": 13949,
+   "sha256": "d1f50af4de828372dd1e8aa88bf3f1f0e36925457cd27f38c6d0b643b90f6af9"
+  },
+  "brand/apple-touch-icon-180.png": {
+   "bytes": 8743,
+   "sha256": "d61760bcdd1adf1363ff2e40f21af722138163e8f2de8a7e1eab023142ca4e46"
+  },
+  "brand/design-tokens.css": {
+   "bytes": 2270,
+   "sha256": "3e46ee0004acd733eb8cfffc7dace8e2ef4de8eadd01efa5f7aa576df081c2a9"
+  },
+  "brand/favicon-64.png": {
+   "bytes": 2822,
+   "sha256": "565b4fae34fd2d2755e3721e5584c52af3100752e4734b2d53805e0ec0f6b7ee"
+  },
+  "brand/favicon.ico": {
+   "bytes": 7479,
+   "sha256": "88a871c472ac0254aa06b224f372e6269272d02b70c250edca0ad67e2b56d66a"
+  },
+  "brand/favicon.svg": {
+   "bytes": 349,
+   "sha256": "74038679ba8046c92983f1e0c9165e780709643583114961fd80c3a171580841"
+  },
+  "brand/mark-dark.svg": {
+   "bytes": 380,
+   "sha256": "b6a387ad0fbf1524b8833c71dad37b7d505a11f3079974c09f16d08ac1e5a3fc"
+  },
+  "brand/mark-light.svg": {
+   "bytes": 380,
+   "sha256": "5788245abc98d9264a232ba3aa23ea473bbb9d6cd5b73dc9667c14b20b40a07e"
+  },
+  "brand/screenshot-demo-1.png": {
+   "bytes": 126426,
+   "sha256": "42a03d70a35dc4b8f6b14adb99305a856116e1d8cc321509592b7a4bc41812b4"
+  },
+  "brand/social-card-1200x630.png": {
+   "bytes": 51591,
+   "sha256": "1760301f5ed8c7033dece9d29f400fd2c8ac6114cf363df4485b5809659e473f"
+  },
+  "brand/wordmark-dark.svg": {
+   "bytes": 4831,
+   "sha256": "ab2b47afa19db53c1f096202e73a9defd7fb7cf53c4e2e4e3a3d9cb2d0012ce2"
+  },
+  "brand/wordmark-light.svg": {
+   "bytes": 4831,
+   "sha256": "0de05304e1a9c7280393b2c71942f691de16221aae843269ae9055090eda3543"
+  },
+  "help/index.html": {
+   "bytes": 38425,
+   "sha256": "5305e76e993c25a378ed821232564b3983e977f92a59b0138e2b994ab65981ad"
+  },
+  "index.html": {
+   "bytes": 75937,
+   "sha256": "b720b7d6c4c7decec561b0e502c1d97b9e6669a265d437ee13274d64ed318d29"
+  },
+  "manifest.webmanifest": {
+   "bytes": 633,
+   "sha256": "4f104609324189c39f279c75a7eedf8c3cb3cdb9d2fa9caad375931e94db83d8"
+  },
+  "privacy/index.html": {
+   "bytes": 25547,
+   "sha256": "df8cf49c3fca33b2c82de4167683f246bdd84dd277c1243c99a789ac80033387"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/assistant/assistant.mjs": {
+   "bytes": 15783,
+   "sha256": "94d918514d07b8b7d50b8ebad4a4ba532c1716c1b9fc27c1c88afc29d1fa102b"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/brand.css": {
+   "bytes": 82338,
+   "sha256": "7ddb7219e9dd58fbc34970932292fd8c53ee074386e4003ae3f730b4770316dd"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/call/call-sounds.mjs": {
+   "bytes": 2449,
+   "sha256": "608b3017d5b1f5a614562f83fa572fe577df9cf3972d301748233ee4c9678500"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/call/call.mjs": {
+   "bytes": 29066,
+   "sha256": "99d214271430536a391bd77af8827f58ddd6b269188b2de21964a6d4bc9f9805"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/chat.css": {
+   "bytes": 16177,
+   "sha256": "3ac84a7d1ad5680339e6e7af4c3c7df1c7b81151d7ec55e51cee43a0b27bf8ca"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/connection/connection-glue.mjs": {
+   "bytes": 11198,
+   "sha256": "ef0e18e3008d190e7aa78304cb40c93b1f2e45d5ccc8552a77b6f4c6b089bb19"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/connection/connection.mjs": {
+   "bytes": 5260,
+   "sha256": "79c6b734af3cf10e44088b588a69d2cc3a2405473e3e8278546ca176cf1dad54"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/connection/offline-facts.mjs": {
+   "bytes": 3439,
+   "sha256": "acf62a2a410f69ca089bba53939c42d80a161d45d63e624a6b2ae747e014dc3a"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/connection/private-mode.mjs": {
+   "bytes": 2726,
+   "sha256": "e7f21aed7266b11c3648bdd373b8d1353b29e26a9a5b5e40012f883d61b67bb1"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/context.mjs": {
+   "bytes": 2708,
+   "sha256": "15cfbb1207c5944dafeed7cdd1f5d58e337d50ef1e481b637ddcec24d905a67c"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/context/context-ui.mjs": {
+   "bytes": 6464,
+   "sha256": "612932ab55f22991a8329efb751ac00d65b0d581331b00967e8fc0a521239fec"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/core/messages-view.mjs": {
+   "bytes": 20786,
+   "sha256": "0eca1d63019aa18736fe210b8b6d45b97019498fd1da38794beae65ee0f479a1"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/core/page-chrome.mjs": {
+   "bytes": 10667,
+   "sha256": "6a803575001a382f0bf89334824499067980b553436e36bb3152efa123a07c3f"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/core/sender.mjs": {
+   "bytes": 19139,
+   "sha256": "bb7fff58cb267b36fe6df4da517d370186731a9446ac4c9930bf9f8e25977f7a"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/core/thread-state.mjs": {
+   "bytes": 11460,
+   "sha256": "f4409f3b7a55c84fb627f773efe3dd7ea2b9b52e4540cf9430b5b57e21920f05"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/core/toast-timing.mjs": {
+   "bytes": 1902,
+   "sha256": "01a5a4566820e921bec5cee4cbb2dac95f54d49fe0ba39f0ec395eebb487ddaf"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/crypto.mjs": {
+   "bytes": 3585,
+   "sha256": "b8b3d80f6ef5423039d7fced531f158e10d5719ddd626b99019748f97201a6f6"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/dialogs.mjs": {
+   "bytes": 6235,
+   "sha256": "fdd17e6833a4f12a8bb8c5723a4ccc294452a514a00ea8e0ae56364f05287181"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/documents/doc-store.mjs": {
+   "bytes": 3876,
+   "sha256": "69383900efcc7a36b8f4ef3bd920803e436d21a2f3a8291f619d05b901d96242"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/documents/documents-ui.mjs": {
+   "bytes": 15977,
+   "sha256": "f998ab3897ea10076f9aa71ead043df6e41fb153e6d017f7bbd6fc1f13c6ed75"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/documents/documents.mjs": {
+   "bytes": 6496,
+   "sha256": "714c771cccfda7b615374364eafb9de49191b6034d9883444a94de1804b57c67"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/documents/drafts.mjs": {
+   "bytes": 5295,
+   "sha256": "74233cf597cab5587d80d557e7a7e0f1d9b0351cf237e373b014a34f768231fd"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/documents/images.mjs": {
+   "bytes": 1047,
+   "sha256": "9cd439c576dda471c85acba1017e612b7289f249daa12c7faa59f9edc99c6427"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/documents/pdf.mjs": {
+   "bytes": 2464,
+   "sha256": "f8c421237a86342a6b036e4ec2fec4f275310beebc59568dde48d58c0688e937"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/documents/retrieval.mjs": {
+   "bytes": 1800,
+   "sha256": "439b0ade027b9fb7b9c98fa7ca88ccd069f2c94f74d67a3119f709bf34c236dd"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/embedding/embedder.mjs": {
+   "bytes": 8577,
+   "sha256": "51939c0d5c8febbec3510fd977a94dff2f6247c99a5e2f3a2944c14888ce6e4c"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/embedding/embedding-config.mjs": {
+   "bytes": 1188,
+   "sha256": "55c57e48db51359f08beb9926f8f1f099fe0ae321b72843dc0d9731cc0e606c1"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/embedding/embedding-model.mjs": {
+   "bytes": 540,
+   "sha256": "bc1988b844955f90cad8261846749a05715a825d1701e414aec3c91b01ad831d"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/embedding/embedding-saved.mjs": {
+   "bytes": 799,
+   "sha256": "97885beef5accc0b2f914be2e4cf3035100b347189aa50ff173a4a7acbfc82e7"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/events.mjs": {
+   "bytes": 3679,
+   "sha256": "831fd90c3b77aa5957c8da60b1cc39d6c185cf7071045516e5e9d13fe3fe0312"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/history/history-io.mjs": {
+   "bytes": 8105,
+   "sha256": "468f5b951d4319f852479a62fe74232aa541e3aa5c88fef25af1610bbf325e46"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/icons.mjs": {
+   "bytes": 9069,
+   "sha256": "582653fbeb4ec382d50f7664900c1fa28409ebef91b2e44d39b3edde6c5264fe"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/list/conversation-list.mjs": {
+   "bytes": 12943,
+   "sha256": "a9399f375bba430871e1fddaddb79be8d366322d22044103b4154c6c6f47ece6"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/lock/lock.mjs": {
+   "bytes": 24751,
+   "sha256": "9ff30771ba01c95c6ce6de86551c26d37d93811c0d416d10fc14b03b2727677d"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/lock/padlock.mjs": {
+   "bytes": 5187,
+   "sha256": "72c1c8a29aff54a46d17ecb7a57429042c450124bffcf44941d44368bd126bd5"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/lock/padlock3d.mjs": {
+   "bytes": 13460,
+   "sha256": "1913f606e50ab075ede2bd6b044e229ccc60d814f191a1e7d66dd8d3b32cf050"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/markdown.mjs": {
+   "bytes": 14813,
+   "sha256": "e8b3bd5f345dda4d283f7b9ceebb5ace7618134590a68cbc3e548381df5687ef"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/models/memory-offer.mjs": {
+   "bytes": 2283,
+   "sha256": "dd71fdbd1825c3965a1b3249f516e3d16e8af6dfcfed7ea54a307585a81f0a0e"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/models/models-view.mjs": {
+   "bytes": 6566,
+   "sha256": "4be2278f04a7ca920c13deb1961f1532bb813972e7e064b17b1b97f062198489"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/models/services.mjs": {
+   "bytes": 7826,
+   "sha256": "a835674d99eb7c99ecacd32bb383a7ab846827bda0b35f4c96ff8ec314974085"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/page.css": {
+   "bytes": 21972,
+   "sha256": "fba55f72d834d3263b82792ef27c0133236030cf5b7b9e2aaac0225f4d3a1034"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/provider/api-formats.mjs": {
+   "bytes": 13073,
+   "sha256": "37a238d259783f6c542b7714e1a527b61ff37e8f60d0f490115f07d2baa0a55d"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/provider/endpoint-options.mjs": {
+   "bytes": 14958,
+   "sha256": "fa15fed7d5a4fd3e656f7989b6bbfb691578f72a777abae23ebf8dc7f4004ea1"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/provider/endpoint-tokens.mjs": {
+   "bytes": 2857,
+   "sha256": "7d3de2b24fecc6c8af9251d4430f9ace49019a64e3b5f654997ab730e8f2271c"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/provider/endpoint-urls.mjs": {
+   "bytes": 3753,
+   "sha256": "3d4e9318ca67104cb7083391e8785cabfa1b81926281a078bca4703b65bbef2e"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/provider/provider-settings.mjs": {
+   "bytes": 29257,
+   "sha256": "70ab709088f9d16e0b5a2501c6b117562dbf4c68475858169c25411ff106f22b"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/public-pages.css": {
+   "bytes": 14231,
+   "sha256": "c2d924f6f6603fc0e36b1658cce8835cf7f3e71ca932dcdaddde39bf77b72e8c"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/roberta/intent-router.mjs": {
+   "bytes": 16410,
+   "sha256": "61afbc61024acda70b4b59e4d64b8aa0bc6f8ba233dd14f5c43368f36a5c63fb"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/roberta/ivr-content.mjs": {
+   "bytes": 41086,
+   "sha256": "6dac80670917bbd31daa8ba8aedef034d4eaf397d17aa33d9b96a98447ba6a78"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/roberta/ivr-vectors.json": {
+   "bytes": 159855,
+   "sha256": "b569dcce775794ccb8c6eae5e24865cbd9b5c0ddc7f8f1c2e44dc4f4f1e4fb4c"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/roberta/ivr.mjs": {
+   "bytes": 7715,
+   "sha256": "4d9129a88647faa98336cba6bb41b2d68a107154d53ea13268ac02d0323d558f"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/roberta/roberta-glue.mjs": {
+   "bytes": 5833,
+   "sha256": "0b237aec42f409ed975fa78017d6f784dd5f7309e267cc2c3ea21eb5cccc022c"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/roberta/roberta-ui.mjs": {
+   "bytes": 19819,
+   "sha256": "235c8bbf40f03c4473558c677250d90582d4a160a2771489c1224ba5d9efc2a9"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/search.mjs": {
+   "bytes": 3347,
+   "sha256": "f498538d5f55ea61f7d57f91167e3795f9e544ef0367c92cdd78caf5de98d98a"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/shell.css": {
+   "bytes": 37082,
+   "sha256": "ec8c5d3ea0a9ae94bbc285917eb4b5e517a99655e5209b4e615c342aef7631a2"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/shell/connection-pill.mjs": {
+   "bytes": 3650,
+   "sha256": "93efa8c3ab533cc40048c4847d7e76766b8ba0f9eaf5271b6a7405ad136da63b"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/shell/hybrid-search.mjs": {
+   "bytes": 5674,
+   "sha256": "295f2ce7eb3a093b96b31709e579b34af6738cc906f01435beecc1cdb5373530"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/shell/model-row.mjs": {
+   "bytes": 1353,
+   "sha256": "ca8258242833124474ba87e2257bf6cd006497bee656f110d76d5776abed6a93"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/shell/models-page.mjs": {
+   "bytes": 15711,
+   "sha256": "7c91e386f2ef7537578b14c23ec8159be991862342d588baa39ff36c08ef0b63"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/shell/offline-checklist.mjs": {
+   "bytes": 2240,
+   "sha256": "e26b51afa5d4da4758ad880f1eb0dc9b9490cb9f24c60cbc7d2ccf46f1693b30"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/shell/offline-section.mjs": {
+   "bytes": 1756,
+   "sha256": "1f0d1fdb8d599b9e9e2c3c1b1060142129906d7285c537868656bff80eb81e91"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/shell/registry.mjs": {
+   "bytes": 3419,
+   "sha256": "54174b1b0e1848cb5c6c3316ea269b33f76dbe9a9ff529a019a4396da6905094"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/shell/shell.mjs": {
+   "bytes": 51922,
+   "sha256": "1943b95293a53f37b9820867b38af1c9a872d82445cd068a90c1fd68efe3e3ee"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/storage-check.mjs": {
+   "bytes": 2874,
+   "sha256": "ea8f8793e06b1612ec1931161328550e3f20c35a31ac849d9b8c074dd8569f2d"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/storage/storage-ui.mjs": {
+   "bytes": 8421,
+   "sha256": "f5b0d802d57af4be5314abfdcb63859ff8f9180c0cc8806db5969359eb800a60"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/stream.mjs": {
+   "bytes": 2898,
+   "sha256": "c4efeb601e361ea1650638128fff82e9c1fbafc0bd37d984fe183d7291a0fc8f"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/threads.mjs": {
+   "bytes": 14661,
+   "sha256": "a32b3432ba61370a9df6cd7d672a878a0eb75b4acce5bb55a7a171958b93d09e"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/tools.mjs": {
+   "bytes": 16179,
+   "sha256": "e13cd2c356ef465cb652a3726d6d2f68c8a6ec7df7c5013b3ef78f0c528be761"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/transfer/backups.mjs": {
+   "bytes": 4223,
+   "sha256": "643961b078522a0116f15e98e16b4ef2519c9f4abfc3730bd6370b87c1395e49"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/transfer/exports.mjs": {
+   "bytes": 3103,
+   "sha256": "87747e32150714463c6f32293b76f28916086a6b99dfa084c99db1f10a4f7c0f"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/transfer/foreign-import.mjs": {
+   "bytes": 3987,
+   "sha256": "f3000046717d3c760310ca41e5bd5d47c7f365546ec3fee58371790903ffcb0e"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/transfer/product-share.mjs": {
+   "bytes": 6211,
+   "sha256": "fb033b81e5d2aa384e6d6e21c79d59e6c1f729037bf9f8655104759f2f74dca4"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/transfer/public-pages.mjs": {
+   "bytes": 1150,
+   "sha256": "fb0032fa0255bfa00eec75abddbcac246db754d8349fe8db2261503ab43ba3c9"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/transfer/qr.mjs": {
+   "bytes": 2219,
+   "sha256": "fddfce76113bdf7b2f33ea3366b3f787482fd4cd4489bad861af760f319283e3"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/transfer/settings-transfer.mjs": {
+   "bytes": 16741,
+   "sha256": "4565a28c2abf62de70429ed9409e432a6359b46f93773c27c7536dc404d43054"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/transfer/transfer-glue.mjs": {
+   "bytes": 9244,
+   "sha256": "8d5d1624cd6d3e494416ee2ef4a1e6eaf720c7a07b5ed077a17b16f98c97188e"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/transfer/transfer-ui.mjs": {
+   "bytes": 31954,
+   "sha256": "de8f7c40d042c887f2419849c1fe1d1eca9bfa6c40c8fd9cd5a2a9cd75bffb94"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/transfer/zip.mjs": {
+   "bytes": 2224,
+   "sha256": "f3795518f3f958bd505aa7ff95049bdcc856a96c3ccf315b11eb80e1b5471131"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/vault/key-classes.mjs": {
+   "bytes": 2431,
+   "sha256": "516bfa4deaa8f968f833666c8dff4f55d4ae3b940c4451b09b45868e9c4b571e"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/vault/passkey.mjs": {
+   "bytes": 5725,
+   "sha256": "8e74ee3cdc14bd93b0cf5a4dc8540acdb25637375890bb9bce35986626b12470"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/vault/unlock-screen.mjs": {
+   "bytes": 6917,
+   "sha256": "70836ac487c2131a37df822020b2bb3084602d226624b5c56ff47072a1a21892"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/vault/vault-control.mjs": {
+   "bytes": 5319,
+   "sha256": "b8a6aa45f6eb692493050cc0bb43ce0191f44e12753fc12a63d94e9c912493d4"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/vault/vault-db.mjs": {
+   "bytes": 4749,
+   "sha256": "94b0708131638259e9bf804d896b200e7567638ab1cc9a9bc4221acdbbd8a24c"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/vault/vault-store.mjs": {
+   "bytes": 19786,
+   "sha256": "fc84618c3903003ce0e9d916039958d8142eeaa38f4a3a29c5348b3c57f5e41d"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/vault/vault.mjs": {
+   "bytes": 17542,
+   "sha256": "0a1a70ed17291ac37d4466829d26a2059aa9ec56075cedcf5e6244daf20605d6"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/vendor/embedding/VERSIONS.json": {
+   "bytes": 221,
+   "sha256": "110b07f873d441f981efc2d5794d0d5b1a58632186d0bc6b432fee88bd562f99"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/vendor/embedding/worker.js": {
+   "bytes": 560840,
+   "sha256": "29fc96bf8040b529a851a96a9b5c0693f77702b9a8fb207b2de7e3c2baad0018"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/vendor/embedding/worker.js.LEGAL.txt": {
+   "bytes": 244,
+   "sha256": "983a9fe727c603c1c22d3341df6158c24d3a80b1f006baa651f34965b27f1df8"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/vendor/pdfjs/LICENSE": {
+   "bytes": 10174,
+   "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/vendor/pdfjs/README.md": {
+   "bytes": 487,
+   "sha256": "a5a8261cd7f7f6532911ae8b853ba41abadc1138b1e2c866f5cd03cda47c5625"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/vendor/pdfjs/pdf.min.mjs": {
+   "bytes": 352645,
+   "sha256": "27fc2a057a00f92a4334ad06e17dbd7259912954e9fb7f76400bcca5fd190a9c"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/vendor/pdfjs/pdf.worker.min.mjs": {
+   "bytes": 1375838,
+   "sha256": "1baa1844c89c80a5b2797c916e75ab29254be46d8e9cb53cb6364d7aad84be36"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/vendor/qrcode.js": {
+   "bytes": 19927,
+   "sha256": "c541ef06327885a8415bca8df6071e14189b4855336def4f36db54bde8484f36"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/vendor/qrcode.js.LICENSE": {
+   "bytes": 1098,
+   "sha256": "aaa1f349028a59432eb00222b8ddfe4d2ccebdce04cf8348dcb8d41b7068107b"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/vendor/voice/VERSIONS-kokoro.json": {
+   "bytes": 332,
+   "sha256": "5bced67cd9954e7a3524511a4712be2b27d7dc9fe4ff388ed83df4fc9ea933f7"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/vendor/voice/VERSIONS.json": {
+   "bytes": 298,
+   "sha256": "5557f55d6153746d99be28842921f86181c0c50c5e8cd38b2aa8352ed1d7220a"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/vendor/voice/ort-wasm-simd-threaded.mjs": {
+   "bytes": 24738,
+   "sha256": "30ed0b5cd1182ede931fea448afb567d4dc705ec957af09f108a2be5f770dac3"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/vendor/voice/ort-wasm-simd-threaded.wasm": {
+   "bytes": 14848852,
+   "sha256": "4b884c203b0fa48d057be3332c65513ff85aa3c5bddd6946acc0fab7ecda001d"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/vendor/voice/worker-kokoro.js": {
+   "bytes": 1385131,
+   "sha256": "422d1f5c3cf0a5f2199178205f8390bae762171eb09a0c6c4f386d7eb249275c"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/vendor/voice/worker-kokoro.js.LEGAL.txt": {
+   "bytes": 14608,
+   "sha256": "041abb8865631e0d4619f2c23b37de58a538cf10f7375372352ed74066666bb7"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/vendor/voice/worker.js": {
+   "bytes": 1397602,
+   "sha256": "3e4eaa8f6d409bf04687108a1e31d4fcaef7f1bc8f1c278bb7008d7c04043bde"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/vendor/voice/worker.js.LEGAL.txt": {
+   "bytes": 15870,
+   "sha256": "a5ee912e8eeb00c2cd91a17e8a9d082a79d4ba63d85c37cb49dc4c27ae1144e9"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/voice/speech.mjs": {
+   "bytes": 9260,
+   "sha256": "46f32f2896617dc5f87dd22d8b629cf210045fef6004fd6e50cbb945387e8caa"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/voice/voice-choice.mjs": {
+   "bytes": 27057,
+   "sha256": "fb24291f1903f4b84568f7ffec4224ecbabcd013bdf8ddc70d4b007e1614addd"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/voice/voice-engine.mjs": {
+   "bytes": 17697,
+   "sha256": "81a0f6535d68e718ad6f1a1651cd891707730fbec9df1d97e59cfc3a393a483a"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/voice/voice-kitten.mjs": {
+   "bytes": 8927,
+   "sha256": "358557dbbb78b836a7ab3609c384c03516eccf9562418ad57f096d8621b01475"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/voice/voice-kokoro.mjs": {
+   "bytes": 14469,
+   "sha256": "fa8cb9c68adda4a7be1bb2d5b38ae26b06952699f2ca88416bd1ff4534f99292"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/voice/voice-manifest-kokoro.mjs": {
+   "bytes": 2437,
+   "sha256": "333f1002307c8cdb9cc441b9e91b962b793e49d36b9c4e1f40d682996b4228ca"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/voice/voice-manifest.mjs": {
+   "bytes": 1254,
+   "sha256": "3fd62474c7bde846e23be343a5ae6edf41da7013ad6b730a29a444822423eca2"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/voice/voice-note.mjs": {
+   "bytes": 9125,
+   "sha256": "6691f8c57f603382599511014f924a11e15427fd720cbe2078ece4e24fc7e302"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/voice/voice-player.mjs": {
+   "bytes": 5176,
+   "sha256": "af593f3036454298bf3a76a828e57ff957533450f713ba228283899a455ab9ed"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/voice/voice-probe.mjs": {
+   "bytes": 8681,
+   "sha256": "bae93216870793f24240275aad1fecdefd91aae8a843da5baebdca68c4994061"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/voice/voice-recorder.mjs": {
+   "bytes": 3694,
+   "sha256": "1959ca887dba81dedd656c06f5af27e0bc2b442c0f6fa2c45b4620fc8c1b63ca"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/voice/voice-text.mjs": {
+   "bytes": 18223,
+   "sha256": "2b88ed9ce462dd725d3805c01af14aadde61129a42a41baebb4bfcb60990a25e"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/voice/voice-ui.mjs": {
+   "bytes": 17418,
+   "sha256": "52b22af1e544a6f75209c2e06b768fb3c851e704539ebae7022cb43d41daa3f3"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/voice/voice.mjs": {
+   "bytes": 15133,
+   "sha256": "3a49f48285a4e18e3c7ff3334510643d83c678e95a00ca10aa544fc2e45df45f"
+  },
+  "releases/0000000000000000000000000000000000000000/conversation-messages.mjs": {
+   "bytes": 1989,
+   "sha256": "b265530df6253a6a4bf34c1a9a8b982de68eeb5d928e2fd38214806f3fb49302"
+  },
+  "releases/0000000000000000000000000000000000000000/local-models.css": {
+   "bytes": 812,
+   "sha256": "833817fc82390c96e9b64d2175f64c331410b204e44c0203ccdec98c043fd8bf"
+  },
+  "releases/0000000000000000000000000000000000000000/local-models.js": {
+   "bytes": 20271,
+   "sha256": "807eab90bd44dcae91eee94d01c37ca051f40268884eba2ea17e37337a46d8ac"
+  },
+  "releases/0000000000000000000000000000000000000000/runtime/auto-load.mjs": {
+   "bytes": 565,
+   "sha256": "e886729cdb71c5cfa4867f0876f38d9a300b4b8e40c5deffddc7a432272235fc"
+  },
+  "releases/0000000000000000000000000000000000000000/runtime/auto-tier.mjs": {
+   "bytes": 7419,
+   "sha256": "266345693d831bc3a054bfdb3cde7266cf5d33b90c711efd90bcef3b9d01fb84"
+  },
+  "releases/0000000000000000000000000000000000000000/runtime/download-recovery.mjs": {
+   "bytes": 6393,
+   "sha256": "bb0e517c46e9e0eed3293ac5d8a647cb12d583f27f3b9c02773b50f93a7bf2d1"
+  },
+  "releases/0000000000000000000000000000000000000000/runtime/gpu-help.mjs": {
+   "bytes": 4920,
+   "sha256": "121bab135cdd81593b92f1ac716600d513f5ea519ed44a1e2a992b5e5e0211d4"
+  },
+  "releases/0000000000000000000000000000000000000000/runtime/memory-manager.mjs": {
+   "bytes": 7125,
+   "sha256": "f323a1b0ac4587e0c646c6eac8d0cbb8a91e9d2af63d7857676198bdfeaaabef"
+  },
+  "releases/0000000000000000000000000000000000000000/runtime/offline-readiness.mjs": {
+   "bytes": 9742,
+   "sha256": "14809ef9542dd24644edd267a020b2690f82dae96b0daa48807a6aa27a70feff"
+  },
+  "releases/0000000000000000000000000000000000000000/runtime/offline-status.mjs": {
+   "bytes": 866,
+   "sha256": "5da04fb56fccd88373c394aea364904002e9e94d168ab08e7dbfec603d334551"
+  },
+  "releases/0000000000000000000000000000000000000000/runtime/prepare.mjs": {
+   "bytes": 6622,
+   "sha256": "b58108390d37210c7a663f6d92a586ab2400c5397c1fe903fdb08d22771c3426"
+  },
+  "releases/0000000000000000000000000000000000000000/runtime/providers/adapters/mock.mjs": {
+   "bytes": 4064,
+   "sha256": "324dc12052489883f65c0795719fda75674b3c4271fa76c762b2079c2967c304"
+  },
+  "releases/0000000000000000000000000000000000000000/runtime/providers/adapters/webgpu.mjs": {
+   "bytes": 764,
+   "sha256": "1bef792ac631b65f7e28d2c151db7f6dea77b0e9d4b0f85141e995827da415c3"
+  },
+  "releases/0000000000000000000000000000000000000000/runtime/providers/adapters/webllm.mjs": {
+   "bytes": 14876,
+   "sha256": "d76a0a80ac7b5319789103ad11e24b3edc6bdf1cff4c57c204c12b1ff51c89b6"
+  },
+  "releases/0000000000000000000000000000000000000000/runtime/providers/adapters/wllama.mjs": {
+   "bytes": 20753,
+   "sha256": "715720c83e591a8141783b4e27622df862561621973c44bbb0193429167b9503"
+  },
+  "releases/0000000000000000000000000000000000000000/runtime/providers/cache-api-backend.mjs": {
+   "bytes": 3935,
+   "sha256": "99000d1032d8368735cc11ccfad32a15fbb45715959bb0f0ac25a3f8c80479dc"
+  },
+  "releases/0000000000000000000000000000000000000000/runtime/providers/capability-probe.mjs": {
+   "bytes": 11521,
+   "sha256": "a6a574f0c6dcefa76bc608fe11b424baa480e615b36d60bd134c041b709ac4cd"
+  },
+  "releases/0000000000000000000000000000000000000000/runtime/providers/catalog-data.mjs": {
+   "bytes": 49015,
+   "sha256": "67506966a9c2601697896842480205ad4f6003404b8250fb5a508d9e4ec880ae"
+  },
+  "releases/0000000000000000000000000000000000000000/runtime/providers/catalog.mjs": {
+   "bytes": 17822,
+   "sha256": "a8460316f1749cc153be81f8e97bc3cf96fce042b8269ff336dfa1f244a9ea6b"
+  },
+  "releases/0000000000000000000000000000000000000000/runtime/providers/client.mjs": {
+   "bytes": 13412,
+   "sha256": "10fbe08cb3cdfd05293453f826256bba3efdf9421ab99fe93d639f4b17f67c6b"
+  },
+  "releases/0000000000000000000000000000000000000000/runtime/providers/download-retry.mjs": {
+   "bytes": 1597,
+   "sha256": "ffe90f1bc3c4c9acb96dfeb884de80f4abb4cac55b4e7aefdb99ba2f2956e6e5"
+  },
+  "releases/0000000000000000000000000000000000000000/runtime/providers/errors.mjs": {
+   "bytes": 10207,
+   "sha256": "7e1038a876e24757768b9dc8308ae99cb453c9142eada9fd76cb2a885a57fd38"
+  },
+  "releases/0000000000000000000000000000000000000000/runtime/providers/hash-blob-chunks.mjs": {
+   "bytes": 749,
+   "sha256": "3a88d13936c95cc1446460ca9a41e491518e9a8374c87a6ad273a09eb994ef44"
+  },
+  "releases/0000000000000000000000000000000000000000/runtime/providers/hash-blob-worker.mjs": {
+   "bytes": 303,
+   "sha256": "c65298300f4846e278ffc2874cd8cc7ad77bea5b012bb1f19dc6acb973aaec4e"
+  },
+  "releases/0000000000000000000000000000000000000000/runtime/providers/hash-blob.mjs": {
+   "bytes": 1531,
+   "sha256": "522d58a7e2b61105d9fc464e8f0b58ac90bc9df5590e9cd2921ceec363a59798"
+  },
+  "releases/0000000000000000000000000000000000000000/runtime/providers/host-core.mjs": {
+   "bytes": 24563,
+   "sha256": "0670a25e5c19d72424ee95587544a1ea7d215c47e944aa16739a47e049a363b7"
+  },
+  "releases/0000000000000000000000000000000000000000/runtime/providers/host.worker.mjs": {
+   "bytes": 3415,
+   "sha256": "756d52da33f6d58781a3bed1913808cb050ab7a7a842d8da957c692588d27c83"
+  },
+  "releases/0000000000000000000000000000000000000000/runtime/providers/index.mjs": {
+   "bytes": 1643,
+   "sha256": "b20b7f5fc052869ef8ac334c0abd48f444219bb618037a02b15b91cc3afed4c4"
+  },
+  "releases/0000000000000000000000000000000000000000/runtime/providers/model-host.mjs": {
+   "bytes": 27057,
+   "sha256": "9cbeafa2c49ffa8d87934f73fc3338f029bee06f2ac6dbdb61aec0b8565436be"
+  },
+  "releases/0000000000000000000000000000000000000000/runtime/providers/model-selection.mjs": {
+   "bytes": 1323,
+   "sha256": "9af207bb0d22fb718eb17e024cd6d3f42ed4e217b6f2401ac6b54b1504210a7f"
+  },
+  "releases/0000000000000000000000000000000000000000/runtime/providers/native-shutdown.mjs": {
+   "bytes": 1316,
+   "sha256": "8c8f14207e79e01833d7be5ef152cb25dcc1e18c31f8457fe06aecc834080f10"
+  },
+  "releases/0000000000000000000000000000000000000000/runtime/providers/opfs-stream-writer.mjs": {
+   "bytes": 2106,
+   "sha256": "2860f9e8834524a4ce4e35520c455d7009bb4d63fc7514dd32b83f91b15018f8"
+  },
+  "releases/0000000000000000000000000000000000000000/runtime/providers/opfs-write-worker.mjs": {
+   "bytes": 1001,
+   "sha256": "d9eabaf9498bc59e22027daeb2ec8190ebc8da7c9158de320e78c1bf847646c7"
+  },
+  "releases/0000000000000000000000000000000000000000/runtime/providers/structured.mjs": {
+   "bytes": 4747,
+   "sha256": "1de04d6694c7de2ccd9453cf12effbdbce54a00fdcf5fe8439e74f957411abfc"
+  },
+  "releases/0000000000000000000000000000000000000000/runtime/providers/think.mjs": {
+   "bytes": 3537,
+   "sha256": "62a8326cc7d05d249e59e2d22dbd5ffb37be9a1eb5c3114918a5780a8d15e663"
+  },
+  "releases/0000000000000000000000000000000000000000/runtime/providers/vendor/noble-hashes/2.4.0/LICENSE": {
+   "bytes": 1109,
+   "sha256": "4f221aee6e072336700c408c68ab3b96a3fc09f6aebe6f48f1bd99e5ef13faec"
+  },
+  "releases/0000000000000000000000000000000000000000/runtime/providers/vendor/noble-hashes/2.4.0/_md.js": {
+   "bytes": 9175,
+   "sha256": "60cf3010fda89e3e4d3f0e7ff1ce249e9c467f34b4fd41b6fd6101d9f69be763"
+  },
+  "releases/0000000000000000000000000000000000000000/runtime/providers/vendor/noble-hashes/2.4.0/_u64.js": {
+   "bytes": 4794,
+   "sha256": "b09da8c07fe8187c07649494cdb7cd0bcf13df90b506a9473d19e4d5f8c2e102"
+  },
+  "releases/0000000000000000000000000000000000000000/runtime/providers/vendor/noble-hashes/2.4.0/provenance.json": {
+   "bytes": 1015,
+   "sha256": "ba34bfd69cb1fd6c559fe97d419898738174f1746c5edba41a5000595fc9d38e"
+  },
+  "releases/0000000000000000000000000000000000000000/runtime/providers/vendor/noble-hashes/2.4.0/sha2.js": {
+   "bytes": 18997,
+   "sha256": "471746bba6ec4c6238ca41358d1d3b40b6ff31cf3363f0b4d550c649c1a8e83b"
+  },
+  "releases/0000000000000000000000000000000000000000/runtime/providers/vendor/noble-hashes/2.4.0/utils.js": {
+   "bytes": 26035,
+   "sha256": "037ad49adb78168b6b699598fd33f85f7877456b1d28b4d032e2a1a16807947c"
+  },
+  "releases/0000000000000000000000000000000000000000/runtime/providers/vendor/webllm/LICENSE": {
+   "bytes": 11726,
+   "sha256": "87935f332472db09253871326ef23d5d6a45f4fd2e6c96772f72052866dfab0d"
+  },
+  "releases/0000000000000000000000000000000000000000/runtime/providers/vendor/webllm/web-llm-0.2.86.js": {
+   "bytes": 6817091,
+   "sha256": "4c9772f6973eb03b2499c2128a71a2f9cfb542321dc4ef01a66de4a9f376c66f"
+  },
+  "releases/0000000000000000000000000000000000000000/runtime/providers/vendor/wllama/LICENCE": {
+   "bytes": 1071,
+   "sha256": "5866e3bd7e3cbd3f7c8bea6efd8a1e7fa7cc8de68c30f428aff7c6584a0fb720"
+  },
+  "releases/0000000000000000000000000000000000000000/runtime/providers/vendor/wllama/LLAMA-LICENSE": {
+   "bytes": 1078,
+   "sha256": "94f29bbed6a22c35b992c5c6ebf0e7c92f13b836b90f36f461c9cf2f0f1d010d"
+  },
+  "releases/0000000000000000000000000000000000000000/runtime/providers/vendor/wllama/v1q/compat-worker.js": {
+   "bytes": 170426,
+   "sha256": "95f2a03073e5bdcf8c7a3bdfe953981a17498947679c3c6737a59bdcd4c485a6"
+  },
+  "releases/0000000000000000000000000000000000000000/runtime/providers/vendor/wllama/v1q/compat.wasm": {
+   "bytes": 20661345,
+   "sha256": "e7aa8820a87ad1bdf262fc5d3f2f65978b4de81d9c118287b1506d1450b3369a"
+  },
+  "releases/0000000000000000000000000000000000000000/runtime/providers/vendor/wllama/v1q/default.wasm": {
+   "bytes": 7790185,
+   "sha256": "b72350ef4391729724af4798f4491948148aa3745c1aa4d11b9491bc4fd34f67"
+  },
+  "releases/0000000000000000000000000000000000000000/runtime/providers/vendor/wllama/v1q/wllama.js": {
+   "bytes": 414522,
+   "sha256": "267d7e3d29d273934c8c756ed719f971f84d7d3428e479c64bb2b8346721f6a6"
+  },
+  "releases/0000000000000000000000000000000000000000/runtime/providers/verify.mjs": {
+   "bytes": 3127,
+   "sha256": "780f37a30ef62c859ad233107ac9860c9a3c22f5728b7dd63f8d50801231faa4"
+  },
+  "releases/0000000000000000000000000000000000000000/runtime/voice-pick.mjs": {
+   "bytes": 12713,
+   "sha256": "a8e6f2c5d9b99d7dd1445c000f7d5d214562c816991e96fee59a76a5039156dd"
+  },
+  "robots.txt": {
+   "bytes": 71,
+   "sha256": "be882407f9631cc7f0c6dfdee36ed1ec290718c453cadc3ffd4284441b23dba5"
+  },
+  "sitemap.xml": {
+   "bytes": 602,
+   "sha256": "186344eff8c1febe93b4f0e754b86e9d2ca1acf7fe30214160193ce8a5607df3"
+  },
+  "sw.js": {
+   "bytes": 18271,
+   "sha256": "a65eb7d4287739d392d275c1d599a2eb948375e0e1d11c1a2a17f4105c347bde"
+  },
+  "updates/index.html": {
+   "bytes": 29672,
+   "sha256": "da457d7d929a425949324fceda32bd61ab6e365284c1a71bd36b3f268e2dac38"
+  },
+  "updates/rss.xml": {
+   "bytes": 17960,
+   "sha256": "533cc870cf13979cc4fe158cd99e30cf34d1bbb4fd28a8e038ffa60a52a2181d"
+  },
+  "version.json": {
+   "bytes": 173,
+   "sha256": "35b266f4c7e970fe56a0c4f5a57e77ce392086f1e49859c29ec1d780bed634b0"
+  }
+ }
+}

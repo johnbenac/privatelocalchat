@@ -17,6 +17,9 @@ node --test tests/download-retry.test.mjs       # single test file
 python3 -m unittest discover -s dev-tools/tests -v   # dev-tools Python tests (CI runs these too)
 DEPLOY_BRANCH=dev npm run build                 # or DEPLOY_BRANCH=main; each build wipes dist/
 node scripts/serve.mjs                          # serves dist/ at http://127.0.0.1:18171
+npm run snapshot:check                          # the site build against docs/evidence/split/site-baseline.json (see docs/SPLIT-SNAPSHOT.md)
+node scripts/snapshot.mjs compare <rev> [--allow GLOB]   # build <rev> and the current tree and show every changed file
+node scripts/network-inventory.mjs check        # the hosts the app names; `write` after an intended change
 DEPLOY_SITE_URL=<url> GITHUB_SHA=$(git rev-parse HEAD) GITHUB_REF_NAME=<branch> node scripts/verify-release.mjs
 ```
 

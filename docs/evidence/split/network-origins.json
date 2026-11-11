@@ -1,0 +1,336 @@
+{
+ "format": "plc-network-inventory/1",
+ "about": "Hosts named by the app source (appHosts), by vendored libraries (vendorHosts), and paths the app fetches from its own origin (ownFetchPaths). A host named here is not necessarily contacted; see scripts/network-inventory.mjs.",
+ "appHosts": {
+  "ai-gateway.vercel.sh": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "ai.google.dev": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "aistudio.google.com": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "api-docs.deepseek.com": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "api.anthropic.com": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "api.cerebras.ai": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "api.cohere.ai": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "api.deepinfra.com": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "api.deepseek.com": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "api.example.com": [
+   "index.html"
+  ],
+  "api.fireworks.ai": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "api.groq.com": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "api.hyperbolic.xyz": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "api.mistral.ai": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "api.moonshot.ai": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "api.openai.com": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "api.perplexity.ai": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "api.scaleway.ai": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "api.together.ai": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "api.together.xyz": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "api.tokenfactory.nebius.com": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "api.x.ai": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "api.z.ai": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "app.fireworks.ai": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "app.hyperbolic.ai": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "assets.privatelocal.chat": [
+   "chat/embedding/embedding-config.mjs",
+   "chat/voice/voice-engine.mjs",
+   "chat/voice/voice-manifest-kokoro.mjs",
+   "chat/voice/voice-manifest.mjs",
+   "local-models.js",
+   "runtime/providers/catalog-data.mjs",
+   "runtime/providers/catalog.mjs"
+  ],
+  "bailian.console.alibabacloud.com": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "cloud.cerebras.ai": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "console.groq.com": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "console.mistral.ai": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "console.scaleway.com": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "console.x.ai": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "dashboard.cohere.com": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "dashscope-intl.aliyuncs.com": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "deepinfra.com": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "developers.cloudflare.com": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "docs.cohere.com": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "docs.fireworks.ai": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "docs.hyperbolic.xyz": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "docs.mistral.ai": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "docs.ollama.com": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "docs.perplexity.ai": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "docs.together.ai": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "docs.tokenfactory.nebius.com": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "docs.vllm.ai": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "docs.x.ai": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "docs.z.ai": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "gateway.ai.cloudflare.com": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "generativelanguage.googleapis.com": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "github.com": [
+   "chat/provider/endpoint-options.mjs",
+   "chat/shell/shell.mjs",
+   "index.html"
+  ],
+  "huggingface.co": [
+   "chat/provider/endpoint-options.mjs",
+   "runtime/providers/catalog.mjs"
+  ],
+  "inference-docs.cerebras.ai": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "learn.microsoft.com": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "lmstudio.ai": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "localhost": [
+   "chat/provider/endpoint-options.mjs",
+   "chat/provider/endpoint-tokens.mjs",
+   "chat/provider/endpoint-urls.mjs"
+  ],
+  "media.techofourown.com": [
+   "runtime/providers/catalog-data.mjs"
+  ],
+  "openrouter.ai": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "platform.claude.com": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "platform.deepseek.com": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "platform.kimi.ai": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "platform.openai.com": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "plc-model-files.invalid": [
+   "runtime/providers/cache-api-backend.mjs"
+  ],
+  "privatelocal.chat": [
+   "chat/transfer/product-share.mjs",
+   "chat/transfer/settings-transfer.mjs",
+   "index.html"
+  ],
+  "raw.githubusercontent.com": [
+   "runtime/providers/catalog.mjs"
+  ],
+  "router.huggingface.co": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "schema.org": [
+   "index.html"
+  ],
+  "tokenfactory.nebius.com": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "vercel.com": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "www.alibabacloud.com": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "www.perplexity.ai": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "www.scaleway.com": [
+   "chat/provider/endpoint-options.mjs"
+  ],
+  "www.w3.org": [
+   "brand/favicon.svg",
+   "brand/mark-dark.svg",
+   "brand/mark-light.svg",
+   "brand/wordmark-dark.svg",
+   "brand/wordmark-light.svg",
+   "chat/call/call.mjs",
+   "chat/icons.mjs",
+   "chat/lock/lock.mjs",
+   "chat/lock/padlock.mjs",
+   "index.html"
+  ],
+  "z.ai": [
+   "chat/provider/endpoint-options.mjs"
+  ]
+ },
+ "vendorHosts": {
+  "bugzil.la": [
+   "runtime/providers/vendor/noble-hashes/2.4.0/utils.js"
+  ],
+  "caniuse.com": [
+   "runtime/providers/vendor/noble-hashes/2.4.0/utils.js"
+  ],
+  "cdn.jsdelivr.net": [
+   "chat/vendor/embedding/worker.js",
+   "runtime/providers/vendor/wllama/v1q/wllama.js"
+  ],
+  "developer.chrome.com": [
+   "runtime/providers/vendor/webllm/web-llm-0.2.86.js"
+  ],
+  "developer.mozilla.org": [
+   "chat/vendor/embedding/worker.js"
+  ],
+  "eprint.iacr.org": [
+   "runtime/providers/vendor/noble-hashes/2.4.0/sha2.js"
+  ],
+  "gist.github.com": [
+   "chat/vendor/embedding/worker.js"
+  ],
+  "github.com": [
+   "chat/vendor/embedding/worker.js",
+   "chat/vendor/voice/worker-kokoro.js",
+   "chat/vendor/voice/worker.js",
+   "runtime/providers/vendor/noble-hashes/2.4.0/provenance.json",
+   "runtime/providers/vendor/webllm/web-llm-0.2.86.js",
+   "runtime/providers/vendor/wllama/v1q/wllama.js"
+  ],
+  "huggingface.co": [
+   "chat/vendor/embedding/worker.js",
+   "runtime/providers/vendor/webllm/web-llm-0.2.86.js",
+   "runtime/providers/vendor/wllama/v1q/wllama.js"
+  ],
+  "jackpordi.com": [
+   "runtime/providers/vendor/webllm/web-llm-0.2.86.js"
+  ],
+  "localhost": [
+   "runtime/providers/vendor/wllama/v1q/wllama.js"
+  ],
+  "ns.adobe.com": [
+   "chat/vendor/pdfjs/pdf.worker.min.mjs"
+  ],
+  "nvlpubs.nist.gov": [
+   "runtime/providers/vendor/noble-hashes/2.4.0/sha2.js"
+  ],
+  "raw.githubusercontent.com": [
+   "runtime/providers/vendor/webllm/web-llm-0.2.86.js"
+  ],
+  "registry.npmjs.org": [
+   "runtime/providers/vendor/noble-hashes/2.4.0/provenance.json"
+  ],
+  "web.dev": [
+   "chat/vendor/embedding/worker.js",
+   "chat/vendor/voice/worker-kokoro.js",
+   "chat/vendor/voice/worker.js"
+  ],
+  "webgpureport.org": [
+   "runtime/providers/vendor/webllm/web-llm-0.2.86.js"
+  ],
+  "www.apache.org": [
+   "chat/vendor/pdfjs/pdf.min.mjs",
+   "chat/vendor/pdfjs/pdf.worker.min.mjs",
+   "runtime/providers/vendor/webllm/web-llm-0.2.86.js"
+  ],
+  "www.linkedin.com": [
+   "runtime/providers/vendor/webllm/web-llm-0.2.86.js"
+  ],
+  "www.rfc-editor.org": [
+   "runtime/providers/vendor/noble-hashes/2.4.0/sha2.js"
+  ],
+  "www.w3.org": [
+   "chat/vendor/pdfjs/pdf.min.mjs",
+   "chat/vendor/pdfjs/pdf.worker.min.mjs",
+   "chat/vendor/qrcode.js",
+   "runtime/providers/vendor/webllm/web-llm-0.2.86.js"
+  ],
+  "www.xfa.org": [
+   "chat/vendor/pdfjs/pdf.worker.min.mjs"
+  ]
+ },
+ "ownFetchPaths": {
+  "/version.json": [
+   "chat/voice/voice-choice.mjs",
+   "index.html"
+  ]
+ }
+}
