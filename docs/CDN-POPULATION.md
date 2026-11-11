@@ -49,6 +49,16 @@ makes no request to it (Cache API).
 overridden at run time by `local-models.js`. Make the defaults point at `assets.privatelocal.chat` so a forgotten override cannot change where
 files come from. Then simplify the three "No, a catalogue default" rows on the Privacy page.
 
+## Keeping our own copy
+
+Every model file is pinned by size and SHA-256, and the published objects on `assets.privatelocal.chat` are the record. Keep a verified local copy of the files too, laid out like the bucket (`models/<name>/<revision>/...`), so any model can be published again from it:
+
+```sh
+python3 ops/cloudflare/publish-gguf.py <key> --dry-run --source file:///path/to/models/<name>/<revision>/
+```
+
+The dry run reads every file from that folder, checks it against its pin, and uploads nothing. The licence texts the publisher writes next to each model are in `ops/cloudflare/licenses/`.
+
 ## Adding another language model (the recipe used for LFM2.5 and Granite)
 
 1. Describe it in `ops/cloudflare/gguf-models.json` (source host, per-file size and SHA-256, destination prefix, licence file, load context and sampling). For models already published, `sourceBase` is the published folder on `assets.privatelocal.chat`. For a new model, pass `--source` with the folder that holds your files: an `https://` address or a `file://` folder.

@@ -1,7 +1,7 @@
 {
  "lfm25_2_6b_q3": {
   "prefix": "models/LFM2.5-2.6B-Q3_K_M/f4a289c8a200a5ca71005ba7abc2dad33058a450/",
-  "licenseFile": "/tmp/lic/lfm.txt",
+  "licenseFile": "ops/cloudflare/licenses/lfm.txt",
   "licenseName": "LFM Open License v1.0",
   "note": "LiquidAI/LFM2.5-2.6B revision f4a289c8a200a5ca71005ba7abc2dad33058a450, quantised to Q3_K_M with llama.cpp dd4623a74, split into 6 GGUF files. Immutable.",
   "configurationId": "lfm-2.5-2.6b-q3-k-m-8k-f16-wllama-3.5.1-bounded16m-native-tools-token-count-v4",
@@ -78,7 +78,7 @@
  },
  "granite40_h_1b_q4km": {
   "prefix": "models/Granite-4.0-H-1B-Q4_K_M/d18cca4c121edb87d022116d281ce212c9136f57/",
-  "licenseFile": "/tmp/lic/granite.txt",
+  "licenseFile": "ops/cloudflare/licenses/granite.txt",
   "licenseName": "Apache-2.0",
   "note": "ibm-granite/granite-4.0-h-1b revision d18cca4c121edb87d022116d281ce212c9136f57, quantised to Q4_K_M with llama.cpp dd4623a74, split into 12 GGUF files. Immutable.",
   "configurationId": "granite-4.0-h-1b-q4-k-m-16k-f16-wllama-3.5.1-bounded16m-native-tools-v1",
