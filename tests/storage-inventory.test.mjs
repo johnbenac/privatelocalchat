@@ -64,6 +64,26 @@ test('the inventory is well formed: unique keys, a known class, a store, an owne
   for(const d of inv.databases)assert.ok(classes.has(d.class)&&d.owner,d.name);
 });
 
+// ---- stage 1 of the app/site split: every store has a format and a first release (docs/DATA-COMPATIBILITY.md) ------------------------------------------------------------
+const RELEASE=/^v\d+\.\d+\.\d+$|^unreleased$/;
+test('every key and database has a format and the release that first used it',()=>{
+  for(const k of inv.keys){
+    assert.ok(Number.isInteger(k.format)&&k.format>=1,k.key+' has an integer format of 1 or more');
+    const suffix=/\.v(\d+)$/.exec(k.key);
+    if(suffix)assert.equal(k.format,Number(suffix[1]),k.key+': a key named ...vN has format N');
+    assert.match(k.since,RELEASE,k.key+' has a since release (vX.Y.Z or unreleased)');
+  }
+  for(const d of inv.databases){
+    assert.ok(Number.isInteger(d.format)&&d.format>=1,d.name+' has an integer format');
+    assert.match(d.since,RELEASE,d.name+' has a since release');
+  }
+});
+test('the document database and the vault carry the formats the inventory states',async()=>{
+  const docs=inv.databases.find(d=>d.name==='plc-docs'),vault=inv.databases.find(d=>d.name==='plc-vault');
+  assert.match(sources['chat/documents/doc-store.mjs'],new RegExp('export const DB_FORMAT = '+docs.format+';'),'doc-store DB_FORMAT matches the inventory');
+  assert.match(sources['chat/vault/vault.mjs'],new RegExp('export const VAULT_FORMAT = "plc-vault/'+vault.format+'"'),'VAULT_FORMAT matches the inventory');
+});
+
 test('a key is named only by its owner and the files the inventory lists in alsoIn (the model-memory switch once overwrote the memory items)',()=>{
   const extra={};
   for(const k of inv.keys){

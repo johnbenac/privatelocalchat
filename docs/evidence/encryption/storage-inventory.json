@@ -1,5 +1,5 @@
 {
-  "about": "Every place the app keeps anything in the browser, and what the encryption plan (docs/ENCRYPTION-AT-REST-PLAN.md) does with it. tests/storage-inventory.test.mjs fails if the source uses a key or a storage API that is not listed here, or if this file lists something the source no longer uses. When you add a key, add a line here first.",
+  "about": "Every place the app keeps anything in the browser, and what the encryption plan (docs/ENCRYPTION-AT-REST-PLAN.md) does with it. tests/storage-inventory.test.mjs fails if the source uses a key or a storage API that is not listed here, or if this file lists something the source no longer uses. When you add a key, add a line here first. Each key and database also has a `format` (the highest format of its value this version reads and writes) and `since` (the first release that used it); see docs/DATA-COMPATIBILITY.md.",
   "classes": {
     "user": "what the person wrote or chose to keep (chats, drafts, memory, documents, API keys): goes into the vault",
     "setting": "a choice the person made that does not reveal content (voice, switches, model choice): goes into the vault with the rest",
@@ -18,42 +18,54 @@
       "note": "every saved chat, rewritten whole on each save",
       "alsoIn": [
         "index.html"
-      ]
+      ],
+      "format": 1,
+      "since": "v0.0.0"
     },
     {
       "key": "plc.activeThread.v1",
       "store": "localStorage",
       "class": "user",
       "owner": "index.html",
-      "note": "which chat is open (an id)"
+      "note": "which chat is open (an id)",
+      "format": 1,
+      "since": "v0.6.0"
     },
     {
       "key": "plc.drafts.v1",
       "store": "localStorage",
       "class": "user",
       "owner": "index.html",
-      "note": "unsent composer text per chat"
+      "note": "unsent composer text per chat",
+      "format": 1,
+      "since": "v0.8.0"
     },
     {
       "key": "plc.prefs.v1",
       "store": "localStorage",
       "class": "setting",
       "owner": "index.html",
-      "note": "composer preferences; the theme is the one value the lock screen would like to read"
+      "note": "composer preferences; the theme is the one value the lock screen would like to read",
+      "format": 1,
+      "since": "v0.8.0"
     },
     {
       "key": "plc.folders.v1",
       "store": "localStorage",
       "class": "user",
       "owner": "chat/list/conversation-list.mjs",
-      "note": "folder names and which chats are in them"
+      "note": "folder names and which chats are in them",
+      "format": 1,
+      "since": "v0.8.0"
     },
     {
       "key": "plc.presets.v1",
       "store": "localStorage",
       "class": "user",
       "owner": "chat/assistant/assistant.mjs",
-      "note": "the person's own prompt presets"
+      "note": "the person's own prompt presets",
+      "format": 1,
+      "since": "v0.8.0"
     },
     {
       "key": "plc.memory.v1",
@@ -63,14 +75,18 @@
       "note": "memory items. It was shared with the model-memory switch until 2026-11-04, which overwrote it",
       "alsoIn": [
         "runtime/memory-manager.mjs"
-      ]
+      ],
+      "format": 1,
+      "since": "v0.8.0"
     },
     {
       "key": "plc.modelMemory.v1",
       "store": "localStorage",
       "class": "setting",
       "owner": "runtime/memory-manager.mjs",
-      "note": "One model at a time, and whether the offer was declined"
+      "note": "One model at a time, and whether the offer was declined",
+      "format": 1,
+      "since": "v0.47.0"
     },
     {
       "key": "plc.voice.v2",
@@ -80,42 +96,54 @@
       "note": "chosen voice and its settings",
       "alsoIn": [
         "index.html"
-      ]
+      ],
+      "format": 2,
+      "since": "v0.23.0"
     },
     {
       "key": "plc.voice.v1",
       "store": "localStorage",
       "class": "setting",
       "owner": "chat/voice/voice-choice.mjs",
-      "note": "the older voice record, read once and migrated"
+      "note": "the older voice record, read once and migrated",
+      "format": 1,
+      "since": "v0.19.0"
     },
     {
       "key": "plc.inferenceMode.v1",
       "store": "localStorage",
       "class": "setting",
       "owner": "local-models.js",
-      "note": "on this device or a connected provider"
+      "note": "on this device or a connected provider",
+      "format": 1,
+      "since": "v0.6.0"
     },
     {
       "key": "plc.models.v1",
       "store": "localStorage",
       "class": "setting",
       "owner": "runtime/providers/model-host.mjs",
-      "note": "which on-device model is chosen"
+      "note": "which on-device model is chosen",
+      "format": 1,
+      "since": "v0.6.0"
     },
     {
       "key": "plc.shell.pins.v1",
       "store": "localStorage",
       "class": "user",
       "owner": "chat/shell/registry.mjs",
-      "note": "pinned items; may name chats"
+      "note": "pinned items; may name chats",
+      "format": 1,
+      "since": "v0.15.0"
     },
     {
       "key": "plc.shell.collapsed",
       "store": "localStorage",
       "class": "plain",
       "owner": "chat/shell/shell.mjs",
-      "note": "side panel open or closed"
+      "note": "side panel open or closed",
+      "format": 1,
+      "since": "v0.15.0"
     },
     {
       "key": "plc.downloadIntent.v1",
@@ -125,14 +153,18 @@
       "note": "a model download that should resume; about the device, not the person",
       "alsoIn": [
         "local-models.js"
-      ]
+      ],
+      "format": 1,
+      "since": "v0.6.0"
     },
     {
       "key": "plc.offlineHint.v1",
       "store": "localStorage",
       "class": "plain",
       "owner": "chat/connection/connection-glue.mjs",
-      "note": "the offline hint was shown"
+      "note": "the offline hint was shown",
+      "format": 1,
+      "since": "v0.37.0"
     },
     {
       "key": "plc.lockSplash.v1",
@@ -142,7 +174,9 @@
       "note": "the not-locked reminder is on or off",
       "alsoIn": [
         "index.html"
-      ]
+      ],
+      "format": 1,
+      "since": "v0.33.0"
     },
     {
       "key": "plc.lock.v1",
@@ -152,21 +186,27 @@
       "note": "lock verifier and auto-lock minutes; replaced by the vault header",
       "alsoIn": [
         "index.html"
-      ]
+      ],
+      "format": 1,
+      "since": "v0.8.0"
     },
     {
       "key": "plc.speechInputUnusable",
       "store": "localStorage",
       "class": "plain",
       "owner": "chat/voice/voice-ui.mjs",
-      "note": "this browser's speech input did not work"
+      "note": "this browser's speech input did not work",
+      "format": 1,
+      "since": "v0.11.0"
     },
     {
       "key": "plc.test.voice",
       "store": "localStorage",
       "class": "test",
       "owner": "index.html",
-      "note": "development hook, stripped from production"
+      "note": "development hook, stripped from production",
+      "format": 1,
+      "since": "v0.19.0"
     },
     {
       "key": "chatConfig",
@@ -177,7 +217,9 @@
       "alsoIn": [
         "index.html",
         "local-models.js"
-      ]
+      ],
+      "format": 1,
+      "since": "v0.0.0"
     },
     {
       "key": "chatModels",
@@ -187,7 +229,9 @@
       "note": "the provider's model list",
       "alsoIn": [
         "index.html"
-      ]
+      ],
+      "format": 1,
+      "since": "v0.0.0"
     },
     {
       "key": "chatEndpointTokens",
@@ -197,14 +241,18 @@
       "note": "API keys, one per endpoint",
       "alsoIn": [
         "index.html"
-      ]
+      ],
+      "format": 1,
+      "since": "v0.4.0"
     },
     {
       "key": "plc.draft",
       "store": "sessionStorage",
       "class": "transient",
       "owner": "local-models.js",
-      "note": "composer text kept across the page reload that applies an update"
+      "note": "composer text kept across the page reload that applies an update",
+      "format": 1,
+      "since": "v0.6.0"
     },
     {
       "key": "plc.pendingToken.v1",
@@ -216,14 +264,18 @@
         "chat/provider/provider-settings.mjs",
         "chat/transfer/transfer-glue.mjs",
         "index.html"
-      ]
+      ],
+      "format": 1,
+      "since": "v0.13.0"
     },
     {
       "key": "plc.update.tried",
       "store": "sessionStorage",
       "class": "plain",
       "owner": "index.html",
-      "note": "an update reload was already tried"
+      "note": "an update reload was already tried",
+      "format": 1,
+      "since": "v0.11.0"
     },
     {
       "key": "promoDismissed",
@@ -233,7 +285,9 @@
       "note": "the banner was closed",
       "alsoIn": [
         "index.html"
-      ]
+      ],
+      "format": 1,
+      "since": "v0.3.1"
     },
     {
       "key": "plc.vault.v1",
@@ -243,7 +297,9 @@
       "note": "says a vault exists (and its auto-lock minutes), so the page can paint the locked state before IndexedDB answers",
       "alsoIn": [
         "index.html"
-      ]
+      ],
+      "format": 1,
+      "since": "v0.47.0"
     },
     {
       "key": "plc.theme.v1",
@@ -253,7 +309,18 @@
       "alsoIn": [
         "chat/vault/unlock-screen.mjs"
       ],
-      "note": "the resolved theme (light or dark), so the unlock screen matches it before anything is unlocked"
+      "note": "the resolved theme (light or dark), so the unlock screen matches it before anything is unlocked",
+      "format": 1,
+      "since": "v0.47.0"
+    },
+    {
+      "key": "plc.formats.v1",
+      "store": "localStorage",
+      "class": "plain",
+      "owner": "chat/vault/data-formats.mjs",
+      "note": "the highest format of each store any version has written here, so an older version leaves newer data alone",
+      "format": 1,
+      "since": "unreleased"
     }
   ],
   "databases": [
@@ -262,14 +329,18 @@
       "store": "indexedDB",
       "class": "user",
       "owner": "chat/documents/doc-store.mjs",
-      "note": "attached and library documents"
+      "note": "attached and library documents",
+      "format": 1,
+      "since": "v0.8.0"
     },
     {
       "name": "plc-vault",
       "store": "indexedDB",
       "class": "vault",
       "owner": "chat/vault/vault-db.mjs",
-      "note": "the encrypted header and log"
+      "note": "the encrypted header and log",
+      "format": 1,
+      "since": "v0.47.0"
     }
   ],
   "deviceStores": [

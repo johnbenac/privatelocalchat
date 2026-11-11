@@ -1,0 +1,212 @@
+{
+ "storage": {
+  "local": {
+   "plc.prefs.v1": "{\"enterSends\":null,\"instructions\":\"\"}",
+   "plc.activeThread.v1": "\"mwcoqbfe-1b0e274e\"",
+   "plc.drafts.v1": "{\"mwcoqbfe-1b0e274e\":\"an unsent draft about the snapshot\"}",
+   "chatThreads": "[{\"id\":\"mwcoq92q-e45a7bc7\",\"title\":\"Packing list for a week in Lisbon, please.\",\"systemPrompt\":\"\",\"messages\":[{\"id\":\"mwcoq97e-35dfc26e\",\"role\":\"user\",\"content\":\"Packing list for a week in Lisbon, please.\",\"at\":1794435774746},{\"id\":\"mwcoq97w-34270b1f\",\"role\":\"assistant\",\"content\":\"Reply to: Packing list for a week in Lisbon, please.\",\"at\":1794435774764,\"model\":\"fake-model · 127.0.0.1\"},{\"id\":\"mwcoq9by-2e89a7cb\",\"role\":\"user\",\"content\":\"And what about the weather in March?\",\"at\":1794435774910},{\"id\":\"mwcoq9c3-8a81d339\",\"role\":\"assistant\",\"content\":\"Reply to: And what about the weather in March?\",\"at\":1794435774915,\"model\":\"fake-model · 127.0.0.1\"}],\"createdAt\":1794435774578,\"updatedAt\":1794435774960,\"folderId\":\"mwcoq9qr-efa86fea\"},{\"id\":\"mwcoq9eq-86264b07\",\"title\":\"Summarise the launch notes in one line.\",\"systemPrompt\":\"\",\"messages\":[{\"id\":\"mwcoq9kd-6447e4cd\",\"role\":\"user\",\"content\":\"Summarise the launch notes in one line.\",\"at\":1794435775213,\"attachments\":[{\"id\":\"mwcoq9hv-66600b02\",\"name\":\"notes.txt\",\"kind\":\"text\",\"size\":70,\"pages\":null,\"chars\":70}]},{\"id\":\"mwcoq9kh-85a2ab02\",\"role\":\"assistant\",\"content\":\"Reply to: [Attached file: notes.txt] Launch notes: the review is on Thursday and the budget is 4200 euros.  [End of notes.txt]  Summarise the launch notes in one line.\",\"at\":1794435775217,\"model\":\"fake-model · 127.0.0.1\",\"sources\":[{\"docId\":\"mwcoq9hv-66600b02\",\"name\":\"notes.txt\"}]}],\"createdAt\":1794435775010,\"updatedAt\":1794435775330,\"pinned\":true},{\"id\":\"mwcoqbfe-1b0e274e\",\"title\":\"New chat\",\"systemPrompt\":\"Talk like a pirate.\",\"messages\":[],\"createdAt\":1794435777626,\"updatedAt\":1794435777626,\"presetId\":\"preset-mwcoqbjk-10d6575e\"}]",
+   "plc.lockSplash.v1": "off",
+   "plc.presets.v1": "[{\"id\":\"preset-mwcoqbjk-10d6575e\",\"name\":\"Pirate\",\"prompt\":\"Talk like a pirate.\"}]",
+   "plc.folders.v1": "[{\"id\":\"mwcoq9qr-efa86fea\",\"name\":\"Travel\",\"instructions\":\"\"}]",
+   "plc.inferenceMode.v1": "api",
+   "plc.theme.v1": "light",
+   "plc.memory.v1": "{\"enabled\":true,\"items\":[{\"id\":\"mwcoqbdj-a4239811\",\"text\":\"My favourite colour is green.\",\"at\":1794435777559}]}",
+   "plc.voice.v2": "{\"v\":2,\"selected\":\"os\",\"failures\":{},\"pending\":null,\"speaking\":null}"
+  },
+  "session": {
+   "chatConfig": "{\"endpoint\":\"http://127.0.0.1:46163/v1\",\"token\":\"\",\"model\":\"fake-model\",\"theme\":\"light\"}",
+   "chatModels": "[\"fake-model\"]"
+  },
+  "idb": {
+   "plc-docs": {
+    "version": 1,
+    "stores": {
+     "docs": {
+      "keyPath": "id",
+      "autoIncrement": false,
+      "indexes": [],
+      "records": [
+       {
+        "key": "mwcoq9hv-66600b02",
+        "value": {
+         "id": "mwcoq9hv-66600b02",
+         "name": "notes.txt",
+         "size": 70,
+         "kind": "text",
+         "addedAt": 1794435775128,
+         "pages": null,
+         "chars": 70,
+         "summary": "",
+         "text": "Launch notes: the review is on Thursday and the budget is 4200 euros.\n",
+         "chunks": [
+          {
+           "id": "mwcoq9hv-66600b02:0",
+           "docId": "mwcoq9hv-66600b02",
+           "page": null,
+           "text": "Launch notes: the review is on Thursday and the budget is 4200 euros."
+          }
+         ],
+         "temporary": false
+        }
+       }
+      ]
+     }
+    }
+   }
+  }
+ },
+ "expected": {
+  "projection": 1,
+  "local": {
+   "chatThreads": [
+    {
+     "id": "mwcoq92q-e45a7bc7",
+     "title": "Packing list for a week in Lisbon, please.",
+     "systemPrompt": "",
+     "messages": [
+      {
+       "id": "mwcoq97e-35dfc26e",
+       "role": "user",
+       "content": "Packing list for a week in Lisbon, please.",
+       "at": 1794435774746
+      },
+      {
+       "id": "mwcoq97w-34270b1f",
+       "role": "assistant",
+       "content": "Reply to: Packing list for a week in Lisbon, please.",
+       "at": 1794435774764,
+       "model": "fake-model · 127.0.0.1"
+      },
+      {
+       "id": "mwcoq9by-2e89a7cb",
+       "role": "user",
+       "content": "And what about the weather in March?",
+       "at": 1794435774910
+      },
+      {
+       "id": "mwcoq9c3-8a81d339",
+       "role": "assistant",
+       "content": "Reply to: And what about the weather in March?",
+       "at": 1794435774915,
+       "model": "fake-model · 127.0.0.1"
+      }
+     ],
+     "createdAt": 1794435774578,
+     "updatedAt": 1794435774960,
+     "folderId": "mwcoq9qr-efa86fea"
+    },
+    {
+     "id": "mwcoq9eq-86264b07",
+     "title": "Summarise the launch notes in one line.",
+     "systemPrompt": "",
+     "messages": [
+      {
+       "id": "mwcoq9kd-6447e4cd",
+       "role": "user",
+       "content": "Summarise the launch notes in one line.",
+       "at": 1794435775213,
+       "attachments": [
+        {
+         "id": "mwcoq9hv-66600b02",
+         "name": "notes.txt",
+         "kind": "text",
+         "size": 70,
+         "pages": null,
+         "chars": 70
+        }
+       ]
+      },
+      {
+       "id": "mwcoq9kh-85a2ab02",
+       "role": "assistant",
+       "content": "Reply to: [Attached file: notes.txt] Launch notes: the review is on Thursday and the budget is 4200 euros.  [End of notes.txt]  Summarise the launch notes in one line.",
+       "at": 1794435775217,
+       "model": "fake-model · 127.0.0.1",
+       "sources": [
+        {
+         "docId": "mwcoq9hv-66600b02",
+         "name": "notes.txt"
+        }
+       ]
+      }
+     ],
+     "createdAt": 1794435775010,
+     "updatedAt": 1794435775330,
+     "pinned": true
+    },
+    {
+     "id": "mwcoqbfe-1b0e274e",
+     "title": "New chat",
+     "systemPrompt": "Talk like a pirate.",
+     "messages": [],
+     "createdAt": 1794435777626,
+     "updatedAt": 1794435777626,
+     "presetId": "preset-mwcoqbjk-10d6575e"
+    }
+   ],
+   "plc.activeThread.v1": "mwcoqbfe-1b0e274e",
+   "plc.drafts.v1": {
+    "mwcoqbfe-1b0e274e": "an unsent draft about the snapshot"
+   },
+   "plc.prefs.v1": {
+    "enterSends": null,
+    "instructions": ""
+   },
+   "plc.folders.v1": [
+    {
+     "id": "mwcoq9qr-efa86fea",
+     "name": "Travel",
+     "instructions": ""
+    }
+   ],
+   "plc.presets.v1": [
+    {
+     "id": "preset-mwcoqbjk-10d6575e",
+     "name": "Pirate",
+     "prompt": "Talk like a pirate."
+    }
+   ],
+   "plc.memory.v1": {
+    "enabled": true,
+    "items": [
+     {
+      "id": "mwcoqbdj-a4239811",
+      "text": "My favourite colour is green.",
+      "at": 1794435777559
+     }
+    ]
+   },
+   "plc.voice.v2": {
+    "v": 2,
+    "selected": "os",
+    "failures": {},
+    "pending": null,
+    "speaking": null
+   },
+   "plc.inferenceMode.v1": "api"
+  },
+  "session": {
+   "chatConfig": {
+    "model": "fake-model",
+    "theme": "light"
+   },
+   "chatModels": [
+    "fake-model"
+   ]
+  },
+  "docs": [
+   {
+    "id": "mwcoq9hv-66600b02",
+    "name": "notes.txt",
+    "size": 70,
+    "kind": "text",
+    "addedAt": 1794435775128,
+    "pages": null,
+    "chars": 70,
+    "summary": "",
+    "text": "Launch notes: the review is on Thursday and the budget is 4200 euros.\n",
+    "temporary": false
+   }
+  ]
+ }
+}

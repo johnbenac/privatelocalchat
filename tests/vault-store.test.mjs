@@ -143,7 +143,7 @@ test('boot: no marker means no vault; a marker asks the unlock screen; a marker 
 
 test('the key table matches the inventory file, key for key',async()=>{
   const inv=JSON.parse(await readFile(new URL('../docs/evidence/encryption/storage-inventory.json',import.meta.url),'utf8'));
-  const fromInv=Object.fromEntries(inv.keys.map(k=>[k.key,{store:k.store==='localStorage'?'local':'session',class:k.class}]));
+  const fromInv=Object.fromEntries(inv.keys.map(k=>[k.key,{store:k.store==='localStorage'?'local':'session',class:k.class,format:k.format}]));
   assert.deepEqual(KEY_CLASSES,fromInv);
   assert.equal(isVaulted('chatThreads'),true);assert.equal(isVaulted('plc.shell.collapsed'),false);assert.equal(classOf('nope'),'unknown');
 });

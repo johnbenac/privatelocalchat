@@ -6,7 +6,7 @@
   "DEPLOY_BRANCH": "main",
   "SOURCE_DATE_EPOCH": "0"
  },
- "fileCount": 198,
+ "fileCount": 200,
  "files": {
   "404.html": {
    "bytes": 101,
@@ -97,8 +97,8 @@
    "sha256": "5305e76e993c25a378ed821232564b3983e977f92a59b0138e2b994ab65981ad"
   },
   "index.html": {
-   "bytes": 75937,
-   "sha256": "b720b7d6c4c7decec561b0e502c1d97b9e6669a265d437ee13274d64ed318d29"
+   "bytes": 76488,
+   "sha256": "df84da5278b1913ee72d1118f8d3f13a8d031de2e39e392ee58d9177b36be408"
   },
   "manifest.webmanifest": {
    "bytes": 633,
@@ -181,8 +181,8 @@
    "sha256": "fdd17e6833a4f12a8bb8c5723a4ccc294452a514a00ea8e0ae56364f05287181"
   },
   "releases/0000000000000000000000000000000000000000/chat/documents/doc-store.mjs": {
-   "bytes": 3876,
-   "sha256": "69383900efcc7a36b8f4ef3bd920803e436d21a2f3a8291f619d05b901d96242"
+   "bytes": 4413,
+   "sha256": "ca2523941eebca95150c9a3d98bff00c463658f552708844bfc64ccb2ba199e8"
   },
   "releases/0000000000000000000000000000000000000000/chat/documents/documents-ui.mjs": {
    "bytes": 15977,
@@ -420,9 +420,17 @@
    "bytes": 2224,
    "sha256": "f3795518f3f958bd505aa7ff95049bdcc856a96c3ccf315b11eb80e1b5471131"
   },
+  "releases/0000000000000000000000000000000000000000/chat/vault/data-formats.mjs": {
+   "bytes": 5355,
+   "sha256": "5e6b6ccf3bf513b3be0bc9a1819f7afc157dab2fcbab9b9e24730fdb861f1be1"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/vault/format-guard-ui.mjs": {
+   "bytes": 1659,
+   "sha256": "4ba0559cc4984a22f81bb7b0f1195c6082ce7b6862fbda47146785c699c6b276"
+  },
   "releases/0000000000000000000000000000000000000000/chat/vault/key-classes.mjs": {
-   "bytes": 2431,
-   "sha256": "516bfa4deaa8f968f833666c8dff4f55d4ae3b940c4451b09b45868e9c4b571e"
+   "bytes": 2963,
+   "sha256": "4d2e73e8f132e2d9b07c558731f44e849269c2f73633ad0a0f99346422469cd6"
   },
   "releases/0000000000000000000000000000000000000000/chat/vault/passkey.mjs": {
    "bytes": 5725,
@@ -441,8 +449,8 @@
    "sha256": "94b0708131638259e9bf804d896b200e7567638ab1cc9a9bc4221acdbbd8a24c"
   },
   "releases/0000000000000000000000000000000000000000/chat/vault/vault-store.mjs": {
-   "bytes": 19786,
-   "sha256": "fc84618c3903003ce0e9d916039958d8142eeaa38f4a3a29c5348b3c57f5e41d"
+   "bytes": 22883,
+   "sha256": "47fa4eac6f8937523ef863b80d1b607dd8169b1d34f9b11ed37c59b58263d64d"
   },
   "releases/0000000000000000000000000000000000000000/chat/vault/vault.mjs": {
    "bytes": 17542,
@@ -641,8 +649,8 @@
    "sha256": "a6a574f0c6dcefa76bc608fe11b424baa480e615b36d60bd134c041b709ac4cd"
   },
   "releases/0000000000000000000000000000000000000000/runtime/providers/catalog-data.mjs": {
-   "bytes": 49015,
-   "sha256": "67506966a9c2601697896842480205ad4f6003404b8250fb5a508d9e4ec880ae"
+   "bytes": 49006,
+   "sha256": "dfa0f67c6a6c40e92b082a99ca70938ef8447fff3dc4a685dbae9bfb11be87dd"
   },
   "releases/0000000000000000000000000000000000000000/runtime/providers/catalog.mjs": {
    "bytes": 17822,
@@ -785,8 +793,8 @@
    "sha256": "186344eff8c1febe93b4f0e754b86e9d2ca1acf7fe30214160193ce8a5607df3"
   },
   "sw.js": {
-   "bytes": 18271,
-   "sha256": "a65eb7d4287739d392d275c1d599a2eb948375e0e1d11c1a2a17f4105c347bde"
+   "bytes": 18436,
+   "sha256": "84c8c736f30fa74448650c9ae09305545b40abbe9a660a5819800189774e7e13"
   },
   "updates/index.html": {
    "bytes": 29672,

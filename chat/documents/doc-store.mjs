@@ -1,16 +1,24 @@
 // Attached and library documents live in IndexedDB (conversations stay small in localStorage). A temporary chat's documents are
 // kept in memory only.
-import { app } from "../vault/vault-store.mjs";
+import { app, noteNewerDatabase } from "../vault/vault-store.mjs";
 // With the vault on, documents live in the vault (encrypted, one key each); app.docsBackend is then set and this file stops touching IndexedDB.
 const DB = "plc-docs", STORE = "docs";
+export const DB_FORMAT = 1; // the IndexedDB version of this database: the highest this version reads and writes (docs/DATA-COMPATIBILITY.md)
 const memory = new Map();
 let opening = null;
 const open = () => (opening ||= new Promise((resolve, reject) => {
   if (typeof indexedDB === "undefined") return reject(new Error("This browser cannot store documents."));
-  const r = indexedDB.open(DB, 1);
+  const r = indexedDB.open(DB, DB_FORMAT);
   r.onupgradeneeded = () => { r.result.createObjectStore(STORE, { keyPath: "id" }); };
   r.onsuccess = () => { r.result.onversionchange = () => { r.result.close(); opening = null; }; resolve(r.result); }; // let the database be deleted (turning the vault on removes the old copy)
-  r.onerror = () => { opening = null; reject(r.error || new Error("Document storage is unavailable.")); };
+  r.onerror = () => {
+    opening = null;
+    if (r.error?.name === "VersionError") { // a newer version of the app created this database: leave it alone and say so
+      noteNewerDatabase(DB);
+      const error = new Error("The documents saved in this browser were written by a newer version of the app, so this version cannot open them."); error.code = "newer-format"; reject(error); return;
+    }
+    reject(r.error || new Error("Document storage is unavailable."));
+  };
 }));
 const run = async (mode, fn) => {
   const db = await open();
