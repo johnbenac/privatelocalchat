@@ -799,8 +799,8 @@
    "sha256": "802e46c9e6bf5a295ed08ff9debdd12d3d5c3b6f16d898ffac0ed6a7b40b06f4"
   },
   "sw.js": {
-   "bytes": 20106,
-   "sha256": "7f6f85d2ade602625ead72bdce9de9f175a70aa6f130ff9332aec5f808f2f035"
+   "bytes": 19999,
+   "sha256": "43e2f21b31be26478761038f63f211f8df4052fe2607fc0230fa1c6d09405916"
   },
   "version.json": {
    "bytes": 170,
