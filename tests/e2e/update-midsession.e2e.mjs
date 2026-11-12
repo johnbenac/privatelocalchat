@@ -55,7 +55,7 @@ try{
   ok('the open tab keeps loading its own build after the new service worker takes over');
 
   // 3. Later hides the notice for this build, and a still newer build brings it back
-  await page.click('#updateNotice button:has-text("Later")');
+  await page.click('#updateNotice button:text-is("Later")');
   assert(await page.locator('#updateNotice').count()===0,'Later closes the notice');
   await checkForNewer();await page.waitForTimeout(1500);
   assert(await page.locator('#updateNotice').count()===0,'it does not come back for the same build');
@@ -70,18 +70,18 @@ try{
 
   // 4. unsent text: Reload asks first, and "Keep working" changes nothing
   await page.fill('#messageInput','a thought I have not sent yet');
-  await page.click('#updateNotice button:has-text("Reload")');
+  await page.click('#updateNotice button:text-is("Reload")');
   text=await noticeText();
   assert(/interrupt/.test(text)&&/a message you have not sent/.test(text),'it says what a reload would interrupt: '+text);
   assert(navigations===0,'and has not reloaded');
-  await page.click('#updateNotice button:has-text("Keep working")');
+  await page.click('#updateNotice button:text-is("Keep working")');
   assert(/ready/.test(await noticeText())&&navigations===0&&await page.inputValue('#messageInput')==='a thought I have not sent yet','Keep working leaves everything as it was');
   ok('unsent text is protected');
 
   // 5. a reply in progress: Reload asks first
   await page.fill('#messageInput','slow answer please');await page.click('#sendBtn');
   await page.waitForFunction(()=>Boolean(document.querySelector('#stopGeneration')?.offsetParent),null,{timeout:10000});
-  await page.click('#updateNotice button:has-text("Reload")');
+  await page.click('#updateNotice button:text-is("Reload")');
   text=await noticeText();
   assert(/a reply being written/.test(text),'it names the reply: '+text);
   assert(navigations===0,'and has not reloaded');
@@ -91,12 +91,14 @@ try{
 
   // 6. nothing in progress: Reload takes the new build, and an unsent message comes back
   await page.fill('#messageInput','');
-  await page.click('#updateNotice button:has-text("Keep working")').catch(()=>{});
+  await page.click('#updateNotice button:text-is("Keep working")').catch(()=>{});
   if(await page.locator('#updateNotice').count()===0)await checkForNewer();
   await page.waitForSelector('#updateNotice',{timeout:10000});
+  await page.waitForTimeout(1000); // the composer is reset a moment after a reply finishes: let that happen before typing
   await page.fill('#messageInput','carry this over');
-  await page.click('#updateNotice button:has-text("Reload")');
-  await page.click('#updateNotice button:has-text("Reload anyway")');
+  assert(await page.inputValue('#messageInput')==='carry this over','the text is in the composer');
+  await page.click('#updateNotice button:text-is("Reload")');
+  await page.click('#updateNotice button:text-is("Reload anyway")');
   await ready();
   assert((await page.evaluate(()=>window.APP_BUILD.commit))===C,'after the reload the tab runs build C');
   assert(await page.inputValue('#messageInput')==='carry this over','the unsent message came back');
