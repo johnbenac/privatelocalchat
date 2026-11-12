@@ -18,9 +18,20 @@ A build for downloading never carries our development tooling (the telemetry rec
 
 A test (`tests/neutrality.test.mjs`, rules in `tests/neutrality.config.json`, scan in `scripts/neutrality.mjs`) builds `app` and `runkit` and scans every text file of the output for what is ours: our domain, the organisations that make the app, the maintainer's account and infrastructure, analytics hosts, links to our pages, and hosts the app does not fetch models from. Each place where one of these is meant to be (the default model source, the project's repository, the libraries' own text) is listed with its reason, an entry that nothing uses fails the test, and every host an output names must be in the network inventory or listed. Another app can reuse the test with its own config.
 
+## Getting Node.js
+
+Everything here runs on Node.js, and a computer may not have it. Check with `node -v`.
+
+- **Which version.** The tools in a release zip (`serve.mjs`, `plc.mjs` and the rest) need Node.js 20 or newer. Building from a clone uses Node.js 22, which is what the project's own checks use. Node.js 20 builds the app and serves it, but `npm ci` then prints three `EBADENGINE` warnings (for `wrangler`, `miniflare` and `@cloudflare/kv-asset-handler`, the tools that publish the project's own site); they do not affect the app.
+- **Getting it.** Use your system's package manager, or the installer on nodejs.org. Without administrator rights on Linux, you can unpack the official download in your home folder: from nodejs.org/dist/ take the folder of the version you want (for example the latest v22), download `node-v<version>-linux-x64.tar.xz` and `SHASUMS256.txt`, check the file with `grep node-v<version>-linux-x64.tar.xz SHASUMS256.txt | sha256sum -c -`, unpack it with `mkdir -p ~/node && tar -xJf node-v<version>-linux-x64.tar.xz -C ~/node --strip-components=1`, and put `~/node/bin` first on your `PATH` in the shell you use (`export PATH=~/node/bin:$PATH`). That check shows the file arrived intact; it does not prove who made it (Node's `SHASUMS256.txt` is signed, and `gpg` can check the signature if you want that). Nothing outside your home folder is touched.
+
 ## Run it on this computer
 
+From a clone of the repository, with Node.js 22 (see "Getting Node.js"):
+
 ```sh
+git clone https://github.com/johnbenac/privatelocalchat.git
+cd privatelocalchat
 npm ci
 npm run build          # a neutral copy in dist/
 node scripts/serve.mjs # http://127.0.0.1:18171
@@ -80,7 +91,7 @@ The sections below are for a person who runs a copy for others, or for themselve
 
 The facts you need to write your own privacy notice, what the app keeps in the browser and what it sends, are in `DATA-HANDLING.md` (in the release folder, and in `docs/`). Its section 5, "What you decide yourself", is the checklist of what is yours to decide and say.
 
-In the commands below `/srv/plc` is the operator folder. Use any folder you like. The tools make it if it does not exist and never write outside it.
+In the commands below `/srv/plc` is the operator folder. Use any folder you like that you can write to: an ordinary user cannot create `/srv/plc`, so in your home folder use for example `~/plc`. If the folder cannot be made or written, the tool says so and what to do, and stops. The tools make the folder if it does not exist and never write outside it.
 
 ### The operator folder
 

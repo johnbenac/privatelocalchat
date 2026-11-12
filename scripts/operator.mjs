@@ -697,6 +697,21 @@ function parseArgs(argv) {
   return o;
 }
 
+/**
+ * A file system error in plain words, with what to do about it; any other error keeps its own message. Node's own text ("EACCES: permission denied, mkdir '/srv/plc'")
+ * says what failed but not what a reader should do, and the first thing a reader does is follow an example folder they cannot write to.
+ */
+export function explainSystemError(error) {
+  const where = error && typeof error.path === 'string' ? error.path : null;
+  const code = error && error.code;
+  if (!where || !['EACCES', 'EPERM', 'EROFS', 'ENOSPC', 'ENOTDIR'].includes(code)) return error && error.message ? error.message : String(error);
+  const parent = path.dirname(where);
+  if (code === 'EACCES' || code === 'EPERM') return `Cannot write to ${where}: permission denied. Choose a folder you can write to (for example --root ~/plc), or ask whoever owns ${parent} to create ${where} for you. The run stopped.`;
+  if (code === 'EROFS') return `Cannot write to ${where}: that disk is read-only. Choose a folder on a disk you can write to. The run stopped.`;
+  if (code === 'ENOSPC') return `Cannot write to ${where}: the disk is full. Free some space, or choose a folder on another disk. The run stopped.`;
+  return `${where} is not a folder, or part of the path to it is a file. Choose a folder that exists or can be made. The run stopped.`;
+}
+
 /** Runs one command, or starts the server on the live release. Resolves the exit code, or null when a server was started. */
 export async function runCli(argv, {startServer, stdout = (l) => console.log(l), stderr = (l) => console.error(l), env = process.env} = {}) {
   try {
@@ -723,7 +738,7 @@ export async function runCli(argv, {startServer, stdout = (l) => console.log(l),
     await startServer({root: o.root, host: o.host || env.HOST || '127.0.0.1', port});
     return null;
   } catch (error) {
-    stderr(error.message);
+    stderr(explainSystemError(error));
     return 1;
   }
 }

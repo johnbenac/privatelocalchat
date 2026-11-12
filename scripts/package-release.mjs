@@ -93,7 +93,7 @@ export function readmeText({version, target}) {
 
 This folder is a copy of Private Local Chat that you run yourself. Everything a person does with it stays in their browser, so running a copy never holds anyone's chats, documents or settings. ${pages}
 
-You need Node.js 20 or newer and nothing else.
+You need Node.js 20 or newer and nothing else. Check with \`node -v\`. If the command is not found, get Node.js from nodejs.org: the current long-term-support release works, and on Linux the download can be unpacked in your home folder without administrator rights (the project's docs/RUN-IT.md, "Getting Node.js", has the steps).
 
 ## Try it at once
 
@@ -103,16 +103,16 @@ Then open http://127.0.0.1:18171 in a browser. \`node serve.mjs --port 8080\` ch
 
 ## Install it as an operator folder
 
-To keep your own settings, pages and model files, and to upgrade and go back later, install this release into a folder of your own (here /srv/plc; it is made if it does not exist):
+To keep your own settings, pages and model files, and to upgrade and go back later, install this release into a folder of your own (here ~/plc; it is made if it does not exist, so it must be somewhere you can write):
 
-    node serve.mjs --upgrade . --root /srv/plc
+    node serve.mjs --upgrade . --root ~/plc
 
 The folder keeps every release you install, and \`config/\`, \`pages/\` and \`models/\` that an upgrade never touches. From then on you run the launcher it holds, not this folder:
 
-    node /srv/plc/plc.mjs                      start the server
-    node /srv/plc/plc.mjs --upgrade NEW.zip    install a newer release (SHA256SUMS beside the zip)
-    node /srv/plc/plc.mjs --rollback           go back to the release before
-    node /srv/plc/plc.mjs --check              say whether the folder is healthy
+    node ~/plc/plc.mjs                      start the server
+    node ~/plc/plc.mjs --upgrade NEW.zip    install a newer release (SHA256SUMS beside the zip)
+    node ~/plc/plc.mjs --rollback           go back to the release before
+    node ~/plc/plc.mjs --check              say whether the folder is healthy
 
 An upgrade or a rollback does not break a browser tab that is open. Restart the server afterwards so that it runs the new release's own server file.
 
