@@ -93,7 +93,7 @@ test('the neutral pages are semantic documents that name no site: one h1, a way 
 });
 
 // the strings a neutral copy must not carry: our domain, our organisations, the hosts of other organisations, analytics. (The default model source in app-config.json is allowed and is not in a page.)
-const FORBIDDEN=['privatelocal.chat','aiofourown','AI of Our Own','Tech of Our Own','Cyberplanetary','Sonalon','Cloudflare','huggingface.co','raw.githubusercontent.com','googletagmanager','google-analytics'];
+const FORBIDDEN=['privatelocal.chat','aiofourown','AI of Our Own',['Tech of','Our Own'].join(' '),'Cyberplanetary','Sonalon','Cloudflare','huggingface.co','raw.githubusercontent.com','googletagmanager','google-analytics'];
 test('the neutral pages and manifest hold none of the strings a neutral copy must not carry',async()=>{
  for(const [name,html] of Object.entries(source))for(const word of FORBIDDEN)assert.ok(!html.toLowerCase().includes(word.toLowerCase()),name+' contains '+word);
  const manifest=await readFile(path.join(RUNKIT,'site.json'),'utf8');
