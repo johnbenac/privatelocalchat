@@ -87,6 +87,9 @@ for (const target of ['app', 'runkit']) {
     assert.equal(text('LICENSE'), readFileSync('LICENSE', 'utf8'));
     assert.equal(text('THIRD-PARTY-NOTICES.md'), readFileSync('THIRD-PARTY-NOTICES.md', 'utf8'));
     assert.equal(text('serve.mjs'), readFileSync('scripts/serve.mjs', 'utf8'));
+    const compat = JSON.parse(text('compat.json'));
+    assert.deepEqual([compat.format, compat.version, compat.commit], ['plc-compat/1', VERSION, HEAD]);
+    assert.equal(text('compat.json'), execFileSync('node', ['scripts/compat.mjs', '--version', VERSION, '--commit', HEAD], {encoding: 'utf8'}), 'compat.json in the zip is what the script prints');
     assert.equal(text('headers.mjs'), readFileSync('scripts/headers.mjs', 'utf8'));
   });
 }
