@@ -627,7 +627,11 @@ test('plc.mjs runs the installed release\'s serve.mjs with --root, passes the ex
   assert.equal(own.status, 1);
   assert.match(own.stderr, /leave out --root/);
   unlinkSync(path.join(root, 'releases', '1.0.0-app', 'serve.mjs'));
-  assert.equal(spawnSync(process.execPath, [path.join(root, 'plc.mjs')], {encoding: 'utf8'}).status, 1);
+  const missing = spawnSync(process.execPath, [path.join(root, 'plc.mjs')], {encoding: 'utf8'});
+  assert.equal(missing.status, 1);
+  assert.match(missing.stderr, /names 1\.0\.0-app, but releases\/1\.0\.0-app\/serve\.mjs is not there/);
+  assert.match(missing.stderr, /unpack a release and run "node serve\.mjs --upgrade \. --root /);
+  assert.ok(!/MODULE_NOT_FOUND|Cannot find module/.test(missing.stderr), 'no raw node error');
 });
 
 test('plc.mjs passes a termination signal on to the server it started', async () => {
