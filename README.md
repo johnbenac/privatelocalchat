@@ -22,10 +22,10 @@ npm run build
 node scripts/serve.mjs
 ```
 
-Open http://127.0.0.1:18171. Build output is `dist/`; it contains no credentials or private chat data. The app shows its environment, version, and full deployed commit via `version.json`.
+Open http://127.0.0.1:18171. Build output is `dist/`; it contains no credentials or private chat data. A build with no setup is a complete app with neutral Help and About pages (`run-kit/`); the pages of privatelocal.chat are a separate, private site layer that the deploy adds (`docs/SITE-LAYER.md`). The app shows its environment, version, and full deployed commit via `version.json`.
 
 See [everyday chat features](docs/CHAT-FEATURES.md) for rendered answers, message controls, search, documents, memory, speech, storage and backups, and `npm run e2e` for the browser tests.
 
-See the [maintainer handoff](docs/MAINTAINER-HANDOFF.md), [operations](docs/OPERATIONS.md), [runtime provenance](docs/RUNTIMES.md), and [release acceptance](docs/ACCEPTANCE.md).
+See the [maintainer handoff](docs/MAINTAINER-HANDOFF.md), [operations](docs/OPERATIONS.md), [runtime provenance](docs/RUNTIMES.md), and [release acceptance](docs/ACCEPTANCE.md). How the app, the site layer and a copy you host fit together: [the site layer](docs/SITE-LAYER.md), [links to pages](docs/SITE-LINKS.md), [configuration and model sources](docs/APP-CONFIG.md), [upgrades](docs/UPGRADE-BEHAVIOUR.md), and [data](docs/DATA-COMPATIBILITY.md) and [file](docs/FILE-COMPATIBILITY.md) compatibility.
 
 The [living iPhone investigation plan](docs/IPHONE-INVESTIGATION.md) records the current reliability evidence, next experiment, decision criteria, and results log. Update it as the investigation progresses.

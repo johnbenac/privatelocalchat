@@ -8,7 +8,7 @@
 
 **Rule:** every model file the app downloads, of any kind (language, search, and later speech-to-text and text-to-speech), is served from one
 host: `https://assets.privatelocal.chat` (R2 bucket `privatelocalchat-assets`, provisioned by `ops/cloudflare/provision-cdn.py`; see
-`ops/cloudflare/CDN-OPERATIONS.txt`). The app should not depend on another project's storage or on Hugging Face / GitHub at run time.
+`ops/cloudflare/CDN-OPERATIONS.txt`). The app does not depend on another project's storage or on Hugging Face / GitHub at run time (split stage 4: the models come from the configured model source, `docs/APP-CONFIG.md`).
 
 ## State on 2026-11-02
 
@@ -45,9 +45,7 @@ makes no request to it (Cache API).
 
 ## Task 3: stop depending on other hosts for models
 
-`docs/TECHNICAL-DEBT.md` item 15: the catalogue defaults still name Hugging Face and `raw.githubusercontent.com`,
-overridden at run time by `local-models.js`. Make the defaults point at `assets.privatelocal.chat` so a forgotten override cannot change where
-files come from. Then simplify the three "No, a catalogue default" rows on the Privacy page.
+**Done (split stage 4).** The catalogue defaults used to name Hugging Face and `raw.githubusercontent.com` and were overridden at run time by `local-models.js`. They are now the configured model source (`app-config.json`, `docs/APP-CONFIG.md`), the override is gone, `docs/evidence/split/model-urls-baseline.json` records every address the app requests (all on one host), and the Privacy page no longer says the defaults point elsewhere.
 
 ## Keeping our own copy
 

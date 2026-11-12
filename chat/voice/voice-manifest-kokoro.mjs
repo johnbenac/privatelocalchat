@@ -5,7 +5,7 @@
 import { appConfig } from "../../runtime/config/app-config.mjs";
 
 
-/** The Hugging Face revision the hosted copy is keyed by. ONE place: another step pins the final value here. */
+/** The Hugging Face revision the hosted copy is keyed by. ONE place. */
 export const KOKORO_Q8_COMMIT = "1939ad2a8e416c0acfeecc08a694d14ef25f2231";
 
 export const KOKORO_Q8_BASE_URL = `${appConfig().modelRoot()}Kokoro-82M-v1.0-ONNX-q8/${KOKORO_Q8_COMMIT}/`;

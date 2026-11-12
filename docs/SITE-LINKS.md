@@ -4,7 +4,7 @@ The app never names one of our pages itself. Where the pages are comes from a sm
 
 ## The manifest
 
-`site.json` at the repository root (for now; the private site repository takes it over later):
+`site.json` in the site directory (`docs/SITE-LAYER.md`): the private site repository for privatelocal.chat, `run-kit/` for a neutral copy, `tests/fixtures/site/` for the tests:
 
 ```
 { "format": "plc-site/1", "pages": { "help": "/help/", "about": "/about/", "privacy": "/privacy/", "updates": "/updates/" } }
@@ -12,7 +12,7 @@ The app never names one of our pages itself. Where the pages are comes from a sm
 
 - A value is a path on the same host (one leading `/`) or an absolute `https://` address, so an operator can point Help at their own page.
 - A page that is absent, or whose value is neither, does not exist for this copy.
-- `SITE_JSON_PATH` chooses the file for a build: unset means `./site.json` if it exists, an empty value means none, and a path that does not exist is an error. A build with no manifest is a neutral copy.
+- `SITE_JSON_PATH` chooses the file for a build: unset means the site directory's `site.json` if it exists, an empty value means none, and a path that does not exist is an error. A build with no manifest is a neutral copy.
 - The build checks the manifest (`checkSiteJson`): an unknown page name, an invalid value or another format stops it with the reason. It then writes the validated result into `index.html` as `window.SITE_LINKS`, beside `window.APP_BUILD` and `window.SITE_CONFIG`. There is no extra request and nothing for the offline copy to save.
 - An optional `site` block says who the site is: `"site": { "url": "https://privatelocal.chat/", "socialImage": "/brand/social-card-1200x630.png", "countsPageLoads": true }`. `url` is exactly an origin with a trailing slash, `socialImage` a path on it, `countsPageLoads` says whether its host counts page loads. It feeds the page head, the Share entry points, and what the assistant says about the host (`docs/APP-CONFIG.md`). Without the block a copy names no site.
 - `site-config.json` is separate: it holds facts about the operator (support address, discussion space, hosting logs) that fill sections of the generated pages. `site.json` says where the pages are.
