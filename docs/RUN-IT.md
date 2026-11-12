@@ -33,6 +33,18 @@ node scripts/serve.mjs # http://127.0.0.1:18171
 - It listens on 127.0.0.1. `--host 0.0.0.0` makes the copy reachable from the network and says so; see "Other devices" below.
 - It **logs nothing about requests**. It prints one line when it starts.
 
+## Run a downloaded release
+
+Each release on GitHub carries `private-local-chat-<version>-app.zip` and `private-local-chat-<version>-runkit.zip` (the `app` and `runkit` targets above), `compat.json` and `SHA256SUMS`. Check the files first (`docs/RELEASING.md` says how), then:
+
+```sh
+unzip private-local-chat-<version>-runkit.zip
+cd private-local-chat-<version>-runkit
+node serve.mjs         # http://127.0.0.1:18171
+```
+
+The folder holds `app/` (the build), `serve.mjs` and `headers.mjs` (the server and the header rules it reads), `README.md`, the licence documents, `SOURCE.txt` (the commit, the repository and the command that rebuilds `app/`) and `compat.json`. It needs Node.js 20 or newer and nothing else; `serve.mjs` finds `./app` by itself. To use another web server, serve `app/` with the headers in `app/_headers` (below).
+
 ## Other devices, and why https
 
 The app's on-device features need the browser to treat the page as a *secure context*: `https://` anywhere, or `http://localhost` and `http://127.0.0.1` on the same computer. A copy served as plain `http://192.168.x.y:18171` to a phone loads, but the browser will not enable what the models and the offline copy need. Put `https` in front of it (a reverse proxy with a certificate, or a host that provides one).
@@ -64,4 +76,4 @@ By default the model files come from the project's content delivery network (`ap
 
 ## Upgrading
 
-Download or build the newer version and replace the files; the app finds out by itself (`docs/UPGRADE-BEHAVIOUR.md`) and offers the new build in a notice. Chats and settings live in each person's browser and are not touched by replacing files (`docs/DATA-COMPATIBILITY.md`). A tool that unpacks releases side by side and switches between them (`--upgrade`, `--rollback`) comes in a later stage.
+Download or build the newer version and replace the files (a release's `compat.json` says which saved data it is tested to open and from which release it upgrades); the app finds out by itself (`docs/UPGRADE-BEHAVIOUR.md`) and offers the new build in a notice. Chats and settings live in each person's browser and are not touched by replacing files (`docs/DATA-COMPATIBILITY.md`). A tool that unpacks releases side by side and switches between them (`--upgrade`, `--rollback`) comes in a later stage.
