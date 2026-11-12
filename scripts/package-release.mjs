@@ -88,29 +88,43 @@ export function readmeText({version, target}) {
 
 This folder is a copy of Private Local Chat that you run yourself. Everything a person does with it stays in their browser, so running a copy never holds anyone's chats, documents or settings. ${pages}
 
-## Run it on this computer
-
 You need Node.js 20 or newer and nothing else.
+
+## Try it at once
 
     node serve.mjs
 
-Then open http://127.0.0.1:18171 in a browser. \`node serve.mjs --port 8080\` changes the port. The server logs nothing about requests.
+Then open http://127.0.0.1:18171 in a browser. \`node serve.mjs --port 8080\` changes the port. The server logs nothing about requests. Nothing is installed and nothing outside this folder is written.
+
+## Install it as an operator folder
+
+To keep your own settings, pages and model files, and to upgrade and go back later, install this release into a folder of your own (here /srv/plc; it is made if it does not exist):
+
+    node serve.mjs --upgrade . --root /srv/plc
+
+The folder keeps every release you install, and \`config/\`, \`pages/\` and \`models/\` that an upgrade never touches. From then on you run the launcher it holds, not this folder:
+
+    node /srv/plc/plc.mjs                      start the server
+    node /srv/plc/plc.mjs --upgrade NEW.zip    install a newer release (SHA256SUMS beside the zip)
+    node /srv/plc/plc.mjs --rollback           go back to the release before
+    node /srv/plc/plc.mjs --check              say whether the folder is healthy
+
+An upgrade or a rollback does not break a browser tab that is open. Restart the server afterwards so that it runs the new release's own server file.
+
+## The full guide
+
+The project's docs/RUN-IT.md has all of it: settings (\`config/app-config.json\`, \`config/site.json\`), your own pages, fetching model files to run from your own disk (\`fetch-models.mjs\`), \`--prune\`, running under a service manager, and how to check a download. This folder has no docs folder; for the project, see SOURCE.txt.
+
+## What this does not cover
+
+- Your settings and pages apply only when this folder's \`serve.mjs\` (or plc.mjs) serves the copy. Behind another web server, \`app/\` is served as shipped: serve it with the headers in \`app/_headers\`.
+- Your own pages are not saved for offline use: offline, their addresses open the app.
+- These tools are for release zips. If you run a clone of the source, use git and the build.
+- A release from before these tools existed cannot be installed with them.
 
 ## Other devices
 
 The app's on-device features need a secure context: https, or http://localhost on the same computer. To use a copy from a phone, put https in front of it (a reverse proxy with a certificate, or a host that provides one). \`node serve.mjs --host 0.0.0.0\` makes the copy reachable from the network.
-
-## Another web server
-
-\`app/\` is a static site. Serve it with the headers in \`app/_headers\` (Cross-Origin-Opener-Policy and Cross-Origin-Embedder-Policy on every response, and no caching of \`sw.js\`, \`build-info.js\` and \`version.json\`). \`node -e "import('./headers.mjs').then(m=>process.stdout.write(m.toNginx()))"\` prints them for nginx, and \`m.toCaddy()\` for Caddy.
-
-## Where the models come from
-
-By default the model files come from the project's content delivery network. Every file is checked against the size and SHA-256 pinned in the app, whichever source it comes from.
-
-## Upgrading
-
-Unpack the newer release next to this one and run it. The app finds out by itself that it changed and keeps the chats and settings in each person's browser. \`compat.json\` says which saved data this build is tested to open.
 
 ## Licence and source
 
