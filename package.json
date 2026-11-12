@@ -10,7 +10,8 @@
     "snapshot": "node scripts/snapshot.mjs",
     "snapshot:check": "node scripts/snapshot.mjs diff docs/evidence/split/runkit-baseline.json",
     "snapshot:check:site": "node scripts/snapshot.mjs diff docs/evidence/split/site-baseline.json",
-    "inventory:check": "node scripts/network-inventory.mjs check"
+    "inventory:check": "node scripts/network-inventory.mjs check",
+    "data-handling:check": "node scripts/data-handling.mjs check"
   },
   "devDependencies": {
     "acorn": "^8.19.0",
