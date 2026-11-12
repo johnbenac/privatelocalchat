@@ -13,7 +13,8 @@ The app has no server side. Everything the app itself keeps is in the browser of
 ### Chats and what goes with them
 
 - **Saved chats** are one list in local storage (`chatThreads`), rewritten whole on every save. Beside it are the id of the open chat, the unsent text of each chat (`plc.drafts.v1`), folders (called projects on some screens) and pinned items.
-- **A temporary chat** is kept in memory only. It is not written to storage, not put in the chat history file or in a backup, and is forgotten when the page is closed or reloaded. Files attached in it are also kept in memory only, and memory is not used in it.
+- **Deleting a chat** moves it to Trash. It does not erase it. A chat in Trash stays whole in `chatThreads` (and so in the vault, if the vault is on), and the chat history file and a backup still include it. It stays for 30 days or until the person chooses "Delete permanently" on it, whichever comes first. A chat that has been in Trash for more than 30 days is dropped from the list when the app starts (the stored list is rewritten at the next save); nothing removes it while the app stays open. Only a permanent delete, or that drop, removes a single chat from storage (what that means with the vault on is in section 3).
+- **A temporary chat** is kept in memory only. The chat itself is not written to storage, not put in the chat history file or in a backup, and is forgotten when the page is closed or reloaded. Files attached in it are also kept in memory only, and memory is not used in it. Two small things about it are written down all the same: the text in its message box, which is saved in `plc.drafts.v1` like the unsent text of any chat, and the id of the open chat (`plc.activeThread.v1`). The app removes an entry of `plc.drafts.v1` only when the message box of that chat is emptied; no code removes it when a chat is deleted or forgotten.
 - **Unsent text across an update.** When the page reloads to apply an update, the text in the composer is held in session storage (`plc.draft`) for that one reload.
 
 ### Documents
@@ -27,11 +28,17 @@ Files attached to a chat or added to the document library are kept in the Indexe
 
 ### The API key
 
-A provider's API key is kept in session storage, which the browser ends with the tab. It is in two places there: `chatEndpointTokens` holds one key per exact destination (address, path and query), and `chatConfig` also holds the key of the endpoint in use. A key is never offered to a destination other than the one it was saved for.
+A provider's API key is held in two places: `chatEndpointTokens` holds one key per exact destination (address, path and query), and `chatConfig` also holds the key of the endpoint in use. Where those two are, and how long the key lasts, depends on the vault (section 3):
 
-This changes when the encrypted vault is on (section 3). The vault then takes over every key it covers, session storage included, so a key outlasts the tab, sealed in the vault. The vault setting "Remember my API keys" is on by default; when the person turns it off, keys are held in memory for the visit and not stored.
+- **Vault off.** Both are in session storage, and the key is stored as it is, not encrypted. The app does not remove it when the tab is closed; ending session storage is left to the browser. Browsers normally drop it when the tab or window is closed, but a browser may keep it and give it back when a closed tab is reopened or a session is restored. That is the browser's behaviour, and the app cannot prevent it. The key may therefore outlast the tab.
+- **Vault on, "Remember my API keys" on.** This setting is on by default (`rememberKeys` starts true). The key is not written to session storage. Both places are kept in the vault, sealed, so the key outlasts the tab and the browser's restart, and is there again after the vault is unlocked. A key that was in session storage before the vault was turned on stays there, unencrypted, until the person removes the unencrypted copy (section 3).
+- **Vault on, "Remember my API keys" off.** The key is not written to session storage and `chatEndpointTokens` is not stored. The stored copy of `chatConfig` has its key blanked. The key is held in the memory of the page and is lost when the page is reloaded or closed, or when the vault is locked (locking reloads the page).
 
-"Transfer settings" puts the key in the link, QR code or settings file only if the person ticks the box for it, and then only encrypted under a password they choose (section 2g). A key received that way is saved like a typed one, in session storage. The chat history file and the backup carry no API key and no provider settings.
+A key is sent only to the destination it was saved for. The one exception is a prompt, "Copy your API key?", that appears when the person chooses a new endpoint that has no saved key while a key is in use: it offers to copy the current key to the new endpoint. If the person answers yes, the key is saved for that endpoint and sent to it. The prompt is asked once for each new destination until the page is reloaded. If the person does not answer yes, no key is saved for the new destination and none is sent to it.
+
+"Transfer settings" puts the key in the link, QR code or settings file only if the person ticks the box for it, and then only encrypted under a password they choose (section 2g). A key received that way is saved like a typed one, in the place that fits the cases above. The chat history file and the backup carry no API key and no provider settings.
+
+The "copy" button beside the key field writes the key, as plain text, to the system clipboard (section 2k).
 
 ### Model and voice files, and the offline copy
 
@@ -44,7 +51,7 @@ This changes when the encrypted vault is on (section 3). The vault then takes ov
 
 ### Files the person saves
 
-The chat history file, a protected backup and a settings file are made in the browser and handed to the browser's download. The app keeps no copy of them and does not know where they go. The only trace is the time of the last export, kept in the preferences, which drives the backup reminder. The chat history file is readable by anyone who has it. A protected backup is encrypted under a password the person chooses. A settings file holds the endpoint, the model and the theme, and an API key only as described above.
+The chat history file, a protected backup and a settings file are made in the browser and handed to the browser's download. The app keeps no copy of them and does not know where they go. The only trace is the time of the last export, kept in the preferences, which drives the backup reminder. The chat history file and a backup include the chats in Trash, but not temporary chats. The chat history file is readable by anyone who has it. A protected backup is encrypted under a password the person chooses. A settings file holds the endpoint, the model and the theme, and an API key only as described above.
 
 ### What clearing site data removes
 
@@ -130,7 +137,7 @@ What the app sends depends on the mode the person is in. This section goes mode 
 ### b. A connected provider
 
 - **When.** Only when the person has chosen "Connected provider". The app never switches to a provider on its own: every change of mode in the code is made by a button the person presses, a failed on-device model gives an error and not a request to a provider, and a request cannot be made without an endpoint and a model the person set. The mode is remembered in the browser; with no mode saved, a tab that already has a provider endpoint in session storage starts in provider mode, and otherwise the app starts on-device.
-- **What a reply request carries.** One POST to the provider's address, with the person's own API key in the header the provider uses (`Authorization`, or `x-api-key` for the Anthropic format). The body holds the model name and the conversation, made of:
+- **What a reply request carries.** One POST to the provider's address, with the person's own API key, if there is one, in the header that the provider's API format uses: `Authorization: Bearer` by default, `api-key` for Azure, `x-api-key` for the Anthropic format (and for any provider entry whose key style says so). The Anthropic format also sends `anthropic-version` and `anthropic-dangerous-direct-browser-access: true`, the header Anthropic requires before it lets a browser call it with the person's own key. The body holds the model name and the conversation, made of:
   - the chat's own instructions (its system prompt or preset), the instructions of the folder the chat is in, and the person's standing preferences;
   - memory items (up to 40 items and 2,000 characters), unless the chat is temporary or the memory switch is off;
   - a summary of the earlier part of a long chat, if one was made;
@@ -141,7 +148,16 @@ What the app sends depends on the mode the person is in. This section goes mode 
 
   During a voice call a short style instruction is added as well. For the Responses format the request also says `store: false`, so the provider is asked not to keep it. If a provider answers 400 or 422 the same request is sent again without streaming.
 - **What it does not carry.** Other chats, the settings, the vault, the memory of a temporary chat, files of other folders, and any key saved for another destination.
-- **The model list.** In provider mode the app also asks the provider for its list of models (a GET with the key). It does so when the person picks or types an endpoint (about 1.6 seconds after typing stops), changes the key or the API format, receives settings by transfer, or presses "Refresh model list". Typing an address therefore sends a request to that address.
+- **The model list.** In provider mode the app also asks the provider for its list of models (a GET, with the key if there is one for that address). It does so:
+  - **at start-up**, with no action by the person: when the page starts in provider mode with an endpoint set and no model list stored (`chatModels`). The request goes to the saved endpoint with the saved key, before the person does anything. It happens, for example, when an earlier request for the list failed, since only a list that arrived is stored. It does not happen when a model list is already stored, or when the page starts in on-device mode;
+  - when the person picks or types an endpoint (about 1.6 seconds after typing stops);
+  - when the key or the API format is changed;
+  - when settings are received by transfer;
+  - when the person presses "Refresh model list";
+  - after the person answers the "Copy your API key?" prompt (section 1), when the choice of endpoint asked for a list.
+
+  Typing an address therefore sends a request to that address.
+- **Summarize earlier messages.** This is a button (under the message box when the conversation is nearly full, and under a reply that ran out of room). In provider mode it sends the provider one request for each piece of the earlier conversation (the person's and the assistant's earlier messages that are not left out of context, cut into pieces), with a fixed instruction and the summary made so far. The answer is stored as the chat's summary and is then sent in later reply requests (above). It does not carry memory, the folder's instructions or files. It is made by the same code as a reply, so a provider that answers 400 or 422 gets it again without streaming. In on-device mode the summary is made on the device and sends nothing.
 - **Who.** The providers the app lists are in the hosts table below; a host named there is contacted only if the person chooses it. A custom address can be any web address, including a program on the person's own computer or network (the list offers Ollama, LM Studio, llama.cpp and vLLM on `localhost`). The provider's own terms and prices apply, and what it keeps is for the provider to say.
 
 ### c. Voice
@@ -185,9 +201,19 @@ The "Share" entries (in the Explore list, in a menu and in Settings) appear only
 
 - **No account.** There is no sign-in, no registration, and nothing is sent to an account service.
 - **No cookies from the app.** The app's own code never reads or writes a cookie. One library bundled with the on-device model runtime has a fallback that would write a cookie for its log level if local storage were unavailable; it runs in the model worker, which has no document, so it does nothing there. A host may set cookies of its own.
-- **No third-party scripts.** The page loads scripts and styles from its own host only, and the headers the build declares include `Cross-Origin-Embedder-Policy: require-corp`, which makes a browser refuse cross-origin files that do not agree to being embedded. Hosts named in the source are not hosts that are contacted (next section).
-- **Links out.** The app has links to the provider websites, to the project's repository and to documentation. A link is followed only when the person clicks it, opens in a new tab, and the browser sends the other site no more than the address of this copy (`Referrer-Policy: strict-origin-when-cross-origin`).
+- **No third-party scripts.** The page loads scripts and styles from its own host only, and the headers the build declares include `Cross-Origin-Embedder-Policy: require-corp`, which makes a browser refuse cross-origin files that do not agree to being embedded. A host named in the source is contacted only if the person chooses it as a provider or follows a link to it (next section).
+- **Links out.** The app has links to the provider websites, to the project's repository and to documentation. A link is followed only when the person clicks it, opens in a new tab, and the browser sends the other site no more than the origin of this copy (scheme, host and port; `Referrer-Policy: strict-origin-when-cross-origin`).
+- **Links in a model's replies.** A reply can contain links to any site; only `http`, `https` and `mailto` links are made clickable. One opens in a new tab with `noopener noreferrer nofollow`, so the other site gets no referrer from the browser. An image in a reply is not fetched: it is drawn as a text link, "Image: ...", that the person may open. The address of a link in a reply is the model's to choose, not the app's.
 - **No development tooling.** The development diagnostics (a receiver that uploads state events) are built only for the project's own development site. A build for downloading cannot carry them, and `app` and `runkit` builds are refused on the development branch.
+
+### j. Copy link with the current title, system prompt and prompt
+
+The chat menu has "Copy link with current title/system/prompt". It writes a link to the system clipboard (or shows it in a box to copy). The link is the address of this copy followed by a query string that holds the title of the open chat, its system prompt and the text in the message box, if each is not empty (`?title=...&system=...&prompt=...`). The link is made on the device and nothing is sent when it is made. Opening it, wherever the person pastes it, sends that query string to the host that serves the copy, and a host may log it; unlike the settings link of section g, nothing in it is after a `#`, and none of it is encrypted. The app reads these values on opening a link and starts a new chat from them. The link does not carry an API key.
+
+### k. What the browser and the clipboard do
+
+- **Spell-check.** The message box (`#messageInput`) does not set `spellcheck="false"`. Only the API key field and the password boxes of the transfer dialogs do; no other box in the app's own files sets it. Whether text typed in a box with spell-check on is sent to a spell-check service is up to the browser, and some browsers do send it. The app cannot tell which.
+- **The clipboard.** The app writes to it when the person presses a copy button: the copy button of the API key field writes the key, as plain text; "Copy link ..." writes the link of section j; other copy buttons write what they name (a message, a settings link). For the key and for the link, if the clipboard cannot be written, the app shows the text in a box to copy by hand. The app does not clear the clipboard afterwards. Nothing in the app reads the clipboard; pasting into a box is the browser's.
 
 ### Hosts the app's files name
 
@@ -322,11 +348,13 @@ The key table in `chat/vault/key-classes.mjs` gives every storage key a class. T
 - the provider settings and the API keys (the keys only if "Remember my API keys" is on);
 - the short-lived items of a tab (the unsent text kept across an update, a settings link waiting for its password).
 
-What is stored is sealed with AES-256-GCM. Settings are sealed under a random vault key, and each chat and document under a key of its own that the vault key seals. A key derived from the passphrase (PBKDF2-SHA-256, 600,000 rounds) wraps the vault key. Each record is padded to a multiple of 1 KB before sealing, so the length of a short message is not visible. Deleting a chat destroys its key.
+What is stored is sealed with AES-256-GCM. Settings are sealed under a random vault key, and each chat and document under a key of its own that the vault key seals. A key derived from the passphrase (PBKDF2-SHA-256, 600,000 rounds) wraps the vault key. Each record is padded to a multiple of 1 KB before sealing, so the length of a short message is not visible. Deleting a chat permanently destroys its key in the app's view (next paragraph); moving it to Trash does not.
+
+**What deleting does with the vault on.** Moving a chat to Trash only marks it; the chat and its key stay in the vault for up to 30 days (section 1). When the chat is removed for good (the person chooses "Delete permanently", or the app drops it at start-up after 30 days in Trash), the vault appends a record that deletes the chat and a record that destroys its key, and the app no longer holds that key. The older records stay in the vault's log, including the sealed record that holds the chat's key and the sealed copies of the chat. The code that rewrites the log without them (compaction, `session.compact()`) exists, but nothing in the app calls it; `docs/ENCRYPTION-AT-REST-PLAN.md` says it is not yet run automatically. So a deleted chat's bytes remain in the browser's storage, sealed under a key that is itself still in the log, until compaction is run. With the vault off, deleting for good rewrites the saved list without the chat, and the old bytes may survive on the storage medium (see "Leftover bytes").
 
 ### What it leaves readable
 
-- **The `plain` keys** in the table in section 1: the theme, the marker that says a vault exists (with the auto-lock minutes), the format registry, the state of the side panel, the flags that a notice was shown, a model download that should resume, and the other keys with class `plain`.
+- **The `plain` keys** in the table in section 1: the theme, the marker that says a vault exists (`plc.vault.v1`, which also holds the auto-lock minutes, the setting "lock when the page is hidden" and the time the vault was made), the format registry, the state of the side panel, the flags that a notice was shown, a model download that should resume, and the other keys with class `plain`.
 - **The device stores:** model files, voice files and the saved copy of the app.
 - **The vault's own header and log:** the format and creation time; the wrapped vault key and what is needed to unwrap it (for a passkey also its credential id, label, address and date); and for each record a sequence number, the id of its key (which carries the id of a chat or document) and sealed bytes.
 - **The old unencrypted copy,** until it is removed. Turning the vault on does not delete what was saved before. The app offers to remove it, and the person can do it later in Settings. Until then it is readable by anyone with access to the browser's storage.
@@ -343,7 +371,7 @@ What is stored is sealed with AES-256-GCM. Settings are sealed under a random va
 - **An unlocked page.** Once unlocked, chats are plaintext in the memory of the page. The browser, extensions with access to the page, and anything that can read the process's memory can see them.
 - **Guessing a weak passphrase** from a copy of the browser's files. Key derivation slows each guess; it cannot save a short passphrase.
 - **Metadata.** The number and times of records, their sizes (rounded to 1 KB), the ids of chats and documents, and which models are downloaded stay visible.
-- **Leftover bytes.** Plaintext written before the vault was turned on, or before an unencrypted copy was removed, may survive on the storage medium.
+- **Leftover bytes.** The records of a chat that was deleted, until the log is compacted (above). Plaintext written before the vault was turned on, or before an unencrypted copy was removed, may survive on the storage medium.
 - **What is sent to a provider.** A request to a connected provider carries the conversation in plain text (section 2b). The vault protects what is stored, not what is sent.
 - **A lost passphrase.** The code has no recovery and no reset. The unlock screen says so, and its "Forgot the passphrase?" path erases the chats, documents, memory and settings kept in this browser, after two explicit steps, and keeps the downloaded models. A passkey is a second way in, not a recovery; if both the passphrase and the passkey are lost, nothing can open the vault. A protected backup (encrypted under its own password) is the safety net.
 
@@ -366,7 +394,7 @@ This section is about the Node.js programs that ship beside the app in a release
 
 - **Upgrade, rollback, check and prune** read and write local files inside the operator folder, and upgrade reads the zip or unpacked release it is given. Without `--online` none of them opens a network connection. They keep no log; what they leave behind is the operator folder itself (`current.json`, the release folders, the launcher).
 - **`--check --online`** is the only request about releases. It sends one GET to `https://api.github.com/repos/johnbenac/privatelocalchat/releases/latest`, the public release record of the project's repository, with the user agent `private-local-chat-check` and a 15 second limit. It reads the version name from the answer and prints whether a newer release exists. It runs only when asked, never by itself and never from the app. GitHub sees the address and time of the request, as any web host does.
-- **`fetch-models.mjs`** contacts only the model source it is told to use: `--from`, else the first source of `config/app-config.json` under `--root`, else the source written into the shipped page. The address must be https (http only for `localhost` or `127.0.0.1`). It refuses redirects, sends no credentials, and sends the user agent `fetch-models` and, to continue a part-finished file, a `Range` header. Nothing else identifies the person or the copy. It keeps a file only when its size and SHA-256 match `models.json`, and discards other bytes. It cannot fetch the matching model's files, because `models.json` lists none for it.
+- **`fetch-models.mjs`** contacts only the model source it is told to use: `--from`, else the first source of `config/app-config.json` under `--root`, else the source written into the shipped page. The address must be https (http only for `localhost` or `127.0.0.1`). It refuses redirects, sends no credentials, and sends the user agent `fetch-models` and, to continue a part-finished file, a `Range` header. Nothing else identifies the person or the copy. It writes each download to a file with the ending `.part` and moves it into place only when its size and SHA-256 match `models.json`. A download that ends with other bytes is deleted and nothing is put in place. A download that stops early keeps its `.part` file so that the next run continues it (with a `Range` header). A file already in place whose size is right is left alone without a hash check, unless `--deep` is given. It cannot fetch the matching model's files, because `models.json` lists none for it.
 - **`plc.mjs`** only starts the `serve.mjs` of the live release on the same computer.
 
 Nothing in these programs reports anything to the project.
@@ -377,7 +405,7 @@ What the operator's own web server, proxy or host logs when it serves a copy is 
 
 These are the decisions the code cannot make for whoever runs a copy. Each one belongs in the notice you write for the people who use your copy. This document gives facts about the code. It is not legal advice, and following it does not make a copy comply with any law.
 
-1. **What your web server, proxy and host log, and for how long.** The code gives them requests to log: every page load, the app's files, `/sw.js`, `/version.json` about every 5 minutes for each open copy (section 2a), update checks (section 2e), and the model downloads if your host is the model source. Say what you record (addresses, times, browser names), who can read it, and how long you keep it. A settings link made by an older version has its settings, and possibly a key, in the query string, which reaches your log (section 2g).
+1. **What your web server, proxy and host log, and for how long.** The code gives them requests to log: every page load, the app's files, `/sw.js`, `/version.json` about every 5 minutes for each open copy (section 2a), update checks (section 2e), and the model downloads if your host is the model source. Say what you record (addresses, times, browser names), who can read it, and how long you keep it. A settings link made by an older version has its settings, and possibly a key, in the query string, which reaches your log (section 2g). So does a link made with "Copy link with current title/system/prompt", whose query string holds a chat title, a system prompt and unsent message text (section 2j).
 2. **Which model source you use, and who runs it.** The shipped default is the project's content delivery network. If you keep it, the first model download shows the notice, and that host sees that downloads are requested. If you set your own source (`config/app-config.json`, `docs/APP-CONFIG.md`), you are that host to your users: you decide what it logs, and you must serve the right bytes. The app checks model and voice files against pinned hashes whatever the source. It does not check the matching model's files (section 2d); and `fetch-models.mjs` cannot fetch them, so a source you run from your own disk must be given that set by hand.
 3. **Any analytics, counting or other script you add.** The app has none. If you add a count at your edge or a script in a page of yours, say so. The assistant says that your host "counts page loads without cookies" only when the `site` block of your `config/site.json` sets `countsPageLoads` to true. Set it only if that is true, and take it out when it stops being true.
 4. **Where your privacy notice lives and how it is linked.** A copy with no privacy page draws no link to one. Put your page at `pages/privacy/index.html` in the operator folder and name it under `pages` in `config/site.json` (`docs/RUN-IT.md`, `docs/SITE-LINKS.md`). Behind another web server, build the copy with your own site manifest instead. The same file names the help, about and updates pages.
@@ -398,17 +426,31 @@ The app's own statements about data are not in this document. They are listed in
 | Statement | File | Symbol or text |
 | --- | --- | --- |
 | Saved chats are one list in local storage, written whole | `chat/core/thread-state.mjs` | `THREAD_KEY` |
-| A temporary chat is never written to storage | `chat/core/thread-state.mjs` | `!t.temporary` |
+| A temporary chat is never written to the saved list of chats | `chat/core/thread-state.mjs` | `!t.temporary` |
+| The text typed in a temporary chat is saved in plc.drafts.v1 like any draft | `index.html` | `DRAFTS_KEY` |
+| A draft is removed only when the message box of that chat is emptied | `index.html` | `delete drafts[threadId]` |
+| The id of the open chat, a temporary one too, is written to storage | `chat/core/thread-state.mjs` | `ACTIVE_THREAD_KEY, id` |
 | A temporary chat's files are kept in memory only | `chat/documents/doc-store.mjs` | `memory.set(doc.id, doc)` |
 | Memory is not used in a temporary chat | `chat/assistant/assistant.mjs` | `!thread.temporary` |
-| The chat history file leaves out temporary chats | `chat/history/history-io.mjs` | `!t.temporary` |
-| A backup leaves out temporary chats | `chat/transfer/backups.mjs` | `!t.temporary` |
+| The chat history file leaves out temporary chats and nothing else, so Trash is included | `chat/history/history-io.mjs` | `!t.temporary` |
+| A backup leaves out temporary chats and nothing else, so Trash is included | `chat/transfer/backups.mjs` | `!t.temporary` |
+| Deleting a chat moves it to Trash by setting a time | `chat/list/conversation-list.mjs` | `thread.deletedAt = Date.now()` |
+| Only Delete permanently removes a chat from the list | `chat/list/conversation-list.mjs` | `deleteForever` |
+| A chat stays in Trash for 30 days | `chat/threads.mjs` | `TRASH_DAYS = 30` |
+| Chats past 30 days in Trash are dropped when the chats are loaded | `chat/core/thread-state.mjs` | `purgeExpired` |
 | Unsent text is held in session storage across an update reload | `local-models.js` | `plc.draft` |
 | Documents are kept in the IndexedDB database plc-docs | `chat/documents/doc-store.mjs` | `plc-docs` |
 | A document keeps its extracted text and passages, not the original file | `chat/documents/documents.mjs` | `buildDocument` |
 | Pictures can only be attached with a connected provider | `chat/documents/documents-ui.mjs` | `Pictures can only go to an API provider` |
 | Provider settings are written to session storage | `chat/provider/provider-settings.mjs` | `writeJson(appSession, CONFIG_KEY, config)` |
-| API keys are kept per exact destination and never offered to another | `chat/provider/endpoint-tokens.mjs` | `canonicalize` |
+| API keys are kept per exact destination | `chat/provider/endpoint-tokens.mjs` | `canonicalize` |
+| A new endpoint without a saved key offers to copy the current key to it | `chat/provider/provider-settings.mjs` | `Copy your API key?` |
+| The key is copied and saved for the new endpoint only if the person agrees | `chat/provider/provider-settings.mjs` | `endpointForToken: nextEndpoint` |
+| With the vault on, vaulted session keys are not written to session storage | `chat/vault/vault-store.mjs` | `if (!vaulted(key)) return real.setItem(key, value);` |
+| With Remember my API keys off, the endpoint keys are held in memory only | `chat/vault/vault-store.mjs` | `memoryOnly.add("chatEndpointTokens")` |
+| The copy button of the key field writes the key to the clipboard | `chat/provider/provider-settings.mjs` | `Token copied to clipboard` |
+| The key field turns spell-check off | `index.html` | `spellcheck="false"` |
+| The transfer password boxes turn spell-check off | `chat/transfer/transfer-ui.mjs` | `input.spellcheck = false` |
 | The key of the endpoint in use is also in the stored settings, blanked when keys are not remembered | `chat/vault/vault-store.mjs` | `withoutToken` |
 | Keys are remembered by default; off means memory only | `chat/vault/vault-store.mjs` | `let rememberKeys = true` |
 | The vault setting is named Remember my API keys | `chat/lock/lock.mjs` | `Remember my API keys` |
@@ -439,10 +481,14 @@ The app's own statements about data are not in this document. They are listed in
 | A request needs an endpoint and a model; there is no fallback to a provider | `chat/core/sender.mjs` | `Endpoint is not configured.` |
 | A reply request is a POST to the provider with the conversation | `chat/provider/api-formats.mjs` | `buildApiRequest` |
 | The key goes in the provider's header | `chat/provider/api-formats.mjs` | `x-api-key` |
+| Azure sends the key in the api-key header | `chat/provider/api-formats.mjs` | `headers["api-key"]` |
+| The Anthropic format adds the browser-access header | `chat/provider/api-formats.mjs` | `anthropic-dangerous-direct-browser-access` |
 | Standing preferences and memory are added to the instructions | `chat/assistant/assistant.mjs` | `standing preferences` |
 | Memory is limited to 40 items | `chat/assistant/assistant.mjs` | `lines.length >= 40` |
 | The folder's instructions are added | `chat/list/conversation-list.mjs` | `selectedFolderInstructions` |
 | A summary stands in for the older part of a chat | `conversation-messages.mjs` | `Summary of the earlier part` |
+| Summarize earlier messages is a button and sends the earlier messages through the same request code | `chat/context/context-ui.mjs` | `summaryPrompt(summary, plan.pieces[i])` |
+| The summary request carries the earlier messages in pieces and the summary so far | `chat/context.mjs` | `Summary so far:` |
 | Messages left out of context are not sent | `chat/threads.mjs` | `!m.excluded` |
 | Attached files and library documents are sent as text or passages | `chat/documents/documents-ui.mjs` | `planContext` |
 | The library of the chat's folder is included | `chat/documents/documents-ui.mjs` | `libraryFor` |
@@ -453,7 +499,14 @@ The app's own statements about data are not in this document. They are listed in
 | A provider that rejects streaming gets the request again without it | `chat/core/sender.mjs` | `response.status === 422` |
 | The model list is requested only in provider mode | `chat/provider/provider-settings.mjs` | `window.localModels?.mode !== "api"` |
 | The model list is requested 1.6 seconds after typing stops | `chat/provider/provider-settings.mjs` | `1600` |
+| The model list is requested at start-up when there is an endpoint and no stored list | `index.html` | `!provider.models.length && provider.config.endpoint` |
+| A model list that arrived is stored, so a failed request leaves none | `chat/provider/provider-settings.mjs` | `storeModels(ids)` |
 | Local servers are offered in the provider list | `chat/provider/endpoint-options.mjs` | `http://localhost:11434/v1` |
+| Copy link puts the title, system prompt and message text in the query string | `chat/core/thread-state.mjs` | `params.set('prompt', prompt)` |
+| Copy link is a menu entry of a chat | `chat/list/conversation-list.mjs` | `Copy link with current title/system/prompt` |
+| Opening such a link starts a chat from the query values | `chat/transfer/transfer-glue.mjs` | `parseUrlParams` |
+| Links in a model's replies open in a new tab without a referrer | `chat/markdown.mjs` | `noopener noreferrer nofollow` |
+| Images in a model's replies are not fetched | `chat/markdown.mjs` | `never fetched` |
 | Dictation uses the browser's speech recognition | `chat/voice/speech.mjs` | `startDictation` |
 | A voice call listens with the same dictation | `chat/call/call.mjs` | `speechMod.startDictation` |
 | The app does not record audio | `chat/voice/voice-recorder.mjs` | `the AUDIO is never recorded or stored` |
@@ -506,7 +559,10 @@ The app's own statements about data are not in this document. They are listed in
 | The vault covers the user, setting and transient classes | `chat/vault/key-classes.mjs` | `VAULTED_CLASSES` |
 | The vault seals with AES-256-GCM | `chat/vault/vault.mjs` | `AES-256-GCM` |
 | Records are padded to 1 KB | `chat/vault/vault.mjs` | `PAD_BUCKET` |
-| Deleting a chat destroys its key | `chat/vault/vault.mjs` | `crypto-shredding` |
+| A chat removed from the saved list is deleted from the vault | `chat/vault/vault-store.mjs` | `session.delThread(id)` |
+| Deleting a chat for good appends a record that destroys its key | `chat/vault/vault.mjs` | `key.destroy` |
+| The vault can rewrite its log without old records, and the app does not call it | `chat/vault/vault.mjs` | `compact:` |
+| The vault marker also holds lock-on-hide | `chat/vault/vault-control.mjs` | `writeMarker({ lockOnHide` |
 | The unencrypted copy stays until removed | `chat/vault/vault-control.mjs` | `removePlaintext` |
 | The app offers to remove the unencrypted copy | `chat/lock/lock.mjs` | `Remove the unencrypted copy?` |
 | The vault header and key ids are readable | `chat/vault/vault.mjs` | `readable and not secret` |
@@ -534,5 +590,6 @@ The app's own statements about data are not in this document. They are listed in
 | The fetch tool refuses redirects and sends no credentials | `scripts/fetch-models.mjs` | `redirect: 'error'` |
 | The fetch tool names itself in the user agent | `scripts/fetch-models.mjs` | `'User-Agent': 'fetch-models'` |
 | The fetch tool keeps a file only when size and SHA-256 match | `scripts/fetch-models.mjs` | `refused: wrong bytes` |
+| The fetch tool downloads to a .part file, deleted when its bytes are wrong | `scripts/fetch-models.mjs` | `file + '.part'` |
 | The fetch tool contacts one source | `scripts/fetch-models.mjs` | `resolveSource` |
 | The launcher only starts the live release's server | `scripts/plc.mjs` | `spawn` |
