@@ -8,6 +8,7 @@
 //   app/              the output of the target, exactly (TARGET=<target> RELEASE_VERSION=<version>)
 //   serve.mjs, headers.mjs, zip.mjs ...   the tools (RELEASE_TOOLS below); they need only Node.js
 //   models.json       every model file the app can download, with size and SHA-256 (scripts/models-manifest.mjs)
+//   DATA-HANDLING.md  what the app keeps and sends (RELEASE_DOCS below), copied from docs/
 //   README.md         how to run the folder
 //   LICENSE, THIRD-PARTY-NOTICES.md
 //   SOURCE.txt        where the source of this exact build is, and how to rebuild it
@@ -35,6 +36,10 @@ export const RELEASE_TOOLS = [
   'operator.mjs',
   'overlay.mjs',
   'plc.mjs'
+];
+// The documents under docs/ that are copied into the zip root, one name per line, so that an operator who has only the zip has them.
+export const RELEASE_DOCS = [
+  'DATA-HANDLING.md'
 ];
 const VERSION = /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/;
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
@@ -113,7 +118,7 @@ An upgrade or a rollback does not break a browser tab that is open. Restart the 
 
 ## The full guide
 
-The project's docs/RUN-IT.md has all of it: settings (\`config/app-config.json\`, \`config/site.json\`), your own pages, fetching model files to run from your own disk (\`fetch-models.mjs\`), \`--prune\`, running under a service manager, and how to check a download. This folder has no docs folder; for the project, see SOURCE.txt.
+The project's docs/RUN-IT.md has all of it: settings (\`config/app-config.json\`, \`config/site.json\`), your own pages, fetching model files to run from your own disk (\`fetch-models.mjs\`), \`--prune\`, running under a service manager, and how to check a download. This folder has no docs folder; for the project, see SOURCE.txt. \`DATA-HANDLING.md\` in this folder states what the app keeps and sends, for writing your own notice.
 
 ## What this does not cover
 
@@ -180,6 +185,7 @@ export async function releaseEntries({target, version, commit, epoch, workDir = 
     const entries = (await filesOf(holder)).map((f) => ({name: `${folder}/app/${f.rel}`, data: f.data, mode: 0o644}));
     const add = (name, data, mode = 0o644) => entries.push({name: `${folder}/${name}`, data: Buffer.isBuffer(data) ? data : Buffer.from(data), mode});
     for (const tool of RELEASE_TOOLS) add(tool, readFileSync(path.join(root, 'scripts', tool)), tool === 'serve.mjs' ? 0o755 : 0o644);
+    for (const doc of RELEASE_DOCS) add(doc, readFileSync(path.join(root, 'docs', doc)));
     add('README.md', readmeText({version, target}));
     add('LICENSE', readFileSync(path.join(root, 'LICENSE')));
     add('THIRD-PARTY-NOTICES.md', readFileSync(path.join(root, 'THIRD-PARTY-NOTICES.md')));
