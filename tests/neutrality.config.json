@@ -16,6 +16,7 @@
  ],
  "allowed": [
   {"string": "our-domain", "paths": ["index.html"], "why": "The shipped default model source (assets.privatelocal.chat), written into index.html by the build from config/app-config.json; docs/APP-CONFIG.md says how to change it."},
+  {"string": "our-domain", "paths": ["models.json"], "why": "The shipped default model source, listed so that fetch-models can fetch from it."},
   {"string": "maintainer-account", "paths": ["index.html", "releases/*/chat/shell/shell.mjs", "help/index.html", "about/index.html", "releases/*/chat/vendor/voice/*.LEGAL.txt"], "why": "The project's own repository (source, issues, releases), which every copy points to for the source it is built from."},
   {"string": "maintainer-account", "paths": ["SOURCE.txt"], "why": "A release's source pointer names the project's repository, the address of the source the folder was built from."},
   {"string": "model-hosts", "paths": ["releases/*/runtime/providers/vendor/**", "releases/*/chat/vendor/**"], "why": "The vendored libraries' own text and defaults; the app configures them with its own sources, so these are never used."},
@@ -24,6 +25,7 @@
  ],
  "allowedHosts": [
   {"hosts": ["assets.privatelocal.chat"], "paths": ["index.html"], "why": "The shipped default model source (see the allowed our-domain entry)."},
+  {"hosts": ["assets.privatelocal.chat"], "paths": ["models.json"], "why": "The shipped default model source, listed so that fetch-models can fetch from it."},
   {"hosts": ["local", "127.0.0.1", "localhost"], "paths": ["serve.mjs", "README.md"], "why": "This computer: the address the bundled server listens on and the instructions give."},
   {"hosts": ["fsf.org", "www.gnu.org"], "paths": ["LICENSE"], "why": "Addresses in the text of the GNU General Public License."},
   {"hosts": ["datashare.ed.ac.uk"], "paths": ["THIRD-PARTY-NOTICES.md"], "why": "The address a dataset's licence notice gives."},

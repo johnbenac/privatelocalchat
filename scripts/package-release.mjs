@@ -6,7 +6,8 @@
 //
 // The zip private-local-chat-<version>-<target>.zip holds one folder, private-local-chat-<version>-<target>/:
 //   app/              the output of the target, exactly (TARGET=<target> RELEASE_VERSION=<version>)
-//   serve.mjs, headers.mjs   the server and the header rules it reads; they need only Node.js
+//   serve.mjs, headers.mjs, zip.mjs ...   the tools (RELEASE_TOOLS below); they need only Node.js
+//   models.json       every model file the app can download, with size and SHA-256 (scripts/models-manifest.mjs)
 //   README.md         how to run the folder
 //   LICENSE, THIRD-PARTY-NOTICES.md
 //   SOURCE.txt        where the source of this exact build is, and how to rebuild it
@@ -21,9 +22,16 @@ import {createHash} from 'node:crypto';
 import {deflateRawSync, crc32} from 'node:zlib';
 import path from 'node:path';
 import {pathToFileURL} from 'node:url';
+import {buildModelsManifest, modelsManifestText} from './models-manifest.mjs';
 
 export const REPOSITORY = 'https://github.com/johnbenac/privatelocalchat';
 export const TARGETS = ['app', 'runkit'];
+// The files under scripts/ that are copied into the zip root, one name per line. They run with only Node.js. serve.mjs is the one that is run directly.
+export const RELEASE_TOOLS = [
+  'serve.mjs',
+  'headers.mjs',
+  'zip.mjs'
+];
 const VERSION = /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/;
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 
@@ -153,12 +161,12 @@ export async function releaseEntries({target, version, commit, epoch, workDir = 
     const folder = folderName(version, target);
     const entries = (await filesOf(holder)).map((f) => ({name: `${folder}/app/${f.rel}`, data: f.data, mode: 0o644}));
     const add = (name, data, mode = 0o644) => entries.push({name: `${folder}/${name}`, data: Buffer.isBuffer(data) ? data : Buffer.from(data), mode});
-    add('serve.mjs', readFileSync(path.join(root, 'scripts/serve.mjs')), 0o755);
-    add('headers.mjs', readFileSync(path.join(root, 'scripts/headers.mjs')));
+    for (const tool of RELEASE_TOOLS) add(tool, readFileSync(path.join(root, 'scripts', tool)), tool === 'serve.mjs' ? 0o755 : 0o644);
     add('README.md', readmeText({version, target}));
     add('LICENSE', readFileSync(path.join(root, 'LICENSE')));
     add('THIRD-PARTY-NOTICES.md', readFileSync(path.join(root, 'THIRD-PARTY-NOTICES.md')));
     add('SOURCE.txt', sourceText({version, target, commit, epoch}));
+    add('models.json', modelsManifestText(await buildModelsManifest()));
     if (existsSync(path.join(root, 'scripts/compat.mjs'))) {
       const compat = execFileSync('node', ['scripts/compat.mjs', '--version', version, '--commit', commit], {cwd: root, encoding: 'utf8'});
       add('compat.json', compat);
