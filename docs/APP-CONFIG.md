@@ -30,6 +30,7 @@ A source decides where bytes come from, never what they are. Every file is check
 ## What you see
 
 - **Settings, Models, Model source** (read-only): the label and host in use, and "set by whoever runs this copy" when it is not the shipped source. The choice is made in the copy's configuration, not in the app.
+- **Settings, Models, Model source, Updates** (read-only): "This copy is updated by whoever hosts it." It is shown whenever the site manifest has no `site` identity, that is, on every copy that is not our own site, including one whose operator chose their own model source (a wider condition than the notice below, which also needs the shipped source). It is never shown on our own site. It adds no stored key, link or request.
 - **The model-source notice**: the first time a download is about to start, on a copy that uses the shipped source and has no site identity in its manifest (that is, a copy that is not our own site), the app says the models come from the project's content delivery network, names the host, and says where to set another source. Download goes on; Cancel stops it. It is shown once (`plc.modelSourceNotice.v1`). It is not shown on our own site, nor when the operator chose the source.
 
 ## Existing downloads
