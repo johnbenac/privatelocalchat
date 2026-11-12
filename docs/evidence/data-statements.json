@@ -325,12 +325,12 @@
       "kind": "ui-note",
       "file": "chat/lock/lock.mjs",
       "pieces": [
-        "Kept encrypted. Off: keys last until the tab closes."
+        "Kept encrypted. Off: keys stay in memory only, so reloading or locking the app forgets them."
       ],
       "section": "3",
-      "says": "With 'Remember my API keys' on, keys are kept encrypted; off, they last until the tab closes.",
-      "verified": "true",
-      "note": "vault-store.mjs keeps the tokens in memory only when it is off."
+      "says": "With 'Remember my API keys' on, keys are kept encrypted; off, they stay in memory only and a reload or a lock forgets them.",
+      "verified": "corrected",
+      "note": "It said keys last until the tab closes; vault-store.mjs keeps the tokens in memory only when it is off (memoryOnly), so a reload or a lock loses them. The wording now says so."
     },
     {
       "id": "lock.old-copy",
