@@ -692,7 +692,7 @@ export async function runCli(argv, {startServer, stdout = (l) => console.log(l),
     if (!current) refuse(`Nothing is installed in ${path.resolve(o.root)}. Make the first install from an unpacked release: node serve.mjs --upgrade . --root ${path.resolve(o.root)}`);
     const port = Number(o.port || env.PORT || 18171);
     stdout(`Live release: ${current.release}`);
-    await startServer({dir: current.appDir, host: o.host || env.HOST || '127.0.0.1', port});
+    await startServer({root: o.root, host: o.host || env.HOST || '127.0.0.1', port});
     return null;
   } catch (error) {
     stderr(error.message);
