@@ -2,10 +2,10 @@
 // folder. Releases here are small ones made by tests/helpers/operator-fixtures.mjs, not the real build, except in the one test that says so.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdirSync, writeFileSync, readFileSync, readdirSync, existsSync, rmSync, renameSync, lstatSync, readlinkSync, symlinkSync, appendFileSync, copyFileSync, unlinkSync} from 'node:fs';
+import {mkdirSync, writeFileSync, readFileSync, readdirSync, existsSync, rmSync, renameSync, lstatSync, readlinkSync, symlinkSync, appendFileSync, copyFileSync, unlinkSync, chmodSync} from 'node:fs';
 import path from 'node:path';
 import {execFileSync, spawn, spawnSync} from 'node:child_process';
-import {upgrade, rollback, check, prune, readCurrent, installedReleases, compareVersions, carryHeldBuilds, Refusal} from '../scripts/operator.mjs';
+import {upgrade, rollback, check, prune, readCurrent, installedReleases, compareVersions, carryHeldBuilds, Refusal, explainSystemError} from '../scripts/operator.mjs';
 import {packageRelease, writeSums} from '../scripts/package-release.mjs';
 import {startServer} from '../scripts/serve.mjs';
 import {makeRelease, zipRelease, tree, commitOf, scratchDir, removeDir, sha256} from './helpers/operator-fixtures.mjs';
@@ -981,4 +981,51 @@ test('an upgrade refreshes a launcher of the previous format with the one the re
   writeFileSync(path.join(root, 'plc.mjs'), '// launcher-format: 1\nthe launcher of v0.65.0 and v0.65.1\n');
   await upgrade({root, source: folder});
   assert.equal(readFileSync(path.join(root, 'plc.mjs'), 'utf8'), readFileSync('scripts/plc.mjs', 'utf8'), 'the installed launcher is now the one of the release');
+});
+
+// ---- a folder that cannot be made says why and what to do (stage 10: the README's example folder /srv/plc is not writable for an ordinary user) --------------------------
+test('explainSystemError says what to do for permission, read-only, full-disk and not-a-folder errors, and leaves other errors alone', () => {
+  const err = (code, p) => Object.assign(new Error(`${code}: something, mkdir '${p}'`), {code, path: p, syscall: 'mkdir'});
+  const denied = explainSystemError(err('EACCES', '/srv/plc'));
+  assert.match(denied, /Cannot write to \/srv\/plc: permission denied/);
+  assert.match(denied, /--root ~\/plc/);
+  assert.match(denied, /ask whoever owns \/srv to create \/srv\/plc for you/);
+  assert.ok(!/EACCES/.test(denied), 'no raw error code');
+  assert.match(explainSystemError(err('EPERM', '/srv/plc')), /permission denied/);
+  assert.match(explainSystemError(err('EROFS', '/mnt/ro/plc')), /read-only/);
+  assert.match(explainSystemError(err('ENOSPC', '/data/plc')), /disk is full/);
+  assert.match(explainSystemError(err('ENOTDIR', '/tmp/file/plc')), /is not a folder/);
+  const other = new Error('plain message');
+  assert.equal(explainSystemError(other), 'plain message');
+  const noPath = Object.assign(new Error('EACCES without a path'), {code: 'EACCES'});
+  assert.equal(explainSystemError(noPath), 'EACCES without a path', 'without a path there is nothing to advise about');
+  const unknown = Object.assign(new Error('EMFILE: too many open files'), {code: 'EMFILE', path: '/x'});
+  assert.equal(explainSystemError(unknown), 'EMFILE: too many open files');
+  assert.equal(explainSystemError('text'), 'text');
+});
+
+test('the command line into a folder that cannot be made prints the plain message and exits 1, with no stack', async () => {
+  const scratch = fresh('cannot-make');
+  const blocker = path.join(scratch, 'a-file');
+  writeFileSync(blocker, 'x');
+  const folder = await makeRelease({dir: fresh('rel'), version: '0.9.1', target: 'runkit', commit: commitOf(71)});
+  const run = spawnSync(process.execPath, ['scripts/serve.mjs', '--upgrade', folder, '--root', path.join(blocker, 'plc')], {encoding: 'utf8'});
+  assert.equal(run.status, 1);
+  assert.match(run.stderr, /is not a folder, or part of the path to it is a file\. Choose a folder that exists or can be made\./);
+  assert.ok(!/at .*\.mjs:\d+/.test(run.stderr) && !/ENOTDIR/.test(run.stderr), 'no stack and no raw code: ' + run.stderr);
+});
+
+test('as an ordinary user, installing into a folder under one you cannot write to explains it (the case of /srv/plc)', {skip: process.getuid?.() === 0 ? 'root can write anywhere, so this case runs where the tests do not run as root (CI)' : false}, async () => {
+  const scratch = fresh('read-only-parent');
+  const parent = path.join(scratch, 'srv');
+  mkdirSync(parent);
+  chmodSync(parent, 0o555);
+  try {
+    const folder = await makeRelease({dir: fresh('rel'), version: '0.9.2', target: 'runkit', commit: commitOf(72)});
+    const run = spawnSync(process.execPath, ['scripts/serve.mjs', '--upgrade', folder, '--root', path.join(parent, 'plc')], {encoding: 'utf8'});
+    assert.equal(run.status, 1);
+    assert.match(run.stderr, new RegExp(`Cannot write to ${path.join(parent, 'plc').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}: permission denied`));
+    assert.match(run.stderr, /Choose a folder you can write to \(for example --root ~\/plc\)/);
+    assert.ok(!existsSync(path.join(parent, 'plc')), 'nothing was made');
+  } finally { chmodSync(parent, 0o755); }
 });
