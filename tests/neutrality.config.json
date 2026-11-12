@@ -21,7 +21,8 @@
   {"string": "maintainer-account", "paths": ["SOURCE.txt"], "why": "A release's source pointer names the project's repository, the address of the source the folder was built from."},
   {"string": "model-hosts", "paths": ["releases/*/runtime/providers/vendor/**", "releases/*/chat/vendor/**"], "why": "The vendored libraries' own text and defaults; the app configures them with its own sources, so these are never used."},
   {"string": "model-hosts", "paths": ["THIRD-PARTY-NOTICES.md"], "why": "The notices name the libraries' upstream projects and where their models are published."},
-  {"string": "model-hosts", "paths": ["releases/*/chat/provider/endpoint-options.mjs"], "why": "The provider list: a service a person may choose to connect, not a source the app uses."}
+  {"string": "model-hosts", "paths": ["releases/*/chat/provider/endpoint-options.mjs"], "why": "The provider list: a service a person may choose to connect, not a source the app uses."},
+  {"string": "maintainer-account", "paths": ["operator.mjs"], "why": "The project's repository, whose releases --check --online reads."}
  ],
  "allowedHosts": [
   {"hosts": ["assets.privatelocal.chat"], "paths": ["index.html"], "why": "The shipped default model source (see the allowed our-domain entry)."},
@@ -30,6 +31,7 @@
   {"hosts": ["fsf.org", "www.gnu.org"], "paths": ["LICENSE"], "why": "Addresses in the text of the GNU General Public License."},
   {"hosts": ["datashare.ed.ac.uk"], "paths": ["THIRD-PARTY-NOTICES.md"], "why": "The address a dataset's licence notice gives."},
   {"hosts": ["www.debian.org", "dejavu-fonts.github.io"], "paths": ["brand/WORDMARK_FONT_LICENSE.txt"], "why": "Addresses in the font licence text."},
-  {"hosts": ["paulmillr.com"], "paths": ["releases/*/runtime/providers/vendor/noble-hashes/*/LICENSE"], "why": "The author's address in a vendored library's licence."}
+  {"hosts": ["paulmillr.com"], "paths": ["releases/*/runtime/providers/vendor/noble-hashes/*/LICENSE"], "why": "The author's address in a vendored library's licence."},
+  {"hosts": ["api.github.com"], "paths": ["operator.mjs"], "why": "The public release list, asked only by --check --online."}
  ]
 }
