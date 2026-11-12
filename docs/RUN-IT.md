@@ -54,6 +54,8 @@ node scripts/headers.mjs pages   # the _headers file itself
 
 Serve `.wasm` as `application/wasm` and `.mjs` as `application/javascript`, and send a `404` for paths that do not exist.
 
+Check the headers on the address people use, not only on the host you deploy to: a CDN or a zone setting can rewrite `Cache-Control` and undo a rule. Cloudflare's *Browser Cache TTL* does this to `/sw.js` unless it is set to *Respect Existing Headers* (`docs/TECHNICAL-DEBT.md`, item 57). `curl -sI https://your.domain/sw.js` should say `cache-control: no-cache`.
+
 ## Where the models come from
 
 By default the model files come from the project's content delivery network (`app-config.json`). To use your own source, set it in `config/app-config.json` and build (`docs/APP-CONFIG.md`). Every file is checked against the size and SHA-256 pinned in the app, whichever source it comes from.
