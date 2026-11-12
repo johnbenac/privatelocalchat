@@ -37,6 +37,7 @@ const noticeShown=async page=>{try{await page.waitForSelector('.app-dialog:has-t
 const until=async(cond,ms=45000)=>{const end=Date.now()+ms;while(Date.now()<end){if(await cond())return true;await new Promise(r=>setTimeout(r,200));}return false;};
 const installed=page=>page.evaluate(()=>Boolean(window.localModels.state?.tiers?.nano?.install?.ok));
 const phase=page=>page.evaluate(()=>window.localModels.downloadRecovery.phase);
+const LINE='This copy is updated by whoever hosts it.';
 const sourceRow=async page=>{await page.evaluate(()=>window.plcShell.openSettings('models'));await page.waitForSelector('#modelSourceSection',{timeout:15000});return page.locator('#modelSourceSection').innerText();};
 
 try{
@@ -49,6 +50,7 @@ try{
     assert(!await installed(page),'wrong bytes were not accepted as the model');
     const row=await sourceRow(page);
     assert(/Private Local Chat project CDN \(assets\.privatelocal\.chat\)/.test(row)&&!/set by whoever runs this copy/.test(row)&&/checked against its published size and SHA-256/.test(row),'the Model source row says what is in use: '+row);
+    assert(!row.includes(LINE),'no "updated by whoever hosts it" line on a build with our site identity: '+row);
   });
 
   await variant('a copy that is not our site shows the notice first, once',{SITE_JSON_PATH:''},18562,async(page,requests)=>{
@@ -62,6 +64,7 @@ try{
     await until(()=>requests.length>0);
     assert(requests.length>0&&requests.every(u=>u.startsWith(DEFAULT_ROOT)),'after Download the project\'s CDN is asked: '+requests.slice(0,2));
     assert(await page.evaluate(()=>localStorage.getItem('plc.modelSourceNotice.v1'))==='1','it is remembered');
+    assert((await sourceRow(page)).includes(LINE),'a copy that is not our site says who updates it');
     await page.evaluate(()=>window.localModels.cancelDownload());
     const before=requests.length;
     await startDownload(page);
@@ -90,6 +93,12 @@ try{
     assert(['retrying','downloading','pending'].includes(await phase(page)),'the download did not complete: '+await phase(page));
     const row=await sourceRow(page);
     assert(/My models \(models\.example\.org\), set by whoever runs this copy/.test(row),'the Model source row names the operator\'s source: '+row);
+  });
+
+  await variant('an operator\'s source on a copy that is not our site also says who updates it',{SITE_JSON_PATH:'',APP_CONFIG_OVERRIDE:overrideFile},18565,async(page)=>{
+    const row=await sourceRow(page);
+    assert(/My models \(models\.example\.org\), set by whoever runs this copy/.test(row)&&row.includes(LINE),'the line is there beside the operator\'s source: '+row);
+    assert(row.split(LINE).length===2,'once');
   });
 
   console.log('ALL PASS');
