@@ -14,7 +14,7 @@ const MAX_RELEASES_BEHIND=15;
 const semver=t=>t.replace(/^v/,'').split('.').map(Number);
 const newer=(a,b)=>{const x=semver(a),y=semver(b);for(let i=0;i<3;i++)if(x[i]!==y[i])return x[i]>y[i];return false;};
 // Formats the code writes now that no released build has written yet: the first snapshot of a release that writes them removes the entry (this test then fails until it does).
-const NOT_YET_RELEASED=new Set(['plc-history/1']);
+const NOT_YET_RELEASED=new Set([]);
 
 test('the file snapshots are numbered from 001 without gaps, each with metadata and its three files', () => {
   assert.ok(names.length>=1);
