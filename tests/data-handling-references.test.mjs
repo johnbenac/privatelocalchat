@@ -17,7 +17,7 @@ const ZIP_ROOT_ONLY = new Set(['models.json', 'compat.json']);
 const OPERATOR_FILES = new Set(['config/app-config.json', 'config/site.json', 'current.json']);
 const OPERATOR_PREFIXES = ['pages/']; // the operator's own pages: pages/<name>/index.html
 // Files a later task of the same stage creates. The entry must go when the file exists (the test below fails then, on purpose), so this cannot hide a file that never came.
-const PENDING = new Map([['docs/evidence/data-statements.json', 'the register of the app\'s statements about data']]);
+const PENDING = new Map(); // a file the document names before it exists goes here with the reason; the test fails once the file exists, so the entry gets removed
 
 const FILE_EXTENSIONS = /\.(mjs|js|json|md|yml)$/;
 // What a repository path looks like inside backticks: no leading slash (that is an address on a host, like /version.json), no space, no colon, no angle brackets.
