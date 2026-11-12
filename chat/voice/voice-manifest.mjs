@@ -1,6 +1,6 @@
 // The pinned file set of the Kitten TTS nano 0.8 int8 voice. Every file is verified against these sizes and SHA-256 values before use.
-// Source: Hugging Face KittenML/kitten-tts-nano-0.8-int8 (Apache-2.0 on the model card). Re-pin the Hugging Face revision when the files are
-// published to the asset host (docs/VOICE-RUNTIME.md). A changed byte is a new manifest, never an edit in place.
+// Upstream: Hugging Face KittenML/kitten-tts-nano-0.8-int8 (Apache-2.0 on the model card). The files are published on the asset host in a folder keyed by the
+// pinned Hugging Face revision (docs/VOICE-RUNTIME.md); the app never asks Hugging Face for them. A changed byte is a new manifest, never an edit in place.
 import { appConfig } from "../../runtime/config/app-config.mjs";
 
 

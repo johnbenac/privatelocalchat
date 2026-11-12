@@ -98,7 +98,7 @@ Core calls:
 - `acquire(id, {reason})` -> lease. Under policy "one at a time" it first unloads every other loaded resident that is not busy and waits for busy ones to
   finish (queue, in order); under "keep" it does nothing extra. Returns `lease.release()`.
 - `snapshot()` / `subscribe()` -> `{ policy, residents: [{id, kind, label, state, estimateBytes, waitingFor}] }`, the one source for all cues.
-- `policy`: `"keep"` (today's behaviour plus the idle timers) or `"one-at-a-time"`; stored under `plc.memory.v1` (new key: add to `privacy/index.html`
+- `policy`: `"keep"` (today's behaviour plus the idle timers) or `"one-at-a-time"`; stored under `plc.memory.v1` (new key: add to the Privacy page, which is in the private site layer,
   and to settings export/import if settings are exported).
 - Events (`policy-unload`, `reload-needed`, `failed`) so the UI can explain what happened.
 

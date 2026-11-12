@@ -18,18 +18,18 @@ Shared pieces: `chat/public-pages.css` (brand tokens from `/brand/design-tokens.
 
 `scripts/build.mjs` calls `buildPublicSite` in `scripts/public-site.mjs`:
 
-1. Reads `site-config.json` (override the path with `SITE_CONFIG_PATH`) and `updates/entries.json`.
+1. Reads the site directory (`SITE_DIR`, default `run-kit/`; `docs/SITE-LAYER.md`): its `site-config.json` (override the path with `SITE_CONFIG_PATH`), its `updates/entries.json` and the pages that exist. The known issues come from `content/known-issues.json`.
 2. Fills the `<!--plc:name-->...<!--/plc:name-->` regions of each page (navigation, contact email, community, known issues, update list, hosting-log note). An unknown region name is a build error.
 3. Rewrites `/chat/...` references to `/releases/<commit>/chat/...` and fails if any stylesheet, script, image or feed a page names is missing from `dist/`.
-4. Writes `dist/<page>/index.html`, `dist/updates/rss.xml`, `dist/sitemap.xml` (lastmod from each page's `last-updated` date; the root uses the commit date) and `dist/robots.txt`.
+4. Writes `dist/<page>/index.html` for each page that exists and, only when the manifest has a `site.url`, `dist/sitemap.xml` (lastmod from each page's `last-updated` date; the root uses the commit date), `dist/robots.txt` and, when there is an updates page with entries, `dist/updates/rss.xml`.
 5. Injects `<script>window.SITE_CONFIG={supportEmail,supportOwner,discussionsUrl};</script>` after the `window.APP_BUILD` script in `index.html`.
-6. The service-worker shell list is made from `dist/`, so the pages, their CSS and the feed are in the required offline set. An offline navigation to `/help`, `/help/`, `/about/`, `/privacy/` or `/updates/` opens that page's cached `index.html`; any other path still falls back to the app.
+6. The service-worker shell list is made from `dist/`, so the pages, their CSS and the feed are in the required offline set. An offline navigation to `/help`, `/help/`, `/about/`, `/privacy/` or `/updates/` opens that page's cached `index.html`; any other path still falls back to the app. (The worker names all four pages; a build without some of them is a known gap, planned for stage 6.)
 
 7. Publishes the licence documents: `scripts/build.mjs` copies `LICENSE` and `THIRD-PARTY-NOTICES.md` to the root of `dist/` (so `/LICENSE` and `/THIRD-PARTY-NOTICES.md` return 200) and `_headers` serves them as `text/plain` and `text/markdown`, both `charset=utf-8`. They are not in the service-worker precache. The page footers (`footer-source` region) link them as "Licence" and "Notices", and the About page has a "Licence and source" section (`licence-source` region); both are rendered by `scripts/public-site.mjs`.
 
 `BUILD_OUT_DIR` redirects the output (tests use it so they do not touch `dist/`). `scripts/serve.mjs` resolves directory requests (and redirects `/help` to `/help/` like Pages) and serves `.xml` and `.txt`.
 
-The committed pages hold the unconfigured rendering of their regions, so they read as complete documents. After changing `updates/entries.json` or a renderer run `node scripts/public-site.mjs sync`; `tests/public-site.test.mjs` fails when they drift.
+The committed pages hold the rendering of their regions with the site's own configuration, so they read as complete documents. After changing `updates/entries.json`, `site-config.json` or a renderer run `node scripts/public-site.mjs sync <site directory>`; `tests/run-kit.test.mjs` (neutral pages) and the site's own `tests/site.test.mjs` fail when they drift.
 
 ## Configuration (`site-config.json`)
 
@@ -48,7 +48,7 @@ When `supportEmail` and `discussionsUrl` are unset, `#contact` still exists and 
 
 ## Adding an update
 
-Add an entry at the top of `entries` in `updates/entries.json` (`id`, `date`, `release` as `vX.Y.Z` or `null` until a release is cut, `title`, `summary`, `points`, `help` links, `issues` ids), then run `node scripts/public-site.mjs sync` and `npm test`. The HTML list and the feed are both generated from that file. Known issues live in the same file (`knownIssues`) and appear in full on Help and in summary on Updates; each needs devices, browsers, models, symptom, status, a `verified` date and a workaround, and must come from recorded evidence.
+Add an entry at the top of `entries` in the site's `updates/entries.json` (in the private site repository; fields: `id`, `date`, `release` as `vX.Y.Z` or `null` until a release is cut, `title`, `summary`, `points`, `help` links, `issues` ids), then run `node scripts/public-site.mjs sync <site directory>` and the site's tests. The HTML list and the feed are both generated from that file. Known issues describe the app and live in this repository (`content/known-issues.json`); they appear in full on Help and in summary on Updates; each needs devices, browsers, models, symptom, status, a `verified` date and a workaround, and must come from recorded evidence.
 
 The "Share, transfer settings, and help" entry (2026-11-01) has `release: null`: set it to the tag semantic-release creates once the release is published (releases are listed at https://github.com/johnbenac/privatelocalchat/releases; `package.json` still says 2.0.0, which is the internal build version).
 
@@ -76,7 +76,7 @@ Add no rating or review fields unless genuine published evidence supports them.
 
 ## Verification checklist
 
-1. `npm test`, `node tests/e2e/public-pages.e2e.mjs`, `DEPLOY_BRANCH=main node scripts/build.mjs` and `DEPLOY_BRANCH=dev node scripts/build.mjs`.
+1. `npm test`; in the site repository `node --test tests/*.test.mjs` and `node tests/e2e/public-pages.e2e.mjs` (they need `APP_ROOT`, or the two checkouts side by side); `DEPLOY_BRANCH=main node scripts/build.mjs` and `DEPLOY_BRANCH=dev node scripts/build.mjs` with `SITE_DIR` pointing at the site layer.
 2. After deploying, open `/help/`, `/about/`, `/privacy/`, `/updates/`, `/updates/rss.xml`, `/sitemap.xml` and `/robots.txt` on the custom domain; check `https://privatelocalchat.com/help/` redirects with a 301.
 3. Search Console: add the property for `https://privatelocal.chat/`, submit `sitemap.xml`, inspect the four new URLs.
 4. Social previews: check the canonical URLs in representative messaging services and social networks; record the observed title, description, image and crop. Version the image filename if its artwork changes.

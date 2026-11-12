@@ -6,7 +6,7 @@ Last reviewed: 2026-11-01. Related, not duplicated here: `docs/IPHONE-INVESTIGAT
 
 ## Process and safety nets
 
-1. **Browser tests are not run by CI.** `.github/workflows/deploy.yml` runs `npm test` and the Python dev-tools tests; the Playwright suites in `tests/e2e/` (13 of them) are only run by hand with `node tests/e2e/<name>.e2e.mjs`. A regression in the UI can reach production. *Fix:* add a CI job that installs Chromium (`npx playwright install --with-deps chromium`) and runs `npm run e2e` before the deploy step; the suites are hermetic (fake API, local server) and take a few minutes.
+1. **Most browser tests are still not run by CI.** `.github/workflows/deploy.yml` runs `npm test` and the Python dev-tools tests, and these workflows run Playwright suites: Offline e2e, Vault e2e, Voice e2e, Data upgrade (data and saved-file compatibility, newer-data guard), Update behaviour, Site links and Model sources. About 30 other suites in `tests/e2e/` (chat core, voice, providers, mobile, dialogs, roberta, sharing and the rest) are only run by hand with `node tests/e2e/<name>.e2e.mjs` or `npm run e2e`, so a regression in them can reach production. *Fix:* add them to a workflow the same way (a job that installs Chromium with `npx playwright install --with-deps chromium`); the suites are hermetic (fake API, local server) and take a few minutes. The browser test of the public pages lives in the private site repository.
 2. **`npm run e2e` stops at the first failure** (`|| exit 1`) and prints little. Consider a runner that runs all suites and summarises.
 3. **No linter or formatter.** `index.html` is hand-formatted JavaScript; style drifts between the old inline code and the newer `.mjs` modules.
 4. **Commit titles over 100 characters** exist (two on 2026-11-01). `.gitlint` asks for at most 100, but nothing in CI enforces it. Either enforce it or relax the config.
@@ -26,7 +26,7 @@ Last reviewed: 2026-11-01. Related, not duplicated here: `docs/IPHONE-INVESTIGAT
 ## Runtime and models
 
 14. **CPU (WebAssembly) path is unmeasured on a real model.** It is proven with a tiny fixture only (`tests/e2e/cpu.e2e.mjs`): no tokens-per-second for Qwen3.5-2B, and the runtime is single-threaded because no multi-thread build is vendored. The fixture also cannot exercise the chat endpoint. *Fix:* measure on a real machine with the GPU disabled, record it in `docs/`, and consider a multi-thread build (the site is already cross-origin isolated).
-15. **Catalogue defaults still point at original hosts** (Hugging Face and raw.githubusercontent.com) while the deployed page overrides every model URL to `assets.privatelocal.chat` in `local-models.js`. The defaults are misleading and a forgotten override would silently change where files come from.
+15. **Fixed (split stage 4): the catalogue defaults are the configured model source.** `app-config.json` (and an operator's `config/app-config.json`) give the root; the catalog, the voices and the embedding set join it to `<name>/<revision>/`. No default names Hugging Face or `raw.githubusercontent.com`, and `local-models.js` passes no override (`docs/APP-CONFIG.md`, `tests/model-urls.test.mjs`).
 16. **Large runtime files are cached best-effort** by the service worker so a phone cannot get stuck on an old version, so the model runtime can be incomplete until first use. *Restated 2026-11-03 (offline plan):* the indicator now reflects it (Settings > Models > Ready for offline use has a "What runs the model" line with the count saved and a Save now button, fed by the service worker), and on desktop the files were all saved within about 20 s of the first visit. Still a risk on slow connections and phones, now visible and fixable by the person rather than silent.
 17. **iPhone memory limit** is an open investigation (`docs/IPHONE-INVESTIGATION.md`); the CPU fallback is deliberately not offered on iPhone/iPad because of it.
 18. **Model-download stall watchdog** (2 minutes without progress) was unit-tested but never reproduced on a real phone; the threshold is a guess.
@@ -49,7 +49,7 @@ Last reviewed: 2026-11-01. Related, not duplicated here: `docs/IPHONE-INVESTIGAT
 
 ## Public site and operations (all need the owner)
 
-30. **Unset configuration in `site-config.json`:** support email and owner, Discussions URL and owner, hosting-log note, verification date, demo. The site hides what depends on them; the Help copy for contact and community is minimal until then.
+30. **Unset configuration in the site's `site-config.json` (in the private site repository):** support email and owner, Discussions URL and owner, hosting-log note, verification date, demo. The site hides what depends on them; the Help copy for contact and community is minimal until then.
 31. **Unverified infrastructure facts:** log retention for the Pages projects and the R2 domain; the live `robots.txt` (and any edge content-signal policy) versus the generated file; the `privatelocalchat.com` redirect rule (outside this repo); Search Console; social-preview checks in real services.
 32. **No demonstration video** and no genuine ratings or reviews, so none are claimed.
 33. **Physical-device checks never done:** scanning a QR with a phone camera, a real native share sheet, enlarged text and the on-screen keyboard on a phone, and the stale-Safari / home-screen-app repair path on the reporter's device.

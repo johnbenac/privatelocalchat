@@ -33,7 +33,7 @@ DEPLOY_BRANCH=dev npm run build
 node scripts/serve.mjs
 ```
 
-The local server listens at `http://127.0.0.1:18171`. For a production build, run `DEPLOY_BRANCH=main npm run build`; each build replaces `dist/`. A feature branch and pull request into `dev` are suitable for review. Once the change is on `dev`, pushing it triggers deployment automatically. For a direct change on `dev`, commit the intended files and run `git push origin dev`.
+The local server listens at `http://127.0.0.1:18171`. A build made here uses the neutral pages in `run-kit/`; to build as production does, check out the private site repository (`johnbenac/privatelocalchat-site`, same branch name) and set `SITE_DIR` to it. For a production build, run `DEPLOY_BRANCH=main npm run build`; each build replaces `dist/`. A feature branch and pull request into `dev` are suitable for review. Once the change is on `dev`, pushing it triggers deployment automatically. For a direct change on `dev`, commit the intended files and run `git push origin dev`.
 
 Inspect [GitHub Actions](https://github.com/johnbenac/privatelocalchat/actions/workflows/deploy.yml), or use:
 
@@ -46,7 +46,7 @@ Replace `RUN_ID` with the relevant run ID. Wait for success, then check the deve
 
 ## What CI does and how to verify it
 
-[deploy.yml](../.github/workflows/deploy.yml) checks out the exact pushed commit, installs dependencies, runs the Node and Python tests, builds for the branch, and uploads `dist/` to its Cloudflare Pages project with Wrangler. It skips an older commit if the branch has advanced before deployment. It then verifies the Pages project URL's commit, branch, app shell, isolation headers, and source and feedback links. The workflow can also be run manually in Actions, selecting `dev` or `main`. Repository Actions secrets are `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`; never put their values in Git, chat, or logs.
+[deploy.yml](../.github/workflows/deploy.yml) checks out the exact pushed commit, installs dependencies, fetches the private site layer on the same branch (`docs/SITE-LAYER.md`), runs the Node and Python tests and the site's own tests, builds for the branch with that site layer, and uploads `dist/` to its Cloudflare Pages project with Wrangler. It skips an older commit if the branch has advanced before deployment. It then verifies the Pages project URL's commit, branch, app shell, isolation headers, and source and feedback links. The workflow can also be run manually in Actions, selecting `dev` or `main`. Repository Actions secrets are `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` and `SITE_DEPLOY_KEY`; never put their values in Git, chat, or logs.
 
 CI checks the Pages project hostname, so independently verify the **custom domain** after each deploy. From a checkout at the exact deployed commit:
 
