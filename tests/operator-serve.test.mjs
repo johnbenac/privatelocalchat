@@ -253,3 +253,111 @@ test('the command line refuses an invalid operator file and exits 1 with the rea
   } finally { removeDir(r.base); }
 });
 
+// ---- items 3 and 4: pages and models -----------------------------------------------------------------------------------------------------------------
+const raw = (port, requestPath) => new Promise((resolve) => { const s = net.connect(port, '127.0.0.1', () => s.write(`GET ${requestPath} HTTP/1.1\r\nHost: x\r\nConnection: close\r\n\r\n`)); let d = ''; s.on('data', (c) => { d += c; }); s.on('close', () => resolve(d)); s.on('error', () => resolve(d)); });
+
+test('a page under pages/ is served before the release\'s own file, with directories and types as everywhere', withRoot(['1.0.0'], {}, async (c) => {
+  assert.equal(await text(fetch(c.url('/help/'))), 'help');
+  put(path.join(c.root, 'pages', 'help', 'index.html'), 'my help');
+  put(path.join(c.root, 'pages', 'privacy', 'index.html'), 'my privacy');
+  put(path.join(c.root, 'pages', 'privacy', 'style.css'), 'p{}');
+  put(path.join(c.root, 'pages', 'privacy', 'doc', 'index.html'), 'a doc');
+  assert.equal(await text(fetch(c.url('/help/'))), 'my help', 'before the release\'s own help');
+  assert.equal(await text(fetch(c.url('/privacy/'))), 'my privacy');
+  const css = await fetch(c.url('/privacy/style.css'));
+  assert.equal(css.headers.get('content-type'), 'text/css'); assert.equal(css.headers.get('cross-origin-opener-policy'), 'same-origin'); assert.equal(await css.text(), 'p{}');
+  assert.equal((await fetch(c.url('/privacy/style.css'), {headers: {Range: 'bytes=1-1'}})).status, 206);
+  const etag = (await fetch(c.url('/privacy/style.css'))).headers.get('etag');
+  assert.equal((await fetch(c.url('/privacy/style.css'), {headers: {'If-None-Match': etag}})).status, 304);
+  const redirect = await fetch(c.url('/privacy?x=1'), {redirect: 'manual'});
+  assert.equal(redirect.status, 308); assert.equal(redirect.headers.get('location'), '/privacy/?x=1');
+  assert.equal((await fetch(c.url('/privacy/doc'), {redirect: 'manual'})).headers.get('location'), '/privacy/doc/');
+  assert.equal(await text(fetch(c.url('/privacy/doc/'))), 'a doc');
+  assert.equal(await text(fetch(c.url('/help/missing.txt'))), 'Not found', 'a file the page does not have is the build\'s 404');
+  assert.equal(await text(fetch(c.url('/about/'))), fs.existsSync(path.join(c.appDir, 'about/index.html')) ? fs.readFileSync(path.join(c.appDir, 'about/index.html'), 'utf8') : 'Not found');
+}));
+
+test('a page folder named like something the release owns shadows nothing', withRoot(['1.0.0'], {}, async (c) => {
+  const names = ['releases', 'brand', 'sw.js', 'index.html', 'models', 'version.json', '_headers', '404.html', 'manifest.webmanifest', 'Upper', '.hidden', 'a_b'];
+  for (const name of names) put(path.join(c.root, 'pages', name, 'index.html'), 'SHADOW'), put(path.join(c.root, 'pages', name, 'x.txt'), 'SHADOW');
+  put(path.join(c.root, 'pages', 'brand', 'mark.svg'), 'SHADOW');
+  put(path.join(c.root, 'pages', 'releases', c.commit, 'assets', 'main.js'), 'SHADOW');
+  for (const p of ['/', '/index.html', '/sw.js', '/version.json', '/brand/mark.svg', `/releases/${c.commit}/assets/main.js`, '/manifest.webmanifest', '/models/x.txt', '/models/', '/404.html', '/brand/x.txt', '/releases/x.txt']) {
+    assert.ok(!(await text(fetch(c.url(p)))).includes('SHADOW'), p + ' was shadowed');
+  }
+  assert.equal(await text(fetch(c.url('/brand/mark.svg'))), '<svg/>');
+  assert.equal(await text(fetch(c.url('/sw.js'))), fs.readFileSync(path.join(c.appDir, 'sw.js'), 'utf8'));
+}));
+
+test('nothing outside pages/ is served, whatever the path is made of, and a symlink out of it is refused', async () => {
+  const r = await makeRoot(['1.0.0']);
+  const s = await serve(r.root);
+  try {
+    put(path.join(r.root, 'secret.txt'), 'OUTSIDE THE FOLDER');
+    put(path.join(r.root, 'pages', 'docs', 'index.html'), 'docs');
+    put(path.join(r.root, 'pages', 'docs', 'inside.txt'), 'INSIDE');
+    put(path.join(r.root, 'outside', 'f.txt'), 'OUTSIDE THE FOLDER');
+    fs.symlinkSync('../../secret.txt', path.join(r.root, 'pages', 'docs', 'link.txt'));
+    fs.symlinkSync('../../outside', path.join(r.root, 'pages', 'docs', 'dirlink'));
+    fs.symlinkSync('inside.txt', path.join(r.root, 'pages', 'docs', 'ok.txt'));
+    fs.symlinkSync('../outside', path.join(r.root, 'pages', 'linkedpage'));
+    assert.equal(await text(fetch(s.url('/docs/ok.txt'))), 'INSIDE', 'a link that stays inside pages/ works');
+    for (const p of ['/docs/link.txt', '/docs/dirlink/f.txt', '/docs/dirlink/', '/linkedpage/f.txt', '/docs/../../secret.txt', '/docs/%2e%2e/%2e%2e/secret.txt', '/docs/..%2f..%2fsecret.txt', '/docs/%252e%252e/%252e%252e/secret.txt', '/docs/%2e%2e%2f%2e%2e%2fsecret.txt', '/docs/..%5c..%5csecret.txt', '/docs/%00', '/docs//..//..//secret.txt']) {
+      const answer = await raw(s.port, p);
+      assert.ok(!answer.includes('OUTSIDE THE FOLDER'), p + ' served a file outside pages/');
+      assert.match(answer, /^HTTP\/1\.1 (400|404|308)/, p);
+    }
+  } finally { s.server.close(); removeDir(r.base); }
+});
+
+const MODEL = '0123456789abcdefghij';
+test('/models/ is served from models/ with Range, HEAD, 304 and the release\'s headers, and never lists', withRoot(['1.0.0'], {}, async (c) => {
+  put(path.join(c.root, 'models', 'n', 'r1', 'm.gguf'), MODEL);
+  put(path.join(c.root, 'models', 'n', 'r1', 'index.html'), 'LISTING');
+  const get = (range) => fetch(c.url('/models/n/r1/m.gguf'), {headers: range ? {Range: range} : {}});
+  let r = await get('bytes=0-3'); assert.equal(r.status, 206); assert.equal(await r.text(), '0123'); assert.equal(r.headers.get('content-range'), 'bytes 0-3/20');
+  r = await get('bytes=-4'); assert.equal(r.status, 206); assert.equal(await r.text(), 'ghij');
+  r = await get('bytes=15-'); assert.equal(await r.text(), 'fghij');
+  r = await get('bytes=20-30'); assert.equal(r.status, 416); assert.equal(r.headers.get('content-range'), 'bytes */20'); await r.arrayBuffer();
+  r = await get(); assert.equal(r.status, 200); assert.equal(r.headers.get('content-type'), 'application/octet-stream'); assert.equal(r.headers.get('cross-origin-embedder-policy'), 'require-corp'); assert.equal(r.headers.get('accept-ranges'), 'bytes');
+  const etag = r.headers.get('etag'); await r.arrayBuffer();
+  const head = await fetch(c.url('/models/n/r1/m.gguf'), {method: 'HEAD'}); assert.equal(head.headers.get('content-length'), '20'); assert.equal(await head.text(), '');
+  assert.equal((await fetch(c.url('/models/n/r1/m.gguf'), {headers: {'If-None-Match': etag}})).status, 304);
+  const missing = await fetch(c.url('/models/n/r1/none.gguf')); assert.equal(missing.status, 404); assert.equal(await missing.text(), 'Not found');
+  for (const p of ['/models/', '/models/n/r1/']) { const res = await fetch(c.url(p), {redirect: 'manual'}); assert.equal(res.status, 404, p + ' is not listed, and its index.html is not served'); assert.ok(!(await res.text()).includes('LISTING')); }
+  const redirect = await fetch(c.url('/models'), {redirect: 'manual'}); assert.equal(redirect.status, 308); assert.equal(redirect.headers.get('location'), '/models/');
+  assert.equal((await fetch(c.url('/models/n'), {redirect: 'manual'})).status, 308);
+}));
+
+test('a very large model file is streamed, not read into memory', withRoot(['1.0.0'], {}, async (c) => {
+  const big = path.join(c.root, 'models', 'big.gguf'), SIZE = 400 * 1024 * 1024;
+  fs.mkdirSync(path.dirname(big), {recursive: true});
+  const fd = fs.openSync(big, 'w'); fs.writeSync(fd, 'START'); fs.closeSync(fd); fs.truncateSync(big, SIZE);
+  const before = process.memoryUsage().rss;
+  const res = await fetch(c.url('/models/big.gguf'));
+  assert.equal(res.headers.get('content-length'), String(SIZE));
+  let seen = 0, peak = 0;
+  for await (const chunk of res.body) { seen += chunk.length; if ((seen & 0xFFFFFF) < chunk.length) peak = Math.max(peak, process.memoryUsage().rss - before); }
+  assert.equal(seen, SIZE);
+  assert.ok(peak < 250 * 1024 * 1024, 'resident memory grew by ' + Math.round(peak / 1048576) + ' MB');
+  assert.equal(await (await fetch(c.url('/models/big.gguf'), {headers: {Range: 'bytes=0-4'}})).text(), 'START');
+}));
+
+test('nothing outside models/ is served, and a symlink out of it is refused', async () => {
+  const r = await makeRoot(['1.0.0']);
+  const s = await serve(r.root);
+  try {
+    put(path.join(r.root, 'secret.txt'), 'OUTSIDE THE FOLDER');
+    put(path.join(r.root, 'outside', 'f.txt'), 'OUTSIDE THE FOLDER');
+    put(path.join(r.root, 'models', 'in.bin'), 'INSIDE');
+    fs.symlinkSync('../secret.txt', path.join(r.root, 'models', 'link.bin'));
+    fs.symlinkSync('../outside', path.join(r.root, 'models', 'dirlink'));
+    fs.symlinkSync('in.bin', path.join(r.root, 'models', 'ok.bin'));
+    assert.equal(await text(fetch(s.url('/models/ok.bin'))), 'INSIDE');
+    for (const p of ['/models/link.bin', '/models/dirlink/f.txt', '/models/../secret.txt', '/models/%2e%2e/secret.txt', '/models/..%2fsecret.txt', '/models/%252e%252e/secret.txt', '/models/..%5csecret.txt', '/models/%2e%2e%2f%2e%2e%2fsecret.txt']) {
+      const answer = await raw(s.port, p);
+      assert.ok(!answer.includes('OUTSIDE THE FOLDER'), p + ' served a file outside models/');
+      assert.match(answer, /^HTTP\/1\.1 (400|404|308)/, p);
+    }
+  } finally { s.server.close(); removeDir(r.base); }
+});
