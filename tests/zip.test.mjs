@@ -328,3 +328,12 @@ test('cleans up when two entries clash as a file and a folder', () => {
   assert.throws(() => extractZip(put(craft([{name: 'x', data: '1'}, {name: 'x/y', data: '2'}])), dest));
   assert.ok(!existsSync(dest) || readdirSync(dest).length === 0);
 });
+
+test('the table CRC-32 used on a Node without zlib.crc32 gives the same result as the built-in', async () => {
+  const {crc32Table, crc32} = await import('../scripts/zip.mjs');
+  const {crc32: builtin} = await import('node:zlib');
+  assert.equal(typeof crc32, 'function');
+  const samples = [Buffer.alloc(0), Buffer.from('a'), Buffer.from('The quick brown fox jumps over the lazy dog'), Buffer.from(Array.from({length: 70000}, (_, i) => (i * 31 + 7) & 0xff))];
+  for (const data of samples) assert.equal(crc32Table(data), builtin(data), 'length ' + data.length);
+  assert.equal(crc32Table(Buffer.from('123456789')), 0xcbf43926, 'the standard check value');
+});

@@ -6,7 +6,14 @@
 // Every refusal is an Error whose message names the entry and the rule. Nothing is written outside the destination, nothing is
 // inflated beyond the size the entry declares, and every file is checked against its CRC-32 and its declared size.
 import {readFileSync, existsSync, statSync, readdirSync, mkdirSync, writeFileSync, chmodSync, rmSync} from 'node:fs';
-import {inflateRawSync, crc32} from 'node:zlib';
+import zlib from 'node:zlib';
+const {inflateRawSync} = zlib;
+
+// zlib.crc32 arrived in Node 20.15 and 22.2; the release README promises Node 20, so an older 20.x gets this table version. Same result, tested against the built-in.
+const CRC_TABLE = Uint32Array.from({length: 256}, (_, n) => { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1; return c >>> 0; });
+function crc32Table(data) { let c = 0xffffffff; for (let i = 0; i < data.length; i++) c = CRC_TABLE[(c ^ data[i]) & 0xff] ^ (c >>> 8); return (c ^ 0xffffffff) >>> 0; }
+export const crc32 = typeof zlib.crc32 === 'function' ? zlib.crc32 : crc32Table;
+export { crc32Table };
 import path from 'node:path';
 
 export const DEFAULT_LIMITS = Object.freeze({maxEntries: 20000, maxTotalBytes: 2 * 1024 ** 3});
