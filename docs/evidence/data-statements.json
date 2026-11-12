@@ -1,0 +1,477 @@
+{
+  "format": "plc-data-statements/1",
+  "about": "The statements the app itself makes to people about what it does with their data, each with the file it lives in, pieces of its exact text, and the section of docs/DATA-HANDLING.md it rests on. tests/data-statements.test.mjs fails when an assistant answer whose id is 'privacy' or starts 'privacy.' is not listed here, when a listed piece no longer appears in its file (so a statement cannot be edited without this file, and so the document, being looked at), and when a section does not exist in the document. It cannot catch a new free-text note written anywhere else in the app: nobody and no test finds a sentence that is not listed, so a person who adds one adds it here too. 'verified' is what the statement was judged to be against the code when it was registered: true, corrected (it was false and the wording was changed) or partly (an overstatement not changed; see the note).",
+  "statements": [
+    {
+      "id": "privacy",
+      "kind": "assistant-answer",
+      "file": "chat/roberta/ivr-content.mjs",
+      "pieces": [
+        "When replies run on this device, your messages are processed here and are not sent to an AI provider.",
+        "Your chats are saved in this browser's storage, not on a server, and there's no account."
+      ],
+      "section": "2",
+      "says": "On-device replies are processed in the browser and not sent to an AI provider; chats are saved in the browser's storage, with no server and no account.",
+      "verified": "true"
+    },
+    {
+      "id": "privacy.cloud",
+      "kind": "assistant-answer",
+      "file": "chat/roberta/ivr-content.mjs",
+      "pieces": [
+        "On this device, nothing you type is sent to the cloud for replies.",
+        "modelFilesSentence()",
+        "If you use voice, your browser's own speech service may process audio. If you choose an outside provider, your messages go to that provider.",
+        "You're using an outside provider, so the messages in your requests do go to that provider over the internet.",
+        "The app comes from the address you opened it from, and the model files are downloaded once, from "
+      ],
+      "section": "2",
+      "says": "On this device nothing typed goes to the cloud for replies; the app comes from the address the copy was opened from and the model files from the configured source; the browser's speech service may process audio; an outside provider gets the messages.",
+      "verified": "corrected",
+      "note": "Corrected earlier in stage 9: it used to name the project's file host for every copy. The source is named with sourceLabelAndHost, the helper the Settings row 'Model files come from' uses."
+    },
+    {
+      "id": "privacy.storage",
+      "kind": "assistant-answer",
+      "file": "chat/roberta/ivr-content.mjs",
+      "pieces": [
+        "Your saved conversations live in this browser's storage on this device.",
+        "Each browser and each device keeps its own, and nobody else holds a copy.",
+        "Back them up before clearing site data or changing devices."
+      ],
+      "section": "1",
+      "says": "Saved conversations live in the browser's storage on this device; each browser and device keeps its own and nobody else holds a copy; back up before clearing site data.",
+      "verified": "true",
+      "note": "True of the app: it has no server copy. A provider, if the person chose one, receives the messages of a request (privacy.provider); that is not a copy of the saved conversations."
+    },
+    {
+      "id": "privacy.provider",
+      "kind": "assistant-answer",
+      "file": "chat/roberta/ivr-content.mjs",
+      "pieces": [
+        "In outside-provider mode, the messages, instructions and any document excerpts in a request go to the provider you chose, and their rules and prices apply.",
+        "You choose that explicitly. The app never switches to a provider on its own."
+      ],
+      "section": "2",
+      "says": "In outside-provider mode the messages, instructions and document excerpts of a request go to the provider the person chose; the app never switches to a provider by itself.",
+      "verified": "true"
+    },
+    {
+      "id": "privacy.account",
+      "kind": "assistant-answer",
+      "file": "chat/roberta/ivr-content.mjs",
+      "pieces": [
+        "There's no Private Local Chat account, and the app itself has no analytics or tracking scripts.",
+        "siteLinks().site",
+        ", the host counts page loads without cookies, and never sees what you type or say.",
+        "On-device chat needs no API key. Outside providers may need their own accounts and may charge."
+      ],
+      "section": "2",
+      "says": "There is no account and the app has no analytics or tracking script; a host that counts page loads is named only when the site manifest says so; on-device chat needs no key.",
+      "verified": "true",
+      "note": "The host sentence is built from the site manifest and is pinned in all four cases by tests/site-identity.test.mjs."
+    },
+    {
+      "id": "talking",
+      "kind": "assistant-answer",
+      "file": "chat/roberta/ivr-content.mjs",
+      "pieces": [
+        "These use your browser's own speech services, which may send audio to the browser's speech service. That is separate from where replies are written."
+      ],
+      "section": "2",
+      "says": "Speech features use the browser's own speech services, which may send audio to them; that is separate from where replies are written.",
+      "verified": "true"
+    },
+    {
+      "id": "talking.read",
+      "kind": "assistant-answer",
+      "file": "chat/roberta/ivr-content.mjs",
+      "pieces": [
+        "Every reply has a Listen button that reads it aloud with a voice from your device.",
+        "Voices already on the device work offline."
+      ],
+      "section": "2",
+      "says": "Reading aloud uses a voice from the device; voices already on the device work offline.",
+      "verified": "true",
+      "note": "A browser voice may be a network voice on some browsers; the sentence says 'on the device', as the voice list shows."
+    },
+    {
+      "id": "talking.dictate",
+      "kind": "assistant-answer",
+      "file": "chat/roberta/ivr-content.mjs",
+      "pieces": [
+        "Dictation uses your browser's speech recognition, and the browser may send audio to its speech service."
+      ],
+      "section": "2",
+      "says": "Dictation uses the browser's speech recognition and the browser may send audio to its speech service.",
+      "verified": "true"
+    },
+    {
+      "id": "talking.notes",
+      "kind": "assistant-answer",
+      "file": "chat/roberta/ivr-content.mjs",
+      "pieces": [
+        "Only the words are saved, not the audio."
+      ],
+      "section": "1",
+      "says": "Only the words of a voice note are saved, not the audio.",
+      "verified": "true",
+      "note": "chat/voice/voice-note.mjs says nothing is recorded or stored as audio."
+    },
+    {
+      "id": "share",
+      "kind": "assistant-answer",
+      "file": "chat/roberta/ivr-content.mjs",
+      "pieces": [
+        "It shares only the address of the app. None of your chats or settings go with it.",
+        "Nothing about your chats or settings is shared."
+      ],
+      "section": "2",
+      "says": "Sharing shares only the app's public address; no chats or settings go with it.",
+      "verified": "true"
+    },
+    {
+      "id": "restore",
+      "kind": "assistant-answer",
+      "file": "chat/roberta/ivr-content.mjs",
+      "pieces": [
+        "You'll see a preview and choose Merge or Replace before anything changes."
+      ],
+      "section": "1",
+      "says": "A restore shows a preview and asks Merge or Replace before anything changes.",
+      "verified": "true"
+    },
+    {
+      "id": "export",
+      "kind": "assistant-answer",
+      "file": "chat/roberta/ivr-content.mjs",
+      "pieces": [
+        "Provider settings and API tokens aren't in those files."
+      ],
+      "section": "2",
+      "says": "An export or protected backup does not hold provider settings or API tokens.",
+      "verified": "true",
+      "note": "Matches the rows of the export and backup dialogs (chat/transfer/transfer-ui.mjs) and buildBackup in chat/transfer/backups.mjs."
+    },
+    {
+      "id": "settings.transfer",
+      "kind": "assistant-answer",
+      "file": "chat/roberta/ivr-content.mjs",
+      "pieces": [
+        "A transfer link can include your API token, encrypted with a password you choose. Tell the other person the password separately."
+      ],
+      "section": "2",
+      "says": "A transfer link can include the API token, encrypted with a password the person chooses.",
+      "verified": "true"
+    },
+    {
+      "id": "settings.provider",
+      "kind": "assistant-answer",
+      "file": "chat/roberta/ivr-content.mjs",
+      "pieces": [
+        "Their rules and prices apply to what you send them."
+      ],
+      "section": "2",
+      "says": "What is sent to a connected provider is under that provider's rules and prices.",
+      "verified": "true"
+    },
+    {
+      "id": "help.storage",
+      "kind": "assistant-answer",
+      "file": "chat/roberta/ivr-content.mjs",
+      "pieces": [
+        "Unload frees the model from memory but keeps its files. Remove download deletes the saved model files, and you can download them again later."
+      ],
+      "section": "1",
+      "says": "Unload keeps the model files; Remove download deletes them; back up before clearing all site data.",
+      "verified": "true"
+    },
+    {
+      "id": "models.source-checked",
+      "kind": "ui-note",
+      "file": "chat/shell/models-page.mjs",
+      "pieces": [
+        "Every model and voice file is checked against its published size and SHA-256 before it is used, whichever source it comes from.",
+        "The small model that matches memory is published under a path that names its content, and is not checked by the app."
+      ],
+      "section": "2",
+      "says": "Model and voice files are checked against a published size and SHA-256; the small model that matches memory is not checked by the app.",
+      "verified": "corrected",
+      "note": "Corrected in this stage: it said every file. The catalog and voice manifests pin sizes and SHA-256; chat/embedding/embedding-config.mjs pins none. tests/e2e/model-sources.e2e.mjs matches 'checked against its published size and SHA-256'."
+    },
+    {
+      "id": "models.source-row",
+      "kind": "ui-note",
+      "file": "chat/shell/models-page.mjs",
+      "pieces": [
+        "\"Model files come from\"",
+        ", set by whoever runs this copy"
+      ],
+      "section": "2",
+      "says": "The Settings row says which source the model files come from and whether whoever runs the copy set it.",
+      "verified": "true"
+    },
+    {
+      "id": "models.source-notice",
+      "kind": "ui-note",
+      "file": "chat/models/source-notice.mjs",
+      "pieces": [
+        "That host sees that a download is requested, as any web host does, and nothing you type."
+      ],
+      "section": "2",
+      "says": "Before the first download on a copy that is not ours, the person is told the files come from the project's content delivery network, which sees that a download is requested and nothing typed.",
+      "verified": "true"
+    },
+    {
+      "id": "settings.no-training",
+      "kind": "ui-note",
+      "file": "chat/shell/shell.mjs",
+      "pieces": [
+        "Nothing is sent anywhere to train on. There is no account."
+      ],
+      "section": "2",
+      "says": "Nothing is sent anywhere to train on, and there is no account.",
+      "verified": "true",
+      "note": "True of the app. A connected provider has its own rules (privacy.provider)."
+    },
+    {
+      "id": "settings.trash",
+      "kind": "ui-note",
+      "file": "chat/shell/shell.mjs",
+      "pieces": [
+        "Kept for 30 days, then removed for good."
+      ],
+      "section": "1",
+      "says": "Deleted chats are kept for 30 days and then removed.",
+      "verified": "true",
+      "note": "TRASH_DAYS and purgeExpired in chat/threads.mjs."
+    },
+    {
+      "id": "settings.encrypt-everything",
+      "kind": "ui-note",
+      "file": "chat/shell/shell.mjs",
+      "pieces": [
+        "encrypt everything this app saves on this device"
+      ],
+      "section": "3",
+      "says": "The lock can encrypt everything the app saves on the device.",
+      "verified": "partly",
+      "note": "The vault covers the user, setting and transient classes; the plain keys, the device stores and downloaded model files stay readable (storage-inventory.json). 'Everything' is stronger than that. Not changed."
+    },
+    {
+      "id": "lock.unlock-note",
+      "kind": "ui-note",
+      "file": "chat/vault/unlock-screen.mjs",
+      "pieces": [
+        "Everything on this device is encrypted. Type your passphrase to open it."
+      ],
+      "section": "3",
+      "says": "Everything on the device is encrypted.",
+      "verified": "partly",
+      "note": "Same limit as settings.encrypt-everything. Not changed."
+    },
+    {
+      "id": "lock.erase-note",
+      "kind": "ui-note",
+      "file": "chat/vault/unlock-screen.mjs",
+      "pieces": [
+        "There is no way to recover a forgotten passphrase.",
+        "Downloaded models are kept."
+      ],
+      "section": "3",
+      "says": "A forgotten passphrase cannot be recovered; erasing removes what the app saved in the browser but keeps downloaded models.",
+      "verified": "true"
+    },
+    {
+      "id": "lock.screen-lock-disclaimer",
+      "kind": "ui-note",
+      "file": "chat/lock/lock.mjs",
+      "pieces": [
+        "It is a screen lock: it does not encrypt what this browser stores, so someone with access to the browser’s files could still read them.",
+        "A passcode keeps casual snoopers out of this app. It is not strong protection"
+      ],
+      "section": "3",
+      "says": "A passcode alone is a screen lock: it does not encrypt what the browser stores.",
+      "verified": "true"
+    },
+    {
+      "id": "lock.encrypt-note",
+      "kind": "ui-note",
+      "file": "chat/lock/lock.mjs",
+      "pieces": [
+        "Your chats, documents, memory and settings are sealed with this passphrase",
+        "if you forget it they cannot be recovered",
+        "It does not protect against someone who controls the website you load"
+      ],
+      "section": "3",
+      "says": "Chats, documents, memory and settings are sealed with the passphrase and cannot be recovered without it; this does not protect against someone who controls the website.",
+      "verified": "true"
+    },
+    {
+      "id": "lock.encrypted-everything",
+      "kind": "ui-note",
+      "file": "chat/lock/lock.mjs",
+      "pieces": [
+        "Everything this app saves on this device is encrypted with your passphrase. Locking forgets the key and asks for it again.",
+        "Everything is now encrypted with your passphrase."
+      ],
+      "section": "3",
+      "says": "With encryption on, everything the app saves is encrypted with the passphrase; locking forgets the key.",
+      "verified": "partly",
+      "note": "Same limit as settings.encrypt-everything. Not changed."
+    },
+    {
+      "id": "lock.remember-keys",
+      "kind": "ui-note",
+      "file": "chat/lock/lock.mjs",
+      "pieces": [
+        "Kept encrypted. Off: keys last until the tab closes."
+      ],
+      "section": "3",
+      "says": "With 'Remember my API keys' on, keys are kept encrypted; off, they last until the tab closes.",
+      "verified": "true",
+      "note": "vault-store.mjs keeps the tokens in memory only when it is off."
+    },
+    {
+      "id": "lock.old-copy",
+      "kind": "ui-note",
+      "file": "chat/lock/lock.mjs",
+      "pieces": [
+        "the old unencrypted copy is still stored in this browser, readable by anyone with the device",
+        "Your chats, documents, memory and settings will be stored in this browser without encryption, readable by anyone with the device."
+      ],
+      "section": "3",
+      "says": "After encryption is turned on the old unencrypted copy stays in the browser until the person removes it.",
+      "verified": "true"
+    },
+    {
+      "id": "documents.not-uploaded",
+      "kind": "ui-note",
+      "file": "chat/documents/documents-ui.mjs",
+      "pieces": [
+        "Files added here are read and kept on this device only.",
+        "Nothing is uploaded."
+      ],
+      "section": "2",
+      "says": "Files added to the library are read and kept on the device only, best-matching passages are supplied to the model, and nothing is uploaded.",
+      "verified": "partly",
+      "note": "True of the files. When the model is an outside provider the matching passages are part of the request and go to the provider (privacy.provider says so). Not changed."
+    },
+    {
+      "id": "voice.dictation-hint",
+      "kind": "ui-note",
+      "file": "chat/voice/voice-ui.mjs",
+      "pieces": [
+        "Only your words are kept, not the audio.",
+        "which may send audio to its speech service."
+      ],
+      "section": "2",
+      "says": "Only the words are kept, not the audio; the browser's speech recognition may send audio to its speech service.",
+      "verified": "true"
+    },
+    {
+      "id": "transfer.settings-notice",
+      "kind": "ui-note",
+      "file": "chat/transfer/transfer-ui.mjs",
+      "pieces": [
+        "Anyone with the link, QR code, or settings file can read the listed settings. An included API token is encrypted with your chosen password."
+      ],
+      "section": "2",
+      "says": "A settings transfer holds the listed settings readable by anyone with the link, code or file; an included API token is encrypted with the chosen password.",
+      "verified": "true"
+    },
+    {
+      "id": "transfer.backup-notice",
+      "kind": "ui-note",
+      "file": "chat/transfer/transfer-ui.mjs",
+      "pieces": [
+        "This backup includes the items listed below and is protected with your chosen password."
+      ],
+      "section": "2",
+      "says": "A protected backup holds the listed items and is protected with the chosen password.",
+      "verified": "true"
+    },
+    {
+      "id": "transfer.backup-rows",
+      "kind": "ui-note",
+      "file": "chat/transfer/transfer-ui.mjs",
+      "pieces": [
+        "[\"Provider settings\", \"Not included\", false], [\"Credentials\", \"Not included\", false]",
+        "\"Encrypted with the password you choose\"",
+        "\"None. The file is readable.\""
+      ],
+      "section": "2",
+      "says": "A protected backup has no provider settings or credentials and is encrypted; a readable export is not encrypted and holds only conversations.",
+      "verified": "true"
+    },
+    {
+      "id": "transfer.share-none",
+      "kind": "ui-note",
+      "file": "chat/transfer/transfer-ui.mjs",
+      "pieces": [
+        "Your chats and settings are never part of a share."
+      ],
+      "section": "2",
+      "says": "Chats and settings are never part of a share.",
+      "verified": "true"
+    },
+    {
+      "id": "share.panel",
+      "kind": "ui-note",
+      "file": "chat/transfer/product-share.mjs",
+      "pieces": [
+        "This shares the public app address. Your conversations and settings stay on your device."
+      ],
+      "section": "2",
+      "says": "Sharing shares the public address; conversations and settings stay on the device.",
+      "verified": "true"
+    },
+    {
+      "id": "provider.anthropic-key",
+      "kind": "ui-note",
+      "file": "chat/provider/endpoint-options.mjs",
+      "pieces": [
+        "Your key is sent from your browser straight to Anthropic",
+        "it is never sent anywhere else"
+      ],
+      "section": "2",
+      "says": "The key is sent from the browser straight to Anthropic and never anywhere else.",
+      "verified": "partly",
+      "note": "True of requests. The person may also put the token in a settings transfer link, encrypted (transfer.settings-notice). Not changed."
+    },
+    {
+      "id": "provider.perplexity",
+      "kind": "ui-note",
+      "file": "chat/provider/endpoint-options.mjs",
+      "pieces": [
+        "so what you write is sent to Perplexity and its search"
+      ],
+      "section": "2",
+      "says": "What is written to a Perplexity model is sent to Perplexity and its search.",
+      "verified": "true"
+    },
+    {
+      "id": "storage.persist",
+      "kind": "ui-note",
+      "file": "chat/storage/storage-ui.mjs",
+      "pieces": [
+        "Protected: the browser will not clear it automatically.",
+        "Not protected: the browser may clear it when the device is low on space."
+      ],
+      "section": "1",
+      "says": "Persistent storage is protected from automatic clearing; otherwise the browser may clear it.",
+      "verified": "true"
+    },
+    {
+      "id": "storage.remove-files",
+      "kind": "ui-note",
+      "file": "chat/storage/storage-ui.mjs",
+      "pieces": [
+        "Your conversations are kept, and you can download it again later."
+      ],
+      "section": "1",
+      "says": "Removing model files deletes them from the device and keeps conversations.",
+      "verified": "true"
+    }
+  ]
+}
