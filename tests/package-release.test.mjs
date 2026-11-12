@@ -2,7 +2,7 @@
 // development site.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync, existsSync} from 'node:fs';
+import {mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync, existsSync, readdirSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
@@ -132,9 +132,15 @@ test('negative control: a bad target, a bad version, or a commit that is not che
   await assert.rejects(packageRelease({target: 'app', version: VERSION, commit: 'abc', outDir: out}), /full commit hash/);
   assert.ok(!existsSync(out), 'nothing was written');
 });
-test('no temporary build folder is left behind', () => {
-  const left = execFileSync('ls', ['-a'], {encoding: 'utf8'}).split('\n').filter((n) => n.startsWith('.tmp-release-'));
-  assert.deepEqual(left, []);
+test('the temporary build folder is removed, and only the files of the release are left in the output folder', async () => {
+  // A folder of this test's own: other test files build in the repository root at the same time, so the root cannot be inspected.
+  const work = mkdtempSync(path.join(process.cwd(), '.tmp-pkgwork-'));
+  try {
+    const out = path.join(scratch, 'clean-out');
+    const file = await packageRelease({target: 'app', version: VERSION, commit: HEAD, outDir: out, workDir: work});
+    assert.deepEqual(readdirSync(work), [], 'the build folder was removed');
+    assert.deepEqual(readdirSync(out), [path.basename(file)]);
+  } finally { rmSync(work, {recursive: true, force: true}); }
 });
 test('the texts name the version and the target', () => {
   assert.match(readmeText({version: '1.2.3', target: 'app'}), /Private Local Chat 1\.2\.3 \(app\)/);

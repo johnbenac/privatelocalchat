@@ -144,8 +144,8 @@ async function filesOf(dir) {
 const git = (...args) => execFileSync('git', args, {cwd: root, encoding: 'utf8'}).trim();
 
 /** Builds `target` as the release `version` of `commit` (the commit checked out) and returns the entries of its folder. */
-export async function releaseEntries({target, version, commit, epoch}) {
-  const holder = mkdtempSync(path.join(root, '.tmp-release-'));
+export async function releaseEntries({target, version, commit, epoch, workDir = root}) {
+  const holder = mkdtempSync(path.join(workDir, '.tmp-release-')); // inside the repository, which is where the build writes (a test passes its own folder)
   try {
     const env = {...process.env};
     for (const key of ['TARGET', 'SITE_DIR', 'DEPLOY_BRANCH', 'GITHUB_REF_NAME', 'SITE_JSON_PATH', 'RELEASE_VERSION', 'APP_CONFIG_OVERRIDE']) delete env[key];
@@ -168,7 +168,7 @@ export async function releaseEntries({target, version, commit, epoch}) {
 }
 
 /** Writes DIR/<zip> for one target and returns its path. */
-export async function packageRelease({target, version, commit, outDir, epoch}) {
+export async function packageRelease({target, version, commit, outDir, epoch, workDir}) {
   if (!TARGETS.includes(target)) throw new Error(`--target must be one of ${TARGETS.join(', ')}`);
   if (!VERSION.test(version || '')) throw new Error('--version must be a version such as 1.2.3');
   const head = git('rev-parse', 'HEAD');
@@ -176,7 +176,7 @@ export async function packageRelease({target, version, commit, outDir, epoch}) {
   if (!/^[0-9a-f]{40}$/.test(commit)) throw new Error('--commit must be a full commit hash');
   if (commit !== head) throw new Error(`The working tree is at ${head}, not at ${commit}: check out the commit to release first`);
   epoch ??= Number(git('show', '-s', '--format=%ct', commit));
-  const zip = makeZip(await releaseEntries({target, version, commit, epoch}), epoch);
+  const zip = makeZip(await releaseEntries({target, version, commit, epoch, workDir}), epoch);
   mkdirSync(outDir, {recursive: true});
   const file = path.join(outDir, zipName(version, target));
   writeFileSync(file, zip);
