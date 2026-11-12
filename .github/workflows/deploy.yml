@@ -36,10 +36,12 @@ jobs:
           # the tests that pin this site's own wording, from the site layer
           APP_ROOT="$PWD" SITE_ROOT="$PWD/site-layer" node --test site-layer/tests/*.test.mjs
       - name: Build exact commit
-        run: npm run build
+        # scripts/ci-build.mjs builds the site target from the site layer. REQUIRE_SITE makes a site layer that is not there a failure, never a fallback to the neutral pages.
+        run: node scripts/ci-build.mjs
         env:
           DEPLOY_BRANCH: ${{ github.ref_name }}
           SITE_DIR: site-layer
+          REQUIRE_SITE: '1'
       - name: Check branch has not advanced
         id: current
         env:

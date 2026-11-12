@@ -106,3 +106,21 @@ test('the files are attested after the release, as a step whose failure does not
 test('the release job never touches the site layer or its key',()=>{
   assert.ok(!/SITE_DEPLOY_KEY|SITE_DIR|privatelocalchat-site|TARGET=site/.test(releaseYml));
 });
+
+// ---- the deploy never falls back to the neutral pages (docs/SITE-LAYER.md) -----------------------------------------------------------------------------------
+test('the deploy builds through scripts/ci-build.mjs with REQUIRE_SITE=1, and nothing else builds the site',()=>{
+  const deploy=readFileSync(new URL('../.github/workflows/deploy.yml',import.meta.url),'utf8');
+  const step=deploy.slice(deploy.indexOf('- name: Build exact commit'),deploy.indexOf('- name: Check branch has not advanced'));
+  assert.match(step,/run: node scripts\/ci-build\.mjs\n/);
+  assert.match(step,/REQUIRE_SITE: '1'/);
+  assert.match(step,/SITE_DIR: site-layer/);
+  assert.ok(!/npm run build|TARGET:/.test(step),'the deploy does not build around the selection script');
+  assert.ok(deploy.indexOf('Fetch the site layer')<deploy.indexOf('Build exact commit'),'fetched before the build');
+});
+
+test('no other workflow builds the site target or reads the site layer, and the release builds only app and runkit',()=>{
+  for(const [file,text] of workflows()){
+    if(file==='deploy.yml')continue;
+    assert.ok(!/TARGET:\s*site|SITE_DIR:/.test(text),`${file} builds the site target`);
+  }
+});
