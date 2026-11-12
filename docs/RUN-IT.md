@@ -12,7 +12,7 @@ One build (`npm run build`, then the folder `dist/`) comes in three kinds, chose
 | `runkit` | the app and a neutral Help and About (`run-kit/`) | the default: a clone, a fork, a contributor's machine |
 | `site` | the app and the pages of a site directory (`SITE_DIR`, `docs/SITE-LAYER.md`) | privatelocal.chat is built this way |
 
-With `TARGET` unset, `SITE_DIR` unset means `runkit` and `SITE_DIR` set means `site`. `TARGET=app` or `runkit` together with `SITE_DIR` is refused, and so is `TARGET=site` without it. The version the app shows says `release` for `app` and `runkit` builds made on `main`, `local` otherwise, and never `production` or `development`: those are the names of privatelocal.chat's own sites.
+With `TARGET` unset, `SITE_DIR` unset means `runkit` and `SITE_DIR` set means `site`. `TARGET=app` or `runkit` together with `SITE_DIR` is refused, and so is `TARGET=site` without it. The version the app shows says `release` for `app` and `runkit` builds made on `main`, `local` otherwise, and never `production` or `development`: those are the names of privatelocal.chat's own sites. `RELEASE_VERSION=1.2.3` makes an `app` or `runkit` build say it was released as that version, in `version.json` and in Settings ("Private Local Chat 1.2.3 · build abc1234 (release)"); the release job sets it. Without it a build says the version of `package.json`, and the `site` target refuses it.
 
 A build for downloading never carries our development tooling (the telemetry receiver, the development tools, the diagnostics hooks). It belongs to the `site` target on the `dev` branch; asking for `app` or `runkit` on `dev` stops with a message.
 
