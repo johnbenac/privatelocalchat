@@ -26,6 +26,7 @@ const cases = [
   ['unlock screen', 'chat/vault/unlock-screen.mjs', 'Your chats, documents', 'Everything on this device is encrypted. Type your passphrase to open it.'],
   ['toast', 'chat/lock/lock.mjs', 'Your chats, documents, memory and settings are now', 'Everything is now encrypted with your passphrase.'],
   ['Security row', 'chat/lock/lock.mjs', 'Your chats, documents, memory and settings on this device', 'Everything this app saves on this device is encrypted with your passphrase.'],
+  ['Settings row', 'chat/shell/shell.mjs', '"App lock and encryption"', 'row("App lock and encryption", "Ask for a passcode before the app opens, and encrypt everything this app saves on this device. Unlock with the passphrase'],
 ];
 for (const [name, file, start, old] of cases) {
   test(`${name} names what is encrypted`, () => {

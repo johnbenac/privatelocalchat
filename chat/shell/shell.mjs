@@ -452,7 +452,7 @@ function buildSettings({ app, shell, registry, moved }) {
     const sync = () => { box.checked = app.lock ? app.lock.reminderOn() : true; };
     box.addEventListener("change", () => app.lock?.setReminder(box.checked));
     const w = h("div", {}, h("h2", { text: "Security" }), card(
-      row("App lock and encryption", "Ask for a passcode before the app opens, and encrypt everything this app saves on this device. Unlock with the passphrase, or Face ID where the device offers it.", btn("Set up", () => app.openLockSettings())),
+      row("App lock and encryption", "Ask for a passcode before the app opens, and encrypt your chats, documents, memory and settings on this device. Unlock with the passphrase, or Face ID where the device offers it.", btn("Set up", () => app.openLockSettings())),
       row("Not-locked reminder", "When the app has no passcode, show a short reminder as it opens, with a button to add one.", box)));
     w.addEventListener("shell-refresh", sync); sync();
     return w;
