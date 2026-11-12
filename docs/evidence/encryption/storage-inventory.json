@@ -222,7 +222,7 @@
       "store": "sessionStorage",
       "class": "user",
       "owner": "chat/provider/provider-settings.mjs",
-      "note": "provider endpoint, model, theme and the API key in use (the stored copy has the key blanked unless keys are remembered)",
+      "note": "provider endpoint, model, theme and the API key in use (with the vault on, the stored copy has the key blanked unless keys are remembered; with it off the key is stored as it is)",
       "alsoIn": [
         "index.html",
         "local-models.js"

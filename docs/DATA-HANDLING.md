@@ -67,7 +67,7 @@ Browsers offer to clear the site data of an address. In current browsers that re
 
 | Key | Where | Class | What it holds | Format | First release |
 | --- | --- | --- | --- | --- | --- |
-| `chatConfig` | session storage | `user` | provider endpoint, model, theme and the API key in use (the stored copy has the key blanked unless keys are remembered) | 1 | v0.0.0 |
+| `chatConfig` | session storage | `user` | provider endpoint, model, theme and the API key in use (with the vault on, the stored copy has the key blanked unless keys are remembered; with it off the key is stored as it is) | 1 | v0.0.0 |
 | `chatEndpointTokens` | session storage | `user` | API keys, one per endpoint | 1 | v0.4.0 |
 | `chatModels` | session storage | `setting` | the provider's model list | 1 | v0.0.0 |
 | `chatThreads` | local storage | `user` | every saved chat, rewritten whole on each save | 1 | v0.0.0 |
