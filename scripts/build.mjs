@@ -46,7 +46,11 @@ const commit=process.env.GITHUB_SHA || execFileSync('git',['rev-parse','HEAD'],{
 const branch=targetInfo.branch;
 // SOURCE_DATE_EPOCH (seconds) makes the build time, and the sitemap's date for the home page, reproducible; unset, they are the clock and the last commit date.
 const buildTime=()=>process.env.SOURCE_DATE_EPOCH?new Date(Number(process.env.SOURCE_DATE_EPOCH)*1000):new Date();
-const build={version:pkg.version,commit,branch,environment:targetInfo.environment,builtAt:buildTime().toISOString()};
+// RELEASE_VERSION is the version of a release being made (docs/RELEASING.md): a copy built for others says the version it was released as. The deployed site keeps package.json's.
+const releaseVersion=process.env.RELEASE_VERSION||null;
+if(releaseVersion&&targetInfo.target==='site')throw new Error('RELEASE_VERSION applies to the app and runkit targets; the deployed site shows the version of package.json');
+if(releaseVersion&&!/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(releaseVersion))throw new Error('RELEASE_VERSION must be a version such as 1.2.3, not "'+releaseVersion+'"');
+const build={version:releaseVersion||pkg.version,commit,branch,environment:targetInfo.environment,builtAt:buildTime().toISOString()};
 const developmentNative=targetInfo.devTooling?JSON.parse(await readFile('dev-tools/native-runtime/manifest.json','utf8')):null;
 if(developmentNative?.compilerControl)build.developmentRuntime={nativeBuildId:developmentNative.buildId,variant:developmentNative.compilerControl.id,wasmSha256:developmentNative.files['compat.wasm'].sha256};
 const releasePath='releases/'+commit;

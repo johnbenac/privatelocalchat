@@ -43,8 +43,9 @@ test('a build for downloading cannot be made on the dev branch', () => {
 const root=path.resolve('.');
 function build(env){
   const dir=mkdtempSync(path.join(root,'.tmp-tgt-'));
-  const e={...process.env};for(const k of ['TARGET','SITE_DIR','DEPLOY_BRANCH','GITHUB_REF_NAME','SITE_JSON_PATH'])delete e[k];
-  execFileSync('node',['scripts/build.mjs'],{stdio:'pipe',env:{...e,GITHUB_SHA:'a'.repeat(40),SOURCE_DATE_EPOCH:'1',BUILD_OUT_DIR:path.relative(root,dir),...env}});
+  const e={...process.env};for(const k of ['TARGET','SITE_DIR','DEPLOY_BRANCH','GITHUB_REF_NAME','SITE_JSON_PATH','RELEASE_VERSION'])delete e[k];
+  try{execFileSync('node',['scripts/build.mjs'],{stdio:'pipe',env:{...e,GITHUB_SHA:'a'.repeat(40),SOURCE_DATE_EPOCH:'1',BUILD_OUT_DIR:path.relative(root,dir),...env}});}
+  catch(error){rmSync(dir,{recursive:true,force:true});throw error;} // a refused build leaves nothing behind
   return dir;
 }
 const read=(dir,f)=>readFileSync(path.join(dir,f),'utf8');
@@ -102,4 +103,28 @@ test('our development tooling is in the site target on dev and in no other build
       for(const f of everything)assert.ok(!/DEV_DIAGNOSTICS_START|receiver-worker|__plcDebug/.test(readFileSync(f,'utf8')),target+': development code in '+path.relative(dir,f));
     }finally{rmSync(dir,{recursive:true,force:true});}
   }
+});
+
+// ---- the version a release reports ---------------------------------------------------------------------------------------------------------------------
+const PACKAGE_VERSION=JSON.parse(readFileSync('package.json','utf8')).version;
+for(const target of ['app','runkit']){
+  test(`the ${target} target says the version it was released as, in version.json and in the page`,()=>{
+    const dir=build({TARGET:target,DEPLOY_BRANCH:'main',RELEASE_VERSION:'0.64.0'});
+    try{
+      const info=JSON.parse(read(dir,'version.json'));
+      assert.deepEqual([info.version,info.environment],['0.64.0','release']);
+      assert.ok(read(dir,'index.html').includes('"version":"0.64.0"'),'the page carries the build record with the release version');
+      assert.ok(!read(dir,'index.html').includes('"version":"'+PACKAGE_VERSION+'"'));
+    }finally{rmSync(dir,{recursive:true,force:true});}
+  });
+}
+test('without RELEASE_VERSION a build keeps the version of package.json',()=>{
+  const dir=build({TARGET:'app',DEPLOY_BRANCH:'main'});
+  try{assert.equal(JSON.parse(read(dir,'version.json')).version,PACKAGE_VERSION);}finally{rmSync(dir,{recursive:true,force:true});}
+});
+test('negative control: RELEASE_VERSION is refused for the site target and when it is not a version',()=>{
+  const fails=(env,pattern)=>assert.throws(()=>build(env),error=>pattern.test(String(error.stderr)));
+  fails({TARGET:'app',DEPLOY_BRANCH:'main',RELEASE_VERSION:'v0.64.0'},/must be a version such as 1\.2\.3, not "v0\.64\.0"/);
+  fails({TARGET:'runkit',DEPLOY_BRANCH:'main',RELEASE_VERSION:'latest'},/must be a version/);
+  fails({TARGET:'site',SITE_DIR:'tests/fixtures/site',DEPLOY_BRANCH:'main',RELEASE_VERSION:'0.64.0'},/applies to the app and runkit targets/);
 });
