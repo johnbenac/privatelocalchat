@@ -34,13 +34,13 @@ Placeholder: this section is written in the next step; the generated table below
 | `plc.draft` | session storage | `transient` | composer text kept across the page reload that applies an update | 1 | v0.6.0 |
 | `plc.drafts.v1` | local storage | `user` | unsent composer text per chat | 1 | v0.8.0 |
 | `plc.folders.v1` | local storage | `user` | folder names and which chats are in them | 1 | v0.8.0 |
-| `plc.formats.v1` | local storage | `plain` | the highest format of each store any version has written here, so an older version leaves newer data alone | 1 | unreleased |
+| `plc.formats.v1` | local storage | `plain` | the highest format of each store any version has written here, so an older version leaves newer data alone | 1 | v0.57.0 |
 | `plc.inferenceMode.v1` | local storage | `setting` | on this device or a connected provider | 1 | v0.6.0 |
 | `plc.lock.v1` | local storage | `plain` | lock verifier and auto-lock minutes; replaced by the vault header | 1 | v0.8.0 |
 | `plc.lockSplash.v1` | local storage | `plain` | the not-locked reminder is on or off | 1 | v0.33.0 |
 | `plc.memory.v1` | local storage | `user` | memory items. It was shared with the model-memory switch until 2026-11-04, which overwrote it | 1 | v0.8.0 |
 | `plc.modelMemory.v1` | local storage | `setting` | One model at a time, and whether the offer was declined | 1 | v0.47.0 |
-| `plc.modelSourceNotice.v1` | local storage | `plain` | the model-source notice was shown | 1 | unreleased |
+| `plc.modelSourceNotice.v1` | local storage | `plain` | the model-source notice was shown | 1 | v0.61.0 |
 | `plc.models.v1` | local storage | `setting` | which on-device model is chosen | 1 | v0.6.0 |
 | `plc.offlineHint.v1` | local storage | `plain` | the offline hint was shown | 1 | v0.37.0 |
 | `plc.pendingToken.v1` | session storage | `transient` | a settings link waiting for the person's choice | 1 | v0.13.0 |

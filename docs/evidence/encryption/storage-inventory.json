@@ -173,7 +173,7 @@
       "owner": "chat/models/source-notice.mjs",
       "note": "the model-source notice was shown",
       "format": 1,
-      "since": "unreleased"
+      "since": "v0.61.0"
     },
     {
       "key": "plc.lockSplash.v1",
@@ -329,7 +329,7 @@
       "owner": "chat/vault/data-formats.mjs",
       "note": "the highest format of each store any version has written here, so an older version leaves newer data alone",
       "format": 1,
-      "since": "unreleased"
+      "since": "v0.57.0"
     }
   ],
   "databases": [
