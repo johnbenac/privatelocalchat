@@ -26,7 +26,7 @@ npm run build          # a neutral copy in dist/
 node scripts/serve.mjs # http://127.0.0.1:18171
 ```
 
-`scripts/serve.mjs` takes `--dir DIR`, `--host H` and `--port N` (and `SERVE_DIR`, `HOST`, `PORT`). The folder defaults to `./app` if there is one (the release layout: `app/`, `serve.mjs`, `README.md` and the licence files side by side) and to `./dist` otherwise. It needs only Node.
+`scripts/serve.mjs` takes `--dir DIR`, `--host H` and `--port N` (and `SERVE_DIR`, `HOST`, `PORT`). The folder defaults to `./app` if there is one (the release layout: `app/`, `serve.mjs`, `README.md` and the licence files side by side) and to `./dist` otherwise. It needs only Node. `node scripts/serve.mjs --help` (in a release, `node serve.mjs --help`, or `node plc.mjs --help` in an operator folder) lists every option, including the ones for an operator folder below.
 
 - It applies the `_headers` file of the build it serves, so it sends exactly what the build declares. It refuses a folder that is not a build.
 - It streams files and supports `HEAD`, `Range` and `If-None-Match`, so very large model files are no problem.

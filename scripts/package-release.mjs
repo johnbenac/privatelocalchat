@@ -94,7 +94,7 @@ You need Node.js 20 or newer and nothing else.
 
     node serve.mjs
 
-Then open http://127.0.0.1:18171 in a browser. \`node serve.mjs --port 8080\` changes the port. The server logs nothing about requests. Nothing is installed and nothing outside this folder is written.
+Then open http://127.0.0.1:18171 in a browser. \`node serve.mjs --port 8080\` changes the port, and \`node serve.mjs --help\` lists every option. The server logs nothing about requests. Nothing is installed and nothing outside this folder is written.
 
 ## Install it as an operator folder
 

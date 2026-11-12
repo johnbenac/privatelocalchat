@@ -4,6 +4,7 @@
 //   node scripts/serve.mjs [--dir DIR] [--host H] [--port N]       (PORT, HOST and SERVE_DIR in the environment work too)
 //   node serve.mjs --root R [--host H] [--port N]                  serves the live release of an operator folder
 //   node serve.mjs --root R --upgrade SRC [--sha256 HEX] [--force] | --rollback [VERSION] | --check [--deep] [--online] | --prune [--keep N]
+//   node serve.mjs --help                                          lists every option
 //
 // DIR is a folder that holds a build: `./app` if it exists (the release layout), else `./dist`. It must hold the build's `_headers`, which is applied to every response, so what this
 // server sends is what the build declared (scripts/headers.mjs). It listens on 127.0.0.1 unless told otherwise. It logs nothing about requests.
@@ -128,7 +129,20 @@ const isFolder = (p) => { try { return statSync(p).isDirectory(); } catch { retu
 // The options of an operator folder (docs/RUN-IT.md) are read by operator.mjs; without them the server behaves as it always did.
 const OPERATOR_OPTIONS = ['--root', '--upgrade', '--sha256', '--force', '--rollback', '--check', '--deep', '--online', '--prune', '--keep'];
 
+const USAGE = `Usage:
+  node serve.mjs [--dir DIR] [--host H] [--port N]     serve one build (default ./app, else ./dist) on 127.0.0.1:18171
+  node serve.mjs --root R [--host H] [--port N]        serve the live release of an operator folder, with its settings, pages and models
+  node serve.mjs --root R --upgrade SRC [--sha256 HEX] [--force]
+                                                       install a release (a zip with its SHA256SUMS, or an unpacked folder) and make it live
+  node serve.mjs --root R --rollback [VERSION]         go back to the release before, or to a named installed one
+  node serve.mjs --root R --check [--deep] [--online]  check the folder; --deep also hashes model files, --online asks for the newest release
+  node serve.mjs --root R --prune [--keep N]           remove the oldest installed releases (default keep 3; never the live one or the one before it)
+
+In an operator folder, node plc.mjs takes the same options without --root.
+PORT, HOST and SERVE_DIR in the environment work too. The server logs nothing about requests. See docs/RUN-IT.md.`;
+
 function cli(argv) {
+  if (argv.includes('--help') || argv.includes('-h')) { console.log(USAGE); return; }
   if (argv.some((a) => OPERATOR_OPTIONS.includes(a))) {
     import('./operator.mjs').then((m) => m.runCli(argv, {startServer})).then((code) => { if (code !== null) process.exitCode = code; });
     return;
