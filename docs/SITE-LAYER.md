@@ -47,7 +47,7 @@ A read-only deploy key on the private repository, whose private half is the secr
 
 `docs/evidence/split/runkit-baseline.json` is the neutral build and is checked for everyone (`npm run snapshot:check`).
 
-`docs/evidence/split/site-baseline.json` is the site build as it was when the pages moved out of this repository. With the site layer at its first commit (`5d6d0b3`) checked out, `SITE_DIR=<site> npm run snapshot:check:site` reports no differences: the move changed no byte of what privatelocal.chat serves. It is evidence of that move and not a standing gate, because a gate would tie every page edit in one repository to a baseline edit in the other; a later page edit is expected to differ from it.
+`docs/evidence/split/site-baseline.json` is the site build as it was when the pages moved out of this repository. With the site layer at its first commit (`5d6d0b3`) checked out, `SITE_DIR=<site> npm run snapshot:check:site` reports no differences: the move changed no byte of what privatelocal.chat serves. It is evidence of that move and not a standing gate, because a gate would tie every page edit in one repository to a baseline edit in the other; a later page edit is expected to differ from it. One change after the move is intended and already counted: `sw.js` lost its test for the hostname `dev.privatelocal.chat` (split stage 7), so the site build differs from this baseline in that one line of `sw.js`; the neutral baselines were re-recorded for it.
 
 ## What is public anyway
 

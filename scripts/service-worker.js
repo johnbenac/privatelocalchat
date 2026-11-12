@@ -1,6 +1,6 @@
 const CACHE=__CACHE_NAME__;
 const DEVELOPMENT_NATIVE=__DEVELOPMENT_NATIVE__;
-const SHELL=__SHELL_FILES__.filter(file=>location.hostname==='dev.privatelocal.chat'||(!file.includes('/dev-tools/')&&(!DEVELOPMENT_NATIVE||!file.includes('/runtime/providers/vendor/wllama/v1q/'))));
+const SHELL=__SHELL_FILES__.filter(file=>DEVELOPMENT_NATIVE||!file.includes('/dev-tools/'));
 __DEV_OFFLINE_FAULT__
 // The small files the app needs to start are required; the multi-megabyte model runtimes are cached too, but a phone that cannot finish
 // them must not be left running an old version forever, so they never block an update (they are also cached as they are first used).
