@@ -57,3 +57,52 @@ test('a deploy builds with the fetched site layer and runs its tests', () => {
   assert.match(deploy,/node --test site-layer\/tests\/\*\.test\.mjs/);
   assert.ok(deploy.indexOf('Fetch the site layer')<deploy.indexOf('Build exact commit'),'fetched before the build');
 });
+
+// ---- the release carries its files (docs/RELEASING.md) --------------------------------------------------------------------------------------------------------
+// The release is made by semantic-release from .releaserc.cjs; what it attaches and how the files are vouched for is pinned here, because a workflow cannot be run in a test.
+import {createRequire} from 'node:module';
+const releaseConfig=createRequire(import.meta.url)('../.releaserc.cjs');
+const releaseYml=readFileSync(new URL('../.github/workflows/release.yml',import.meta.url),'utf8');
+const pluginName=p=>Array.isArray(p)?p[0]:p;
+const plugin=name=>releaseConfig.plugins.find(p=>pluginName(p)===name);
+
+test('the release notes generator comes before exec, which comes before the GitHub release, so the Upgrading section is appended and the assets exist when they are attached',()=>{
+  const names=releaseConfig.plugins.map(pluginName);
+  assert.ok(names.indexOf('@semantic-release/commit-analyzer')<names.indexOf('@semantic-release/release-notes-generator'));
+  assert.ok(names.indexOf('@semantic-release/release-notes-generator')<names.indexOf('@semantic-release/exec'));
+  assert.ok(names.indexOf('@semantic-release/exec')<names.indexOf('@semantic-release/github'));
+});
+
+test('exec packs the assets and writes the notes through scripts/release-hooks.mjs, with the version and the commit being released',()=>{
+  const {generateNotesCmd,prepareCmd}=plugin('@semantic-release/exec')[1];
+  assert.match(prepareCmd,/^node scripts\/release-hooks\.mjs prepare --version \$\{nextRelease\.version\} --commit \$\{nextRelease\.gitHead\} --out release-assets$/);
+  assert.match(generateNotesCmd,/^node scripts\/release-hooks\.mjs notes --version \$\{nextRelease\.version\} --commit \$\{nextRelease\.gitHead\} --last-tag \$\{lastRelease\.gitTag\}$/);
+  for(const cmd of [prepareCmd,generateNotesCmd])for(const m of cmd.matchAll(/\$\{([^}]+)\}/g))assert.ok(['nextRelease.version','nextRelease.gitHead','lastRelease.gitTag'].includes(m[1]),'unknown placeholder '+m[1]);
+});
+
+test('the GitHub release attaches both zips, compat.json and SHA256SUMS, and nothing from the site build',()=>{
+  const assets=plugin('@semantic-release/github')[1].assets.map(a=>a.path??a);
+  assert.deepEqual(assets,['release-assets/*.zip','release-assets/compat.json','release-assets/SHA256SUMS']);
+  assert.ok(!/_site|dist\//.test(assets.join()));
+});
+
+test('the release job installs the dependencies before the release, names the exec plugin, and gives the notes the token gh needs',()=>{
+  assert.ok(releaseYml.indexOf('npm ci')>0&&releaseYml.indexOf('npm ci')<releaseYml.indexOf('cycjimmy/semantic-release-action'));
+  assert.match(releaseYml,/extra_plugins: \|[\s\S]*@semantic-release\/exec/);
+  assert.match(releaseYml,/GH_TOKEN: \$\{\{ secrets\.GITHUB_TOKEN \}\}/);
+  assert.ok(releaseYml.indexOf('A release needs the data upgrade suite green')<releaseYml.indexOf('npm ci'),'the data upgrade gate stays first');
+});
+
+test('the files are attested after the release, as a step whose failure does not undo it',()=>{
+  const step=releaseYml.slice(releaseYml.indexOf('- name: Attest the release files'));
+  assert.match(step,/if: steps\.release\.outputs\.new_release_published == 'true'/);
+  assert.match(step,/continue-on-error: true/);
+  assert.match(step,/uses: actions\/attest-build-provenance@v2/);
+  assert.match(step,/subject-path: release-assets\/\*/);
+  assert.match(releaseYml,/id: release\n\s+uses: cycjimmy\/semantic-release-action@v4/);
+  assert.match(releaseYml,/permissions:[\s\S]*id-token: write[\s\S]*attestations: write/);
+});
+
+test('the release job never touches the site layer or its key',()=>{
+  assert.ok(!/SITE_DEPLOY_KEY|SITE_DIR|privatelocalchat-site|TARGET=site/.test(releaseYml));
+});

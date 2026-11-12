@@ -7,3 +7,5 @@ work/
 __pycache__/
 *.py[cod]
 .claude/worktrees/
+release-assets/
+.tmp-*

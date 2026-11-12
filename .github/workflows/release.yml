@@ -10,6 +10,8 @@ permissions:
   issues: write
   pull-requests: write
   actions: read
+  id-token: write       # the provenance attestation of the release files (actions/attest-build-provenance)
+  attestations: write
 
 jobs:
   release:
@@ -39,12 +41,26 @@ jobs:
             sleep 30
           done
           echo "The data upgrade suite did not finish for $SHA. No release."; exit 1
+      - name: Install dependencies
+        # The release zips are built from this commit (scripts/package-release.mjs), which needs the build's dependencies.
+        run: npm ci
       - name: Semantic Release
+        id: release
         uses: cycjimmy/semantic-release-action@v4
         with:
           extra_plugins: |
             @semantic-release/changelog
+            @semantic-release/exec
             @semantic-release/git
             @semantic-release/github
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}   # the notes read the previous release's compat.json with gh
+      - name: Attest the release files
+        # After the release, as its own step: if this fails the release stands and the files are still published with their checksums.
+        # `gh attestation verify <file> --repo johnbenac/privatelocalchat` checks a download against it (docs/RELEASING.md).
+        if: steps.release.outputs.new_release_published == 'true'
+        continue-on-error: true
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: release-assets/*
