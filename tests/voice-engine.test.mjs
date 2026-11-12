@@ -1,3 +1,4 @@
+import './helpers/install-app-config.mjs'; // the model sources the build writes into the page (docs/APP-CONFIG.md)
 import test from "node:test";
 import assert from "node:assert/strict";
 import crypto from "node:crypto";

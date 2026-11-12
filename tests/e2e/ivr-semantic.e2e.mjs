@@ -4,6 +4,7 @@
 // host for nothing.
 //
 //   node tests/e2e/ivr-semantic.e2e.mjs              (builds dist/, serves it, drives headless Chromium)
+import '../helpers/install-app-config.mjs'; // the model sources the build writes into the page (docs/APP-CONFIG.md)
 import {readFileSync} from 'node:fs';
 import {launch,assert} from './harness.mjs';
 import {summarise,SPLITS} from '../../scripts/eval-intent-router.mjs';

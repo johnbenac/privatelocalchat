@@ -8,6 +8,7 @@
 // ($TMPDIR/plc-voice-e2e/<engine>), re-using files already there that still match. Every file is verified against the manifest; a mismatch is an
 // error, never a silent skip. If the download is impossible (no network), this throws, unless VOICE_E2E_ALLOW_SKIP=1, in which case it returns null
 // and the caller skips visibly.
+import '../helpers/install-app-config.mjs'; // the model sources the build writes into the page (docs/APP-CONFIG.md)
 import {createHash} from 'node:crypto';
 import {existsSync,mkdirSync,readFileSync,writeFileSync,renameSync} from 'node:fs';
 import os from 'node:os';

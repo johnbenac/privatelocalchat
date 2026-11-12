@@ -21,7 +21,8 @@ export const SALT_BYTES = 16, IV_BYTES = 12, TAG_BITS = 128;
 export const MAX_JSON_BYTES = 64 * 1024;
 /** Unpadded Base64URL length of the largest allowed package: checked before anything is decoded. */
 export const MAX_ENCODED_LENGTH = Math.ceil((MAX_JSON_BYTES * 4) / 3);
-export const TRANSFER_ORIGIN = "https://privatelocal.chat/";
+/** The address a transfer link opens: the copy that made it (a settings link is for another browser of the same copy), or none when the page does not know its own address. */
+export const transferOrigin = () => { const o = globalThis.location?.origin; return o && o !== "null" ? o + "/" : null; };
 const MAX_FIELD = 2048, MAX_TOKEN_BYTES = 4096;
 
 const enc = new TextEncoder();
@@ -97,7 +98,8 @@ const deepFreeze = (o) => { if (o && typeof o === "object") { Object.values(o).f
  * `password` may be any string, including "". Rejects (and creates nothing) when a token is requested but there is none, or when the
  * endpoint it must be bound to is not a usable address.
  */
-export async function createTransfer({ settings, includeToken = false, token = "", password = "" } = {}) {
+export async function createTransfer({ settings, includeToken = false, token = "", password = "", origin = transferOrigin() } = {}) {
+  if (!origin) throw Object.assign(new Error("This page does not know its own address, so it cannot make a transfer link."), { code: "no-origin" });
   const picked = pickSettings(settings);
   const envelope = { format: TRANSFER_FORMAT, settings: { endpoint: picked.endpoint, model: picked.model } };
   if (picked.theme) envelope.settings.theme = picked.theme;
@@ -116,7 +118,7 @@ export async function createTransfer({ settings, includeToken = false, token = "
     envelope,
     includesToken: Boolean(envelope.protectedToken),
     encoded,
-    url: `${TRANSFER_ORIGIN}#settings=${encoded}`,
+    url: `${origin}#settings=${encoded}`,
     fileText: JSON.stringify(envelope, null, 2) + "\n",
     fileName: "private-local-chat-settings.json"
   });

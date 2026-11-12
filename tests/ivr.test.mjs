@@ -1,3 +1,4 @@
+import './helpers/install-site-links.mjs'; // the test assistant speaks for our site: its manifest, as the build writes it into the page
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {ROBOT_NAME,describeContext,introScript,menuPrompt,menuItems,modelStatus,sizeWords,NODES,MAIN_MENU,KEY_TO_NODE,INTENT_PHRASES,INTENT_IDS,FALLBACK_SAY,WHO_I_AM} from '../chat/roberta/ivr-content.mjs';

@@ -2,11 +2,13 @@
 // against these sizes and SHA-256 values before use. A changed byte is a new manifest, never an edit in place.
 //
 // `name` is the flat file name in the origin's private storage; `path` is where the file lives under the base URL.
+import { appConfig } from "../../runtime/config/app-config.mjs";
+
 
 /** The Hugging Face revision the hosted copy is keyed by. ONE place: another step pins the final value here. */
 export const KOKORO_Q8_COMMIT = "1939ad2a8e416c0acfeecc08a694d14ef25f2231";
 
-export const KOKORO_Q8_BASE_URL = `https://assets.privatelocal.chat/models/Kokoro-82M-v1.0-ONNX-q8/${KOKORO_Q8_COMMIT}/`;
+export const KOKORO_Q8_BASE_URL = `${appConfig().modelRoot()}Kokoro-82M-v1.0-ONNX-q8/${KOKORO_Q8_COMMIT}/`;
 
 const file = (path, role, bytes, sha256) => Object.freeze({ name: path.split("/").pop(), path, role, bytes, sha256 });
 

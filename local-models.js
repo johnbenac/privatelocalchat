@@ -7,15 +7,14 @@ import {createOfflineStatusProbe} from './runtime/offline-status.mjs';
 import {createModelHost} from './runtime/providers/model-host.mjs';
 import {gatherEnv} from './runtime/providers/capability-probe.mjs';
 import {bootVault,appLocal,appSession} from './chat/vault/vault-store.mjs';
+import {ensureSourceNotice} from './chat/models/source-notice.mjs';
 
 // If the person has an encrypted vault, nothing below may read a saved setting until it is unlocked (the page's own script waits for the same answer).
 await bootVault();
 
 const $ = id => document.getElementById(id);
-const base = 'https://assets.privatelocal.chat/models/';
-const variants = {q4f16_1:'c7c5d3f5a81e37b8facbb72970940a1b131314a8',q4f32_1:'f8f042bfb68cb88573af4c8e0ef9b1a26bef4ad0'};
-const webllm = Object.fromEntries(Object.entries(variants).map(([v,r]) => [v,base+'Qwen3.5-9B-'+v+'-MLC/resolve/'+r+'/']));
-const host = createModelHost({sources:{webllmModelBase:webllm,webllmLibBase:webllm,wllamaModelBase:base+'Qwen3.5-2B/15852e8c16360a2fea060d615a32b45270f8a8fc/'}});
+// Where the model files come from is the configured model source (runtime/config/app-config.mjs, docs/APP-CONFIG.md); the catalog reads it, so there is nothing to pass here.
+const host = createModelHost({});
 /* DEV_DIAGNOSTICS_START */
 window.__plcDebugModelHost=host;
 let diagnosticsStarted;
@@ -128,6 +127,7 @@ function applyMode() {
 }
 async function action(fn) {try {await fn();} catch(e) {showError(e);} }
 downloadRecovery=createDownloadRecovery({host,
+ beforeInstall:()=>ensureSourceNotice({storage:appLocal,dialogs:window.plcDialogs}), // the model-source notice, once, on a copy that is not our own site
 /* DEV_DIAGNOSTICS_START */
  beforeLoad:()=>new Promise(resolve=>{const timeout=setTimeout(resolve,5000);diagnosticsReady.then(()=>{clearTimeout(timeout);resolve();});}),
 /* DEV_DIAGNOSTICS_END */

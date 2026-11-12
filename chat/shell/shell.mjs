@@ -135,7 +135,7 @@ export function createShell(app) {
   registry.register("explore", { id: "storage", label: "Storage & backups", desc: "Where chats live and how to keep them", icon: "storage", order: 20, open: () => app.openStorage() });
   registry.register("explore", { id: "transfer", label: "Transfer chats and settings", desc: "Move to another browser or device", icon: "transfer", order: 30, open: () => shell.openSettings("data") });
   registry.register("explore", { id: "help", label: "Help & about", icon: "help", order: 40, open: () => app.openHelp() });
-  registry.register("explore", { id: "share", label: "Share", icon: "share", order: 50, open: () => app.openShare() });
+  registry.register("explore", { id: "share", label: "Share", icon: "share", order: 50, open: () => app.openShare(), visible: () => Boolean(siteLinks().site) }); // a copy that names no site has no public address to share
 
   // ---- icon rail ----
   const rail = h("nav", { id: "shellRail", class: "shell-rail", "aria-label": "Main" });
@@ -150,7 +150,7 @@ export function createShell(app) {
     { label: "Settings", icon: "gear", onClick: () => shell.openSettings("general") },
     { divider: true },
     { label: "Help & about", icon: "help", onClick: () => app.openHelp() },
-    { label: "Share", icon: "share", onClick: () => app.openShare() }
+    ...(siteLinks().site ? [{ label: "Share", icon: "share", onClick: () => app.openShare() }] : [])
   ], { above: true, cls: "wide" }));
   function exploreRows() {
     return registry.list("explore").map((i) => ({
@@ -464,7 +464,7 @@ function buildSettings({ app, shell, registry, moved }) {
   add("about", "About", "info", "version offline privacy help share source report", () => {
     const w = h("div", {}, h("h2", { text: "About" }), card(
       row("Help & about", "How privacy works, install tips, and answers.", btn("Open", () => app.openHelp())),
-      row("Share this app", null, btn("Share", () => app.openShare())),
+      siteLinks().site ? row("Share this app", null, btn("Share", () => app.openShare())) : null,
       siteLinks().has("privacy") ? row("Privacy", null, h("a", { class: "set-btn", href: siteLinks().href("privacy"), target: "_blank", rel: "noopener" }, "Read")) : null,
       row("Report a problem", "A GitHub account is needed. Leave out keys and private chats.", h("a", { class: "set-btn", href: "https://github.com/johnbenac/privatelocalchat/issues/new/choose", target: "_blank", rel: "noopener" }, "Open")),
       row("Source code", null, h("a", { class: "set-btn", href: "https://github.com/johnbenac/privatelocalchat", target: "_blank", rel: "noopener" }, "View"))));

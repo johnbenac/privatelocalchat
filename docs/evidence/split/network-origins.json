@@ -77,15 +77,6 @@
   "app.hyperbolic.ai": [
    "chat/provider/endpoint-options.mjs"
   ],
-  "assets.privatelocal.chat": [
-   "chat/embedding/embedding-config.mjs",
-   "chat/voice/voice-engine.mjs",
-   "chat/voice/voice-manifest-kokoro.mjs",
-   "chat/voice/voice-manifest.mjs",
-   "local-models.js",
-   "runtime/providers/catalog-data.mjs",
-   "runtime/providers/catalog.mjs"
-  ],
   "bailian.console.alibabacloud.com": [
    "chat/provider/endpoint-options.mjs"
   ],
@@ -149,6 +140,9 @@
   "docs.z.ai": [
    "chat/provider/endpoint-options.mjs"
   ],
+  "example.org": [
+   "chat/site/site-links.mjs"
+  ],
   "gateway.ai.cloudflare.com": [
    "chat/provider/endpoint-options.mjs"
   ],
@@ -160,9 +154,11 @@
    "chat/shell/shell.mjs",
    "index.html"
   ],
+  "host": [
+   "chat/site/site-links.mjs"
+  ],
   "huggingface.co": [
-   "chat/provider/endpoint-options.mjs",
-   "runtime/providers/catalog.mjs"
+   "chat/provider/endpoint-options.mjs"
   ],
   "inference-docs.cerebras.ai": [
    "chat/provider/endpoint-options.mjs"
@@ -195,14 +191,6 @@
   ],
   "plc-model-files.invalid": [
    "runtime/providers/cache-api-backend.mjs"
-  ],
-  "privatelocal.chat": [
-   "chat/transfer/product-share.mjs",
-   "chat/transfer/settings-transfer.mjs",
-   "index.html"
-  ],
-  "raw.githubusercontent.com": [
-   "runtime/providers/catalog.mjs"
   ],
   "router.huggingface.co": [
    "chat/provider/endpoint-options.mjs"

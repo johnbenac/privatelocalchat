@@ -1,3 +1,4 @@
+import './helpers/install-app-config.mjs'; // the model sources the build writes into the page (docs/APP-CONFIG.md)
 import test from "node:test";
 import assert from "node:assert/strict";
 import { TIERS, TIER_ORDER, tierFiles, loadConfigFor, isWllamaTier, isTinyTier, resolveSources, OFFICIAL_SOURCES } from "../runtime/providers/catalog.mjs";

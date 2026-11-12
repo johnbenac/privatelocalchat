@@ -3,6 +3,7 @@
 // CDN into a temp directory and verified against the manifest (tests/e2e/voice-files.mjs). Installs, speaks a short text, checks the audio, removes, and checks private storage is back to its baseline.
 //
 //   node tests/e2e/voice-kokoro.e2e.mjs        (VOICE_WAV_OUT=/path.wav keeps the audio)
+import '../helpers/install-app-config.mjs'; // the model sources the build writes into the page (docs/APP-CONFIG.md)
 import {readFileSync,writeFileSync} from 'node:fs';
 import path from 'node:path';
 import http from 'node:http';

@@ -29,7 +29,7 @@ export function createGaplessPlayer({ createContext = () => new (globalThis.Audi
   const sources = new Set();
   let closed = false;
   /* DEV_DIAGNOSTICS_START */
-  // Development trace (dev.privatelocal.chat only; stripped by the build): the audio graph's own state, so a sentence that "plays" but never ends can be told apart from one that never played.
+  // Development trace (the development site only; stripped by the build): the audio graph's own state, so a sentence that "plays" but never ends can be told apart from one that never played.
   const trace = (kind, data = {}) => { try { window.__plcDiagCall?.(kind, { outcome: ctx?.state || 'no-context', phase: audioSession?.type || 'no-audiosession', ...data }); } catch { /* never disturb playback */ } };
   /* DEV_DIAGNOSTICS_END */
   const closeContext = () => { if (closed || !ctx) return; closed = true; giveBackSpeaker(); try { el?.pause?.(); if (el) el.srcObject = null; } catch { /* gone */ } try { Promise.resolve(ctx.close?.()).catch(() => {}); } catch { /* already closed */ } };

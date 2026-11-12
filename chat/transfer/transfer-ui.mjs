@@ -45,6 +45,7 @@ export function createTransferUi({ app, el, openAppDialog, showToast, icon, doc 
   // ---- Share ------------------------------------------------------------------------------------------------------------
   function openShare() {
     const body = el("div");
+    if (!PRODUCT.url) { body.appendChild(el("p", null, "This copy of the app names no public address, so there is nothing to share from here. Your chats and settings are never part of a share.")); return openAppDialog({ title: "Share Private Local Chat", content: body, actions: [{ label: "OK", primary: true }] }); }
     mountProductShare(body, { doc, nav, onToast: showToast, qrColors: app.qrColors });
     return openAppDialog({ title: "Share Private Local Chat", content: body });
   }

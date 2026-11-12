@@ -14,6 +14,7 @@ The app never names one of our pages itself. Where the pages are comes from a sm
 - A page that is absent, or whose value is neither, does not exist for this copy.
 - `SITE_JSON_PATH` chooses the file for a build: unset means `./site.json` if it exists, an empty value means none, and a path that does not exist is an error. A build with no manifest is a neutral copy.
 - The build checks the manifest (`checkSiteJson`): an unknown page name, an invalid value or another format stops it with the reason. It then writes the validated result into `index.html` as `window.SITE_LINKS`, beside `window.APP_BUILD` and `window.SITE_CONFIG`. There is no extra request and nothing for the offline copy to save.
+- An optional `site` block says who the site is: `"site": { "url": "https://privatelocal.chat/", "socialImage": "/brand/social-card-1200x630.png", "countsPageLoads": true }`. `url` is exactly an origin with a trailing slash, `socialImage` a path on it, `countsPageLoads` says whether its host counts page loads. It feeds the page head, the Share entry points, and what the assistant says about the host (`docs/APP-CONFIG.md`). Without the block a copy names no site.
 - `site-config.json` is separate: it holds facts about the operator (support address, discussion space, hosting logs) that fill sections of the generated pages. `site.json` says where the pages are.
 
 ## In the app

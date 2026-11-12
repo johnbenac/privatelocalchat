@@ -1,3 +1,4 @@
+globalThis.location={origin:'https://privatelocal.chat'}; // a transfer link opens the copy that made it: the test copy is the public site
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {TRANSFER_FORMAT,TOKEN_SUITE,PBKDF2_ITERATIONS,MAX_ENCODED_LENGTH,MAX_JSON_BYTES,createTransfer,readEnvelope,readTransferFragment,readTransferText,readConfigFile,readLegacyQuery,readIncoming,unlockToken,endpointIdentity,sameDestination,tokenBelongsTo,pickSettings,toBase64Url,fromBase64Url,authenticatedData} from '../chat/transfer/settings-transfer.mjs';

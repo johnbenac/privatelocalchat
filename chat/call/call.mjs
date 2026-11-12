@@ -276,7 +276,7 @@ export function createCall(host) {
   // The silent utterance can get stuck in iPhone Safari's queue and hold back every real sentence behind it, so if nothing real has been said a moment later it is cleared.
   const unlockSpeech = () => { try { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; speechSynthesis.speak(u); setTimeout(() => { if (!call.spoke) { try { speechSynthesis.cancel(); } catch { /* nothing queued */ } } }, 1200); } catch { /* no voices */ } };
   /* DEV_DIAGNOSTICS_START */
-  // Development trace for the voice call (dev.privatelocal.chat only; the build strips this): what the call is doing and when, with the speech queue's own state, never the words.
+  // Development trace for the voice call (the development site only; the build strips this): what the call is doing and when, with the speech queue's own state, never the words.
   const callT0 = performance.now();
   function trace(kind, data) {
     try {
