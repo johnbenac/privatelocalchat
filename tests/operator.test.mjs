@@ -7,6 +7,7 @@ import path from 'node:path';
 import {execFileSync, spawn, spawnSync} from 'node:child_process';
 import {upgrade, rollback, check, prune, readCurrent, installedReleases, compareVersions, carryHeldBuilds, Refusal} from '../scripts/operator.mjs';
 import {packageRelease, writeSums} from '../scripts/package-release.mjs';
+import {startServer} from '../scripts/serve.mjs';
 import {makeRelease, zipRelease, tree, commitOf, scratchDir, removeDir, sha256} from './helpers/operator-fixtures.mjs';
 
 const scratch = scratchDir();
@@ -771,4 +772,187 @@ test('serve.mjs --root with no command serves the live release\'s app; without -
   const legacy = run(['--dir', '/nonexistent-folder-for-test', '--port', '0']);
   assert.equal(legacy.status, 1);
   assert.match(legacy.stderr, /is not a build: it has no _headers file/);
+});
+
+// ---- a damaged current.json ----------------------------------------------------------------------------------------------------------------------------------
+// The file is only a pointer. Installing a release again must recover from it, and every other command must say so instead of looping on the same refusal.
+const goodRecord = (root) => JSON.parse(readFileSync(path.join(root, 'current.json'), 'utf8'));
+const DAMAGES = {
+  'not JSON': () => '{not json',
+  'JSON but not an object': () => '[1, 2]\n',
+  'a wrong format': (r) => JSON.stringify({...r, format: 'plc-current/9'}),
+  'a release that names no folder': (r) => JSON.stringify({...r, release: '0.9.0-runkit', version: '0.9.0'}),
+  'a commit that is not 40 hex': (r) => JSON.stringify({...r, commit: 'abc123'})
+};
+const damage = (root, how) => { const bytes = DAMAGES[how](goodRecord(root)); writeFileSync(path.join(root, 'current.json'), bytes); return bytes; };
+const asides = (root) => readdirSync(root).filter((f) => f.startsWith('current.json.unusable-')).sort();
+const ADVICE = /Install a release again to recover: unpack a release and run "node serve\.mjs --upgrade \. --root .*" from it \(docs\/RUN-IT\.md\)\. The damaged file is moved aside, not deleted\./;
+
+for (const how of Object.keys(DAMAGES)) {
+  test(`upgrade recovers a current.json that is ${how}: the file is moved aside and the held builds of the newest release come across`, async () => {
+    const root = await rootWith(1);
+    const before = tree(relDir(root, 1));
+    const bytes = damage(root, how);
+    const out = lines();
+    const result = await upgrade({root, source: await release(2), log: out.log});
+    assert.equal(result.changed, true);
+    assert.equal(result.previous, null);
+    const [aside] = asides(root);
+    assert.equal(asides(root).length, 1);
+    assert.match(aside, /^current\.json\.unusable-\d{8}T\d{6}Z$/);
+    assert.equal(readFileSync(path.join(root, aside), 'utf8'), bytes, 'the original bytes');
+    const current = readCurrent(root);
+    assert.deepEqual([current.release, current.commit, current.previous], ['0.2.0-runkit', commitOf(2), null]);
+    assert.deepEqual(tree(relDir(root, 1)), before, 'the old release folder is untouched');
+    assert.deepEqual(heldOf(root, 2), {current: commitOf(2), retained: [commitOf(1)]});
+    assert.ok(existsSync(buildDirIn(root, 2, 1)));
+    assert.match(out.join('\n'), /current\.json cannot be used/);
+    assert.match(out.join('\n'), /moved aside/);
+    assert.match(out.join('\n'), /0\.1\.0-runkit/, 'says which release the builds came from');
+    const health = await check({root});
+    assert.equal(health.ok, true, health.problems.join('; '));
+  });
+}
+
+test('a recovery takes the held builds of the NEWEST installed release', async () => {
+  const root = await rootWith(1, 2);
+  damage(root, 'not JSON');
+  await upgrade({root, source: await release(3)});
+  assert.deepEqual(heldOf(root, 3), {current: commitOf(3), retained: [commitOf(2), commitOf(1)]});
+  const root2 = await rootWith(1, 2);
+  rmSync(path.join(root2, 'releases', '0.2.0-runkit', 'app', 'releases', commitOf(1)), {recursive: true});
+  damage(root2, 'not JSON');
+  await upgrade({root: root2, source: await release(3)});
+  assert.deepEqual(heldOf(root2, 3), {current: commitOf(3), retained: [commitOf(2)]}, 'only what the newest release held, not the older one\'s folder');
+});
+
+test('two recoveries in a row leave two distinct unusable files and delete nothing', async () => {
+  const root = await rootWith(1);
+  const first = damage(root, 'not JSON');
+  await upgrade({root, source: await release(2)});
+  const second = damage(root, 'a wrong format');
+  await upgrade({root, source: await release(3)});
+  const found = asides(root);
+  assert.equal(found.length, 2);
+  assert.deepEqual(found.map((f) => readFileSync(path.join(root, f), 'utf8')).sort(), [first, second].sort());
+  assert.equal(readCurrent(root).release, '0.3.0-runkit');
+});
+
+test('a recovery whose time stamp name is taken adds -2', async () => {
+  const root = await rootWith(1);
+  const real = Date;
+  const fixed = new real('2026-11-12T10:20:30.000Z');
+  globalThis.Date = class extends real { constructor(...a) { return a.length ? new real(...a) : new real(fixed); } static now() { return fixed.getTime(); } };
+  try {
+    writeFileSync(path.join(root, 'current.json.unusable-20261112T102030Z'), 'earlier');
+    damage(root, 'not JSON');
+    await upgrade({root, source: await release(2)});
+  } finally { globalThis.Date = real; }
+  assert.deepEqual(asides(root), ['current.json.unusable-20261112T102030Z', 'current.json.unusable-20261112T102030Z-2']);
+  assert.equal(readFileSync(path.join(root, 'current.json.unusable-20261112T102030Z'), 'utf8'), 'earlier');
+});
+
+test('upgrade to the release that is already installed, after a damage, finishes by switching to it', async () => {
+  const root = await rootWith(1);
+  damage(root, 'not JSON');
+  const result = await upgrade({root, source: await release(1)});
+  assert.equal(result.changed, true);
+  const current = readCurrent(root);
+  assert.deepEqual([current.release, current.previous], ['0.1.0-runkit', null]);
+  assert.equal(asides(root).length, 1);
+  assert.equal((await check({root})).ok, true);
+});
+
+for (const step of UPGRADE_STEPS) {
+  test(`a recovery upgrade that dies at "${step}" leaves every release sound and the next upgrade completes`, async () => {
+    const root = await rootWith(1);
+    const live = tree(relDir(root, 1));
+    damage(root, 'not JSON');
+    await assert.rejects(upgrade({root, source: await release(2), hooks: {[step]: () => { throw new Error('process died at ' + step); }}}), new RegExp('died at ' + step));
+    assert.deepEqual(tree(relDir(root, 1)), live, 'the installed release is untouched');
+    for (const r of installedReleases(root)) assert.deepEqual(checkApp0(r), [], r.release);
+    await upgrade({root, source: await release(2)});
+    assert.equal(readCurrent(root).release, '0.2.0-runkit');
+    assert.deepEqual(leftovers(root), []);
+    assert.equal((await check({root})).ok, true);
+    assert.ok(asides(root).length <= 1);
+  });
+}
+// the soundness of an installed release: its files against its release.json (a check of the root needs a current.json, which may be absent here)
+function checkApp0(r) {
+  const problems = [];
+  const index = JSON.parse(readFileSync(path.join(r.appDir, 'releases', 'index.json'), 'utf8'));
+  for (const c of [index.current, ...index.retained]) {
+    const dir = path.join(r.appDir, 'releases', c);
+    for (const f of JSON.parse(readFileSync(path.join(dir, 'release.json'), 'utf8')).files) if (sha256(readFileSync(path.join(dir, f.path))) !== f.sha256) problems.push(f.path);
+  }
+  return problems;
+}
+
+test('rollback, prune, check and serving refuse a damaged current.json with the new advice and leave the file alone', async () => {
+  const root = await rootWith(1, 2);
+  for (const how of Object.keys(DAMAGES)) {
+    const bytes = damage(root, how);
+    const before = readdirSync(root).sort();
+    await assert.rejects(rollback({root}), (e) => { assert.match(e.message, ADVICE); assert.ok(e.message.includes(root)); return true; });
+    await assert.rejects(prune({root}), ADVICE);
+    await assert.rejects(startServer({root, port: 0, quiet: true}), ADVICE);
+    const health = await check({root});
+    assert.equal(health.ok, false);
+    assert.match(health.problems.join('\n'), ADVICE);
+    const cli = run(['--root', root, '--check']);
+    assert.equal(cli.status, 1);
+    assert.match(cli.stdout, /PROBLEM: .*current\.json cannot be used/);
+    const served = run(['--root', root, '--port', '0']);
+    assert.equal(served.status, 1);
+    assert.match(served.stderr, ADVICE);
+    for (const flag of [['--rollback'], ['--prune']]) { const r = run(['--root', root, ...flag]); assert.equal(r.status, 1); assert.match(r.stderr, ADVICE); }
+    assert.equal(readFileSync(path.join(root, 'current.json'), 'utf8'), bytes, 'the file is not changed');
+    assert.deepEqual(readdirSync(root).sort(), before, 'nothing is moved aside by these');
+  }
+});
+
+test('upgrade with a good current.json moves nothing aside', async () => {
+  const root = await rootWith(1);
+  await upgrade({root, source: await release(2)});
+  assert.deepEqual(asides(root), []);
+  assert.equal(readCurrent(root).previous, '0.1.0-runkit');
+});
+
+test('a refused upgrade of a damaged root changes nothing: the file is moved aside only when the install goes ahead', async () => {
+  const root = await rootWith(1);
+  const bytes = damage(root, 'not JSON');
+  const bad = await copyOf(2);
+  appendFileSync(path.join(bad, 'app', 'releases', commitOf(2), 'assets', 'main.js'), 'x');
+  await refusal(upgrade({root, source: bad}), /does not check out/);
+  assert.equal(readFileSync(path.join(root, 'current.json'), 'utf8'), bytes);
+  assert.deepEqual(asides(root), []);
+});
+
+test('on the command line, --upgrade recovers a damaged current.json, and the launcher works again', async () => {
+  const root = await rootWith(1);
+  damage(root, 'not JSON');
+  const folder = await release(2);
+  const r = spawnSync(process.execPath, [path.join(folder, 'serve.mjs'), '--upgrade', folder, '--root', root], {encoding: 'utf8'});
+  assert.equal(r.status, 0, r.stderr);
+  assert.match(r.stdout, /Installed 0\.2\.0-runkit/);
+  assert.equal(asides(root).length, 1);
+  const c = spawnSync(process.execPath, [path.join(root, 'plc.mjs'), '--check'], {encoding: 'utf8'});
+  assert.equal(c.status, 0, c.stdout + c.stderr);
+  assert.match(c.stdout, /Healthy/);
+});
+
+test('plc.mjs with a damaged current.json prints the advice and exits 1', () => {
+  const root = fresh('launcher');
+  copyFileSync('scripts/plc.mjs', path.join(root, 'plc.mjs'));
+  for (const bytes of ['{not json', 'null', JSON.stringify({release: 5})]) {
+    writeFileSync(path.join(root, 'current.json'), bytes);
+    for (const args of [[], ['--check'], ['--upgrade', '/nowhere']]) {
+      const r = spawnSync(process.execPath, [path.join(root, 'plc.mjs'), ...args], {encoding: 'utf8'});
+      assert.equal(r.status, 1, bytes + ' ' + args);
+      assert.match(r.stderr, /Install a release again to recover: unpack a release and run "node serve\.mjs --upgrade \. --root .*" from it \(docs\/RUN-IT\.md\)/);
+      assert.ok(r.stderr.includes(root));
+    }
+    assert.equal(readFileSync(path.join(root, 'current.json'), 'utf8'), bytes, 'the launcher changes nothing');
+  }
 });
