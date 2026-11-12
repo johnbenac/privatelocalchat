@@ -101,7 +101,7 @@ Browsers offer to clear the site data of an address. In current browsers that re
 | `plc.test.voice` | local storage | `test` | development hook, stripped from production | 1 | v0.19.0 |
 | `plc.theme.v1` | local storage | `plain` | the resolved theme (light or dark), so the unlock screen matches it before anything is unlocked | 1 | v0.47.0 |
 | `plc.update.tried` | session storage | `plain` | an update reload was already tried | 1 | v0.11.0 |
-| `plc.vault.v1` | local storage | `plain` | says a vault exists (and its auto-lock minutes), so the page can paint the locked state before IndexedDB answers | 1 | v0.47.0 |
+| `plc.vault.v1` | local storage | `plain` | says a vault exists (and its auto-lock minutes, whether it locks when the page is hidden, and when it was made), so the page can paint the locked state before IndexedDB answers | 1 | v0.47.0 |
 | `plc.voice.v1` | local storage | `setting` | the older voice record, read once and migrated | 1 | v0.19.0 |
 | `plc.voice.v2` | local storage | `setting` | chosen voice and its settings | 2 | v0.23.0 |
 | `promoDismissed` | session storage | `plain` | the banner was closed | 1 | v0.3.1 |

@@ -303,7 +303,7 @@
       "store": "localStorage",
       "class": "plain",
       "owner": "chat/vault/vault-store.mjs",
-      "note": "says a vault exists (and its auto-lock minutes), so the page can paint the locked state before IndexedDB answers",
+      "note": "says a vault exists (and its auto-lock minutes, whether it locks when the page is hidden, and when it was made), so the page can paint the locked state before IndexedDB answers",
       "alsoIn": [
         "index.html"
       ],

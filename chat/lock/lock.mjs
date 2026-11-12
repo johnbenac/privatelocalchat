@@ -162,7 +162,7 @@ export function createLock({ el, createEmoji, readJson, writeJson, openAppDialog
       card(rowOf('Lock automatically', null, auto), rowOf('Lock as soon as I leave this tab or app', 'The page reloads and asks again.', hideBox, 'label')),
       sub('Unlock with Face ID or Touch ID'), faceCard,
       sub('API keys'),
-      card(rowOf('Remember my API keys', 'Kept encrypted. Off: keys last until the tab closes.', keysBox, 'label')),
+      card(rowOf('Remember my API keys', 'Kept encrypted. Off: keys stay in memory only, so reloading or locking the app forgets them.', keysBox, 'label')),
       sub('Passphrase'),
       card(field(cur), field(nw)), msg);
     if (window.__plcVaultUnlockMs) root.appendChild(note('Unlocking with the passphrase took ' + (window.__plcVaultUnlockMs / 1000).toFixed(1) + ' seconds on this device.'));
