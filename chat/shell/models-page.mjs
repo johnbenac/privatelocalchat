@@ -10,6 +10,13 @@ import { appConfig } from "../../runtime/config/app-config.mjs";
 import { sourceHost } from "../models/source-notice.mjs";
 import { languageRows, voiceRows, otherRows, stateLine, toggleAction, ACTION_LABEL, sizeText } from "../models/models-view.mjs";
 
+export const UPDATED_BY_HOST_LINE = "This copy is updated by whoever hosts it.";
+
+/** Whether Settings says who updates this copy: whenever the manifest names no site, so not on our own site. Deliberately not noticeApplies(): an operator's own model source still gets the line. */
+export function updatedByHostLineApplies(raw = globalThis.SITE_LINKS) {
+  try { return !siteLinks(raw).site; } catch { return true; }
+}
+
 export function buildModelsPage({ app, h, row, btn, moved, chooseVoice, voiceHint }) {
   const lm = () => app.models;
   // the page's own confirmation dialog (index.html), never the browser's
@@ -172,6 +179,7 @@ export function buildModelsPage({ app, h, row, btn, moved, chooseVoice, voiceHin
   const cfg = appConfig(), src = cfg.activeSource();
   const sourceSection = src ? h("section", { id: "modelSourceSection", "aria-labelledby": "sourceHead" }, h("h3", { class: "set-sub", id: "sourceHead", text: "Model source" }),
     row("Model files come from", src.label + " (" + sourceHost(cfg) + ")" + (cfg.isDefaultSource() ? "" : ", set by whoever runs this copy"), null),
+    updatedByHostLineApplies() ? row("Updates", UPDATED_BY_HOST_LINE, null) : null,
     h("p", { class: "hint-text", text: "Every file is checked against its published size and SHA-256 before it is used, whichever source it comes from. Whoever runs a copy sets the source in config/app-config.json." })) : null;
   w.append(offlineNote, langSection, offlineSection, providerSection, voiceSection, otherSection, memSection, sourceSection);
   paintLanguage(); paintProvider(); startVoice(); startMemory();
