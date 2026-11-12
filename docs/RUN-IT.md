@@ -16,6 +16,8 @@ With `TARGET` unset, `SITE_DIR` unset means `runkit` and `SITE_DIR` set means `s
 
 A build for downloading never carries our development tooling (the telemetry receiver, the development tools, the diagnostics hooks). It belongs to the `site` target on the `dev` branch; asking for `app` or `runkit` on `dev` stops with a message.
 
+A test (`tests/neutrality.test.mjs`, rules in `tests/neutrality.config.json`, scan in `scripts/neutrality.mjs`) builds `app` and `runkit` and scans every text file of the output for what is ours: our domain, the organisations that make the app, the maintainer's account and infrastructure, analytics hosts, links to our pages, and hosts the app does not fetch models from. Each place where one of these is meant to be (the default model source, the project's repository, the libraries' own text) is listed with its reason, an entry that nothing uses fails the test, and every host an output names must be in the network inventory or listed. Another app can reuse the test with its own config.
+
 ## Run it on this computer
 
 ```sh
