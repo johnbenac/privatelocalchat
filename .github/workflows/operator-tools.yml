@@ -1,0 +1,26 @@
+name: Operator tools
+on:
+  pull_request:
+  push:
+    branches: [main, dev]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: operator-tools-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  operator-tools:
+    runs-on: ubuntu-24.04 # pinned: Playwright does not support the newer ubuntu-latest image yet
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+      - name: Two real releases installed, upgraded and rolled back in one operator folder, served by its plc.mjs (docs/RUN-IT.md)
+        run: node tests/e2e/operator.e2e.mjs

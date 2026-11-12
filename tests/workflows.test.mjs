@@ -124,3 +124,30 @@ test('no other workflow builds the site target or reads the site layer, and the 
     assert.ok(!/TARGET:\s*site|SITE_DIR:/.test(text),`${file} builds the site target`);
   }
 });
+
+// ---- the operator tools' browser proof (docs/RUN-IT.md) -----------------------------------------------------------------------------------------------------------
+// What this workflow may and may not do, as a list of what is wrong with a text of it; the second test feeds it a bad one.
+const operatorWorkflowProblems=text=>{
+  const problems=[];
+  if(!/^name: Operator tools$/m.test(text))problems.push('not named Operator tools');
+  if(!/^\s+run: node tests\/e2e\/operator\.e2e\.mjs$/m.test(text))problems.push('does not run the browser proof');
+  if(!/^on:\n  pull_request:\n  push:\n    branches: \[main, dev\]/m.test(text))problems.push('does not run on pull requests and pushes to main');
+  if(!/^permissions:\n  contents: read\n(?=\S)/m.test(text))problems.push('permissions are not contents: read alone');
+  if(/secrets\./.test(text))problems.push('uses a secret');
+  if(/SITE_DIR|SITE_DEPLOY_KEY|privatelocalchat-site/.test(text))problems.push('touches the site layer');
+  if(/upload-artifact/.test(text))problems.push('keeps an artifact');
+  if(/pull_request_target/.test(text))problems.push('uses pull_request_target');
+  return problems;
+};
+
+test('the Operator tools workflow exists, runs the browser proof, reads the repository only and is not a gate of the release',()=>{
+  const text=readFileSync(new URL('../.github/workflows/operator-tools.yml',import.meta.url),'utf8');
+  assert.deepEqual(operatorWorkflowProblems(text),[]);
+  assert.ok(!/Operator tools/.test(readFileSync(new URL('../.github/workflows/release.yml',import.meta.url),'utf8')),'the release does not wait for it');
+});
+
+test('the Operator tools checks refuse a workflow that takes a secret, writes, touches the site layer or keeps an artifact',()=>{
+  const bad='name: Operator tools\non:\n  pull_request_target:\npermissions:\n  contents: write\njobs:\n  x:\n    steps:\n      - run: echo ${{ secrets.TOKEN }}\n        env:\n          SITE_DIR: site-layer\n      - uses: actions/upload-artifact@v4\n';
+  const found=operatorWorkflowProblems(bad);
+  for(const part of ['does not run the browser proof','does not run on pull requests','permissions are not','uses a secret','touches the site layer','keeps an artifact','pull_request_target'])assert.ok(found.some(f=>f.includes(part)),'not caught: '+part+' in '+found.join('; '));
+});
