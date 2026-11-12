@@ -187,6 +187,22 @@ With one release only, it refuses:
 
 It also refuses a release that is not installed (it lists the installed ones) and the one that is live already.
 
+### If current.json is damaged
+
+If `current.json` is cut off, edited by mistake or names a release that is not there, every command except an install stops with this first line:
+
+```
+/srv/plc/current.json cannot be used: <why>. Install a release again to recover: ...
+```
+
+The file is only a pointer to the live release. The releases in `releases/`, your `config/`, `pages/` and `models/` are not touched by it, so nothing of yours is lost. `plc.mjs` cannot help here, because it finds the live release through that file. Unpack any release that carries these tools and run, from its folder:
+
+```sh
+node serve.mjs --upgrade . --root /srv/plc
+```
+
+The tool moves the damaged file aside as `current.json.unusable-<time>` (for example `current.json.unusable-20261112T102030Z`), installs the release as in a first install, takes the held builds for open tabs from the newest installed release, and says so. The new `current.json` has no previous release, so `--rollback` without a name has nothing to go back to until the next upgrade (`--rollback <version>` still works for a release that is installed). Nothing is deleted: keep the moved file for as long as you like, or remove it yourself. If the install is refused (a bad zip, say), the damaged file stays where it is.
+
 ### Check
 
 ```sh
