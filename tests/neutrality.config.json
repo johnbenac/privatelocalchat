@@ -17,12 +17,14 @@
  "allowed": [
   {"string": "our-domain", "paths": ["index.html"], "why": "The shipped default model source (assets.privatelocal.chat), written into index.html by the build from config/app-config.json; docs/APP-CONFIG.md says how to change it."},
   {"string": "maintainer-account", "paths": ["index.html", "releases/*/chat/shell/shell.mjs", "help/index.html", "about/index.html", "releases/*/chat/vendor/voice/*.LEGAL.txt"], "why": "The project's own repository (source, issues, releases), which every copy points to for the source it is built from."},
+  {"string": "maintainer-account", "paths": ["SOURCE.txt"], "why": "A release's source pointer names the project's repository, the address of the source the folder was built from."},
   {"string": "model-hosts", "paths": ["releases/*/runtime/providers/vendor/**", "releases/*/chat/vendor/**"], "why": "The vendored libraries' own text and defaults; the app configures them with its own sources, so these are never used."},
   {"string": "model-hosts", "paths": ["THIRD-PARTY-NOTICES.md"], "why": "The notices name the libraries' upstream projects and where their models are published."},
   {"string": "model-hosts", "paths": ["releases/*/chat/provider/endpoint-options.mjs"], "why": "The provider list: a service a person may choose to connect, not a source the app uses."}
  ],
  "allowedHosts": [
   {"hosts": ["assets.privatelocal.chat"], "paths": ["index.html"], "why": "The shipped default model source (see the allowed our-domain entry)."},
+  {"hosts": ["local", "127.0.0.1", "localhost"], "paths": ["serve.mjs", "README.md"], "why": "This computer: the address the bundled server listens on and the instructions give."},
   {"hosts": ["fsf.org", "www.gnu.org"], "paths": ["LICENSE"], "why": "Addresses in the text of the GNU General Public License."},
   {"hosts": ["datashare.ed.ac.uk"], "paths": ["THIRD-PARTY-NOTICES.md"], "why": "The address a dataset's licence notice gives."},
   {"hosts": ["www.debian.org", "dejavu-fonts.github.io"], "paths": ["brand/WORDMARK_FONT_LICENSE.txt"], "why": "Addresses in the font licence text."},

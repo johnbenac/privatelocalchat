@@ -8,6 +8,7 @@ import {tmpdir} from 'node:os';
 import path from 'node:path';
 import {execFileSync} from 'node:child_process';
 import {loadConfig, inventoryHosts, scanDirectory, evaluate, globToRegExp} from '../scripts/neutrality.mjs';
+import {packageRelease, folderName} from '../scripts/package-release.mjs';
 
 const CONFIG_FILE = 'tests/neutrality.config.json';
 const config = await loadConfig(CONFIG_FILE);
@@ -33,6 +34,27 @@ const folderWith = (name, files) => {
 };
 const scan = async (dir) => scanDirectory(dir, config, known);
 
+// The release zips of scripts/package-release.mjs, unpacked: the build inside app/ is scanned with the same rules as a build, and the files beside it (the server, README.md,
+// SOURCE.txt, the licence documents) with the app folder left out.
+const HEAD = execFileSync('git', ['rev-parse', 'HEAD'], {encoding: 'utf8'}).trim();
+let zipScans = null;
+async function scanZips() {
+  zipScans ||= (async () => {
+    const results = [];
+    for (const target of config.targets) {
+      const zip = await packageRelease({target, version: '0.64.0', commit: HEAD, outDir: path.join(scratch, 'zips')});
+      const dir = path.join(scratch, 'unzipped-' + target);
+      mkdirSync(dir);
+      execFileSync('unzip', ['-q', zip, '-d', dir]);
+      const folder = path.join(dir, folderName('0.64.0', target));
+      results.push(await scan(path.join(folder, 'app')));
+      results.push(await scanDirectory(folder, {...config, skipPaths: [...(config.skipPaths || []), 'app/**']}, known));
+    }
+    return results;
+  })();
+  return zipScans;
+}
+
 // ---- the real outputs ---------------------------------------------------------------------------------------------------------------------------------
 const built = {};
 for (const target of config.targets) {
@@ -47,8 +69,15 @@ for (const target of config.targets) {
   });
 }
 
-test('every allowed entry is used by something in the outputs, so the list cannot outlive what it explains', async () => {
-  const results = [];
+test('the release zips carry nothing of ours', async () => {
+  const results = await scanZips();
+  assert.ok(results.length === 2 * config.targets.length && results.every((r) => r.files > 0));
+  const unexplained = evaluate(results, config).filter((line) => !/is not used by anything scanned/.test(line));
+  assert.deepEqual(unexplained, [], unexplained.join('\n'));
+});
+
+test('every allowed entry is used by something in the outputs and the zips, so the list cannot outlive what it explains', async () => {
+  const results = [...await scanZips()];
   for (const target of config.targets) results.push(await scan(built[target] || build(target)));
   const stale = evaluate(results, config).filter((line) => /is not used by anything scanned/.test(line));
   assert.deepEqual(stale, []);
