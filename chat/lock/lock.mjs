@@ -133,7 +133,7 @@ export function createLock({ el, createEmoji, readJson, writeJson, openAppDialog
     try {
       const result = await vault.enable(passphrase, { autoMinutes });
       lockCfg = { vault: true, autoMinutes }; syncLockUi(); armIdle(); d.close();
-      showToast('Everything is now encrypted with your passphrase.');
+      showToast('Your chats, documents, memory and settings are now encrypted with your passphrase.');
       if (result.remaining.length) {
         const sure = await confirmDialog('Remove the unencrypted copy?', 'Your data is encrypted now, but the old unencrypted copy is still stored in this browser, readable by anyone with the device. Remove it now? An encrypted backup first is a good idea (Settings > Storage).', 'Remove it', { danger: true });
         if (sure) { await vault.removePlaintext(); showToast('The unencrypted copy is removed.'); }
@@ -155,7 +155,7 @@ export function createLock({ el, createEmoji, readJson, writeJson, openAppDialog
     const [cur, pc] = passField('Current passphrase', 'lockCurrent'); pc.autocomplete = 'current-password';
     const [nw, pn] = passField('New passphrase (only to change it)', 'lockNewPass'); pn.autocomplete = 'new-password';
     const faceCard = el('div', 'set-card face-box');
-    root.append(el('p', 'sec-lead', 'Everything this app saves on this device is encrypted with your passphrase. Locking forgets the key and asks for it again.'));
+    root.append(el('p', 'sec-lead', 'Your chats, documents, memory and settings on this device are encrypted with your passphrase. Locking forgets the key and asks for it again.'));
     if (leftover.length) root.append(note('The old unencrypted copy of your data is still stored in this browser. Remove it so only the encrypted copy remains.', 'danger'));
     root.append(
       sub('Locking'),

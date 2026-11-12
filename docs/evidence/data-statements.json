@@ -263,12 +263,12 @@
       "kind": "ui-note",
       "file": "chat/vault/unlock-screen.mjs",
       "pieces": [
-        "Everything on this device is encrypted. Type your passphrase to open it."
+        "Your chats, documents, memory and settings are encrypted. Type your passphrase to open them."
       ],
       "section": "3",
-      "says": "Everything on the device is encrypted.",
-      "verified": "partly",
-      "note": "Same limit as settings.encrypt-everything. Not changed."
+      "says": "Chats, documents, memory and settings are encrypted.",
+      "verified": "corrected",
+      "note": "It said everything on the device. The vault covers the user, setting and transient classes only (storage-inventory.json), so the wording now names them."
     },
     {
       "id": "lock.erase-note",
@@ -312,13 +312,13 @@
       "kind": "ui-note",
       "file": "chat/lock/lock.mjs",
       "pieces": [
-        "Everything this app saves on this device is encrypted with your passphrase. Locking forgets the key and asks for it again.",
-        "Everything is now encrypted with your passphrase."
+        "Your chats, documents, memory and settings on this device are encrypted with your passphrase. Locking forgets the key and asks for it again.",
+        "Your chats, documents, memory and settings are now encrypted with your passphrase."
       ],
       "section": "3",
-      "says": "With encryption on, everything the app saves is encrypted with the passphrase; locking forgets the key.",
-      "verified": "partly",
-      "note": "Same limit as settings.encrypt-everything. Not changed."
+      "says": "With encryption on, chats, documents, memory and settings are encrypted with the passphrase; locking forgets the key.",
+      "verified": "corrected",
+      "note": "It said everything the app saves. The vault covers the user, setting and transient classes only (storage-inventory.json), so the wording now names them."
     },
     {
       "id": "lock.remember-keys",
@@ -350,12 +350,12 @@
       "file": "chat/documents/documents-ui.mjs",
       "pieces": [
         "Files added here are read and kept on this device only.",
-        "Nothing is uploaded."
+        "The files themselves are never uploaded, but if you chose an outside provider, those passages are sent to it with your question."
       ],
       "section": "2",
-      "says": "Files added to the library are read and kept on the device only, best-matching passages are supplied to the model, and nothing is uploaded.",
-      "verified": "partly",
-      "note": "True of the files. When the model is an outside provider the matching passages are part of the request and go to the provider (privacy.provider says so). Not changed."
+      "says": "Files added to the library are read and kept on the device only, best-matching passages are supplied to the model; the files are never uploaded, but with an outside provider the passages are sent with the question.",
+      "verified": "corrected",
+      "note": "It said nothing is uploaded. With an outside provider the matching passages are part of the request and go to the provider (privacy.provider says so); the note now says that."
     },
     {
       "id": "voice.dictation-hint",

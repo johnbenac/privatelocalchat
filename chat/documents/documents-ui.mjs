@@ -181,7 +181,7 @@ export function createDocumentsUi(host) {
   async function openLibrary() {
     const { docs, store } = await loadDocModules();
     const root = el('div'); const list = el('div'); const note = el('p', 'muted'); note.setAttribute('role', 'status');
-    root.append(el('p', 'muted', 'Files added here are read and kept on this device only. When you ask a question in a chat they apply to, the best-matching passages are supplied to the model and cited under its answer. Nothing is uploaded.'));
+    root.append(el('p', 'muted', 'Files added here are read and kept on this device only. When you ask a question in a chat they apply to, the best-matching passages are supplied to the model and cited under its answer. The files themselves are never uploaded, but if you chose an outside provider, those passages are sent to it with your question.'));
     const add = el('button', 'secondary', 'Add documents…'); add.type = 'button';
     const pick = el('input'); pick.type = 'file'; pick.multiple = true; pick.hidden = true; pick.accept = attachInput.accept.split(',').filter(x => !x.startsWith('image/')).join(',');
     add.addEventListener('click', () => pick.click());
