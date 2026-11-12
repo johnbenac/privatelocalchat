@@ -75,7 +75,7 @@ for (const target of ['app', 'runkit']) {
     // the modes: the server can be run, nothing else is executable
     assert.deepEqual(entries.filter((e) => e[3] === 0o755).map((e) => e[0]), [folder + 'serve.mjs']);
     assert.deepEqual(RELEASE_TOOLS.slice(0, 3), ['serve.mjs', 'headers.mjs', 'zip.mjs'], 'the first tools are listed in one place, one name per line');
-    for (const tool of ['operator.mjs', 'plc.mjs']) assert.ok(RELEASE_TOOLS.includes(tool) && top.has(tool), tool + ' ships in the zip root');
+    for (const tool of ['operator.mjs', 'overlay.mjs', 'plc.mjs']) assert.ok(RELEASE_TOOLS.includes(tool) && top.has(tool), tool + ' ships in the zip root');
   });
 
   test(`the ${target} zip says the version it was released as, and where its source is`, async () => {

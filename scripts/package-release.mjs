@@ -33,6 +33,7 @@ export const RELEASE_TOOLS = [
   'zip.mjs',
   'fetch-models.mjs',
   'operator.mjs',
+  'overlay.mjs',
   'plc.mjs'
 ];
 const VERSION = /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/;
