@@ -2,6 +2,8 @@
 // Serves a build of the app, with the headers the build declares (docs/RUN-IT.md).
 //
 //   node scripts/serve.mjs [--dir DIR] [--host H] [--port N]       (PORT, HOST and SERVE_DIR in the environment work too)
+//   node serve.mjs --root R [--host H] [--port N]                  serves the live release of an operator folder
+//   node serve.mjs --root R --upgrade SRC [--sha256 HEX] [--force] | --rollback [VERSION] | --check [--deep] [--online] | --prune [--keep N]
 //
 // DIR is a folder that holds a build: `./app` if it exists (the release layout), else `./dist`. It must hold the build's `_headers`, which is applied to every response, so what this
 // server sends is what the build declared (scripts/headers.mjs). It listens on 127.0.0.1 unless told otherwise. It logs nothing about requests.
@@ -78,7 +80,14 @@ export async function startServer({dir, host = '127.0.0.1', port = 0, quiet = fa
 
 const isFolder = (p) => { try { return statSync(p).isDirectory(); } catch { return false; } };
 
+// The options of an operator folder (docs/RUN-IT.md) are read by operator.mjs; without them the server behaves as it always did.
+const OPERATOR_OPTIONS = ['--root', '--upgrade', '--sha256', '--force', '--rollback', '--check', '--deep', '--online', '--prune', '--keep'];
+
 function cli(argv) {
+  if (argv.some((a) => OPERATOR_OPTIONS.includes(a))) {
+    import('./operator.mjs').then((m) => m.runCli(argv, {startServer})).then((code) => { if (code !== null) process.exitCode = code; });
+    return;
+  }
   const opt = (name) => { const i = argv.indexOf('--' + name); return i >= 0 ? argv[i + 1] : null; };
   const host = opt('host') || process.env.HOST || '127.0.0.1';
   const port = Number(opt('port') || process.env.PORT || 18171);
