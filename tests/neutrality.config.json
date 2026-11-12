@@ -1,0 +1,31 @@
+{
+ "format": "plc-neutrality/1",
+ "about": "What a copy of the app made for others must not carry (tests/neutrality.test.mjs, scripts/neutrality.mjs). Another app reuses the test with its own copy of this file.",
+ "inventory": "docs/evidence/split/network-origins.json",
+ "targets": ["app", "runkit"],
+ "skipPaths": [],
+ "strings": [
+  {"id": "our-domain", "pattern": "privatelocal\\.chat", "why": "Our own domain, in lower case as a host. The product name PrivateLocal.Chat is not a host and does not match."},
+  {"id": "our-organisations", "pattern": "aiofourown|cyberplanetary|sonalon", "flags": "i", "why": "The organisations that make the app. A copy is not branded by them."},
+  {"id": "other-organisations", "pattern": "techofourown|tech of our own", "flags": "i", "why": "A separate organisation whose hosts and products the app does not depend on (tests/no-tech-of-our-own.test.mjs checks the source)."},
+  {"id": "maintainer-infrastructure", "pattern": "benac\\.dev", "why": "The maintainer's own infrastructure."},
+  {"id": "maintainer-account", "pattern": "johnbenac", "why": "The maintainer's account name; only the project's own repository is meant to carry it."},
+  {"id": "model-hosts", "pattern": "huggingface\\.co|\\bhf\\.co\\b|raw\\.githubusercontent\\.com", "why": "Hosts the app does not fetch models from: a model's files come from the configured source (docs/APP-CONFIG.md)."},
+  {"id": "analytics", "pattern": "cloudflareinsights|google-analytics|googletagmanager|googleanalytics|plausible\\.io", "flags": "i", "why": "Analytics hosts. The app and its downloads carry none."},
+  {"id": "our-pages", "pattern": "[\"'`]/(?:privacy|updates)/?[\"'`]|href=[\"']/(?:privacy|updates)", "why": "Links to the pages of our own site. The app reaches pages only through the site manifest (docs/SITE-LINKS.md)."}
+ ],
+ "allowed": [
+  {"string": "our-domain", "paths": ["index.html"], "why": "The shipped default model source (assets.privatelocal.chat), written into index.html by the build from config/app-config.json; docs/APP-CONFIG.md says how to change it."},
+  {"string": "maintainer-account", "paths": ["index.html", "releases/*/chat/shell/shell.mjs", "help/index.html", "about/index.html", "releases/*/chat/vendor/voice/*.LEGAL.txt"], "why": "The project's own repository (source, issues, releases), which every copy points to for the source it is built from."},
+  {"string": "model-hosts", "paths": ["releases/*/runtime/providers/vendor/**", "releases/*/chat/vendor/**"], "why": "The vendored libraries' own text and defaults; the app configures them with its own sources, so these are never used."},
+  {"string": "model-hosts", "paths": ["THIRD-PARTY-NOTICES.md"], "why": "The notices name the libraries' upstream projects and where their models are published."},
+  {"string": "model-hosts", "paths": ["releases/*/chat/provider/endpoint-options.mjs"], "why": "The provider list: a service a person may choose to connect, not a source the app uses."}
+ ],
+ "allowedHosts": [
+  {"hosts": ["assets.privatelocal.chat"], "paths": ["index.html"], "why": "The shipped default model source (see the allowed our-domain entry)."},
+  {"hosts": ["fsf.org", "www.gnu.org"], "paths": ["LICENSE"], "why": "Addresses in the text of the GNU General Public License."},
+  {"hosts": ["datashare.ed.ac.uk"], "paths": ["THIRD-PARTY-NOTICES.md"], "why": "The address a dataset's licence notice gives."},
+  {"hosts": ["www.debian.org", "dejavu-fonts.github.io"], "paths": ["brand/WORDMARK_FONT_LICENSE.txt"], "why": "Addresses in the font licence text."},
+  {"hosts": ["paulmillr.com"], "paths": ["releases/*/runtime/providers/vendor/noble-hashes/*/LICENSE"], "why": "The author's address in a vendored library's licence."}
+ ]
+}
