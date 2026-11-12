@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Help | Private Local Chat</title>
 <meta name="description" content="Start guide, answers to common questions, troubleshooting and dated known issues for Private Local Chat, a free place to use AI in your browser.">
-<link rel="canonical" href="https://privatelocal.chat/help/">
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#F6F8FB" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#101820" media="(prefers-color-scheme: dark)">
@@ -13,17 +12,9 @@
 <meta property="og:site_name" content="Private Local Chat">
 <meta property="og:title" content="Help | Private Local Chat">
 <meta property="og:description" content="Start guide, answers to common questions, troubleshooting and dated known issues for Private Local Chat.">
-<meta property="og:url" content="https://privatelocal.chat/help/">
-<meta property="og:image" content="https://privatelocal.chat/brand/social-card-1200x630.png">
-<meta property="og:image:type" content="image/png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Private Local Chat card with the words Your thinking stays yours and the line Private AI chat on your device.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Help | Private Local Chat">
 <meta name="twitter:description" content="Start guide, answers to common questions, troubleshooting and dated known issues for Private Local Chat.">
-<meta name="twitter:image" content="https://privatelocal.chat/brand/social-card-1200x630.png">
-<meta name="twitter:image:alt" content="Private Local Chat card with the words Your thinking stays yours and the line Private AI chat on your device.">
 <link rel="icon" href="/brand/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/brand/favicon.ico" sizes="48x48">
 <link rel="apple-touch-icon" href="/brand/apple-touch-icon-180.png">
@@ -39,8 +30,6 @@
 <ul class="site-nav-list">
   <li><a href="/help/" aria-current="page">Help</a></li>
   <li><a href="/about/">About</a></li>
-  <li><a href="/privacy/">Privacy</a></li>
-  <li><a href="/updates/">Updates</a></li>
 </ul>
 <!--/plc:site-nav--></nav>
     <div class="header-open"><a class="button primary" href="/">Open Private Local Chat</a></div>
@@ -63,7 +52,6 @@
     <ul>
       <li><a href="#getting-started">Getting started</a></li>
       <li><a href="#faq">FAQ</a></li>
-      <li><a href="#share-panel">Share</a></li>
       <li><a href="#troubleshooting">Troubleshooting</a></li>
       <li><a href="#known-issues">Known issues</a></li>
       <li><a href="#contact">Contact</a></li><!--plc:toc-community--><!--/plc:toc-community-->
@@ -73,7 +61,7 @@
   <section id="getting-started" aria-labelledby="getting-started-title">
     <h2 id="getting-started-title">Getting started</h2>
     <ol class="steps prose">
-      <li><strong>Open the app.</strong> Go to <a href="/">https://privatelocal.chat/</a> in a current browser. There is nothing to install and no account to create.</li>
+      <li><strong>Open the app.</strong> Open <a href="/">the app</a> in a current browser. There is nothing to install and no account to create.</li>
       <li><strong>Write a message and send it.</strong> With on-device chat, the first message sets everything up. The app picks a model that suits your device (the smaller Qwen3.5-2B, about 1.20 GB, on phones and tablets and small devices; a capable computer may get the larger Qwen3.5-9B, about 5.06 GB), shows its download size, downloads it, loads it and then answers. Keep the page open while it works. A progress card shows the stage, the size and the time left, and you can cancel.</li>
       <li><strong>Prefer an outside provider?</strong> In the app's model settings, set <em>Where replies run</em> to <em>Connected provider</em>, choose an endpoint and enter the API key from that provider. Messages in that mode go to the provider you chose; see <a href="#messages-and-providers">what happens to my messages</a>.</li>
       <li><strong>Check readiness.</strong> The model settings show whether the model is downloaded and loaded, and <em>Ready for offline use</em> lists what else is saved on the device. See <a href="#offline-readiness">offline readiness</a> before you rely on it without a connection.</li>
@@ -120,7 +108,6 @@
       <summary>What happens to my messages?</summary>
       <div class="faq-body">
         <p class="faq-answer">In on-device text mode, the model processes conversation content on your device. When you choose a connected provider, the messages, instructions, document excerpts, and other context included in a request go to that provider. Its data practices apply to those requests.</p>
-        <p class="faq-more">Details: <a href="/privacy/">Privacy</a>.</p>
       </div>
     </details>
 
@@ -128,7 +115,7 @@
       <summary>Where is voice processed?</summary>
       <div class="faq-body">
         <p class="faq-answer">Voice uses the speech services available in your browser. Dictation and voice conversation may send audio to the browser's speech service. Speech processing and the location where text replies are generated are separate capabilities.</p>
-        <p class="faq-more">If the controls are missing, see <a href="#speech-availability">speech availability</a>. More in <a href="/privacy/#speech">Privacy</a>.</p>
+        <p class="faq-more">If the controls are missing, see <a href="#speech-availability">speech availability</a>.</p>
       </div>
     </details>
 
@@ -152,7 +139,6 @@
       <summary>What does App lock protect?</summary>
       <div class="faq-body">
         <p class="faq-answer">App lock puts a passphrase screen over the app. You can also encrypt everything the app saves on this device with the same passphrase: conversations, documents, memory and settings are then unreadable without it, or without Face ID or Touch ID if you turn that on. Without encryption, App lock is a screen lock only, and saved data remains readable to someone with access to the browser's stored files. A forgotten passphrase cannot be recovered. Encrypted backups provide a separately protected copy of the included data.</p>
-        <p class="faq-more">More in <a href="/privacy/#app-lock">Privacy</a>.</p>
       </div>
     </details>
 
@@ -171,19 +157,10 @@
       </div>
     </details>
 
-    <details class="faq-item" id="share" open>
-      <summary>How can I recommend Private Local Chat?</summary>
-      <div class="faq-body">
-        <p class="faq-answer">Open Share and choose your device's sharing option, copy the link, or display the QR code. The public address is https://privatelocal.chat/. Each person uses their own device and browser storage.</p>
-        <p class="faq-more">You can also use the <a href="#share-panel">share panel on this page</a>.</p>
-      </div>
-    </details>
-
     <details class="faq-item" id="transfer-settings" open>
       <summary>How do I transfer my settings?</summary>
       <div class="faq-body">
         <p class="faq-answer">Open Transfer settings, review the included fields, and choose whether to include your API token. An included token is encrypted with the password you enter. Create the link or QR code and communicate the password separately. The other listed settings remain readable to the recipient.</p>
-        <p class="faq-more">More in <a href="/privacy/#settings-transfers">Privacy</a>.</p>
       </div>
     </details>
 
@@ -210,12 +187,6 @@
     </details>
   </section>
 
-  <section id="share-panel" class="share-section" aria-labelledby="share-title">
-    <h2 id="share-title">Share Private Local Chat</h2>
-    <div data-product-share></div>
-    <noscript><p>Share this address: <a href="https://privatelocal.chat/">https://privatelocal.chat/</a></p></noscript>
-  </section>
-
   <section id="troubleshooting" aria-labelledby="troubleshooting-title">
     <h2 id="troubleshooting-title">Troubleshooting</h2>
     <p class="prose">Each problem below has its own link, so you can share the exact fix. Do not paste API keys or private conversations into a public report.</p>
@@ -224,7 +195,7 @@
       <h3 id="stalled-download-title">A model download stalls or keeps restarting</h3>
       <p>Downloads are split into files that are checked as they arrive, and finished files are kept. If no data arrives for two minutes, the app stops that transfer and restarts it by itself, reusing the files already saved. The progress card then says &ldquo;The download stalled. Restarting it now; nothing already downloaded is lost.&rdquo; If the connection drops, the download waits and continues when you are back online. A closed browser cannot keep downloading; it continues when you reopen the page.</p>
       <ol>
-        <li>Keep the page open and the device awake, and check your connection. The model files come from assets.privatelocal.chat, so a firewall, VPN or content blocker that blocks that address stops the download.</li>
+        <li>Keep the page open and the device awake, and check your connection. The model files come from the model source this copy is set up to use (Settings, Models, Model source shows it), so a firewall, VPN or content blocker that blocks that address stops the download.</li>
         <li>Check free space on the device. The smaller model is about 1.20 GB and the larger one about 5.06 GB. When storage is full, saving files fails again and again.</li>
         <li>Choose the smaller model: use &ldquo;Use the smaller model instead&rdquo; on the progress card where it is offered, or pick Qwen3.5-2B in the model settings.</li>
         <li>Open <em>Details and repair</em> under <em>Language model</em> in Settings &gt; Models and choose <em>Verify / repair</em>. It removes only damaged files and downloads them again.</li>
@@ -247,7 +218,7 @@
     <section id="unexpected-reload" class="card" aria-labelledby="unexpected-reload-title">
       <h3 id="unexpected-reload-title">The page reloads or restarts by itself</h3>
       <ul>
-        <li><strong>A new version was published.</strong> The app clears its saved copy and reloads once. If that already happened, a banner says &ldquo;A newer version of PrivateLocal.Chat is available&rdquo; with <em>Update now</em>. If the app cannot start, a banner says it &ldquo;did not start properly&rdquo; with <em>Update the app</em>.</li>
+        <li><strong>A new version was published.</strong> If a page is older than the published version when it opens, the app clears its saved copy and reloads once. After that, while the app is open, it never reloads itself: a notice at the bottom says &ldquo;A new version of Private Local Chat is ready&rdquo; with <em>Reload</em> and <em>Later</em>. If a reply is being written, a model is downloading, a recording or call is open or you have a message you have not sent, <em>Reload</em> says so and asks first, and keeps an unsent message. If the app cannot start, a banner says it &ldquo;did not start properly&rdquo; with <em>Update the app</em>.</li>
         <li><strong>The browser replaced the page.</strong> Phone browsers can replace a page that uses a lot of memory. This has been seen on an iPhone while loading a model and during long replies; see <a href="#issue-iphone-page-restarts">the known issue</a>.</li>
       </ul>
       <p>Your saved conversations, unsent drafts (kept per conversation) and downloaded model files stay saved. To reduce the chance of it happening again, close other tabs and apps, choose the smaller model, or set <em>Where replies run</em> to <em>Connected provider</em> or use a computer. If it keeps happening, report the device, browser, model and what you were doing (see <a href="#contact">contact</a>).</p>
@@ -306,7 +277,7 @@
 
   <section id="known-issues" aria-labelledby="known-issues-title">
     <h2 id="known-issues-title">Known issues</h2>
-    <p class="prose">Each entry names who is affected, what you see, its status, when it was last verified and what you can do. Dates are the last time the project recorded evidence, and an entry says when that was a document rather than a fresh test. Anything not listed has not been reported or verified. Release history is on <a href="/updates/">Updates</a>.</p>
+    <p class="prose">Each entry names who is affected, what you see, its status, when it was last verified and what you can do. Dates are the last time the project recorded evidence, and an entry says when that was a document rather than a fresh test. Anything not listed has not been reported or verified.</p>
 <!--plc:known-issues-->
 <article class="issue" id="issue-iphone-page-restarts" aria-labelledby="issue-iphone-page-restarts-title">
   <h3 id="issue-iphone-page-restarts-title">iPhone page restarts during loading or long replies</h3>
@@ -421,13 +392,10 @@
 <ul class="footer-nav-list">
   <li><a href="/help/" aria-current="page">Help</a></li>
   <li><a href="/about/">About</a></li>
-  <li><a href="/privacy/">Privacy</a></li>
-  <li><a href="/updates/">Updates</a></li>
 </ul>
 <!--/plc:footer-nav--></nav>
     <!--plc:footer-source-->
 <p><a href="/">Open Private Local Chat</a> &middot; <a href="https://github.com/johnbenac/privatelocalchat" target="_blank" rel="noopener">Source on GitHub</a> (GNU General Public License, version 3) &middot; <a href="/LICENSE">Licence</a> &middot; <a href="/THIRD-PARTY-NOTICES.md">Notices</a></p>
-<p>Private Local Chat is part of <a href="https://aiofourown.com/">AI of Our Own</a>.</p>
 <!--/plc:footer-source-->
   </div>
 </footer>

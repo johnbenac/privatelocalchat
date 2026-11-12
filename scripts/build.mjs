@@ -3,18 +3,24 @@ import {existsSync} from 'node:fs';
 import {execFileSync} from 'node:child_process';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
-import {buildPublicSite,loadSiteConfig,siteConfigScript} from './public-site.mjs';
+import {buildPublicSite,loadSiteConfig,checkSiteConfig,siteConfigScript} from './public-site.mjs';
 import {checkSiteJson,normalizedSiteLinks} from '../chat/site/site-links.mjs';
 import {buildAppConfig} from '../runtime/config/app-config.mjs';
 const LICENCE_FILES=['LICENSE','THIRD-PARTY-NOTICES.md'];
 const root=process.cwd(), out=path.resolve(root,process.env.BUILD_OUT_DIR||'dist'); // BUILD_OUT_DIR is for tests that must not touch dist/
 if(out===root||!out.startsWith(root+path.sep))throw new Error('The build output must be a folder inside the repository');
 // Release configuration (support address, discussion space, ...). Nothing is assumed: every value is null until the owner verifies it.
-const siteConfig=await loadSiteConfig(path.resolve(root,process.env.SITE_CONFIG_PATH||'site-config.json'));
+// The site directory (docs/SITE-LAYER.md): the pages, manifests and announcements of the site that serves this build. SITE_DIR names it; unset means ./run-kit, the neutral pages
+// that ship with the app, so a clone, a fork or a contributor's machine builds a complete app with no setup.
+const siteDir=path.resolve(root,process.env.SITE_DIR||'run-kit');
+if(!existsSync(siteDir))throw new Error('SITE_DIR names a folder that does not exist: '+(process.env.SITE_DIR||'run-kit'));
+// facts about the operator: the site's own site-config.json, or none (every value empty, which is a valid neutral configuration)
+const siteConfigPath=process.env.SITE_CONFIG_PATH?path.resolve(root,process.env.SITE_CONFIG_PATH):path.join(siteDir,'site-config.json');
+const siteConfig=existsSync(siteConfigPath)?await loadSiteConfig(siteConfigPath):checkSiteConfig({});
 // Where the pages of the site that serves this copy are (chat/site/site-links.mjs, docs/PLAN stage 3). SITE_JSON_PATH names the manifest: unset means ./site.json if it exists, empty means none, and a
 // path that does not exist is an error. A copy without a manifest links to none of our pages. The manifest is checked here, so a typo stops the build, and the page gets it validated.
 const siteJsonEnv=process.env.SITE_JSON_PATH;
-const siteJsonPath=siteJsonEnv===''?null:path.resolve(root,siteJsonEnv??'site.json');
+const siteJsonPath=siteJsonEnv===''?null:path.resolve(root,siteJsonEnv??path.join(siteDir,'site.json'));
 if(siteJsonEnv&&!existsSync(siteJsonPath))throw new Error('SITE_JSON_PATH names a file that does not exist: '+siteJsonEnv);
 let siteJson;
 if(siteJsonPath&&existsSync(siteJsonPath)){
@@ -104,11 +110,11 @@ if(branch==='dev') {
 }
 await writeFile(path.join(out,'index.html'),html);
 
-// The public documents (help/, about/, privacy/, updates/), sitemap.xml, robots.txt and updates/rss.xml are generated from their sources by
-// scripts/public-site.mjs: regions are filled from site-config.json and updates/entries.json, /chat/... references are rewritten to this
+// The public documents (the pages of the site directory), sitemap.xml, robots.txt and updates/rss.xml are generated from their sources by
+// scripts/public-site.mjs: regions are filled from the site's site-config.json and updates/entries.json and from content/known-issues.json, /chat/... references are rewritten to this
 // release's folder and every stylesheet, script and image a page names must exist in the output. See docs/PUBLIC-SITE.md.
 const rootLastmod=process.env.SOURCE_DATE_EPOCH?buildTime().toISOString().slice(0,10):execFileSync('git',['show','-s','--format=%cs','HEAD'],{encoding:'utf8'}).trim();
-await buildPublicSite({root,outDir:out,releasePath,config:siteConfig,rootLastmod});
+await buildPublicSite({siteDir,outDir:out,releasePath,config:siteConfig,rootLastmod,origin:siteJson.site?siteJson.site.url.replace(/\/$/,''):null});
 // The licence documents are published at /LICENSE and /THIRD-PARTY-NOTICES.md (GPL text and source offer; see docs/PUBLIC-SITE.md).
 for(const file of LICENCE_FILES)await cp(file,path.join(out,file));
 await writeFile(path.join(out,'404.html'),'<!doctype html><title>Not found</title><h1>Page not found</h1><a href="/">Open Private Local Chat</a>');

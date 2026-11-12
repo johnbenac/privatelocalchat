@@ -1,0 +1,7 @@
+{
+ "format": "plc-site/1",
+ "pages": {
+  "help": "/help/",
+  "about": "/about/"
+ }
+}

@@ -7,7 +7,7 @@
   "updates": "/updates/"
  },
  "site": {
-  "url": "https://privatelocal.chat/",
+  "url": "https://site.example/",
   "socialImage": "/brand/social-card-1200x630.png",
   "countsPageLoads": true
  }

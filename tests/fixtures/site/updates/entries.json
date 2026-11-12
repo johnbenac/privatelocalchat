@@ -1,0 +1,29 @@
+{
+ "entries": [
+  {
+   "id": "second-note",
+   "date": "2026-02-02",
+   "release": "v1.1.0",
+   "title": "A second note",
+   "summary": "The second entry of the fixture.",
+   "points": [
+    "One point."
+   ],
+   "help": [
+    {
+     "label": "Getting started",
+     "href": "/help/#getting-started"
+    }
+   ]
+  },
+  {
+   "id": "first-note",
+   "date": "2026-01-01",
+   "release": null,
+   "title": "A first note",
+   "summary": "The first entry of the fixture.",
+   "points": [],
+   "help": []
+  }
+ ]
+}

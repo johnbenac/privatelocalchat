@@ -7,6 +7,7 @@ const {launch,assert}=await import('./harness.mjs');
 const ok=n=>console.log('PASS '+n);
 
 async function variant(name,siteJsonPath,port,run){
+  process.env.SITE_DIR='tests/fixtures/site'; // a site that has all four pages and names itself (https://site.example/)
   if(siteJsonPath===undefined)delete process.env.SITE_JSON_PATH;else process.env.SITE_JSON_PATH=siteJsonPath;
   const h=await launch({port});
   try{
@@ -27,7 +28,7 @@ try{
     assert(/Share this app/.test(await aboutText(page)),'Settings, About has Share this app');
     await page.evaluate(()=>window.plcApp.openShare());
     await page.waitForSelector('#productShareAddress',{state:'attached',timeout:10000}); // shown only where the clipboard is not available
-    assert((await page.inputValue('#productShareAddress'))==='https://privatelocal.chat/','the dialog offers the public address of the site');
+    assert((await page.inputValue('#productShareAddress'))==='https://site.example/','the dialog offers the public address of the site');
     await closeDialog(page);
   });
 

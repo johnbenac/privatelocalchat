@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Updates | Private Local Chat</title>
+<meta name="description" content="A test page for the updates role.">
+<meta name="color-scheme" content="light dark">
+<meta property="og:title" content="Updates | Private Local Chat">
+<link rel="icon" href="/brand/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/brand/design-tokens.css">
+<link rel="stylesheet" href="/chat/public-pages.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="site-header-inner">
+    <nav class="site-nav" aria-label="Private Local Chat site"><!--plc:site-nav-->
+<ul class="site-nav-list">
+  <li><a href="/help/">Help</a></li>
+  <li><a href="/about/">About</a></li>
+  <li><a href="/privacy/">Privacy</a></li>
+  <li><a href="/updates/" aria-current="page">Updates</a></li>
+</ul>
+<!--/plc:site-nav--></nav>
+    <div class="header-open"><a class="button primary" href="/">Open Private Local Chat</a></div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="page-intro">
+    <h1>Updates</h1>
+    <p class="lede">A test page for the updates role.</p>
+    <!--plc:last-updated-->
+<p class="page-meta">Last updated: <time class="last-updated" datetime="2026-02-02">2026-02-02</time></p>
+<!--/plc:last-updated-->
+  </div>
+  <section id="list"><h2>What changed</h2>
+<!--plc:updates-list-->
+<article class="update" id="second-note" aria-labelledby="second-note-title">
+  <h3 id="second-note-title"><a href="#second-note">A second note</a></h3>
+  <p class="update-meta"><time datetime="2026-02-02">2 February 2026</time> &middot; Release <a href="https://github.com/johnbenac/privatelocalchat/releases/tag/v1.1.0">v1.1.0</a></p>
+  <p>The second entry of the fixture.</p>
+  <ul>
+    <li>One point.</li>
+  </ul>
+  <p class="update-links">Related help: <a href="/help/#getting-started">Getting started</a>.</p>
+</article>
+<article class="update" id="first-note" aria-labelledby="first-note-title">
+  <h3 id="first-note-title"><a href="#first-note">A first note</a></h3>
+  <p class="update-meta"><time datetime="2026-01-01">1 January 2026</time> &middot; Release: the next published release after <a href="https://github.com/johnbenac/privatelocalchat/releases/tag/v0.12.0">v0.12.0</a></p>
+  <p>The first entry of the fixture.</p>
+</article>
+<!--/plc:updates-list-->
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <nav aria-label="Private Local Chat site, footer"><!--plc:footer-nav-->
+<ul class="footer-nav-list">
+  <li><a href="/help/">Help</a></li>
+  <li><a href="/about/">About</a></li>
+  <li><a href="/privacy/">Privacy</a></li>
+  <li><a href="/updates/" aria-current="page">Updates</a></li>
+</ul>
+<!--/plc:footer-nav--></nav>
+    <!--plc:footer-source-->
+<p><a href="/">Open Private Local Chat</a> &middot; <a href="https://github.com/johnbenac/privatelocalchat" target="_blank" rel="noopener">Source on GitHub</a> (GNU General Public License, version 3) &middot; <a href="/LICENSE">Licence</a> &middot; <a href="/THIRD-PARTY-NOTICES.md">Notices</a></p>
+<!--/plc:footer-source-->
+  </div>
+</footer>
+<script type="module" src="/chat/transfer/public-pages.mjs"></script>
+</body>
+</html>

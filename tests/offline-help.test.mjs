@@ -7,7 +7,7 @@ import {STATE_WORDS,FIX_LABEL} from '../chat/shell/offline-checklist.mjs';
 // The offline checklist and the Help page must use the same words (offline plan 3.5): what the app calls a line, a state and a button is what
 // Help explains. A word changed in one place and not the other fails here.
 const text=h=>h.replace(/<[^>]+>/g,' ').replace(/&rsquo;/g,'’').replace(/&hellip;/g,'…').replace(/&amp;/g,'&').replace(/\s+/g,' ');
-const help=text(await readFile(new URL('../help/index.html',import.meta.url),'utf8'));
+const help=text(await readFile(new URL('../run-kit/pages/help/index.html',import.meta.url),'utf8'));
 const section=help.slice(help.indexOf('Checking that it will work offline'),help.indexOf('Freeing memory or removing a model'));
 
 test('Help names every line of the offline checklist the app shows ',()=>{

@@ -2,6 +2,7 @@
 // conversations, finds them by search, opens its public pages, explains itself, and asks for nothing it could not have. No model is downloaded;
 // tests/e2e/offline-model.e2e.mjs does the full lifecycle with a real model before a release.
 import {launch,assert} from './harness.mjs';
+process.env.SITE_DIR??='tests/fixtures/site'; // a site with Help, About and Privacy pages: the suite opens each of them offline
 
 const ok=n=>console.log('ok   '+n);
 const h=await launch({port:18351,serviceWorkers:'allow'});
