@@ -31,7 +31,9 @@ export const RELEASE_TOOLS = [
   'serve.mjs',
   'headers.mjs',
   'zip.mjs',
-  'fetch-models.mjs'
+  'fetch-models.mjs',
+  'operator.mjs',
+  'plc.mjs'
 ];
 const VERSION = /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/;
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
