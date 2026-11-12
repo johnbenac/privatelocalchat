@@ -21,7 +21,7 @@ import {HEADER_RULES, parsePagesHeaders} from './headers.mjs';
 
 export const CURRENT_FORMAT = 'plc-current/1';
 export const COMPAT_FORMAT = 'plc-compat/1';
-export const LAUNCHER_FORMAT = 1;
+export const LAUNCHER_FORMAT = 2; // the launcher-format of scripts/plc.mjs: an upgrade replaces an installed launcher only when this is higher
 export const DEFAULT_KEEP_BUILDS = 4; // builds held at once: the current one and the three before it, as on the deployed site
 export const DEFAULT_KEEP_RELEASES = 3;
 const RELEASE_LIST_URL = 'https://api.github.com/repos/johnbenac/privatelocalchat/releases/latest';

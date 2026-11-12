@@ -54,7 +54,7 @@ function assertFirstInstall(root, i) {
   for (const d of ['releases', 'config', 'pages', 'models']) assert.ok(lstatSync(path.join(root, d)).isDirectory(), d);
   for (const d of ['config', 'pages', 'models']) assert.match(readFileSync(path.join(root, d, 'README.txt'), 'utf8'), /\S/, d + '/README.txt');
   assert.ok(existsSync(path.join(root, 'plc.mjs')), 'the launcher');
-  assert.match(readFileSync(path.join(root, 'plc.mjs'), 'utf8'), /^\/\/ launcher-format: 1/);
+  assert.match(readFileSync(path.join(root, 'plc.mjs'), 'utf8'), /^\/\/ launcher-format: 2/);
   assert.deepEqual(JSON.parse(readFileSync(path.join(current.appDir, 'releases', 'index.json'), 'utf8')), {current: commitOf(i), retained: []});
   assert.equal(readlinkSync(path.join(root, 'current')), path.join('releases', `0.${i}.0-runkit`));
   assert.deepEqual(leftovers(root), []);
@@ -960,4 +960,25 @@ test('plc.mjs with a damaged current.json prints the advice and exits 1', () => 
     }
     assert.equal(readFileSync(path.join(root, 'current.json'), 'utf8'), bytes, 'the launcher changes nothing');
   }
+});
+
+// ---- the launcher is replaced by an upgrade only when its format number rises, so a change to it must raise the number ---------------------------------------------
+// v0.65.1 changed the text of plc.mjs without raising the number, and every installed launcher kept the old advice. The hash of each format is pinned here:
+// editing scripts/plc.mjs fails this test until launcher-format (in plc.mjs and LAUNCHER_FORMAT in operator.mjs) is raised and the new hash is added.
+const LAUNCHER_PINS = {2: '3ddb0f6ab7e38d2c49f4530c32c66aff2cfa1256c74f83a1864ca9f622c8eafb'};
+test('scripts/plc.mjs matches the pin of its launcher-format, and LAUNCHER_FORMAT is that format', async () => {
+  const {LAUNCHER_FORMAT} = await import('../scripts/operator.mjs');
+  const text = readFileSync('scripts/plc.mjs', 'utf8');
+  const declared = Number(/^\/\/ launcher-format: (\d+)/.exec(text)[1]);
+  assert.equal(declared, LAUNCHER_FORMAT, 'plc.mjs and operator.mjs name the same launcher-format');
+  assert.equal(sha256(text), LAUNCHER_PINS[declared], 'scripts/plc.mjs changed: raise launcher-format in plc.mjs and LAUNCHER_FORMAT in operator.mjs, and pin the new hash in LAUNCHER_PINS');
+});
+
+test('an upgrade refreshes a launcher of the previous format with the one the release carries', async () => {
+  const root = fresh('launcher-refresh');
+  const folder = await makeRelease({dir: fresh('rel'), version: '0.9.0', target: 'runkit', commit: commitOf(61)});
+  mkdirSync(root, {recursive: true});
+  writeFileSync(path.join(root, 'plc.mjs'), '// launcher-format: 1\nthe launcher of v0.65.0 and v0.65.1\n');
+  await upgrade({root, source: folder});
+  assert.equal(readFileSync(path.join(root, 'plc.mjs'), 'utf8'), readFileSync('scripts/plc.mjs', 'utf8'), 'the installed launcher is now the one of the release');
 });

@@ -1,4 +1,4 @@
-// launcher-format: 1
+// launcher-format: 2
 // The launcher of an operator folder (docs/RUN-IT.md): the one file the operator runs. It hands over to the installed release's serve.mjs, so the
 // release that is live decides what the options mean:   node plc.mjs [--upgrade ... | --rollback | --check | --prune | --port N ...]
 // An upgrade replaces this file only when a release carries a newer launcher-format.

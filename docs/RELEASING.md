@@ -85,6 +85,10 @@ node scripts/release-hooks.mjs prepare --version <version> --commit "$(git rev-p
 
 The rules are data in `tests/neutrality.config.json`. A place where one of the strings is meant to be (the default model source, the project's repository, a library's own text) is listed with its paths and its reason, and an entry that nothing uses fails the test, so the list cannot grow quietly. To allow something new, add the entry with a reason in the pull request that needs it, and say why in the description.
 
+## The launcher
+
+`scripts/plc.mjs` is the one file an operator runs, and an upgrade replaces the installed copy only when the release's copy has a higher `launcher-format` (its first line). So a change to `plc.mjs`, even to a message, must raise that number, in the file and as `LAUNCHER_FORMAT` in `scripts/operator.mjs`, and the new hash goes into `LAUNCHER_PINS` in `tests/operator.test.mjs`; that test fails until all three agree. v0.65.1 changed the text without raising the number, and every install kept the old launcher until v0.65.2.
+
 ## Snapshots
 
 The Data upgrade suite opens data saved by earlier releases, so it needs a snapshot taken from a real release (`docs/DATA-COMPATIBILITY.md`, `docs/FILE-COMPATIBILITY.md`). Take one whenever a stored or saved format changes, and at least every 15 releases; the check fails CI at sixteen releases behind.
