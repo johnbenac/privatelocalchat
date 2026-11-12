@@ -6,7 +6,8 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {execFileSync} from 'node:child_process';
 
-const SELF = new Set(['tests/no-tech-of-our-own.test.mjs', 'tests/publish-files.test.mjs']);
+// The neutrality test names it on purpose: it is the list of what a copy of the app must not carry (tests/neutrality.config.json).
+const SELF = new Set(['tests/no-tech-of-our-own.test.mjs', 'tests/publish-files.test.mjs', 'tests/neutrality.config.json', 'tests/neutrality.test.mjs']);
 const PATTERN = /techofourown|tech of our own/i;
 
 test('no tracked file names Tech of Our Own', () => {
