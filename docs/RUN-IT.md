@@ -43,7 +43,7 @@ cd private-local-chat-<version>-runkit
 node serve.mjs         # http://127.0.0.1:18171
 ```
 
-The folder holds `app/` (the build), the tools (`serve.mjs`, `headers.mjs`, `plc.mjs`, `operator.mjs`, `overlay.mjs`, `zip.mjs` and `fetch-models.mjs`), `models.json` (every model file with its size and SHA-256), `README.md`, the licence documents, `SOURCE.txt` (the commit, the repository and the command that rebuilds `app/`) and `compat.json`. It needs Node.js 20 or newer and nothing else; `serve.mjs` finds `./app` by itself. To use another web server, serve `app/` with the headers in `app/_headers` (below). To keep your own settings, pages and models and to upgrade and roll back, install the release as an operator folder ("Run a copy as an operator", below).
+The folder holds `app/` (the build), the tools (`serve.mjs`, `headers.mjs`, `plc.mjs`, `operator.mjs`, `overlay.mjs`, `zip.mjs` and `fetch-models.mjs`), `models.json` (every model file with its size and SHA-256), `DATA-HANDLING.md` (what the app keeps and sends), `README.md`, the licence documents, `SOURCE.txt` (the commit, the repository and the command that rebuilds `app/`) and `compat.json`. It needs Node.js 20 or newer and nothing else; `serve.mjs` finds `./app` by itself. To use another web server, serve `app/` with the headers in `app/_headers` (below). To keep your own settings, pages and models and to upgrade and roll back, install the release as an operator folder ("Run a copy as an operator", below).
 
 ## Other devices, and why https
 
@@ -72,11 +72,13 @@ Check the headers on the address people use, not only on the host you deploy to:
 
 ## Where the models come from
 
-By default the model files come from the project's content delivery network (`app-config.json`). To use your own source, set it in `config/app-config.json` and build (`docs/APP-CONFIG.md`), or, for a release copy that `serve.mjs` serves from an operator folder, put the file in that folder's `config/` (below). Every file is checked against the size and SHA-256 pinned in the app, whichever source it comes from.
+By default the model files come from the project's content delivery network (`app-config.json`). To use your own source, set it in `config/app-config.json` and build (`docs/APP-CONFIG.md`), or, for a release copy that `serve.mjs` serves from an operator folder, put the file in that folder's `config/` (below). Every model file and voice file is checked against the size and SHA-256 pinned in the app, whichever source it comes from. The memory embedding set is not: the app pins no files for it, so a source you chose can serve other bytes there and the app does not notice (`DATA-HANDLING.md`, section 2d).
 
 ## Run a copy as an operator
 
 The sections below are for a person who runs a copy for others, or for themselves over a long time, from a release zip. The tools need only Node.js 20 or newer. They install a release, keep your own settings, pages and model files beside it, upgrade, go back and check. They are not for a clone of the source: with a clone you use `git pull` and the build (`docs/APP-CONFIG.md` for settings).
+
+The facts you need to write your own privacy notice, what the app keeps in the browser and what it sends, are in `DATA-HANDLING.md` (in the release folder, and in `docs/`). Its section 5, "What you decide yourself", is the checklist of what is yours to decide and say.
 
 In the commands below `/srv/plc` is the operator folder. Use any folder you like. The tools make it if it does not exist and never write outside it.
 

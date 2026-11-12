@@ -23,11 +23,11 @@ The build checks both files (`checkAppConfig`): an unknown key, a bad address, a
 
 `runtime/config/app-config.mjs` is the only code that knows the shape: `appConfig().modelRoot()`, `.activeSource()`, `.isDefaultSource()`. Without a configuration (a worker, or a test that has not installed one) it throws a plain error rather than using an address of ours; tests import `tests/helpers/install-app-config.mjs` first, which installs what the build would.
 
-The catalog (`runtime/providers/catalog.mjs`), the voices (`chat/voice/voice-manifest*.mjs`) and the memory embedding set (`chat/embedding/embedding-config.mjs`) join the root to the folder each model lives in (`<name>/<revision>/`, kept in `runtime/providers/catalog-data.mjs` as `dir`). No default names Hugging Face, GitHub or any host other than the configured root.
+The catalog (`runtime/providers/catalog.mjs`), the voices (`chat/voice/voice-manifest*.mjs`) and the memory embedding set (`chat/embedding/embedding-config.mjs`) join the root to the folder each model lives in (`<name>/<revision>/`, kept in `runtime/providers/catalog-data.mjs` as `dir`). No default names Hugging Face, GitHub or any host other than the configured root. The embedding set is the one exception to the pinned files: the app pins no size or SHA-256 for it, only the content-addressed name of its folder (`DATA-HANDLING.md`, section 2d).
 
 ## Integrity
 
-A source decides where bytes come from, never what they are. Every file is checked against the size and SHA-256 pinned in the app (catalog, voice manifests, embedding set) before it is used, from any source. A source that serves other bytes is refused.
+A source decides where bytes come from, never what they are. Every model file and voice file is checked against the size and SHA-256 pinned in the app (catalog, voice manifests) before it is used, from any source. A source that serves other bytes is refused. The memory embedding set is not checked: the app pins no files for it. Its folder name is content-addressed (`chat/embedding/embedding-config.mjs`), so a changed byte at the project's host is a new path, but a source you chose can serve other bytes at that path and the app does not notice. Section 2d of `DATA-HANDLING.md` says the same.
 
 ## What you see
 

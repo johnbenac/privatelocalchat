@@ -38,6 +38,7 @@ Each zip holds one folder, `private-local-chat-<version>-<target>/`:
 - `app/`: the build exactly, with its `_headers`, `version.json` and `sw.js`.
 - The tools, which need only Node.js: `serve.mjs` (the server), `headers.mjs` (the header rules it reads), `plc.mjs`, `operator.mjs`, `overlay.mjs` and `zip.mjs` (the operator folder: install, upgrade, roll back, check, prune), and `fetch-models.mjs`. They are the `RELEASE_TOOLS` of `scripts/package-release.mjs`.
 - `models.json`: every model file the app can download, with its size and SHA-256, written by the build from the pins the app uses. `fetch-models.mjs` reads it; the app never fetches it.
+- `DATA-HANDLING.md`: what the app keeps and sends, for an operator writing a notice. It is copied from `docs/` (the `RELEASE_DOCS` of `scripts/package-release.mjs`) and its generated tables and references are checked by `node scripts/data-handling.mjs check`, which runs in `npm test`.
 - `README.md`: how to run the folder and how to install it as an operator folder.
 - `LICENSE` and `THIRD-PARTY-NOTICES.md`.
 - `SOURCE.txt`: the tag, the full commit, the repository, the address of the source archive, and the command that rebuilds `app/`.
