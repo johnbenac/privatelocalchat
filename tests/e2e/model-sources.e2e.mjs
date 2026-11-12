@@ -19,6 +19,7 @@ writeFileSync(overrideFile,JSON.stringify({modelSources:[{id:'mine',label:'My mo
 /** Start the app built with `env`, answer every model request with bytes that are not the model, and hand the page and the list of requests to `run`. */
 async function variant(name,env,port,run){
   for(const k of ['SITE_JSON_PATH','APP_CONFIG_OVERRIDE'])delete process.env[k];
+  process.env.SITE_DIR='tests/fixtures/site'; // a site that names itself, so "our site" below means this one
   Object.assign(process.env,env);
   const h=await launch({port});
   const requests=[];

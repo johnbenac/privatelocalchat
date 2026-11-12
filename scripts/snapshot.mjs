@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 // A reproducible snapshot of what the build produces, and a report of how two snapshots differ.
 //
-//   node scripts/snapshot.mjs build [--out FILE]            build the site target and write its manifest
-//   node scripts/snapshot.mjs diff BASELINE [CURRENT]       compare a manifest with the current build (or another manifest)
-//   node scripts/snapshot.mjs compare REV                   build REV and the current tree, then show every changed file
+//   node scripts/snapshot.mjs build [--target T] [--out FILE]   build a target and write its manifest
+//   node scripts/snapshot.mjs diff BASELINE [CURRENT]           compare a manifest with the current build (or another manifest); the baseline names its target
+//   node scripts/snapshot.mjs compare REV [--target T]          build REV and the current tree, then show every changed file
+//
+// Targets: `runkit` is the app with the neutral pages that ship with it (anyone can build it); `site` is the app with a site directory (docs/SITE-LAYER.md) and needs SITE_DIR.
 //
 // `diff` and `compare` accept --allow GLOB (repeatable) for changes a stage intends; any other change exits 1.
 // The builds run with a fixed commit, branch and clock (SOURCE_DATE_EPOCH), so identical sources give identical manifests.
@@ -14,17 +16,22 @@ import path from 'node:path';
 import {pathToFileURL} from 'node:url';
 
 export const FORMAT = 'plc-snapshot/1';
-// Each target is the environment its build runs in. Only the site is built today; more targets are added here.
+// Each target is the environment its build runs in. `site` takes its site directory from SITE_DIR in the caller's environment, since the site layer is not part of this repository.
 export const TARGETS = {
+  runkit: {GITHUB_SHA: '0'.repeat(40), DEPLOY_BRANCH: 'main', SOURCE_DATE_EPOCH: '0', SITE_DIR: ''},
   site: {GITHUB_SHA: '0'.repeat(40), DEPLOY_BRANCH: 'main', SOURCE_DATE_EPOCH: '0'}
 };
 
 /** Build `target` into `dir` (a folder inside the repository at `root`). */
-export function buildTo(dir, {root = process.cwd(), target = 'site'} = {}) {
+export function buildTo(dir, {root = process.cwd(), target = 'runkit'} = {}) {
   if (!TARGETS[target]) throw new Error('Unknown target: ' + target);
+  if (target === 'site' && !process.env.SITE_DIR) throw new Error('The site target needs SITE_DIR, the folder of the site layer (docs/SITE-LAYER.md)');
   const out = path.resolve(root, dir);
   if (!out.startsWith(root + path.sep)) throw new Error('The snapshot folder must be inside the repository');
-  execFileSync(process.execPath, ['scripts/build.mjs'], {cwd: root, env: {...process.env, ...TARGETS[target], BUILD_OUT_DIR: path.relative(root, out)}, stdio: 'pipe'});
+  // a snapshot is of the standard build: nothing the caller's environment says about the manifest or the operator configuration is allowed to change it
+  const env = {...process.env, ...TARGETS[target], BUILD_OUT_DIR: path.relative(root, out)};
+  for (const key of ['SITE_JSON_PATH', 'SITE_CONFIG_PATH', 'APP_CONFIG_OVERRIDE']) delete env[key];
+  execFileSync(process.execPath, ['scripts/build.mjs'], {cwd: root, env, stdio: 'pipe'});
   return out;
 }
 
@@ -41,7 +48,7 @@ async function listFiles(dir) {
 }
 
 /** The manifest of a build folder: every file with its size and sha256. */
-export async function manifestOf(dir, target = 'site') {
+export async function manifestOf(dir, target = 'runkit') {
   const files = {};
   for (const file of await listFiles(dir)) {
     const bytes = await readFile(file);
@@ -81,10 +88,11 @@ export function formatReport(result) {
 const TEXT = /\.(mjs|js|html|css|json|xml|txt|md|webmanifest|svg)$/;
 
 function flags(args) {
-  const out = {positional: [], allow: [], out: null};
+  const out = {positional: [], allow: [], out: null, target: null};
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--allow') out.allow.push(args[++i]);
     else if (args[i] === '--out') out.out = args[++i];
+    else if (args[i] === '--target') out.target = args[++i];
     else out.positional.push(args[i]);
   }
   return out;
@@ -92,18 +100,20 @@ function flags(args) {
 
 async function cli(argv) {
   const [command, ...rest] = argv;
-  const {positional, allow, out} = flags(rest);
+  const {positional, allow, out, target: targetFlag} = flags(rest);
   const root = process.cwd();
   if (command === 'build') {
-    const dir = buildTo('work/snapshot/site');
-    const manifest = await manifestOf(dir);
+    const target = targetFlag || 'runkit';
+    const dir = buildTo('work/snapshot/' + target, {target});
+    const manifest = await manifestOf(dir, target);
     if (out) await writeFile(out, JSON.stringify(manifest, null, 1) + '\n');
-    console.log('Built the site target: ' + manifest.fileCount + ' files' + (out ? ', manifest written to ' + out : ''));
+    console.log('Built the ' + target + ' target: ' + manifest.fileCount + ' files' + (out ? ', manifest written to ' + out : ''));
     return 0;
   }
   if (command === 'diff') {
     const baseline = JSON.parse(await readFile(positional[0], 'utf8'));
-    const current = positional[1] ? JSON.parse(await readFile(positional[1], 'utf8')) : await manifestOf(buildTo('work/snapshot/site'));
+    const target = targetFlag || baseline.target || 'runkit';
+    const current = positional[1] ? JSON.parse(await readFile(positional[1], 'utf8')) : await manifestOf(buildTo('work/snapshot/' + target, {target}), target);
     const result = diffManifests(baseline, current, allow);
     console.log(formatReport(result));
     return isClean(result) ? 0 : 1;
@@ -118,9 +128,10 @@ async function cli(argv) {
     execFileSync('sh', ['-c', 'git archive "$0" | tar -x -C "$1"', rev, tree], {stdio: 'pipe'});
     try {
       if (!(await readFile(path.join(tree, 'scripts/build.mjs'), 'utf8')).includes('SOURCE_DATE_EPOCH')) throw new Error(rev + ' predates the reproducible build, so its output cannot be compared byte for byte.');
-      const baseDir = buildTo('out', {root: tree});
-      const currentDir = buildTo('work/snapshot/site');
-      const result = diffManifests(await manifestOf(baseDir), await manifestOf(currentDir), allow);
+      const target = targetFlag || 'runkit';
+      const baseDir = buildTo('out', {root: tree, target});
+      const currentDir = buildTo('work/snapshot/' + target, {target});
+      const result = diffManifests(await manifestOf(baseDir, target), await manifestOf(currentDir, target), allow);
       console.log(formatReport(result));
       for (const file of [...result.changed, ...result.allowed.filter((f) => !result.added.includes(f))]) {
         if (!TEXT.test(file) || !(await readFile(path.join(baseDir, file)).then(() => true, () => false))) continue;

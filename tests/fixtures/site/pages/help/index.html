@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Help | Private Local Chat</title>
+<meta name="description" content="A test page for the help role.">
+<meta name="color-scheme" content="light dark">
+<meta property="og:title" content="Help | Private Local Chat">
+<link rel="icon" href="/brand/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/brand/design-tokens.css">
+<link rel="stylesheet" href="/chat/public-pages.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="site-header-inner">
+    <nav class="site-nav" aria-label="Private Local Chat site"><!--plc:site-nav-->
+<ul class="site-nav-list">
+  <li><a href="/help/" aria-current="page">Help</a></li>
+  <li><a href="/about/">About</a></li>
+  <li><a href="/privacy/">Privacy</a></li>
+  <li><a href="/updates/">Updates</a></li>
+</ul>
+<!--/plc:site-nav--></nav>
+    <div class="header-open"><a class="button primary" href="/">Open Private Local Chat</a></div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="page-intro">
+    <h1>Help</h1>
+    <p class="lede">A test page for the help role.</p>
+  </div>
+  <section id="getting-started"><h2>Getting started</h2><p>Test.</p></section>
+  <section id="load-failure"><h2>load-failure</h2><p>Test.</p></section>
+  <section id="messages-and-providers"><h2>messages-and-providers</h2><p>Test.</p></section>
+  <section id="speech-availability"><h2>speech-availability</h2><p>Test.</p></section>
+  <section id="stalled-download"><h2>stalled-download</h2><p>Test.</p></section>
+  <section id="unexpected-reload"><h2>unexpected-reload</h2><p>Test.</p></section>
+<!--plc:known-issues-summary-->
+<ul class="issue-summary">
+  <li><a href="/help/#issue-iphone-page-restarts">iPhone page restarts during loading or long replies</a> <span class="badge">Open, under investigation</span> <span class="muted">Last verified <time datetime="2026-10-30">2026-10-30</time></span></li>
+  <li><a href="/help/#issue-iphone-low-storage">Model downloads fail when the phone is nearly full</a> <span class="badge">Explained by device storage; the app retries automatically</span> <span class="muted">Last verified <time datetime="2026-10-30">2026-10-30</time></span></li>
+  <li><a href="/help/#issue-speech-in-app-browsers">Dictation and voice conversation missing in some in-app browsers</a> <span class="badge">Browser limitation; the app hides the controls</span> <span class="muted">Last verified <time datetime="2026-10-31">2026-10-31</time></span></li>
+  <li><a href="/help/#issue-processor-speed">On-device chat on the processor is slow</a> <span class="badge">Limitation; speed not yet measured</span> <span class="muted">Last verified <time datetime="2026-10-31">2026-10-31</time></span></li>
+  <li><a href="/help/#issue-linux-shader-f16">2B model did not start on some Linux desktops without 16-bit shaders</a> <span class="badge">Mitigated in v0.12.0: the model now runs on the processor when the GPU path is not possible</span> <span class="muted">Last verified <time datetime="2026-10-31">2026-10-31</time></span></li>
+  <li><a href="/help/#issue-context-window">Very long replies end when the working window is full</a> <span class="badge">Known limit; raising it costs memory, which matters most on iPhone</span> <span class="muted">Last verified <time datetime="2026-10-31">2026-10-31</time></span></li>
+  <li><a href="/help/#issue-pictures-and-scans">Pictures and scanned PDFs cannot be read on this device</a> <span class="badge">Not supported yet; text recognition for scans is not available offline</span> <span class="muted">Last verified <time datetime="2026-10-31">2026-10-31</time></span></li>
+</ul>
+<!--/plc:known-issues-summary-->
+<!--plc:known-issues-->
+<article class="issue" id="issue-iphone-page-restarts" aria-labelledby="issue-iphone-page-restarts-title">
+  <h3 id="issue-iphone-page-restarts-title">iPhone page restarts during loading or long replies</h3>
+  <dl class="issue-facts">
+    <dt>Affected devices</dt><dd>iPhone 15 Pro on iOS 26.6.2 (the device tested). Other iPhone and iPad models have not been checked.</dd>
+    <dt>Browsers</dt><dd>DuckDuckGo 26.6 and Safari automation sessions on that phone.</dd>
+    <dt>Models</dt><dd>Qwen3.5-2B on-device model.</dd>
+    <dt>What you see</dt><dd>The page is replaced and starts again without an error message while the model loads or a longer reply is being written. Downloaded model files stay saved.</dd>
+    <dt>Status</dt><dd><span class="badge">Open, under investigation</span></dd>
+    <dt>Last verified</dt><dd><time datetime="2026-10-30">30 October 2026</time> <span class="muted">(project investigation log; many sessions complete normally)</span></dd>
+    <dt>Workaround</dt><dd>Reopen the app: saved conversations and drafts remain and the downloaded files are reused. For dependable use on an iPhone, set Where replies run to a connected provider, or use a computer.</dd>
+  </dl>
+  <p class="update-links">Related help: <a href="/help/#unexpected-reload">The page reloads by itself</a>.</p>
+</article>
+<article class="issue" id="issue-iphone-low-storage" aria-labelledby="issue-iphone-low-storage-title">
+  <h3 id="issue-iphone-low-storage-title">Model downloads fail when the phone is nearly full</h3>
+  <dl class="issue-facts">
+    <dt>Affected devices</dt><dd>iPhone 15 Pro on iOS 26.6.2.</dd>
+    <dt>Browsers</dt><dd>Safari automation session.</dd>
+    <dt>Models</dt><dd>Qwen3.5-2B download (about 1.20 GB).</dd>
+    <dt>What you see</dt><dd>Writing downloaded files fails repeatedly with a generic message while the device has almost no free space. The app keeps retrying and keeps the files it already verified.</dd>
+    <dt>Status</dt><dd><span class="badge">Explained by device storage; the app retries automatically</span></dd>
+    <dt>Last verified</dt><dd><time datetime="2026-10-30">30 October 2026</time> <span class="muted">(USB system log recorded the out-of-space error)</span></dd>
+    <dt>Workaround</dt><dd>Free space on the phone before downloading. The project&#39;s phone tests used at least 3 GB free as the minimum before a download.</dd>
+  </dl>
+  <p class="update-links">Related help: <a href="/help/#stalled-download">A download stalls</a>.</p>
+</article>
+<article class="issue" id="issue-speech-in-app-browsers" aria-labelledby="issue-speech-in-app-browsers-title">
+  <h3 id="issue-speech-in-app-browsers-title">Dictation and voice conversation missing in some in-app browsers</h3>
+  <dl class="issue-facts">
+    <dt>Affected devices</dt><dd>iPhone.</dd>
+    <dt>Browsers</dt><dd>DuckDuckGo on iPhone exposes speech recognition but does not let websites use it. Other in-app web views may behave the same.</dd>
+    <dt>Models</dt><dd>Any (speech is separate from the model).</dd>
+    <dt>What you see</dt><dd>A message says the browser does not let websites use speech recognition, and the dictation and voice controls are turned off. They stay hidden for 14 days after the failure is seen.</dd>
+    <dt>Status</dt><dd><span class="badge">Browser limitation; the app hides the controls</span></dd>
+    <dt>Last verified</dt><dd><time datetime="2026-10-31">31 October 2026</time> <span class="muted">(release v0.11.0 documentation; not re-tested on a physical phone)</span></dd>
+    <dt>Workaround</dt><dd>Open Private Local Chat in Safari or Chrome, which support speech recognition.</dd>
+  </dl>
+  <p class="update-links">Related help: <a href="/help/#speech-availability">Speech controls missing</a>.</p>
+</article>
+<article class="issue" id="issue-processor-speed" aria-labelledby="issue-processor-speed-title">
+  <h3 id="issue-processor-speed-title">On-device chat on the processor is slow</h3>
+  <dl class="issue-facts">
+    <dt>Affected devices</dt><dd>Computers whose browser has no usable GPU (no WebGPU, no adapter, or only a software renderer).</dd>
+    <dt>Browsers</dt><dd>Browsers with WebAssembly SIMD. Not offered on iPhone or iPad.</dd>
+    <dt>Models</dt><dd>Qwen3.5-2B only. Qwen3.5-9B needs a GPU.</dd>
+    <dt>What you see</dt><dd>Replies arrive slowly. Words per second on a real processor have not been measured.</dd>
+    <dt>Status</dt><dd><span class="badge">Limitation; speed not yet measured</span></dd>
+    <dt>Last verified</dt><dd><time datetime="2026-10-31">31 October 2026</time> <span class="muted">(loading and generation verified in an automated browser test with a tiny test model)</span></dd>
+    <dt>Workaround</dt><dd>Turn on or fix the browser&#39;s GPU support, or connect a provider.</dd>
+  </dl>
+  <p class="update-links">Related help: <a href="/help/#load-failure">A model will not load</a>.</p>
+</article>
+<article class="issue" id="issue-linux-shader-f16" aria-labelledby="issue-linux-shader-f16-title">
+  <h3 id="issue-linux-shader-f16-title">2B model did not start on some Linux desktops without 16-bit shaders</h3>
+  <dl class="issue-facts">
+    <dt>Affected devices</dt><dd>Linux desktop with an NVIDIA graphics card (the tested setup).</dd>
+    <dt>Browsers</dt><dd>Chromium-based browsers where the optional shader-f16 feature was not enabled.</dd>
+    <dt>Models</dt><dd>Qwen3.5-2B on the GPU path.</dd>
+    <dt>What you see</dt><dd>The 2B model was refused because the browser lacked 16-bit shader support.</dd>
+    <dt>Status</dt><dd><span class="badge">Mitigated in v0.12.0: the model now runs on the processor when the GPU path is not possible</span></dd>
+    <dt>Last verified</dt><dd><time datetime="2026-10-31">31 October 2026</time> <span class="muted">(desktop environment receipt from 2026-10-30; processor path added the next day)</span></dd>
+    <dt>Workaround</dt><dd>Enable the browser&#39;s shader-f16 support if it offers it, or use the processor path, which is slower.</dd>
+  </dl>
+  <p class="update-links">Related help: <a href="/help/#load-failure">A model will not load</a>.</p>
+</article>
+<article class="issue" id="issue-context-window" aria-labelledby="issue-context-window-title">
+  <h3 id="issue-context-window-title">Very long replies end when the working window is full</h3>
+  <dl class="issue-facts">
+    <dt>Affected devices</dt><dd>All devices.</dd>
+    <dt>Browsers</dt><dd>All browsers.</dd>
+    <dt>Models</dt><dd>Both bundled on-device models (4,096-token window shared by the conversation and the reply).</dd>
+    <dt>What you see</dt><dd>A long conversation or answer stops when the window is full. The message says so and offers Continue or a summary.</dd>
+    <dt>Status</dt><dd><span class="badge">Known limit; raising it costs memory, which matters most on iPhone</span></dd>
+    <dt>Last verified</dt><dd><time datetime="2026-10-31">31 October 2026</time> <span class="muted">(project documentation of chat limits)</span></dd>
+    <dt>Workaround</dt><dd>Choose Continue, condense older messages into a summary, or start a new conversation.</dd>
+  </dl>
+</article>
+<article class="issue" id="issue-pictures-and-scans" aria-labelledby="issue-pictures-and-scans-title">
+  <h3 id="issue-pictures-and-scans-title">Pictures and scanned PDFs cannot be read on this device</h3>
+  <dl class="issue-facts">
+    <dt>Affected devices</dt><dd>All devices.</dd>
+    <dt>Browsers</dt><dd>All browsers.</dd>
+    <dt>Models</dt><dd>Both on-device models read text only.</dd>
+    <dt>What you see</dt><dd>Pictures are refused with an explanation, and a scanned PDF with no text layer is refused because there is no text to read.</dd>
+    <dt>Status</dt><dd><span class="badge">Not supported yet; text recognition for scans is not available offline</span></dd>
+    <dt>Last verified</dt><dd><time datetime="2026-10-31">31 October 2026</time> <span class="muted">(project documentation of chat limits)</span></dd>
+    <dt>Workaround</dt><dd>Attach text-based files, or use a connected provider that accepts pictures (its data practices then apply).</dd>
+  </dl>
+  <p class="update-links">Related help: <a href="/help/#messages-and-providers">What happens to my messages?</a>.</p>
+</article>
+<!--/plc:known-issues-->
+<!--plc:community--><!--/plc:community-->
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <nav aria-label="Private Local Chat site, footer"><!--plc:footer-nav-->
+<ul class="footer-nav-list">
+  <li><a href="/help/" aria-current="page">Help</a></li>
+  <li><a href="/about/">About</a></li>
+  <li><a href="/privacy/">Privacy</a></li>
+  <li><a href="/updates/">Updates</a></li>
+</ul>
+<!--/plc:footer-nav--></nav>
+    <!--plc:footer-source-->
+<p><a href="/">Open Private Local Chat</a> &middot; <a href="https://github.com/johnbenac/privatelocalchat" target="_blank" rel="noopener">Source on GitHub</a> (GNU General Public License, version 3) &middot; <a href="/LICENSE">Licence</a> &middot; <a href="/THIRD-PARTY-NOTICES.md">Notices</a></p>
+<!--/plc:footer-source-->
+  </div>
+</footer>
+<script type="module" src="/chat/transfer/public-pages.mjs"></script>
+</body>
+</html>

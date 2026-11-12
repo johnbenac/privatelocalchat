@@ -1,0 +1,125 @@
+{
+ "knownIssues": [
+  {
+   "id": "iphone-page-restarts",
+   "title": "iPhone page restarts during loading or long replies",
+   "devices": "iPhone 15 Pro on iOS 26.6.2 (the device tested). Other iPhone and iPad models have not been checked.",
+   "browsers": "DuckDuckGo 26.6 and Safari automation sessions on that phone.",
+   "models": "Qwen3.5-2B on-device model.",
+   "symptom": "The page is replaced and starts again without an error message while the model loads or a longer reply is being written. Downloaded model files stay saved.",
+   "status": "Open, under investigation",
+   "verified": "2026-10-30",
+   "verifiedNote": "project investigation log; many sessions complete normally",
+   "workaround": "Reopen the app: saved conversations and drafts remain and the downloaded files are reused. For dependable use on an iPhone, set Where replies run to a connected provider, or use a computer.",
+   "help": [
+    {
+     "label": "The page reloads by itself",
+     "href": "/help/#unexpected-reload"
+    }
+   ]
+  },
+  {
+   "id": "iphone-low-storage",
+   "title": "Model downloads fail when the phone is nearly full",
+   "devices": "iPhone 15 Pro on iOS 26.6.2.",
+   "browsers": "Safari automation session.",
+   "models": "Qwen3.5-2B download (about 1.20 GB).",
+   "symptom": "Writing downloaded files fails repeatedly with a generic message while the device has almost no free space. The app keeps retrying and keeps the files it already verified.",
+   "status": "Explained by device storage; the app retries automatically",
+   "verified": "2026-10-30",
+   "verifiedNote": "USB system log recorded the out-of-space error",
+   "workaround": "Free space on the phone before downloading. The project's phone tests used at least 3 GB free as the minimum before a download.",
+   "help": [
+    {
+     "label": "A download stalls",
+     "href": "/help/#stalled-download"
+    }
+   ]
+  },
+  {
+   "id": "speech-in-app-browsers",
+   "title": "Dictation and voice conversation missing in some in-app browsers",
+   "devices": "iPhone.",
+   "browsers": "DuckDuckGo on iPhone exposes speech recognition but does not let websites use it. Other in-app web views may behave the same.",
+   "models": "Any (speech is separate from the model).",
+   "symptom": "A message says the browser does not let websites use speech recognition, and the dictation and voice controls are turned off. They stay hidden for 14 days after the failure is seen.",
+   "status": "Browser limitation; the app hides the controls",
+   "verified": "2026-10-31",
+   "verifiedNote": "release v0.11.0 documentation; not re-tested on a physical phone",
+   "workaround": "Open Private Local Chat in Safari or Chrome, which support speech recognition.",
+   "help": [
+    {
+     "label": "Speech controls missing",
+     "href": "/help/#speech-availability"
+    }
+   ]
+  },
+  {
+   "id": "processor-speed",
+   "title": "On-device chat on the processor is slow",
+   "devices": "Computers whose browser has no usable GPU (no WebGPU, no adapter, or only a software renderer).",
+   "browsers": "Browsers with WebAssembly SIMD. Not offered on iPhone or iPad.",
+   "models": "Qwen3.5-2B only. Qwen3.5-9B needs a GPU.",
+   "symptom": "Replies arrive slowly. Words per second on a real processor have not been measured.",
+   "status": "Limitation; speed not yet measured",
+   "verified": "2026-10-31",
+   "verifiedNote": "loading and generation verified in an automated browser test with a tiny test model",
+   "workaround": "Turn on or fix the browser's GPU support, or connect a provider.",
+   "help": [
+    {
+     "label": "A model will not load",
+     "href": "/help/#load-failure"
+    }
+   ]
+  },
+  {
+   "id": "linux-shader-f16",
+   "title": "2B model did not start on some Linux desktops without 16-bit shaders",
+   "devices": "Linux desktop with an NVIDIA graphics card (the tested setup).",
+   "browsers": "Chromium-based browsers where the optional shader-f16 feature was not enabled.",
+   "models": "Qwen3.5-2B on the GPU path.",
+   "symptom": "The 2B model was refused because the browser lacked 16-bit shader support.",
+   "status": "Mitigated in v0.12.0: the model now runs on the processor when the GPU path is not possible",
+   "verified": "2026-10-31",
+   "verifiedNote": "desktop environment receipt from 2026-10-30; processor path added the next day",
+   "workaround": "Enable the browser's shader-f16 support if it offers it, or use the processor path, which is slower.",
+   "help": [
+    {
+     "label": "A model will not load",
+     "href": "/help/#load-failure"
+    }
+   ]
+  },
+  {
+   "id": "context-window",
+   "title": "Very long replies end when the working window is full",
+   "devices": "All devices.",
+   "browsers": "All browsers.",
+   "models": "Both bundled on-device models (4,096-token window shared by the conversation and the reply).",
+   "symptom": "A long conversation or answer stops when the window is full. The message says so and offers Continue or a summary.",
+   "status": "Known limit; raising it costs memory, which matters most on iPhone",
+   "verified": "2026-10-31",
+   "verifiedNote": "project documentation of chat limits",
+   "workaround": "Choose Continue, condense older messages into a summary, or start a new conversation.",
+   "help": []
+  },
+  {
+   "id": "pictures-and-scans",
+   "title": "Pictures and scanned PDFs cannot be read on this device",
+   "devices": "All devices.",
+   "browsers": "All browsers.",
+   "models": "Both on-device models read text only.",
+   "symptom": "Pictures are refused with an explanation, and a scanned PDF with no text layer is refused because there is no text to read.",
+   "status": "Not supported yet; text recognition for scans is not available offline",
+   "verified": "2026-10-31",
+   "verifiedNote": "project documentation of chat limits",
+   "workaround": "Attach text-based files, or use a connected provider that accepts pictures (its data practices then apply).",
+   "help": [
+    {
+     "label": "What happens to my messages?",
+     "href": "/help/#messages-and-providers"
+    }
+   ]
+  }
+ ]
+}

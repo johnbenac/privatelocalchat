@@ -18,6 +18,7 @@ const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
 const show=surfaces=>Object.entries(surfaces).map(([k,v])=>k+': '+v.map(l=>l.text+'->'+l.href).join(' | ')).join('\n');
 
 async function variant(name,siteJsonPath,port,check){
+  process.env.SITE_DIR='tests/fixtures/site'; // a site that has all four pages and names itself
   if(siteJsonPath===undefined)delete process.env.SITE_JSON_PATH;else process.env.SITE_JSON_PATH=siteJsonPath;
   const h=await launch({port,storage:{chatThreads:SEEDED_THREADS}});
   try{

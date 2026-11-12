@@ -19,11 +19,11 @@ test('two builds of the same sources give the same manifest', async () => {
 test('the build is fixed to the snapshot commit, branch and clock', async () => {
   const dir = buildTo(DIRS[0]);
   const version = JSON.parse(fs.readFileSync(dir + '/version.json', 'utf8'));
-  assert.equal(version.commit, TARGETS.site.GITHUB_SHA);
+  assert.equal(version.commit, TARGETS.runkit.GITHUB_SHA);
   assert.equal(version.branch, 'main');
   assert.equal(version.builtAt, '1970-01-01T00:00:00.000Z');
   const manifest = await manifestOf(dir);
-  for (const file of ['index.html', 'version.json', 'sw.js', '_headers', 'privacy/index.html', 'releases/' + TARGETS.site.GITHUB_SHA + '/chat/shell/shell.mjs']) assert.ok(manifest.files[file], file + ' is in the manifest');
+  for (const file of ['index.html', 'version.json', 'sw.js', '_headers', 'help/index.html', 'releases/' + TARGETS.runkit.GITHUB_SHA + '/chat/shell/shell.mjs']) assert.ok(manifest.files[file], file + ' is in the manifest');
   for (const entry of Object.values(manifest.files)) assert.match(entry.sha256, /^[0-9a-f]{64}$/);
 });
 
@@ -40,13 +40,20 @@ test('diffManifests reports added, removed and changed files and honours allow g
   assert.match(formatReport(allowed), /Removed \(1\)[\s\S]*old\.txt[\s\S]*Changed, but allowed \(2\)/);
 });
 
-test('the committed site baseline is a well-formed manifest of the site target', () => {
-  const baseline = JSON.parse(fs.readFileSync('docs/evidence/split/site-baseline.json', 'utf8'));
-  assert.equal(baseline.format, FORMAT);
-  assert.equal(baseline.target, 'site');
-  assert.deepEqual(baseline.environment, TARGETS.site);
-  assert.equal(baseline.fileCount, Object.keys(baseline.files).length);
-  assert.ok(baseline.files['index.html'] && baseline.files['version.json']);
+test('the committed baselines are well-formed manifests, one per target', () => {
+  for (const target of ['runkit', 'site']) {
+    const baseline = JSON.parse(fs.readFileSync('docs/evidence/split/' + target + '-baseline.json', 'utf8'));
+    assert.equal(baseline.format, FORMAT);
+    assert.equal(baseline.target, target);
+    assert.deepEqual(baseline.environment, TARGETS[target]);
+    assert.equal(baseline.fileCount, Object.keys(baseline.files).length);
+    assert.ok(baseline.files['index.html'] && baseline.files['version.json'], target);
+  }
+});
+
+test('the site target cannot be built without a site directory, and says so', () => {
+  const saved = process.env.SITE_DIR; delete process.env.SITE_DIR;
+  try { assert.throws(() => buildTo(DIRS[0], {target: 'site'}), /needs SITE_DIR/); } finally { if (saved !== undefined) process.env.SITE_DIR = saved; }
 });
 
 test('the network inventory matches the source; a change to it is made on purpose', async () => {

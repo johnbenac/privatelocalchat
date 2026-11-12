@@ -1,13 +1,15 @@
 # Public site: Help, About, Privacy, Updates
 
+> **Since split stage 5** these pages are the *site layer* of privatelocal.chat: they live in a private repository, and the build reads them from a site directory (`docs/SITE-LAYER.md`). The paths below are relative to that directory. The app repository keeps the generator and a neutral Help and About (`run-kit/`).
+
 Four static documents served from the product domain, with a sitemap, a robots file and an RSS feed. They need no model code and no JavaScript to read.
 
 | Route | Source | Notes |
 |---|---|---|
-| `/help/` | `help/index.html` | Start guide, FAQ (published word for word), troubleshooting, known issues, contact, community (only when configured), share panel |
-| `/about/` | `about/index.html` | Introduction, examples, ownership, source, install, share panel, share resources, demonstration screenshot |
-| `/privacy/` | `privacy/index.html` | Written from the deployed code and hosting; shows its last-reviewed date |
-| `/updates/` | `updates/index.html` + `updates/entries.json` | Release notes and known-issue summary; feed at `/updates/rss.xml` |
+| `/help/` | `pages/help/index.html` | Start guide, FAQ (published word for word), troubleshooting, known issues, contact, community (only when configured), share panel |
+| `/about/` | `pages/about/index.html` | Introduction, examples, ownership, source, install, share panel, share resources, demonstration screenshot |
+| `/privacy/` | `pages/privacy/index.html` | Written from the deployed code and hosting; shows its last-reviewed date |
+| `/updates/` | `pages/updates/index.html` + `updates/entries.json` | Release notes and known-issue summary; feed at `/updates/rss.xml` |
 | `/sitemap.xml`, `/robots.txt` | generated | Root plus the four pages; robots allows everything and names the sitemap |
 
 Shared pieces: `chat/public-pages.css` (brand tokens from `/brand/design-tokens.css`, light and dark by `prefers-color-scheme`, 44 px targets, reduced motion) and `chat/transfer/public-pages.mjs` (mounts `mountProductShare` from `chat/transfer/product-share.mjs` on Help and About; the only script on the pages). Both live in `chat/` so the build moves them into the versioned release folder like the other chat assets. Pages load no external fonts, scripts or images.

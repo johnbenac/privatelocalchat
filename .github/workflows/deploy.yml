@@ -19,14 +19,27 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci
+      # The site layer (the pages, manifests and announcements of the site, docs/SITE-LAYER.md) is a private repository on the same branch name. A read-only deploy key fetches it. If it cannot
+      # be fetched this job fails, which leaves the live site as it is: production never carries the neutral pages by accident.
+      - name: Fetch the site layer
+        uses: actions/checkout@v4
+        with:
+          repository: johnbenac/privatelocalchat-site
+          ref: ${{ github.ref_name }}
+          ssh-key: ${{ secrets.SITE_DEPLOY_KEY }}
+          path: site-layer
+          persist-credentials: false
       - name: Validate
         run: |
           npm test
           python3 -m unittest discover -s dev-tools/tests -v
+          # the tests that pin this site's own wording, from the site layer
+          APP_ROOT="$PWD" SITE_ROOT="$PWD/site-layer" node --test site-layer/tests/*.test.mjs
       - name: Build exact commit
         run: npm run build
         env:
           DEPLOY_BRANCH: ${{ github.ref_name }}
+          SITE_DIR: site-layer
       - name: Check branch has not advanced
         id: current
         env:
@@ -57,7 +70,4 @@ jobs:
           DEPLOY_SITE_URL="https://$project.pages.dev" node scripts/verify-release.mjs
           echo "### Deployed [$url]($url)" >> "$GITHUB_STEP_SUMMARY"
           echo "Commit: $GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"
-      - uses: actions/upload-artifact@v4
-        with:
-          name: site-${{ github.ref_name }}-${{ github.sha }}
-          path: dist
+      # No artifact of the built site is kept: it holds the site layer, which is not published as files, only served (docs/SITE-LAYER.md).

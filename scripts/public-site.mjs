@@ -2,14 +2,18 @@
 // Used by scripts/build.mjs, by tests/public-site.test.mjs and, as a command, to refresh the committed sources:
 //   node scripts/public-site.mjs sync     rewrites the generated regions of the source pages with the default (unconfigured) output
 //
-// The pages are plain HTML files in help/, about/, privacy/ and updates/. Parts that depend on data are wrapped in region markers,
+// The pages are plain HTML files in <site>/pages/help/, about/, privacy/ and updates/ (the site directory, docs/SITE-LAYER.md): whichever of them exist are built, and no others.
+// Parts that depend on data are wrapped in region markers,
 //   <!--plc:name--> ... <!--/plc:name-->
 // and the build replaces what is between them. The committed pages hold the unconfigured rendering, so they are complete documents
-// as they stand, and a test fails when they drift from updates/entries.json.
+// as they stand, and a test fails when they drift from the data they are generated from (the site's updates/entries.json, and content/known-issues.json).
 import {readFile, writeFile, access, mkdir} from 'node:fs/promises';
 import path from 'node:path';
+import {fileURLToPath} from 'node:url';
 
-export const SITE_ORIGIN = 'https://privatelocal.chat';
+// content/known-issues.json lives beside this script's repository, wherever the build or the sync command is run from
+const CONTENT_DIR = fileURLToPath(new URL('../content/', import.meta.url));
+
 export const REPO_URL = 'https://github.com/johnbenac/privatelocalchat';
 export const ISSUES_URL = REPO_URL + '/issues/new/choose';
 export const PAGES = Object.freeze([
@@ -18,12 +22,11 @@ export const PAGES = Object.freeze([
   {name: 'privacy', title: 'Privacy', path: '/privacy/'},
   {name: 'updates', title: 'Updates', path: '/updates/'}
 ]);
-export const CONFIG_KEYS = Object.freeze(['supportEmail', 'supportOwner', 'discussionsUrl', 'discussionsOwner', 'verifiedOn', 'demo', 'hostingLogs']);
+export const CONFIG_KEYS = Object.freeze(['supportEmail', 'supportOwner', 'discussionsUrl', 'discussionsOwner', 'verifiedOn', 'demo', 'hostingLogs', 'umbrella']);
 export const EMPTY_CONFIG = Object.freeze(Object.fromEntries(CONFIG_KEYS.map(key => [key, null])));
 
-// robots.txt. The policy served by the live site at the edge (and any content-signal rules it carries) could not be read when this was
-// written, so this keeps the plain "allow everything" policy and adds the sitemap line. The owner must compare it with the live file.
-export const ROBOTS_TXT = 'User-agent: *\nAllow: /\n\nSitemap: ' + SITE_ORIGIN + '/sitemap.xml\n';
+// robots.txt: the plain "allow everything" policy with the sitemap line. A copy that names no address of its own (no `site.url` in its manifest) writes neither robots.txt nor a sitemap.
+export const robotsTxt = origin => 'User-agent: *\nAllow: /\n\nSitemap: ' + origin + '/sitemap.xml\n';
 
 export const esc = value => String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 export const xmlEsc = esc;
@@ -54,6 +57,14 @@ export function checkSiteConfig(raw) {
   }
   if (config.verifiedOn != null && !(typeof config.verifiedOn === 'string' && isoDate.test(config.verifiedOn))) throw new Error('Site configuration verifiedOn must be a YYYY-MM-DD date');
   if (config.demo != null && typeof config.demo !== 'object') throw new Error('Site configuration demo must be an object or null');
+  // the organisation a site says it belongs to, shown as the last line of every page: { name, url }
+  if (config.umbrella != null) {
+    const u = config.umbrella;
+    if (typeof u !== 'object' || Array.isArray(u) || Object.keys(u).some(k => !['name', 'url'].includes(k))) throw new Error('Site configuration umbrella must be { name, url } or null');
+    if (typeof u.name !== 'string' || !u.name.trim() || u.name.length > 80 || /[\r\n<>]/.test(u.name)) throw new Error('Site configuration umbrella.name must be a single line of plain text');
+    let url; try { url = new URL(u.url); } catch { /* reported below */ }
+    if (!url || url.protocol !== 'https:' || url.username || url.password) throw new Error('Site configuration umbrella.url must be an https address');
+  }
   return config;
 }
 
@@ -63,7 +74,16 @@ export const clientConfig = config => ({supportEmail: config.supportEmail, suppo
 export const siteConfigScript = config => '<script>window.SITE_CONFIG=' + JSON.stringify(clientConfig(config)).replace(/</g, '\\u003c') + ';</script>';
 
 // ---- updates and known issues: one source ---------------------------------------------------------------------------------------------
-export async function loadEntries(file = 'updates/entries.json') { return checkEntries(JSON.parse(await readFile(file, 'utf8'))); }
+/**
+ * The data the pages are generated from: the announcements of the site (<siteDir>/updates/entries.json, none when the site has no such file) and the known issues of the app
+ * (content/known-issues.json, which describe the app and belong to everyone).
+ */
+export async function loadData({siteDir, contentDir = CONTENT_DIR} = {}) {
+  let entries = [];
+  if (siteDir) { try { entries = JSON.parse(await readFile(path.join(siteDir, 'updates/entries.json'), 'utf8')).entries; } catch (error) { if (error.code !== 'ENOENT') throw error; } }
+  const knownIssues = JSON.parse(await readFile(path.join(contentDir, 'known-issues.json'), 'utf8')).knownIssues;
+  return checkEntries({entries, knownIssues});
+}
 export function checkEntries(data) {
   if (!data || !Array.isArray(data.entries) || !Array.isArray(data.knownIssues)) throw new Error('entries.json needs "entries" and "knownIssues" lists');
   const ids = new Set(), issueIds = new Set(data.knownIssues.map(issue => issue.id));
@@ -132,14 +152,14 @@ export function renderKnownIssues({knownIssues}) {
 }
 
 // ---- RSS ---------------------------------------------------------------------------------------------------------------------------------
-export function renderRss({entries}) {
+export function renderRss({entries}, origin) {
   const newest = entries[0].date;
   const items = entries.map(entry => {
     const text = entry.summary + (entry.points.length ? ' ' + entry.points.join(' ') : '');
     return '    <item>\n'
       + '      <title>' + xmlEsc(entry.title) + '</title>\n'
-      + '      <link>' + SITE_ORIGIN + '/updates/#' + xmlEsc(entry.id) + '</link>\n'
-      + '      <guid isPermaLink="true">' + SITE_ORIGIN + '/updates/#' + xmlEsc(entry.id) + '</guid>\n'
+      + '      <link>' + origin + '/updates/#' + xmlEsc(entry.id) + '</link>\n'
+      + '      <guid isPermaLink="true">' + origin + '/updates/#' + xmlEsc(entry.id) + '</guid>\n'
       + '      <pubDate>' + rfc822(entry.date) + '</pubDate>\n'
       + '      <description>' + xmlEsc(releaseText(entry) + '. ' + text) + '</description>\n'
       + '    </item>\n';
@@ -148,11 +168,11 @@ export function renderRss({entries}) {
     + '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">\n'
     + '  <channel>\n'
     + '    <title>Private Local Chat updates</title>\n'
-    + '    <link>' + SITE_ORIGIN + '/updates/</link>\n'
+    + '    <link>' + origin + '/updates/</link>\n'
     + '    <description>Dated, user-readable notes about what changed in Private Local Chat.</description>\n'
     + '    <language>en</language>\n'
     + '    <lastBuildDate>' + rfc822(newest) + '</lastBuildDate>\n'
-    + '    <atom:link href="' + SITE_ORIGIN + '/updates/rss.xml" rel="self" type="application/rss+xml"/>\n'
+    + '    <atom:link href="' + origin + '/updates/rss.xml" rel="self" type="application/rss+xml"/>\n'
     + items
     + '  </channel>\n'
     + '</rss>\n';
@@ -167,15 +187,15 @@ export function renderSitemap(urls) {
 export const pageLastUpdated = (html, fallback) => /class="last-updated" datetime="(\d{4}-\d{2}-\d{2})"/.exec(html)?.[1] || fallback;
 
 // ---- regions ------------------------------------------------------------------------------------------------------------------------------
-function navList(page, config, prefix) {
-  const items = PAGES.map(p => '<li><a href="' + p.path + '"' + (p.name === page ? ' aria-current="page"' : '') + '>' + p.title + '</a></li>');
+function navList(page, config, prefix, pages = PAGES) {
+  const items = pages.map(p => '<li><a href="' + p.path + '"' + (p.name === page ? ' aria-current="page"' : '') + '>' + p.title + '</a></li>');
   if (config.discussionsUrl) items.push('<li><a href="/help/#community">Community</a></li>');
   return '<ul class="' + prefix + '">\n' + items.map(i => '  ' + i + '\n').join('') + '</ul>';
 }
 
 const REGIONS = {
-  'site-nav': ({page, config}) => navList(page, config, 'site-nav-list'),
-  'footer-nav': ({page, config}) => navList(page, config, 'footer-nav-list'),
+  'site-nav': ({page, config, pages}) => navList(page, config, 'site-nav-list', pages),
+  'footer-nav': ({page, config, pages}) => navList(page, config, 'footer-nav-list', pages),
   'toc-community': ({config}) => config.discussionsUrl ? '<li><a href="#community">Community</a></li>' : '',
   'contact-email': ({config}) => {
     if (!config.supportEmail) return '';
@@ -197,7 +217,9 @@ const REGIONS = {
   },
   'about-community': ({config}) => config.discussionsUrl ? '<p>Questions, tips and ideas are welcome in the <a href="/help/#community">project community</a>.</p>' : '',
   // The licence line every page ends with: source, the GPL text and the notices are all served from this site as well as from GitHub.
-  'footer-source': () => '<p><a href="/">Open Private Local Chat</a> &middot; <a href="' + REPO_URL + '" target="_blank" rel="noopener">Source on GitHub</a> (GNU General Public License, version 3) &middot; <a href="/LICENSE">Licence</a> &middot; <a href="/THIRD-PARTY-NOTICES.md">Notices</a></p>\n<p>Private Local Chat is part of <a href="https://aiofourown.com/">AI of Our Own</a>.</p>',
+  // the licence line every page ends with, and, only when the site's configuration names one, the organisation it belongs to
+  'footer-source': ({config}) => '<p><a href="/">Open Private Local Chat</a> &middot; <a href="' + REPO_URL + '" target="_blank" rel="noopener">Source on GitHub</a> (GNU General Public License, version 3) &middot; <a href="/LICENSE">Licence</a> &middot; <a href="/THIRD-PARTY-NOTICES.md">Notices</a></p>'
+    + (config.umbrella ? '\n<p>Private Local Chat is part of <a href="' + esc(config.umbrella.url) + '">' + esc(config.umbrella.name) + '</a>.</p>' : ''),
   'licence-source': () => '<section id="licence" aria-labelledby="licence-title">\n'
     + '  <h2 id="licence-title">Licence and source</h2>\n'
     + '  <p class="prose">Private Local Chat is released under the <a href="/LICENSE">GNU General Public License, version 3</a> (GPL-3.0). The complete corresponding source is the GitHub repository <a href="' + REPO_URL + '" target="_blank" rel="noopener">johnbenac/privatelocalchat</a>. The optional voice program is bundled from open-source packages and can be rebuilt from the scripts in <code>ops/voice</code> in that repository, as described in <code>docs/VOICE-RUNTIME.md</code>. It contains eSpeak NG, whose source is at <a href="https://github.com/espeak-ng/espeak-ng" target="_blank" rel="noopener">https://github.com/espeak-ng/espeak-ng</a>. The <a href="/THIRD-PARTY-NOTICES.md">third-party notices</a> list every bundled component, its licence and its source.</p>\n'
@@ -206,16 +228,16 @@ const REGIONS = {
   'updates-list': ({data}) => renderUpdatesList(data),
   'known-issues': ({data}) => renderKnownIssues(data),
   'known-issues-summary': ({data}) => renderIssueSummary(data),
-  'last-updated': ({data}) => '<p class="page-meta">Last updated: <time class="last-updated" datetime="' + data.entries[0].date + '">' + data.entries[0].date + '</time></p>'
+  'last-updated': ({data}) => { const date = data.entries[0]?.date ?? data.knownIssues.map(i => i.verified).sort().at(-1); return '<p class="page-meta">Last updated: <time class="last-updated" datetime="' + date + '">' + date + '</time></p>'; }
 };
 const REGION = /<!--plc:([a-z-]+)-->([\s\S]*?)<!--\/plc:\1-->/g;
 
 /** Fills the regions of one page. Throws on a region nobody renders, so a typo cannot silently leave a page empty. */
-export function renderPage(page, source, {config = EMPTY_CONFIG, data}) {
+export function renderPage(page, source, {config = EMPTY_CONFIG, data, pages = PAGES}) {
   return source.replace(REGION, (_, name) => {
     const render = REGIONS[name];
     if (!render) throw new Error('Unknown region "' + name + '" in the ' + page + ' page');
-    const body = render({page, config, data});
+    const body = render({page, config, data, pages});
     return '<!--plc:' + name + '-->' + (body ? '\n' + body + '\n' : '') + '<!--/plc:' + name + '-->';
   });
 }
@@ -230,32 +252,48 @@ export async function assertAssetsExist(html, outDir, label) {
   }
 }
 
-/** Everything the build adds for the public site. Returns the sitemap entries. */
-export async function buildPublicSite({root = process.cwd(), outDir, releasePath, config, rootLastmod}) {
-  const data = await loadEntries(path.join(root, 'updates/entries.json'));
-  const urls = [{loc: SITE_ORIGIN + '/', lastmod: rootLastmod}];
+/** The pages of the site directory that exist, in the fixed order. */
+export async function pagesPresent(siteDir) {
+  const found = [];
+  for (const page of PAGES) { try { await access(path.join(siteDir, 'pages', page.name, 'index.html')); found.push(page); } catch { /* this site has no such page */ } }
+  return found;
+}
+
+/**
+ * Everything the build adds for the public site, from a site directory. `origin` is the public address of the site (its manifest's `site.url`, without the trailing slash) or null:
+ * without it there is no sitemap, no robots.txt and no feed. Returns the sitemap entries.
+ */
+export async function buildPublicSite({siteDir, outDir, releasePath, config, rootLastmod, origin = null, contentDir = CONTENT_DIR}) {
+  const pages = await pagesPresent(siteDir);
+  const data = await loadData({siteDir, contentDir});
+  const urls = origin ? [{loc: origin + '/', lastmod: rootLastmod}] : [];
   const written = [];
-  for (const page of PAGES) await mkdir(path.join(outDir, page.name), {recursive: true});
-  await writeFile(path.join(outDir, 'updates/rss.xml'), renderRss(data));
-  for (const page of PAGES) {
-    const source = await readFile(path.join(root, page.name, 'index.html'), 'utf8');
-    const html = releaseRewrite(renderPage(page.name, source, {config, data}), releasePath);
+  for (const page of pages) await mkdir(path.join(outDir, page.name), {recursive: true});
+  const hasUpdates = pages.some(p => p.name === 'updates') && data.entries.length > 0;
+  if (hasUpdates && origin) { await mkdir(path.join(outDir, 'updates'), {recursive: true}); await writeFile(path.join(outDir, 'updates/rss.xml'), renderRss(data, origin)); }
+  for (const page of pages) {
+    const source = await readFile(path.join(siteDir, 'pages', page.name, 'index.html'), 'utf8');
+    const html = releaseRewrite(renderPage(page.name, source, {config, data, pages}), releasePath);
     await assertAssetsExist(html, outDir, page.path);
     await writeFile(path.join(outDir, page.name, 'index.html'), html);
     written.push(page.name);
-    urls.push({loc: SITE_ORIGIN + page.path, lastmod: page.name === 'updates' ? data.entries[0].date : pageLastUpdated(html, rootLastmod)});
+    if (origin) urls.push({loc: origin + page.path, lastmod: page.name === 'updates' ? data.entries[0].date : pageLastUpdated(html, rootLastmod)});
   }
-  await writeFile(path.join(outDir, 'sitemap.xml'), renderSitemap(urls));
-  await writeFile(path.join(outDir, 'robots.txt'), ROBOTS_TXT);
+  if (origin) { await writeFile(path.join(outDir, 'sitemap.xml'), renderSitemap(urls)); await writeFile(path.join(outDir, 'robots.txt'), robotsTxt(origin)); }
   return {urls, pages: written};
 }
 
 // ---- command ------------------------------------------------------------------------------------------------------------------------------
+//   node scripts/public-site.mjs sync [site directory]   rewrites the generated regions of that site's pages (default: run-kit) with the site's own configuration
 if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(import.meta.url).pathname) && process.argv[2] === 'sync') {
-  const data = await loadEntries();
-  for (const page of PAGES) {
-    const file = page.name + '/index.html';
-    await writeFile(file, renderPage(page.name, await readFile(file, 'utf8'), {config: EMPTY_CONFIG, data}));
+  const siteDir = path.resolve(process.argv[3] || 'run-kit');
+  const pages = await pagesPresent(siteDir);
+  const data = await loadData({siteDir});
+  // the committed regions hold the rendering with the site's own configuration (none for a site that has no site-config.json, as in run-kit/)
+  const config = await access(path.join(siteDir, 'site-config.json')).then(() => loadSiteConfig(path.join(siteDir, 'site-config.json')), () => EMPTY_CONFIG);
+  for (const page of pages) {
+    const file = path.join(siteDir, 'pages', page.name, 'index.html');
+    await writeFile(file, renderPage(page.name, await readFile(file, 'utf8'), {config, data, pages}));
     console.log('synced ' + file);
   }
 }

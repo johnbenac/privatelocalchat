@@ -7,6 +7,7 @@ import {execFileSync} from 'node:child_process';
 import {renameSync,rmSync} from 'node:fs';
 const A='a'.repeat(40),B='b'.repeat(40),C='c'.repeat(40);
 process.env.GITHUB_SHA=A;
+process.env.SITE_DIR??='tests/fixtures/site'; // a site that has an Updates page, so the notice links to what changed
 const {launch,assert}=await import('./harness.mjs');
 const ok=n=>console.log('PASS '+n);
 const h=await launch({port:18501,serviceWorkers:'allow'});
