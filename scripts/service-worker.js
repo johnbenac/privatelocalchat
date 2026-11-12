@@ -67,7 +67,7 @@ self.addEventListener('fetch',event=>{
  if(event.request.method!=='GET'||url.origin!==location.origin)return;
  event.respondWith(normalResponse(event,url));
 });
-const PUBLIC_PAGES=['help','about','privacy','updates'];
+const PUBLIC_PAGES=__PUBLIC_PAGES__;
 function offlinePage(pathname){
   const page=/^\/([a-z]+)\/?(?:index\.html)?$/.exec(pathname)?.[1];
   return PUBLIC_PAGES.includes(page)?'/'+page+'/index.html':'/index.html';

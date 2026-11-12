@@ -2,6 +2,7 @@
  "format": "plc-snapshot/1",
  "target": "runkit",
  "environment": {
+  "TARGET": "runkit",
   "GITHUB_SHA": "0000000000000000000000000000000000000000",
   "DEPLOY_BRANCH": "main",
   "SOURCE_DATE_EPOCH": "0",
@@ -98,8 +99,8 @@
    "sha256": "04b05d4a150448453450721451e58769b53b3ea4a9d9bf51321ce8159c667f8d"
   },
   "index.html": {
-   "bytes": 79469,
-   "sha256": "79f9542cc1ba550b171aef6c2dbd952da08ff155f605f9f9e7f9c56a86211d66"
+   "bytes": 79466,
+   "sha256": "9c82e79cc0e822df77834bfc2b127747efd4753d8d242352ebb8c6197a6838b1"
   },
   "manifest.webmanifest": {
    "bytes": 633,
@@ -806,12 +807,12 @@
    "sha256": "802e46c9e6bf5a295ed08ff9debdd12d3d5c3b6f16d898ffac0ed6a7b40b06f4"
   },
   "sw.js": {
-   "bytes": 20179,
-   "sha256": "c54b28e96764d5d655b379233441fd396f0e4f11cf055214b7338474e82c39a4"
+   "bytes": 20159,
+   "sha256": "15810af984b5b3a5fe4e5b788d47706c25be9cf3d87960131a224a240b57e508"
   },
   "version.json": {
-   "bytes": 173,
-   "sha256": "35b266f4c7e970fe56a0c4f5a57e77ce392086f1e49859c29ec1d780bed634b0"
+   "bytes": 170,
+   "sha256": "cb9cdf3433310d0607d0104b8307d42b6206117498f3f0f34615fb6fda4f60ed"
   }
  }
 }

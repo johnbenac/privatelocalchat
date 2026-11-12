@@ -13,7 +13,7 @@ function cachesFixture(){
 function worker(caches){
  const handlers=new Map(),network=[];
  const self={addEventListener(type,fn){if(!handlers.has(type))handlers.set(type,[]);handlers.get(type).push(fn);}};
- const source=template.replace('__CACHE_NAME__','"plc-shell-fixture"').replace('__DEVELOPMENT_NATIVE__','true').replace('__SHELL_FILES__','[]').replace('__DEV_OFFLINE_FAULT__',hook);
+ const source=template.replace('__CACHE_NAME__','"plc-shell-fixture"').replace('__DEVELOPMENT_NATIVE__','true').replace('__SHELL_FILES__','[]').replace('__PUBLIC_PAGES__','[]').replace('__DEV_OFFLINE_FAULT__',hook);
  vm.runInNewContext(source,{self,caches,location:new URL(origin),URL,Response,fetch:async request=>{network.push(request.url);return new Response('network');}});
  return {
   network,

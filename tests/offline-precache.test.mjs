@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {execFileSync} from 'node:child_process';
 import {mkdir,mkdtemp,readFile,readdir,rm} from 'node:fs/promises';
 import path from 'node:path';
+import {devSite} from './helpers/dev-site.mjs';
 
 // Offline plan 0.1: everything the app can load is saved by the service worker. A file the worker leaves out fails only
 // when someone opens the app cold with no connection, so no other test sees it. This builds the app and checks the saved list
@@ -20,7 +21,7 @@ for(const branch of ['main','dev']){
   await mkdir(path.join(root,'work'),{recursive:true});
   const out=await mkdtemp(path.join(root,'work','precache-'));
   try{
-   execFileSync('node',['scripts/build.mjs'],{cwd:root,stdio:'pipe',env:{...process.env,DEPLOY_BRANCH:branch,BUILD_OUT_DIR:out}});
+   execFileSync('node',['scripts/build.mjs'],{cwd:root,stdio:'pipe',env:{...process.env,DEPLOY_BRANCH:branch,BUILD_OUT_DIR:out,...devSite(branch)}});
    const sw=await readFile(path.join(out,'sw.js'),'utf8');
    const list=JSON.parse(/const SHELL=(\[.*?\])\.filter/s.exec(sw)[1]);
    const saved=new Set(list);

@@ -41,7 +41,7 @@ test('diffManifests reports added, removed and changed files and honours allow g
 });
 
 test('the committed baselines are well-formed manifests, one per target', () => {
-  for (const target of ['runkit', 'site']) {
+  for (const target of ['app', 'runkit', 'site']) {
     const baseline = JSON.parse(fs.readFileSync('docs/evidence/split/' + target + '-baseline.json', 'utf8'));
     assert.equal(baseline.format, FORMAT);
     assert.equal(baseline.target, target);

@@ -193,7 +193,7 @@ test('configuration reaches the pages: the email action, the Community section a
 test('the service worker opens each public page offline and the app for anything else',async()=>{
  const worker=await readFile('scripts/service-worker.js','utf8');
  const code=/const PUBLIC_PAGES=[\s\S]*?\n}\n/.exec(worker)[0];
- const offlinePage=new Function(code+'return offlinePage;')();
+ const offlinePage=new Function(code.replace('__PUBLIC_PAGES__',"['help','about','privacy','updates']")+'return offlinePage;')();
  for(const page of ['help','about','privacy','updates'])for(const form of ['/'+page,'/'+page+'/','/'+page+'/index.html'])assert.equal(offlinePage(form),'/'+page+'/index.html');
  for(const other of ['/','/index.html','/unknown','/unknown/','/helpful/','/help/extra/','/updates/rss.xml'])assert.equal(offlinePage(other),'/index.html',other);
 });

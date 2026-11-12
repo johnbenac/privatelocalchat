@@ -13,7 +13,7 @@ if (!suites.length) { console.error("no suite matches: " + wanted.join(", ") + "
 const results = [];
 for (const f of suites) {
   console.log("== " + f);
-  const r = spawnSync("node", [dir + f], { stdio: "inherit", env: { ...process.env, PLC_E2E_BRANCH: process.env.PLC_E2E_BRANCH || "dev" } });
+  const r = spawnSync("node", [dir + f], { stdio: "inherit", env: { ...process.env, PLC_E2E_BRANCH: process.env.PLC_E2E_BRANCH || "dev" } }); // dev builds carry our development tooling, which belongs to the site target: the suites build it with the fixture site (tests/helpers/dev-site.mjs)
   results.push([f, r.status === 0]);
 }
 console.log("\n" + results.map(([f, ok]) => (ok ? "ok   " : "FAIL ") + f).join("\n"));

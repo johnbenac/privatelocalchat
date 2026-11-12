@@ -27,8 +27,13 @@ const newServiceWorker=async sha=>{ // the browser's own check for a new worker,
 };
 const noticeText=()=>page.locator('#updateNotice').innerText();
 let navigations=0;
+// what the reload does, with times, so a slow one in CI leaves evidence: the main frame's requests and the worker's state (it has failed 3 times in CI with a 30 s wait here, and never locally)
+const trail=[],t0=Date.now(),at=()=>String(Date.now()-t0).padStart(6)+' ms ';
 try{
   await ready();
+  page.on('request',r=>{if(r.isNavigationRequest())trail.push(at()+'request  '+r.method()+' '+r.url().replace(origin,''));});
+  page.on('response',r=>{if(r.request().isNavigationRequest())trail.push(at()+'response '+r.status()+' '+r.url().replace(origin,'')+(r.fromServiceWorker()?' (from the worker)':''));});
+  page.on('requestfailed',r=>{if(r.isNavigationRequest())trail.push(at()+'failed   '+r.url().replace(origin,'')+' '+r.failure()?.errorText);});
   page.on('framenavigated',f=>{if(f===page.mainFrame())navigations++;});
   await page.waitForFunction(async c=>Boolean(navigator.serviceWorker.controller)&&(await caches.keys()).includes('plc-shell-'+c),A,{timeout:30000});
   assert((await page.evaluate(()=>window.APP_BUILD.commit))===A,'the tab runs build A');
@@ -99,7 +104,10 @@ try{
   await page.fill('#messageInput','carry this over');
   assert(await page.inputValue('#messageInput')==='carry this over','the text is in the composer');
   await page.click('#updateNotice button:text-is("Reload")');
-  await page.click('#updateNotice button:text-is("Reload anyway")');
+  trail.push(at()+'click    Reload anyway');
+  await page.click('#updateNotice button:text-is("Reload anyway")',{noWaitAfter:true}); // the reload is waited for below, with a longer allowance and its trail
+  await page.waitForFunction(c=>window.APP_BUILD&&window.APP_BUILD.commit===c,C,{timeout:90000});
+  trail.push(at()+'the new build is running');
   await ready();
   assert((await page.evaluate(()=>window.APP_BUILD.commit))===C,'after the reload the tab runs build C');
   assert(await page.inputValue('#messageInput')==='carry this over','the unsent message came back');
@@ -111,6 +119,7 @@ try{
   console.log('ALL PASS');
 }catch(error){
   console.error('FAIL '+(error.stack||error));
+  console.error('What the page did, oldest first:\n'+trail.join('\n')+'\nworker: '+await page.evaluate(async()=>{const r=await navigator.serviceWorker.getRegistration();return JSON.stringify({active:r?.active?.state,waiting:r?.waiting?.state,installing:r?.installing?.state,controller:Boolean(navigator.serviceWorker.controller),url:location.href});}).catch(e=>'unreadable: '+e.message));
   await page.screenshot({path:'/tmp/update-midsession-failure.png'}).catch(()=>{});
   process.exitCode=1;
 }finally{

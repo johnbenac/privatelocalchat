@@ -4,10 +4,11 @@ import {createRequire} from 'node:module';
 const {chromium}=createRequire(import.meta.url)('playwright');
 import {startFakeApi} from './fake-api.mjs';
 import {setTimeout as sleep} from 'node:timers/promises';
+import {devSite} from '../helpers/dev-site.mjs';
 const PORT_OFFSET=Number(process.env.E2E_PORT_OFFSET||0); // lets several suites run side by side on one machine
 export async function launch({build=true,port:basePort=18271,viewport={width:1280,height:800},storage={},init=null,touch=false,serviceWorkers='block',launchArgs=[]}={}){
  const port=basePort+PORT_OFFSET;
- if(build)execFileSync('node',['scripts/build.mjs'],{stdio:'pipe',env:{...process.env,DEPLOY_BRANCH:process.env.PLC_E2E_BRANCH||'local'}});
+ if(build)execFileSync('node',['scripts/build.mjs'],{stdio:'pipe',env:{...process.env,DEPLOY_BRANCH:process.env.PLC_E2E_BRANCH||'local',...devSite(process.env.PLC_E2E_BRANCH)}});
  const web=spawn('node',['scripts/serve.mjs'],{env:{...process.env,PORT:String(port)},stdio:'pipe'});
  const api=await startFakeApi();
  for(let i=0;i<50;i++){try{if((await fetch(`http://127.0.0.1:${port}/`)).ok)break;}catch{}await sleep(100);}

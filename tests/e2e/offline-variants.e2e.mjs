@@ -6,6 +6,7 @@
 import {execFileSync} from 'node:child_process';
 import {renameSync,rmSync} from 'node:fs';
 import {launch,assert} from './harness.mjs';
+import {devSite} from '../helpers/dev-site.mjs';
 
 const ok=n=>console.log('ok   '+n);
 const h=await launch({port:18401,serviceWorkers:'allow'});
@@ -18,7 +19,7 @@ try{
  const before=await page.evaluate(()=>window.APP_BUILD.commit);
  await page.evaluate(()=>window.localModels.setMode('local'));
  // built beside the live site and swapped in at once: while dist/ is rebuilt in place the server answers 404 for the worker script, and a browser unregisters a worker whose script is missing
- execFileSync('node',['scripts/build.mjs'],{stdio:'pipe',env:{...process.env,DEPLOY_BRANCH:process.env.PLC_E2E_BRANCH||'local',GITHUB_SHA:'b'.repeat(40),BUILD_OUT_DIR:'dist-next'}});
+ execFileSync('node',['scripts/build.mjs'],{stdio:'pipe',env:{...process.env,DEPLOY_BRANCH:process.env.PLC_E2E_BRANCH||'local',...devSite(process.env.PLC_E2E_BRANCH),GITHUB_SHA:'b'.repeat(40),BUILD_OUT_DIR:'dist-next'}});
  renameSync('dist','dist-old');renameSync('dist-next','dist');rmSync('dist-old',{recursive:true,force:true});
  await page.evaluate(async()=>{const reg=await navigator.serviceWorker.getRegistration();await reg.update();});
  await page.waitForFunction(()=>window.localModels.offlineApp.checked&&window.localModels.offlineApp.current===false,null,{timeout:60000});

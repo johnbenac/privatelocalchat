@@ -4,7 +4,7 @@ The app is open source. The site that serves it at privatelocal.chat is not part
 
 ## The site directory
 
-A build takes a site directory (`SITE_DIR`, a folder; unset means `run-kit/`, the neutral set that ships here):
+A build takes a site directory (`SITE_DIR`, a folder; unset means `run-kit/`, the neutral set that ships here). The three kinds of build, `TARGET=app | runkit | site`, are described in `docs/RUN-IT.md`; `SITE_DIR` means the `site` target:
 
 ```
 <site>/

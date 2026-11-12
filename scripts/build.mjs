@@ -6,22 +6,25 @@ import {createHash} from 'node:crypto';
 import {buildPublicSite,loadSiteConfig,checkSiteConfig,siteConfigScript} from './public-site.mjs';
 import {checkSiteJson,normalizedSiteLinks} from '../chat/site/site-links.mjs';
 import {buildAppConfig} from '../runtime/config/app-config.mjs';
+import {resolveTarget} from './targets.mjs';
+import {toPagesHeaders} from './headers.mjs';
 const LICENCE_FILES=['LICENSE','THIRD-PARTY-NOTICES.md'];
 const root=process.cwd(), out=path.resolve(root,process.env.BUILD_OUT_DIR||'dist'); // BUILD_OUT_DIR is for tests that must not touch dist/
 if(out===root||!out.startsWith(root+path.sep))throw new Error('The build output must be a folder inside the repository');
 // Release configuration (support address, discussion space, ...). Nothing is assumed: every value is null until the owner verifies it.
-// The site directory (docs/SITE-LAYER.md): the pages, manifests and announcements of the site that serves this build. SITE_DIR names it; unset means ./run-kit, the neutral pages
-// that ship with the app, so a clone, a fork or a contributor's machine builds a complete app with no setup.
-const siteDir=path.resolve(root,process.env.SITE_DIR||'run-kit');
-if(!existsSync(siteDir))throw new Error('SITE_DIR names a folder that does not exist: '+(process.env.SITE_DIR||'run-kit'));
+// What this build is for (scripts/targets.mjs): the app alone, the app with the neutral pages that ship with it, or the app with a site directory (docs/SITE-LAYER.md).
+// A clone, a fork or a contributor's machine with nothing set builds the neutral pages, a complete app with no setup.
+const targetInfo=resolveTarget(process.env);
+const siteDir=targetInfo.siteDir?path.resolve(root,targetInfo.siteDir):null;
+if(siteDir&&!existsSync(siteDir))throw new Error('The site directory does not exist: '+targetInfo.siteDir);
 // facts about the operator: the site's own site-config.json, or none (every value empty, which is a valid neutral configuration)
-const siteConfigPath=process.env.SITE_CONFIG_PATH?path.resolve(root,process.env.SITE_CONFIG_PATH):path.join(siteDir,'site-config.json');
-const siteConfig=existsSync(siteConfigPath)?await loadSiteConfig(siteConfigPath):checkSiteConfig({});
+const siteConfigPath=process.env.SITE_CONFIG_PATH?path.resolve(root,process.env.SITE_CONFIG_PATH):siteDir?path.join(siteDir,'site-config.json'):null;
+const siteConfig=siteConfigPath&&existsSync(siteConfigPath)?await loadSiteConfig(siteConfigPath):checkSiteConfig({});
 // Where the pages of the site that serves this copy are (chat/site/site-links.mjs, docs/PLAN stage 3). SITE_JSON_PATH names the manifest: unset means ./site.json if it exists, empty means none, and a
 // path that does not exist is an error. A copy without a manifest links to none of our pages. The manifest is checked here, so a typo stops the build, and the page gets it validated.
 const siteJsonEnv=process.env.SITE_JSON_PATH;
-const siteJsonPath=siteJsonEnv===''?null:path.resolve(root,siteJsonEnv??path.join(siteDir,'site.json'));
-if(siteJsonEnv&&!existsSync(siteJsonPath))throw new Error('SITE_JSON_PATH names a file that does not exist: '+siteJsonEnv);
+const siteJsonPath=siteJsonEnv===''||!siteDir?null:path.resolve(root,siteJsonEnv??path.join(siteDir,'site.json'));
+if(siteJsonEnv&&siteJsonPath&&!existsSync(siteJsonPath))throw new Error('SITE_JSON_PATH names a file that does not exist: '+siteJsonEnv);
 let siteJson;
 if(siteJsonPath&&existsSync(siteJsonPath)){
  let raw;try{raw=JSON.parse(await readFile(siteJsonPath,'utf8'));}catch(error){throw new Error('The site manifest is not valid JSON: '+error.message);}
@@ -40,11 +43,11 @@ await rm(out,{recursive:true,force:true});await mkdir(out,{recursive:true});
 for(const p of ['index.html','local-models.js','local-models.css','conversation-messages.mjs','chat','runtime','brand']) await cp(p,path.join(out,p),{recursive:true});
 const pkg=JSON.parse(await readFile('package.json','utf8'));
 const commit=process.env.GITHUB_SHA || execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
-const branch=process.env.DEPLOY_BRANCH || process.env.GITHUB_REF_NAME || 'local';
+const branch=targetInfo.branch;
 // SOURCE_DATE_EPOCH (seconds) makes the build time, and the sitemap's date for the home page, reproducible; unset, they are the clock and the last commit date.
 const buildTime=()=>process.env.SOURCE_DATE_EPOCH?new Date(Number(process.env.SOURCE_DATE_EPOCH)*1000):new Date();
-const build={version:pkg.version,commit,branch,environment:branch==='main'?'production':branch==='dev'?'development':'local',builtAt:buildTime().toISOString()};
-const developmentNative=branch==='dev'?JSON.parse(await readFile('dev-tools/native-runtime/manifest.json','utf8')):null;
+const build={version:pkg.version,commit,branch,environment:targetInfo.environment,builtAt:buildTime().toISOString()};
+const developmentNative=targetInfo.devTooling?JSON.parse(await readFile('dev-tools/native-runtime/manifest.json','utf8')):null;
 if(developmentNative?.compilerControl)build.developmentRuntime={nativeBuildId:developmentNative.buildId,variant:developmentNative.compilerControl.id,wasmSha256:developmentNative.files['compat.wasm'].sha256};
 const releasePath='releases/'+commit;
 await mkdir(path.join(out,releasePath),{recursive:true});
@@ -65,7 +68,7 @@ let html=await readFile(path.join(out,'index.html'),'utf8');
 const appBuildScript='<script>window.APP_BUILD='+JSON.stringify(build)+';</script>';
 html=html.replace('<script src="/build-info.js"></script>',appBuildScript+siteConfigScript(siteConfig)+'<script>window.SITE_LINKS='+JSON.stringify(siteJson).replace(/</g,'\\u003c')+';</script><script>window.APP_CONFIG='+JSON.stringify(appConfigData).replace(/</g,'\\u003c')+';</script>');
 html=html.replace('href="/chat/page.css"','href="/'+releasePath+'/chat/page.css"').replace('href="/chat/chat.css"','href="/'+releasePath+'/chat/chat.css"').replace('href="/chat/brand.css"','href="/'+releasePath+'/chat/brand.css"').replace('href="/chat/shell.css"','href="/'+releasePath+'/chat/shell.css"').replace('href="/local-models.css"','href="/'+releasePath+'/local-models.css"').replace('src="/local-models.js"','src="/'+releasePath+'/local-models.js"');
-if(branch==='dev') {
+if(targetInfo.devTooling) {
  const debugRuntime=path.join('dev-tools','native-runtime');
  const native=developmentNative;
  if(native.compilerControl){
@@ -114,13 +117,13 @@ await writeFile(path.join(out,'index.html'),html);
 // scripts/public-site.mjs: regions are filled from the site's site-config.json and updates/entries.json and from content/known-issues.json, /chat/... references are rewritten to this
 // release's folder and every stylesheet, script and image a page names must exist in the output. See docs/PUBLIC-SITE.md.
 const rootLastmod=process.env.SOURCE_DATE_EPOCH?buildTime().toISOString().slice(0,10):execFileSync('git',['show','-s','--format=%cs','HEAD'],{encoding:'utf8'}).trim();
-await buildPublicSite({siteDir,outDir:out,releasePath,config:siteConfig,rootLastmod,origin:siteJson.site?siteJson.site.url.replace(/\/$/,''):null});
+const publicSite=siteDir?await buildPublicSite({siteDir,outDir:out,releasePath,config:siteConfig,rootLastmod,origin:siteJson.site?siteJson.site.url.replace(/\/$/,''):null}):{urls:[],pages:[]}; // the app target has no pages
 // The licence documents are published at /LICENSE and /THIRD-PARTY-NOTICES.md (GPL text and source offer; see docs/PUBLIC-SITE.md).
 for(const file of LICENCE_FILES)await cp(file,path.join(out,file));
 await writeFile(path.join(out,'404.html'),'<!doctype html><title>Not found</title><h1>Page not found</h1><a href="/">Open Private Local Chat</a>');
 await writeFile(path.join(out,'version.json'),JSON.stringify(build,null,2)+'\n');
 await writeFile(path.join(out,'manifest.webmanifest'),JSON.stringify({name:'PrivateLocal.Chat',short_name:'PrivateLocal',description:'Free AI chat on your device. Choose a supported model, keep on-device conversations local, or connect a provider when you choose.',start_url:'/',scope:'/',display:'standalone',background_color:'#F6F8FB',theme_color:'#F6F8FB',categories:['productivity','utilities'],icons:[{src:'/brand/app-icon-192.png',sizes:'192x192',type:'image/png',purpose:'any'},{src:'/brand/app-icon-512.png',sizes:'512x512',type:'image/png',purpose:'any'},{src:'/brand/app-icon-maskable-512.png',sizes:'512x512',type:'image/png',purpose:'maskable'}]}));
-await writeFile(path.join(out,'_headers'),'/*\n  Cross-Origin-Opener-Policy: same-origin\n  Cross-Origin-Embedder-Policy: require-corp\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n\n/sw.js\n  Cache-Control: no-cache\n\n/build-info.js\n  Cache-Control: no-cache\n\n/version.json\n  Cache-Control: no-cache\n\n/sitemap.xml\n  Cache-Control: public, max-age=3600\n\n/updates/rss.xml\n  Cache-Control: public, max-age=3600\n\n/LICENSE\n  Content-Type: text/plain; charset=utf-8\n  Cache-Control: public, max-age=3600\n\n/THIRD-PARTY-NOTICES.md\n  Content-Type: text/markdown; charset=utf-8\n  Cache-Control: public, max-age=3600\n');
+await writeFile(path.join(out,'_headers'),toPagesHeaders()); // the rules are in scripts/headers.mjs, and scripts/serve.mjs applies this file
 // Pages control files at the root (_headers, _worker.js, _redirects) are not part of the app. Matched by exact name: a file such as
 // vendor/noble-hashes/_md.js is an ordinary module that the app imports and must be saved for offline use.
 // What is in this release's folder, with a checksum for each file. A later deploy uses it to keep this folder available while tabs that started on this build are still open
@@ -139,7 +142,8 @@ const shell=[];
 async function walk(dir){for(const ent of await readdir(dir,{withFileTypes:true})){const p=path.join(dir,ent.name);if(ent.isDirectory())await walk(p);else if(!(dir===out&&NOT_SHELL_ROOT_FILES.includes(ent.name))&&!(dir===out&&LICENCE_FILES.includes(ent.name))&&!/\/chat\/vendor\/voice\//.test('/'+path.relative(out,p).split(path.sep).join('/')))shell.push('/'+path.relative(out,p).split(path.sep).join('/'));}}
 await walk(out);
 let template=await readFile('scripts/service-worker.js','utf8');
-if(branch!=='dev')template=template.replace(/\/\* DEV_DIAGNOSTICS_START \*\/[\s\S]*?\/\* DEV_DIAGNOSTICS_END \*\//g,'');
-template=template.replace('__DEV_OFFLINE_FAULT__',branch==='dev'?await readFile('dev-tools/offline-fault-sw.js','utf8'):'');
-await writeFile(path.join(out,'sw.js'),template.replace('__CACHE_NAME__',JSON.stringify('plc-shell-'+commit)).replace('__SHELL_FILES__',JSON.stringify(shell)).replace('__DEVELOPMENT_NATIVE__',JSON.stringify(branch==='dev')));
+if(!targetInfo.devTooling)template=template.replace(/\/\* DEV_DIAGNOSTICS_START \*\/[\s\S]*?\/\* DEV_DIAGNOSTICS_END \*\//g,'');
+template=template.replace('__DEV_OFFLINE_FAULT__',targetInfo.devTooling?await readFile('dev-tools/offline-fault-sw.js','utf8'):'');
+// the service worker is told which pages this build has: offline, a path of a page it does not have opens the app
+await writeFile(path.join(out,'sw.js'),template.replace('__CACHE_NAME__',JSON.stringify('plc-shell-'+commit)).replace('__SHELL_FILES__',JSON.stringify(shell)).replace('__PUBLIC_PAGES__','['+publicSite.pages.map(page=>"'"+page+"'").join(',')+']').replace('__DEVELOPMENT_NATIVE__',JSON.stringify(targetInfo.devTooling)));
 console.log(JSON.stringify({...build,files:shell.length}));
