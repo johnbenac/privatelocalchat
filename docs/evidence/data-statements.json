@@ -251,12 +251,12 @@
       "kind": "ui-note",
       "file": "chat/shell/shell.mjs",
       "pieces": [
-        "encrypt everything this app saves on this device"
+        "encrypt your chats, documents, memory and settings on this device"
       ],
       "section": "3",
-      "says": "The lock can encrypt everything the app saves on the device.",
-      "verified": "partly",
-      "note": "The vault covers the user, setting and transient classes; the plain keys, the device stores and downloaded model files stay readable (storage-inventory.json). 'Everything' is stronger than that. Not changed."
+      "says": "The lock can encrypt your chats, documents, memory and settings on the device.",
+      "verified": "corrected",
+      "note": "The vault covers the user, setting and transient classes; the plain keys, the device stores and downloaded model files stay readable (storage-inventory.json). The sentence said 'everything this app saves'; it now names what is covered."
     },
     {
       "id": "lock.unlock-note",
