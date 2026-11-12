@@ -16,7 +16,7 @@ export const unlockScreen = {
       const screen = h("div", "lock-screen"); screen.id = "lockScreen"; screen.setAttribute("role", "dialog"); screen.setAttribute("aria-modal", "true"); screen.setAttribute("aria-label", "Unlock Private Local Chat");
       const form = h("form"); const icon = h("div", "lock-icon"); icon.appendChild(createPadlock());
       const title = h("h2", null, "Private Local Chat is locked");
-      const note = h("p", "muted lock-note", "Everything on this device is encrypted. Type your passphrase to open it."); 
+      const note = h("p", "muted lock-note", "Your chats, documents, memory and settings are encrypted. Type your passphrase to open them."); 
       const user = h("input", "sr-only"); user.type = "text"; user.name = "username"; user.autocomplete = "username"; user.value = "Private Local Chat"; user.tabIndex = -1; user.setAttribute("aria-hidden", "true"); user.readOnly = true; // gives the OS password manager a fixed name, so it does not ask the person for one
       const label = h("label", "sr-only", "Passphrase"); label.htmlFor = "unlockPass";
       const pass = h("input"); pass.type = "password"; pass.id = "unlockPass"; pass.autocomplete = "current-password"; pass.placeholder = "Passphrase"; pass.autofocus = true;
