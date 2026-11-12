@@ -2,6 +2,7 @@
  "format": "plc-snapshot/1",
  "target": "site",
  "environment": {
+  "TARGET": "site",
   "GITHUB_SHA": "0000000000000000000000000000000000000000",
   "DEPLOY_BRANCH": "main",
   "SOURCE_DATE_EPOCH": "0"

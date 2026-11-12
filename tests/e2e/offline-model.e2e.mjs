@@ -12,10 +12,11 @@ import {createRequire} from 'node:module';
 import {mkdtemp,mkdir,rm,writeFile} from 'node:fs/promises';
 import path from 'node:path';
 import {setTimeout as sleep} from 'node:timers/promises';
+import {devSite} from '../helpers/dev-site.mjs';
 const {chromium}=createRequire(import.meta.url)('playwright');
 
 const root=process.cwd(),port=18341,origin=`http://127.0.0.1:${port}`,MARKER='zebra-lantern-'+Date.now().toString(36);
-execFileSync('node',['scripts/build.mjs'],{stdio:'pipe',env:{...process.env,DEPLOY_BRANCH:process.env.PLC_E2E_BRANCH||'main'}});
+execFileSync('node',['scripts/build.mjs'],{stdio:'pipe',env:{...process.env,DEPLOY_BRANCH:process.env.PLC_E2E_BRANCH||'main',...devSite(process.env.PLC_E2E_BRANCH)}});
 const web=spawn('node',['scripts/serve.mjs'],{env:{...process.env,PORT:String(port)},stdio:'pipe'});
 for(let i=0;i<50;i++){try{if((await fetch(origin+'/')).ok)break;}catch{}await sleep(100);}
 await mkdir(path.join(root,'work'),{recursive:true});

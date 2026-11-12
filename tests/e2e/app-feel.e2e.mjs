@@ -5,8 +5,9 @@ import {createRequire} from 'node:module';
 import {setTimeout as sleep} from 'node:timers/promises';
 const {webkit,devices}=createRequire(import.meta.url)('playwright');
 import {assert} from './harness.mjs';
+import {devSite} from '../helpers/dev-site.mjs';
 const ok=n=>console.log('ok   '+n);
-execFileSync('node',['scripts/build.mjs'],{stdio:'pipe',env:{...process.env,DEPLOY_BRANCH:process.env.PLC_E2E_BRANCH||'local'}});
+execFileSync('node',['scripts/build.mjs'],{stdio:'pipe',env:{...process.env,DEPLOY_BRANCH:process.env.PLC_E2E_BRANCH||'local',...devSite(process.env.PLC_E2E_BRANCH)}});
 const port=18471,origin=`http://127.0.0.1:${port}`;
 const web=spawn('node',['scripts/serve.mjs'],{env:{...process.env,PORT:String(port)},stdio:'pipe'});
 for(let i=0;i<50;i++){try{if((await fetch(origin+'/')).ok)break;}catch{}await sleep(100);}

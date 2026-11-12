@@ -31,7 +31,7 @@ test('production artefact contains no diagnostic UI, modules, receiver or disk j
  for(const f of ['LICENSE','THIRD-PARTY-NOTICES.md'])assert.equal(await readFile('dist/'+f,'utf8'),await readFile(f,'utf8'));const files=await readdir('dist');assert.ok(!files.includes('_worker.js'));assert.ok(!files.includes('_routes.json'));assert.ok(!(await readdir('dist/releases/'+build.commit)).includes('dev-tools'));
 });
 test('development artefact includes isolated diagnostics and exact-host activation',async()=>{
- execFileSync('node',['scripts/build.mjs'],{env:{...process.env,DEPLOY_BRANCH:'dev'},stdio:'pipe'});
+ execFileSync('node',['scripts/build.mjs'],{env:{...process.env,DEPLOY_BRANCH:'dev',SITE_DIR:'tests/fixtures/site'},stdio:'pipe'});
  const build=JSON.parse(await readFile('dist/version.json','utf8'));const start=await readFile('dist/releases/'+build.commit+'/dev-tools/start.js','utf8');
  const native=JSON.parse(await readFile('dev-tools/native-runtime/manifest.json','utf8'));const wasm=await readFile('dist/releases/'+build.commit+'/runtime/providers/vendor/wllama/v1q/compat.wasm');assert.equal(createHash('sha256').update(wasm).digest('hex'),native.files['compat.wasm'].sha256);assert.match(await readFile('dist/releases/'+build.commit+'/runtime/providers/catalog.mjs','utf8'),new RegExp(native.buildId));
  assert.deepEqual(build.developmentRuntime,{nativeBuildId:native.buildId,variant:native.compilerControl.id,wasmSha256:native.files['compat.wasm'].sha256});

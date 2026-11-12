@@ -5,7 +5,7 @@
 //   node scripts/snapshot.mjs diff BASELINE [CURRENT]           compare a manifest with the current build (or another manifest); the baseline names its target
 //   node scripts/snapshot.mjs compare REV [--target T]          build REV and the current tree, then show every changed file
 //
-// Targets: `runkit` is the app with the neutral pages that ship with it (anyone can build it); `site` is the app with a site directory (docs/SITE-LAYER.md) and needs SITE_DIR.
+// Targets (scripts/targets.mjs): `app` is the app alone; `runkit` is the app with the neutral pages that ship with it; anyone can build both. `site` is the app with a site directory (docs/SITE-LAYER.md) and needs SITE_DIR.
 //
 // `diff` and `compare` accept --allow GLOB (repeatable) for changes a stage intends; any other change exits 1.
 // The builds run with a fixed commit, branch and clock (SOURCE_DATE_EPOCH), so identical sources give identical manifests.
@@ -18,8 +18,9 @@ import {pathToFileURL} from 'node:url';
 export const FORMAT = 'plc-snapshot/1';
 // Each target is the environment its build runs in. `site` takes its site directory from SITE_DIR in the caller's environment, since the site layer is not part of this repository.
 export const TARGETS = {
-  runkit: {GITHUB_SHA: '0'.repeat(40), DEPLOY_BRANCH: 'main', SOURCE_DATE_EPOCH: '0', SITE_DIR: ''},
-  site: {GITHUB_SHA: '0'.repeat(40), DEPLOY_BRANCH: 'main', SOURCE_DATE_EPOCH: '0'}
+  app: {TARGET: 'app', GITHUB_SHA: '0'.repeat(40), DEPLOY_BRANCH: 'main', SOURCE_DATE_EPOCH: '0', SITE_DIR: ''},
+  runkit: {TARGET: 'runkit', GITHUB_SHA: '0'.repeat(40), DEPLOY_BRANCH: 'main', SOURCE_DATE_EPOCH: '0', SITE_DIR: ''},
+  site: {TARGET: 'site', GITHUB_SHA: '0'.repeat(40), DEPLOY_BRANCH: 'main', SOURCE_DATE_EPOCH: '0'}
 };
 
 /** Build `target` into `dir` (a folder inside the repository at `root`). */

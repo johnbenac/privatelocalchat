@@ -26,6 +26,6 @@ Open http://127.0.0.1:18171. Build output is `dist/`; it contains no credentials
 
 See [everyday chat features](docs/CHAT-FEATURES.md) for rendered answers, message controls, search, documents, memory, speech, storage and backups, and `npm run e2e` for the browser tests.
 
-See the [maintainer handoff](docs/MAINTAINER-HANDOFF.md), [operations](docs/OPERATIONS.md), [runtime provenance](docs/RUNTIMES.md), and [release acceptance](docs/ACCEPTANCE.md). How the app, the site layer and a copy you host fit together: [the site layer](docs/SITE-LAYER.md), [links to pages](docs/SITE-LINKS.md), [configuration and model sources](docs/APP-CONFIG.md), [upgrades](docs/UPGRADE-BEHAVIOUR.md), and [data](docs/DATA-COMPATIBILITY.md) and [file](docs/FILE-COMPATIBILITY.md) compatibility.
+See the [maintainer handoff](docs/MAINTAINER-HANDOFF.md), [operations](docs/OPERATIONS.md), [runtime provenance](docs/RUNTIMES.md), and [release acceptance](docs/ACCEPTANCE.md). How the app, the site layer and a copy you host fit together: [the site layer](docs/SITE-LAYER.md), [links to pages](docs/SITE-LINKS.md), [running a copy and the headers it needs](docs/RUN-IT.md), [configuration and model sources](docs/APP-CONFIG.md), [upgrades](docs/UPGRADE-BEHAVIOUR.md), and [data](docs/DATA-COMPATIBILITY.md) and [file](docs/FILE-COMPATIBILITY.md) compatibility.
 
 The [living iPhone investigation plan](docs/IPHONE-INVESTIGATION.md) records the current reliability evidence, next experiment, decision criteria, and results log. Update it as the investigation progresses.
