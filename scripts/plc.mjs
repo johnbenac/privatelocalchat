@@ -10,15 +10,18 @@ import {fileURLToPath} from 'node:url';
 const root = path.dirname(fileURLToPath(import.meta.url));
 const fail = (message) => { console.error(message); process.exit(1); };
 
+// The launcher cannot install anything itself when it cannot find the live release: the release's own serve.mjs does that.
+const damaged = (why) => `${path.join(root, 'current.json')} ${why}. Install a release again to recover: unpack a release and run "node serve.mjs --upgrade . --root ${root}" from it (docs/RUN-IT.md). The damaged file is moved aside, not deleted.`;
+
 let release = null;
 try { release = JSON.parse(readFileSync(path.join(root, 'current.json'), 'utf8')).release; }
 catch (error) {
-  if (error.code !== 'ENOENT') fail(`${path.join(root, 'current.json')} cannot be read (${error.message}). Restore it, or install a release again with --upgrade.`);
+  if (error.code !== 'ENOENT') fail(damaged(`cannot be read (${error.message})`));
 }
 if (release === null) {
   fail(`No release is installed in ${root}. Unpack a release zip, then from the unpacked folder run:\n  node serve.mjs --upgrade . --root ${root}`);
 }
-if (typeof release !== 'string' || !/^\d[0-9A-Za-z.+-]*$/.test(release)) fail('current.json does not name a release. Install a release again with --upgrade.');
+if (typeof release !== 'string' || !/^\d[0-9A-Za-z.+-]*$/.test(release)) fail(damaged('does not name a release'));
 if (process.argv.slice(2).includes('--root')) fail(`plc.mjs always works on its own folder, ${root}: leave out --root.`);
 
 const serve = path.join(root, 'releases', release, 'serve.mjs');

@@ -93,12 +93,22 @@ export function parseRelease(name) {
 const parseFolderName = (name) => { const m = /^private-local-chat-(.+)$/.exec(name); return m ? parseRelease(m[1]) : null; };
 
 // ---- the current record and the layout --------------------------------------------------------------------------------------------------------------------
+/** current.json exists and cannot be trusted. Only upgrade recovers from it (it moves the file aside); everything else refuses with this advice. */
+class UnusableCurrent extends Error {
+  constructor(file, why, root) {
+    super(`${file} cannot be used: ${why}. Install a release again to recover: unpack a release and run "node serve.mjs --upgrade . --root ${root}" from it (docs/RUN-IT.md). The damaged file is moved aside, not deleted.`);
+    this.name = 'UnusableCurrent';
+    this.file = file;
+    this.why = why;
+  }
+}
+
 /** The record that says which release is live, with the folders it names; null when there is none; throws a plain error when it exists and cannot be trusted. */
 export function readCurrent(root) {
   root = path.resolve(root);
   const file = at(root, 'current.json');
   if (!exists(file)) return null;
-  const bad = (why) => new Error(`${file} cannot be used: ${why}. Restore it from a copy, or install a release again with --upgrade (docs/RUN-IT.md).`);
+  const bad = (why) => new UnusableCurrent(file, why, root);
   let record;
   try { record = JSON.parse(fs.readFileSync(file, 'utf8')); } catch (error) { throw bad('it is not valid JSON (' + error.message + ')'); }
   if (!record || typeof record !== 'object' || Array.isArray(record)) throw bad('it is not an object');
@@ -328,6 +338,16 @@ function switchTo({root, entering, previous, call, log}) {
 
 const entering = (release, commit, releaseDir) => ({release, ...parseRelease(release), commit, releaseDir});
 
+/** Renames the damaged current.json to current.json.unusable-<UTC time>, with -2, -3... when that name exists. Never deletes it. */
+function moveAside(root, damaged, log) {
+  const stamp = new Date().toISOString().replace(/\.\d+Z$/, 'Z').replace(/[-:]/g, '');
+  const base = `current.json.unusable-${stamp}`;
+  let name = base;
+  for (let i = 2; exists(at(root, name)); i++) name = `${base}-${i}`;
+  fs.renameSync(damaged.file, at(root, name));
+  log(`${damaged.file} cannot be used: ${damaged.why}. It was moved aside as ${name} (nothing is deleted); this install makes the first release live again.`);
+}
+
 function finish(root, log, result, compat) {
   if (compat && typeof compat.stepBack === 'string') log(`Stepping back: ${compat.stepBack}.`);
   log('If the server is running, restart it to use this release\'s serve.mjs; the files it serves change at once.');
@@ -388,7 +408,8 @@ export async function upgrade({root, source, sha256, force = false, hooks = {}, 
   if (!source) refuse('upgrade needs a release: a zip file or an unpacked release folder.');
   root = path.resolve(root);
   if (exists(root) && !isDir(root)) refuse(`${root} is not a folder. Choose a folder that does not exist yet, or an operator folder.`);
-  const current = readCurrent(root);
+  let current = null, damaged = null;
+  try { current = readCurrent(root); } catch (error) { if (!(error instanceof UnusableCurrent)) throw error; damaged = error; }
   const call = (name, release) => hooks[name]?.({root, release});
   removeLeftovers(root, log);
   const src = resolveSource(source, sha256, log);
@@ -425,6 +446,12 @@ export async function upgrade({root, source, sha256, force = false, hooks = {}, 
     if (!isFile(path.join(inner, 'app', 'releases', commit, 'release.json'))) refuse(`app/releases/${commit}/release.json is missing. This is not a complete release: download it again.`);
     if (!isFile(path.join(inner, 'serve.mjs'))) refuse('serve.mjs is missing from the release, so nothing could run it: download it again.');
     const dest = at(root, 'releases', release);
+    // a damaged record is treated as a first install; the newest installed release stands in for it as the source of the builds that open tabs still use
+    let heldFrom = current ? current.appDir : null;
+    if (damaged) {
+      const newest = installedReleases(root).at(-1);
+      if (newest && newest.release !== release) { heldFrom = newest.appDir; log(`The held builds for tabs that are still open come from ${newest.release}, the newest installed release.`); }
+    }
     let resume = false;
     if (exists(dest)) {
       let held = null;
@@ -454,13 +481,13 @@ export async function upgrade({root, source, sha256, force = false, hooks = {}, 
       const problems = checkApp(path.join(dest, 'app'), commit);
       if (problems.length) refuse(`releases/${release} is installed but does not check out:\n${listProblems(problems)}\nIt was not switched to. Remove that folder (it is not the live one) and run this again.`);
       call('check', release);
-      if (current) ({kept, left_out: leftOut} = carryHeldBuilds({fromApp: current.appDir, toApp: path.join(dest, 'app'), toCommit: commit, log, afterCopy: () => call('carry-copy', release)}));
+      if (heldFrom) ({kept, left_out: leftOut} = carryHeldBuilds({fromApp: heldFrom, toApp: path.join(dest, 'app'), toCommit: commit, log, afterCopy: () => call('carry-copy', release)}));
       else [kept, leftOut] = [heldCommits(path.join(dest, 'app')).slice(1), []];
       call('carry', release);
       entered = entering(release, commit, dest);
     } else {
       // 4. carry
-      if (current) ({kept, left_out: leftOut} = carryHeldBuilds({fromApp: current.appDir, toApp: path.join(inner, 'app'), toCommit: commit, log, afterCopy: () => call('carry-copy', release)}));
+      if (heldFrom) ({kept, left_out: leftOut} = carryHeldBuilds({fromApp: heldFrom, toApp: path.join(inner, 'app'), toCommit: commit, log, afterCopy: () => call('carry-copy', release)}));
       else [kept, leftOut] = [[], []];
       call('carry', release);
       // 5. check
@@ -473,7 +500,8 @@ export async function upgrade({root, source, sha256, force = false, hooks = {}, 
       call('rename', release);
       entered = entering(release, commit, dest);
     }
-    // 7. switch
+    // 7. switch; the damaged record is moved aside only now, so a refusal before this point changes nothing
+    if (damaged) moveAside(root, damaged, log);
     const previous = current ? current.release : null;
     switchTo({root, entering: entered, previous, call: (name) => call(name, release), log});
     rmrf(incoming);
