@@ -36,11 +36,14 @@ The notes hold the changes and an **Upgrading** section: the formats this releas
 Each zip holds one folder, `private-local-chat-<version>-<target>/`:
 
 - `app/`: the build exactly, with its `_headers`, `version.json` and `sw.js`.
-- `serve.mjs` and `headers.mjs`: the server and the header rules it reads. They need only Node.js.
-- `README.md`: how to run the folder.
+- The tools, which need only Node.js: `serve.mjs` (the server), `headers.mjs` (the header rules it reads), `plc.mjs`, `operator.mjs`, `overlay.mjs` and `zip.mjs` (the operator folder: install, upgrade, roll back, check, prune), and `fetch-models.mjs`. They are the `RELEASE_TOOLS` of `scripts/package-release.mjs`.
+- `models.json`: every model file the app can download, with its size and SHA-256, written by the build from the pins the app uses. `fetch-models.mjs` reads it; the app never fetches it.
+- `README.md`: how to run the folder and how to install it as an operator folder.
 - `LICENSE` and `THIRD-PARTY-NOTICES.md`.
 - `SOURCE.txt`: the tag, the full commit, the repository, the address of the source archive, and the command that rebuilds `app/`.
 - `compat.json`.
+
+How a person installs, upgrades and rolls back a release with these tools is in `docs/RUN-IT.md`.
 
 The zips are written by `scripts/package-release.mjs` with `node:zlib` and no zip program: entries sorted, times fixed to the commit's time, fixed modes. The same commit gives the same bytes on the same Node and zlib; a different zlib may compress to other bytes with the same contents. The files inside `app/` are the same either way.
 

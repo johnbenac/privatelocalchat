@@ -15,6 +15,8 @@ The app does not name where its model files come from. A configuration says so, 
 
 A source has an `id` (lower-case letters, digits, hyphens), a short `label`, and a `base`: an `https://` address or a path on the copy's own host (a single leading `/`). The base is the root that holds `<name>/<revision>/<files>`, the layout of the project's bucket (`docs/CDN-POPULATION.md`). **The first source is used.** Further sources are validated and reserved; nothing uses them yet.
 
+For a release copy that `serve.mjs --root` serves from an operator folder (`docs/RUN-IT.md`), `config/app-config.json` of that folder is applied when the page is served, not at build: `serve.mjs` checks it with the release's own `checkAppConfig`, and it replaces the shipped list whole in `window.APP_CONFIG`. An invalid file stops the server at start; while it runs, a file that becomes invalid is ignored with one line and the last good one stays in use. A copy behind another web server serves the shipped value.
+
 The build checks both files (`checkAppConfig`): an unknown key, a bad address, a repeated id or another format stops it with the reason. It then writes the result into `index.html` as `window.APP_CONFIG`, with `overridden` saying whether an operator's list is in use. There is no extra request and nothing for the offline copy to save.
 
 ## In the app
