@@ -8,7 +8,8 @@ import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {execFileSync, spawnSync} from 'node:child_process';
 import {pathToFileURL} from 'node:url';
-import {makeZip, packageRelease, writeSums, folderName, zipName, readmeText, sourceText} from '../scripts/package-release.mjs';
+import {buildModelsManifest, modelsManifestText} from '../scripts/models-manifest.mjs';
+import {makeZip, packageRelease, RELEASE_TOOLS, writeSums, folderName, zipName, readmeText, sourceText} from '../scripts/package-release.mjs';
 
 const scratch = mkdtempSync(path.join(tmpdir(), 'plc-package-'));
 test.after(() => rmSync(scratch, {recursive: true, force: true}));
@@ -62,7 +63,8 @@ for (const target of ['app', 'runkit']) {
     const names = entries.map((e) => e[0]);
     assert.ok(names.every((n) => n.startsWith(folder)), 'everything is inside one folder');
     const top = new Set(names.map((n) => n.slice(folder.length).split('/')[0]));
-    for (const name of ['app', 'serve.mjs', 'headers.mjs', 'README.md', 'LICENSE', 'THIRD-PARTY-NOTICES.md', 'SOURCE.txt']) assert.ok(top.has(name), name + ' is missing');
+    const expectedTop = [...RELEASE_TOOLS, 'README.md', 'LICENSE', 'THIRD-PARTY-NOTICES.md', 'SOURCE.txt', 'compat.json', 'models.json', 'app'];
+    assert.deepEqual([...top].sort(), [...expectedTop].sort(), 'the top level of the zip is the tools and documents listed, and the app');
     for (const name of ['app/index.html', 'app/sw.js', 'app/_headers', 'app/version.json', 'app/manifest.webmanifest']) assert.ok(names.includes(folder + name), name + ' is missing');
     assert.deepEqual(names, [...names].sort((x, y) => Buffer.compare(Buffer.from(x), Buffer.from(y))));
     // nothing of the development site, and no page beyond the target's
@@ -72,9 +74,10 @@ for (const target of ['app', 'runkit']) {
     for (const file of ['sitemap.xml', 'robots.txt', 'updates/rss.xml']) assert.ok(!names.includes(`${folder}app/${file}`), file);
     // the modes: the server can be run, nothing else is executable
     assert.deepEqual(entries.filter((e) => e[3] === 0o755).map((e) => e[0]), [folder + 'serve.mjs']);
+    assert.deepEqual(RELEASE_TOOLS.slice(0, 3), ['serve.mjs', 'headers.mjs', 'zip.mjs'], 'the first tools are listed in one place, one name per line');
   });
 
-  test(`the ${target} zip says the version it was released as, and where its source is`, () => {
+  test(`the ${target} zip says the version it was released as, and where its source is`, async () => {
     const folder = folderName(VERSION, target);
     const text = (file) => python('import sys,zipfile\nsys.stdout.write(zipfile.ZipFile(sys.argv[1]).read(sys.argv[2]).decode())', made[target], `${folder}/${file}`);
     const info = JSON.parse(text('app/version.json'));
@@ -86,11 +89,11 @@ for (const target of ['app', 'runkit']) {
     assert.equal(text('README.md'), readmeText({version: VERSION, target}));
     assert.equal(text('LICENSE'), readFileSync('LICENSE', 'utf8'));
     assert.equal(text('THIRD-PARTY-NOTICES.md'), readFileSync('THIRD-PARTY-NOTICES.md', 'utf8'));
-    assert.equal(text('serve.mjs'), readFileSync('scripts/serve.mjs', 'utf8'));
+    for (const tool of RELEASE_TOOLS) assert.equal(text(tool), readFileSync(`scripts/${tool}`, 'utf8'), tool);
+    assert.equal(text('models.json'), modelsManifestText(await buildModelsManifest()), 'models.json in the zip is the manifest the script builds');
     const compat = JSON.parse(text('compat.json'));
     assert.deepEqual([compat.format, compat.version, compat.commit], ['plc-compat/1', VERSION, HEAD]);
     assert.equal(text('compat.json'), execFileSync('node', ['scripts/compat.mjs', '--version', VERSION, '--commit', HEAD], {encoding: 'utf8'}), 'compat.json in the zip is what the script prints');
-    assert.equal(text('headers.mjs'), readFileSync('scripts/headers.mjs', 'utf8'));
   });
 }
 
