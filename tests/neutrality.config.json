@@ -22,7 +22,10 @@
   {"string": "model-hosts", "paths": ["releases/*/runtime/providers/vendor/**", "releases/*/chat/vendor/**"], "why": "The vendored libraries' own text and defaults; the app configures them with its own sources, so these are never used."},
   {"string": "model-hosts", "paths": ["THIRD-PARTY-NOTICES.md"], "why": "The notices name the libraries' upstream projects and where their models are published."},
   {"string": "model-hosts", "paths": ["releases/*/chat/provider/endpoint-options.mjs"], "why": "The provider list: a service a person may choose to connect, not a source the app uses."},
-  {"string": "maintainer-account", "paths": ["operator.mjs"], "why": "The project's repository, whose releases --check --online reads."}
+  {"string": "maintainer-account", "paths": ["operator.mjs"], "why": "The project's repository, whose releases --check --online reads."},
+ {"string": "our-domain", "paths": ["DATA-HANDLING.md"], "why": "The document names the shipped default model source (assets.privatelocal.chat) and the model-source notice, because an operator has to know who that host is."},
+ {"string": "maintainer-account", "paths": ["DATA-HANDLING.md"], "why": "The document names the project's repository, whose public release record --check --online reads."},
+ {"string": "model-hosts", "paths": ["DATA-HANDLING.md"], "why": "The generated table of hosts the app's files name: the provider list and the vendored libraries name these hosts, and the document says that none of them is a model source."}
  ],
  "allowedHosts": [
   {"hosts": ["assets.privatelocal.chat"], "paths": ["index.html"], "why": "The shipped default model source (see the allowed our-domain entry)."},
@@ -32,6 +35,7 @@
   {"hosts": ["datashare.ed.ac.uk"], "paths": ["THIRD-PARTY-NOTICES.md"], "why": "The address a dataset's licence notice gives."},
   {"hosts": ["www.debian.org", "dejavu-fonts.github.io"], "paths": ["brand/WORDMARK_FONT_LICENSE.txt"], "why": "Addresses in the font licence text."},
   {"hosts": ["paulmillr.com"], "paths": ["releases/*/runtime/providers/vendor/noble-hashes/*/LICENSE"], "why": "The author's address in a vendored library's licence."},
-  {"hosts": ["api.github.com"], "paths": ["operator.mjs"], "why": "The public release list, asked only by --check --online."}
+  {"hosts": ["api.github.com"], "paths": ["operator.mjs"], "why": "The public release list, asked only by --check --online."},
+ {"hosts": ["api.github.com"], "paths": ["DATA-HANDLING.md"], "why": "The document says that --check --online asks this public release list and nothing else."}
  ]
 }
