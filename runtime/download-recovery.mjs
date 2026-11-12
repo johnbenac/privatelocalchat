@@ -3,7 +3,7 @@ const KEY='plc.downloadIntent.v1';
 // Recovery deliberately does not classify the error that interrupted the attempt.
 // A transfer that stops moving (a dropped mobile connection that never errors) is aborted and retried; saved files are kept.
 export const STALL_MS=120000;
-export function createDownloadRecovery({host,storage=localStorage,online=()=>navigator.onLine,onState=()=>{},beforeLoad=async()=>{},schedule=setTimeout,unschedule=clearTimeout,lock=globalThis.navigator?.locks,stallMs=STALL_MS,pollMs=5000,now=()=>Date.now(),poll=(fn,ms)=>setInterval(fn,ms),unpoll=clearInterval,visible=()=>!globalThis.document?.hidden,hangMs=15000}) {
+export function createDownloadRecovery({host,storage=localStorage,online=()=>navigator.onLine,onState=()=>{},beforeLoad=async()=>{},beforeInstall=async()=>true,schedule=setTimeout,unschedule=clearTimeout,lock=globalThis.navigator?.locks,stallMs=STALL_MS,pollMs=5000,now=()=>Date.now(),poll=(fn,ms)=>setInterval(fn,ms),unpoll=clearInterval,visible=()=>!globalThis.document?.hidden,hangMs=15000}) {
  let intent=null,timer=null,running=false,failures=0,ready=false,lastMessage='',sameCount=0;
  try{const saved=JSON.parse(storage.getItem(KEY)||'null');if(saved?.version===1&&['light','default','lfm','granite','mini','nano'].includes(saved.tier)&&typeof saved.id==='string')intent=saved;}catch{}
  let remembered=!!intent;
@@ -57,6 +57,7 @@ export function createDownloadRecovery({host,storage=localStorage,online=()=>nav
    if(!current())return;
    if(!host.getState().tiers[requested.tier].install.ok){
     if(!online()){publish('offline');later(5000);return;}
+    if(!await beforeInstall(requested)){if(current()){clearTimer();persist(null);intent=null;failures=0;host.cancelTransfer();publish('cancelled');}return;} // the person may decline (the model-source notice)
     publish('downloading');await installWatched(requested.tier);
    }
    if(!current())return;

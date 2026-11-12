@@ -20,6 +20,7 @@ export const KEY_CLASSES = Object.freeze({
   "plc.downloadIntent.v1": { store: "local", class: "plain", format: 1 },
   "plc.offlineHint.v1": { store: "local", class: "plain", format: 1 },
   "plc.lockSplash.v1": { store: "local", class: "plain", format: 1 },
+  "plc.modelSourceNotice.v1": { store: "local", class: "plain", format: 1 },
   "plc.lock.v1": { store: "local", class: "plain", format: 1 },
   "plc.speechInputUnusable": { store: "local", class: "plain", format: 1 },
   "plc.test.voice": { store: "local", class: "test", format: 1 },

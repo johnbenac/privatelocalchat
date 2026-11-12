@@ -167,6 +167,15 @@
       "since": "v0.37.0"
     },
     {
+      "key": "plc.modelSourceNotice.v1",
+      "store": "localStorage",
+      "class": "plain",
+      "owner": "chat/models/source-notice.mjs",
+      "note": "the model-source notice was shown",
+      "format": 1,
+      "since": "unreleased"
+    },
+    {
       "key": "plc.lockSplash.v1",
       "store": "localStorage",
       "class": "plain",

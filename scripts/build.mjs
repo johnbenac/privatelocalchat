@@ -5,6 +5,7 @@ import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {buildPublicSite,loadSiteConfig,siteConfigScript} from './public-site.mjs';
 import {checkSiteJson,normalizedSiteLinks} from '../chat/site/site-links.mjs';
+import {buildAppConfig} from '../runtime/config/app-config.mjs';
 const LICENCE_FILES=['LICENSE','THIRD-PARTY-NOTICES.md'];
 const root=process.cwd(), out=path.resolve(root,process.env.BUILD_OUT_DIR||'dist'); // BUILD_OUT_DIR is for tests that must not touch dist/
 if(out===root||!out.startsWith(root+path.sep))throw new Error('The build output must be a folder inside the repository');
@@ -22,6 +23,13 @@ if(siteJsonPath&&existsSync(siteJsonPath)){
  if(problems.length)throw new Error('The site manifest '+path.relative(root,siteJsonPath)+' has problems:\n - '+problems.join('\n - '));
  siteJson=normalizedSiteLinks(raw);
 }else siteJson=normalizedSiteLinks(undefined);
+// What the app is configured with (runtime/config/app-config.mjs, docs/APP-CONFIG.md): the shipped defaults in app-config.json, with an operator's config/app-config.json replacing the model sources
+// when there is one. APP_CONFIG_OVERRIDE names that file: unset means ./config/app-config.json if it exists, empty means none, and a path that does not exist is an error.
+const configEnv=process.env.APP_CONFIG_OVERRIDE;
+const overridePath=configEnv===''?null:path.resolve(root,configEnv??'config/app-config.json');
+if(configEnv&&!existsSync(overridePath))throw new Error('APP_CONFIG_OVERRIDE names a file that does not exist: '+configEnv);
+const readJson=async(file,what)=>{try{return JSON.parse(await readFile(file,'utf8'));}catch(error){throw new Error(what+' is not valid JSON: '+error.message);}};
+const appConfigData=buildAppConfig(await readJson(path.resolve(root,'app-config.json'),'app-config.json'),overridePath&&existsSync(overridePath)?await readJson(overridePath,'The operator configuration'):null);
 await rm(out,{recursive:true,force:true});await mkdir(out,{recursive:true});
 for(const p of ['index.html','local-models.js','local-models.css','conversation-messages.mjs','chat','runtime','brand']) await cp(p,path.join(out,p),{recursive:true});
 const pkg=JSON.parse(await readFile('package.json','utf8'));
@@ -49,7 +57,7 @@ for(const [file,pin] of Object.entries(productionNative.files)){
 }
 let html=await readFile(path.join(out,'index.html'),'utf8');
 const appBuildScript='<script>window.APP_BUILD='+JSON.stringify(build)+';</script>';
-html=html.replace('<script src="/build-info.js"></script>',appBuildScript+siteConfigScript(siteConfig)+'<script>window.SITE_LINKS='+JSON.stringify(siteJson).replace(/</g,'\\u003c')+';</script>');
+html=html.replace('<script src="/build-info.js"></script>',appBuildScript+siteConfigScript(siteConfig)+'<script>window.SITE_LINKS='+JSON.stringify(siteJson).replace(/</g,'\\u003c')+';</script><script>window.APP_CONFIG='+JSON.stringify(appConfigData).replace(/</g,'\\u003c')+';</script>');
 html=html.replace('href="/chat/page.css"','href="/'+releasePath+'/chat/page.css"').replace('href="/chat/chat.css"','href="/'+releasePath+'/chat/chat.css"').replace('href="/chat/brand.css"','href="/'+releasePath+'/chat/brand.css"').replace('href="/chat/shell.css"','href="/'+releasePath+'/chat/shell.css"').replace('href="/local-models.css"','href="/'+releasePath+'/local-models.css"').replace('src="/local-models.js"','src="/'+releasePath+'/local-models.js"');
 if(branch==='dev') {
  const debugRuntime=path.join('dev-tools','native-runtime');
@@ -76,6 +84,23 @@ if(branch==='dev') {
  const app=await readFile(appFile,'utf8');
  await writeFile(appFile,app.replace(/\/\* DEV_DIAGNOSTICS_START \*\/[\s\S]*?\/\* DEV_DIAGNOSTICS_END \*\//g,''));
  }
+}
+// The page head names the site that serves this copy (canonical, Open Graph and social-card addresses, structured data) only when the site manifest has a `site` block (chat/site/site-links.mjs):
+// without one those tags are left out, so a copy names no site. The values are checked by the manifest, and escaped here for the attribute or the JSON string they land in.
+{
+ const info=siteJson.site;
+ const htmlAttr=v=>String(v).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+ const jsonText=v=>JSON.stringify(String(v)).slice(1,-1).replace(/</g,'\\u003c');
+ if(!info)html=html.replace(/[ \t]*<!--site-head-->\n[\s\S]*?[ \t]*<!--\/site-head-->\n/g,'');
+ else{
+  const image=info.socialImage?new URL(info.socialImage,info.url).href:null;
+  html=html.replace(/[ \t]*<!--site-head-->\n([\s\S]*?)[ \t]*<!--\/site-head-->\n/g,(all,block)=>{
+   if(!image&&block.includes('{{SITE_IMAGE}}'))return '';
+   const esc=block.includes('application/ld+json')?jsonText:htmlAttr;
+   return block.split('{{SITE_IMAGE}}').join(esc(image)).split('{{SITE_URL}}').join(esc(info.url));
+  });
+ }
+ if(/\{\{SITE_(URL|IMAGE)\}\}|site-head-->/.test(html))throw new Error('The page head still holds a site placeholder or marker.');
 }
 await writeFile(path.join(out,'index.html'),html);
 

@@ -2,9 +2,10 @@
 // Decision row 65 (plan/DECISIONS.md): default = WebLLM + Qwen3.5-9B (q4f16_1 where the GPU has shader-f16, q4f32_1 where it does not,
 // chosen by the capability probe, not by device class); light = wllama retained-v1q + Qwen3.5-2B Q4_0. No other model is offered.
 //
-// Sources are the model's official hosts (see MODELS.md). A deployment or test may point a tier at another origin with
-// `resolveSources(overrides)`: that is an explicit, visible setting (the manager shows "source: override <origin>"), never a fallback.
+// Where the files come from is the configured model source (runtime/config/app-config.mjs, docs/APP-CONFIG.md): a root that holds <name>/<revision>/<files>. A test may point a tier at another
+// origin with `resolveSources(overrides)`: that is an explicit, visible setting (the manager shows "source: override <origin>"), never a fallback. Every file is checked against the pin here.
 import { CATALOG_DATA } from "./catalog-data.mjs";
+import { appConfig } from "../config/app-config.mjs";
 
 const MiB = 1 << 20;
 const W = CATALOG_DATA.webllmQwen35_9b;
@@ -25,16 +26,22 @@ export const isWllamaTier = (t) => WLLAMA_TIERS.includes(t);
 export const WEBLLM_VARIANTS = Object.freeze(["q4f16_1", "q4f32_1"]);
 export const DEFAULT_VARIANT = "q4f16_1";
 
+const CONFIG = appConfig();
+// the origin of an address ("" for a path on this host), without naming a host of our own
+const originOf = (u) => /^https:\/\/[^/]+/.exec(String(u))?.[0] ?? "";
+const ROOT = CONFIG.modelRoot();
+// The 9B model's WebLLM builds are laid out like the Hugging Face repositories they were copied from: <name>/resolve/<revision>/, which WebLLM requires. The model and its library share a folder.
+const webllmDir = (v) => ROOT + W[v].repo.split("/").pop() + "/resolve/" + W[v].commit + "/";
 export const OFFICIAL_SOURCES = Object.freeze({
-  // HuggingFace pinned commits (immutable), one per build; every LFS sha256 is in catalog-data.mjs
-  webllmModelBase: Object.freeze(Object.fromEntries(WEBLLM_VARIANTS.map((v) => [v, `https://huggingface.co/${W[v].repo}/resolve/${W[v].commit}/`]))),
-  // binary-mlc-llm-libs (Apache-2.0) tracks the WebLLM release; each file is checked against the sha256 pinned here
-  webllmLibBase: Object.freeze(Object.fromEntries(WEBLLM_VARIANTS.map((v) => [v, "https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/main/web-llm-models/v0_2_86/base/"]))),
-  // Qwen/Qwen3.5-2B (Apache-2.0) as Q4_0 GGUF shards, served from the project's own CDN like the other two
-  wllamaModelBase: "https://assets.privatelocal.chat/models/Qwen3.5-2B/" + L.sourceRevision + "/",
-  // LFM2.5 and Granite are served only from the project's own CDN (assets.privatelocal.chat), pinned file by file
-  wllamaTierBase: Object.freeze({ lfm: LFM.baseUrl, granite: GRANITE.baseUrl, mini: MINI.baseUrl, nano: NANO.baseUrl })
+  webllmModelBase: Object.freeze(Object.fromEntries(WEBLLM_VARIANTS.map((v) => [v, webllmDir(v)]))),
+  webllmLibBase: Object.freeze(Object.fromEntries(WEBLLM_VARIANTS.map((v) => [v, webllmDir(v)]))),
+  // Qwen/Qwen3.5-2B (Apache-2.0) as Q4_0 GGUF shards
+  wllamaModelBase: ROOT + L.dir,
+  // the other wllama models, pinned file by file
+  wllamaTierBase: Object.freeze({ lfm: ROOT + LFM.dir, granite: ROOT + GRANITE.dir, mini: ROOT + MINI.dir, nano: ROOT + NANO.dir })
 });
+/** The configured source this copy uses, for the manager and the Settings row. */
+export const MODEL_SOURCE = Object.freeze({ ...(CONFIG.activeSource() || {}), root: ROOT, shipped: CONFIG.isDefaultSource() });
 
 const f16Bytes = W.q4f16_1.files.reduce((n, f) => n + f.bytes, 0) + W.q4f16_1.lib.bytes;
 const f32Bytes = W.q4f32_1.files.reduce((n, f) => n + f.bytes, 0) + W.q4f32_1.lib.bytes;
@@ -143,7 +150,7 @@ const perVariant = (v) => (typeof v === "string" ? Object.fromEntries(WEBLLM_VAR
  *  webllmModelBase / webllmLibBase may be a string (the same URL for both builds; valid only if that place serves the build in use)
  *  or { q4f16_1, q4f32_1 }. */
 export function resolveSources(overrides = null) {
-  if (!overrides) return { sources: { ...OFFICIAL_SOURCES }, label: "official hosts", overridden: false };
+  if (!overrides) return { sources: { ...OFFICIAL_SOURCES }, label: MODEL_SOURCE.shipped ? MODEL_SOURCE.label : "OVERRIDE: " + (originOf(ROOT) || "this host"), overridden: !MODEL_SOURCE.shipped };
   const sources = { ...OFFICIAL_SOURCES };
   if (overrides.webllmModelBase) sources.webllmModelBase = perVariant(overrides.webllmModelBase);
   if (overrides.webllmLibBase) sources.webllmLibBase = perVariant(overrides.webllmLibBase);
@@ -152,7 +159,7 @@ export function resolveSources(overrides = null) {
   // WebLLM rewrites a model URL that lacks /resolve/<rev>/ by appending resolve/main/, which would silently miss every cached file
   for (const v of WEBLLM_VARIANTS) if (!/.+\/resolve\/.+\//.test(sources.webllmModelBase[v])) throw new RangeError(`webllmModelBase.${v} must contain /resolve/<revision>/ (WebLLM would rewrite it otherwise): ${sources.webllmModelBase[v]}`);
   const flat = [...Object.values(sources.webllmModelBase), ...Object.values(sources.webllmLibBase), sources.wllamaModelBase, ...Object.values(sources.wllamaTierBase)];
-  const origins = [...new Set(flat.map((u) => { try { return new URL(u).origin; } catch { return String(u); } }).filter((o) => o !== "https://huggingface.co" && o !== "https://raw.githubusercontent.com" && o !== new URL(OFFICIAL_SOURCES.wllamaModelBase).origin && o !== new URL(LFM.baseUrl).origin))];
+  const origins = [...new Set(flat.map((u) => originOf(u) || "this host").filter((o) => o !== (originOf(ROOT) || "this host")))];
   return { sources, label: "OVERRIDE: " + origins.join(", "), overridden: true };
 }
 

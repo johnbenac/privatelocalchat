@@ -3,7 +3,7 @@
 // Nothing in the app calls this yet. It downloads the three model files once, verifies each against a pinned manifest, keeps them in the
 // origin's private storage (OPFS) under their own directory, and synthesises speech on the device. The text never leaves the page.
 //
-//   const engine = createVoiceEngine({ baseUrl: "https://assets.privatelocal.chat/models/voice/kitten-nano-0.8-int8/" });
+//   const engine = createVoiceEngine({ baseUrl: KITTEN_NANO_BASE_URL });
 //   await engine.install(({ overallLoaded, overallTotal }) => ...);      // resumable per file by retry; verified by SHA-256
 //   const stats = await engine.speak("Hello there.", { onChunk: ({ samples, sampleRate }) => play(samples), signal });
 //   // stats: { audioSeconds, synthSeconds, realTimeFactor, firstAudioMs }

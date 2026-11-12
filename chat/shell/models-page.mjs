@@ -6,6 +6,8 @@
 import { rowParts, renderRowText } from "./model-row.mjs";
 import { buildOfflineSection } from "./offline-section.mjs";
 import { siteLinks } from "../site/site-links.mjs";
+import { appConfig } from "../../runtime/config/app-config.mjs";
+import { sourceHost } from "../models/source-notice.mjs";
 import { languageRows, voiceRows, otherRows, stateLine, toggleAction, ACTION_LABEL, sizeText } from "../models/models-view.mjs";
 
 export function buildModelsPage({ app, h, row, btn, moved, chooseVoice, voiceHint }) {
@@ -166,7 +168,12 @@ export function buildModelsPage({ app, h, row, btn, moved, chooseVoice, voiceHin
   async function startMemory() { mm = await app.loadMemory?.(); if (!mm) return; const off = mm.subscribe((s) => { if (!memCard.isConnected && !w.isConnected) return; paintMemory(s); paintOther(s); }); void off; paintMemory(mm.snapshot()); paintOther(mm.snapshot()); }
 
   const { section: offlineSection, note: offlineNote } = buildOfflineSection({ app, h });
-  w.append(offlineNote, langSection, offlineSection, providerSection, voiceSection, otherSection, memSection);
+  // Where the model files come from (docs/APP-CONFIG.md): what is in use, and where whoever runs this copy sets it. Read-only: the choice is made in the copy's configuration.
+  const cfg = appConfig(), src = cfg.activeSource();
+  const sourceSection = src ? h("section", { id: "modelSourceSection", "aria-labelledby": "sourceHead" }, h("h3", { class: "set-sub", id: "sourceHead", text: "Model source" }),
+    row("Model files come from", src.label + " (" + sourceHost(cfg) + ")" + (cfg.isDefaultSource() ? "" : ", set by whoever runs this copy"), null),
+    h("p", { class: "hint-text", text: "Every file is checked against its published size and SHA-256 before it is used, whichever source it comes from. Whoever runs a copy sets the source in config/app-config.json." })) : null;
+  w.append(offlineNote, langSection, offlineSection, providerSection, voiceSection, otherSection, memSection, sourceSection);
   paintLanguage(); paintProvider(); startVoice(); startMemory();
   w.addEventListener("shell-refresh", () => { paintLanguage(); paintProvider(); if (vctl) { paintVoice(vctl.snapshot()); vctl.advise(); } if (mm) { paintMemory(mm.snapshot()); paintOther(mm.snapshot()); } });
   return w;

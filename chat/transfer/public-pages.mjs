@@ -2,7 +2,7 @@
 // field's text on request (data-copy-from). The pages are complete without it: it loads no model code and nothing is fetched.
 import { mountProductShare } from "./product-share.mjs";
 
-for (const node of document.querySelectorAll("[data-product-share]")) mountProductShare(node);
+for (const node of document.querySelectorAll("[data-product-share]")) mountProductShare(node, { shareAddress: location.origin + "/" }); // these pages are served from the site itself, so its own address is the one to share
 
 for (const button of document.querySelectorAll("button[data-copy-from]")) {
   const source = document.getElementById(button.dataset.copyFrom);

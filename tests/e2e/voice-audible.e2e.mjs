@@ -1,6 +1,7 @@
 // Audible check: drives the REAL app path (the picker, the route, chat/voice/speech.mjs, the gapless player) with the REAL Kitten and Kokoro engines and records every
 // buffer the page's AudioContext is asked to play. A voice that is "ready" but silent (the engine's chunk objects were once dropped by the player) fails here.
 // VOICE_WAV_DIR=/some/dir also writes the audio as WAV files, to transcribe or listen to; VOICE_KINDS=kitten limits it to one voice.
+import '../helpers/install-app-config.mjs'; // the model sources the build writes into the page (docs/APP-CONFIG.md)
 import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
 import path from 'node:path';
 import {launch,assert} from './harness.mjs';process.env.PLC_E2E_BRANCH='dev';

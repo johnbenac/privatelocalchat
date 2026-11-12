@@ -5,5 +5,10 @@
   "about": "/about/",
   "privacy": "/privacy/",
   "updates": "/updates/"
+ },
+ "site": {
+  "url": "https://privatelocal.chat/",
+  "socialImage": "/brand/social-card-1200x630.png",
+  "countsPageLoads": true
  }
 }

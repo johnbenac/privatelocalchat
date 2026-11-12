@@ -5,6 +5,7 @@
 // This file is only content and pure helpers (no DOM, no network), so it can be tested, reviewed as copy, and used to precompute the
 // vectors that match speech to intents before any language model is loaded.
 
+import { siteLinks } from "../site/site-links.mjs";
 export const ROBOT_NAME = "Roberta";
 export const ROBOT_TAGLINE = "The robot for Private Local Chat";
 
@@ -83,7 +84,8 @@ export const NODES = Object.freeze(Object.fromEntries([
     keywords: ["provider", "providers", "openai", "chatgpt", "api", "key", "outside", "third", "party", "external", "company", "service", "services", "claude", "gemini", "anthropic"],
     examples: ["what about outside providers", "what happens if I connect chat g p t", "what happens when I use my own API key", "do providers see my messages", "can I use OpenAI with this", "I want to use an outside provider", "how do I connect another AI service", "what does the provider mode do with my data", "can I bring my own API key", "is a connected provider private", "if I plug in another AI company, what do they get to see", "what is the privacy situation when I connect an outside service", "does my own paid account with another AI company stay private", "what does a third party learn when I use their model", "how safe is it to route my chats through someone else's AI", "I'm thinking of using my own chatgpt key, any privacy concerns"] }),
   n({ id: "privacy.account", label: () => "accounts and tracking",
-    say: () => ["There's no Private Local Chat account, and the app itself has no analytics or tracking scripts. At privatelocal.chat, the host counts page loads without cookies, and never sees what you type or say.", "On-device chat needs no API key. Outside providers may need their own accounts and may charge."],
+    // the sentence about a host is the site's own statement (the site manifest, chat/site/site-links.mjs): a copy whose site does not say it counts page loads says nothing about one
+    say: () => { const site = siteLinks().site; return ["There's no Private Local Chat account, and the app itself has no analytics or tracking scripts." + (site?.countsPageLoads ? " At " + site.host + ", the host counts page loads without cookies, and never sees what you type or say." : ""), "On-device chat needs no API key. Outside providers may need their own accounts and may charge."]; },
     keywords: ["account", "login", "signup", "tracking", "analytics", "cookies", "track", "ads", "email", "fee", "cost", "costs", "price", "pay", "paid", "payment", "free", "register", "registration", "profile", "profiled", "monthly", "subscription"],
     examples: ["do I need an account", "do I have to sign up", "is there a login", "are you tracking me", "do you use cookies", "does this have analytics", "do I need to pay", "is it free", "does it cost anything", "are there ads", "do I need an API key", "will I be charged", "must I give my email to use this", "is there a monthly fee", "how much does it cost me", "is registration mandatory", "does the site watch my behaviour", "is anything about me being profiled", "will you ask me for a credit card"] }),
 
@@ -139,7 +141,7 @@ export const NODES = Object.freeze(Object.fromEntries([
     examples: ["will it work on my device", "will it run on my phone", "is my computer good enough", "is it fast", "will it be slow on my laptop", "does it need a graphics card", "does it work on iPhone", "does it work on Android", "will it run on my old computer", "what devices are supported", "how much memory does it need", "why is it slow", "is my phone strong enough for this", "would my aging tablet handle it", "what are the minimum specs", "will a ten year old pc be alright", "what are the system requirements", "does a chromebook work", "does safari support it", "why are the answers so slow"] }),
 
   n({ id: "share", key: "4", label: () => "to share with a friend", action: "openShare", needsGesture: true,
-    say: () => ["Here's the share sheet.", "You can send a friend the app's public address, copy the link, or show a QR code. It shares only the address of the app. None of your chats or settings go with it."],
+    say: () => (siteLinks().site ? ["Here's the share sheet.", "You can send a friend the app's public address, copy the link, or show a QR code. It shares only the address of the app. None of your chats or settings go with it."] : ["This copy of the app has no public address to share.", "Nothing about your chats or settings is shared."]),
     keywords: ["share", "friend", "recommend", "send", "tell", "invite", "qr", "pass", "relatives", "coworkers", "family", "pal", "text", "link"],
     examples: ["I want to share this with a friend", "how do I tell someone about this app", "can I send a link to my friend", "share the app", "recommend this to someone", "give me a QR code", "how can my family use it", "invite someone", "copy the link", "send this to my mom", "how can I pass this app on to my brother", "send the app to someone", "I want my relatives to use it too", "something I can text to a pal"] }),
   n({ id: "restore", key: "5", label: () => "to restore from a backup", action: "openImport", needsGesture: true,
