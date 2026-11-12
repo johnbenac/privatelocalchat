@@ -123,7 +123,7 @@ test('an edited cell inside a block fails check; text outside the blocks does no
   assert.equal((await run('check', p)).code, 1);
   const q = scratch(t);
   replaceIn(q.doc, '# Data handling', '# Data handling (edited)');
-  replaceIn(q.doc, 'Placeholder: this section is written in the next step.', 'Real text.');
+  replaceIn(q.doc, '# Data handling', '# Data handling, edited');
   assert.equal((await run('check', q)).code, 0);
 });
 
