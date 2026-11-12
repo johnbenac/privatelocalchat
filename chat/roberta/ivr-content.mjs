@@ -6,6 +6,8 @@
 // vectors that match speech to intents before any language model is loaded.
 
 import { siteLinks } from "../site/site-links.mjs";
+import { appConfig } from "../../runtime/config/app-config.mjs";
+import { sourceLabelAndHost } from "../models/source-notice.mjs";
 export const ROBOT_NAME = "Roberta";
 export const ROBOT_TAGLINE = "The robot for Private Local Chat";
 
@@ -62,6 +64,12 @@ export function introScript(c) {
 // ---- the menu ---------------------------------------------------------------------------------------------------------------
 // Each node: id, key (the digit), label(c) used in "Press N for ...", say(c) (sentences), children (ids, in key order), action, examples (phrases that
 // mean this), keywords (single words that point at it when no model is loaded).
+// Where the files come from is the configured source's (config/app-config.json), told with the same words as the Settings row; the app itself comes from whatever host serves this copy.
+export function modelFilesSentence(config = appConfig()) {
+  const where = sourceLabelAndHost(config);
+  return where ? `The app comes from the address you opened it from, and the model files are downloaded once, from ${where}.` : "The app comes from the address you opened it from, and the model files are downloaded once, from the source set for this copy.";
+}
+
 const n = (o) => ({ children: [], keywords: [], examples: [], ...o });
 
 export const NODES = Object.freeze(Object.fromEntries([
@@ -72,7 +80,7 @@ export const NODES = Object.freeze(Object.fromEntries([
   n({ id: "privacy.cloud", label: () => "the cloud",
     say: (c) => c.mode === "api"
       ? ["You're using an outside provider, so the messages in your requests do go to that provider over the internet.", "If you switch to on-device mode, replies run here and nothing you type goes to the cloud."]
-      : ["On this device, nothing you type is sent to the cloud for replies.", "The app and the model are downloaded once, from the project's file host.", "If you use voice, your browser's own speech service may process audio. If you choose an outside provider, your messages go to that provider."],
+      : ["On this device, nothing you type is sent to the cloud for replies.", modelFilesSentence(), "If you use voice, your browser's own speech service may process audio. If you choose an outside provider, your messages go to that provider."],
     keywords: ["cloud", "internet", "server", "servers", "online", "uploaded", "upload", "sending", "sent", "remote", "transmit", "transmitted", "datacenter", "company", "companies", "computers", "phoning", "web"],
     examples: ["is this sending information to the cloud", "is this cloud connected", "what about the cloud", "does my data go to the cloud", "does it send my messages over the internet", "are my chats uploaded anywhere", "is anything sent to a server", "does this work without sending data out", "is it online or offline", "who gets my messages", "does my text leave my device", "is this cloud based", "does what I type leave my device and cross the internet", "is a remote company's machine involved in answering me", "does it contact some outside computer to think", "is my text transmitted to a data center", "are my words sent off to a faraway machine", "is the thinking done on remote hardware", "does it call home when I use it"] }),
   n({ id: "privacy.storage", label: () => "where your chats are stored",

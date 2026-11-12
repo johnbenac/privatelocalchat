@@ -17,6 +17,12 @@ export function sourceHost(config = appConfig()) {
   try { const u = new URL(config.modelRoot()); return u.host; } catch { return "this host"; }
 }
 
+/** "Label (host)" of the active model source, as the Settings row and the assistant's answer both say it; null when no source is configured. */
+export function sourceLabelAndHost(config = appConfig()) {
+  const src = config.activeSource();
+  return src ? src.label + " (" + sourceHost(config) + ")" : null;
+}
+
 /**
  * Resolves true to go on with the download, false when the person cancels it. `storage` is the app's local storage; `dialogs` is window.plcDialogs; `openSettings` shows Settings, Models.
  * Anything that goes wrong lets the download go on: the notice informs, it must never be the reason a download cannot start.
