@@ -9,7 +9,7 @@ import {createHash} from 'node:crypto';
 import {execFileSync, spawnSync} from 'node:child_process';
 import {pathToFileURL} from 'node:url';
 import {buildModelsManifest, modelsManifestText} from '../scripts/models-manifest.mjs';
-import {makeZip, packageRelease, RELEASE_TOOLS, writeSums, folderName, zipName, readmeText, sourceText} from '../scripts/package-release.mjs';
+import {makeZip, packageRelease, RELEASE_TOOLS, RELEASE_DOCS, writeSums, folderName, zipName, readmeText, sourceText} from '../scripts/package-release.mjs';
 
 const scratch = mkdtempSync(path.join(tmpdir(), 'plc-package-'));
 test.after(() => rmSync(scratch, {recursive: true, force: true}));
@@ -63,7 +63,7 @@ for (const target of ['app', 'runkit']) {
     const names = entries.map((e) => e[0]);
     assert.ok(names.every((n) => n.startsWith(folder)), 'everything is inside one folder');
     const top = new Set(names.map((n) => n.slice(folder.length).split('/')[0]));
-    const expectedTop = [...RELEASE_TOOLS, 'README.md', 'LICENSE', 'THIRD-PARTY-NOTICES.md', 'SOURCE.txt', 'compat.json', 'models.json', 'app'];
+    const expectedTop = [...RELEASE_TOOLS, ...RELEASE_DOCS, 'README.md', 'LICENSE', 'THIRD-PARTY-NOTICES.md', 'SOURCE.txt', 'compat.json', 'models.json', 'app'];
     assert.deepEqual([...top].sort(), [...expectedTop].sort(), 'the top level of the zip is the tools and documents listed, and the app');
     for (const name of ['app/index.html', 'app/sw.js', 'app/_headers', 'app/version.json', 'app/manifest.webmanifest']) assert.ok(names.includes(folder + name), name + ' is missing');
     assert.deepEqual(names, [...names].sort((x, y) => Buffer.compare(Buffer.from(x), Buffer.from(y))));
@@ -91,6 +91,8 @@ for (const target of ['app', 'runkit']) {
     assert.equal(text('LICENSE'), readFileSync('LICENSE', 'utf8'));
     assert.equal(text('THIRD-PARTY-NOTICES.md'), readFileSync('THIRD-PARTY-NOTICES.md', 'utf8'));
     for (const tool of RELEASE_TOOLS) assert.equal(text(tool), readFileSync(`scripts/${tool}`, 'utf8'), tool);
+    assert.deepEqual(RELEASE_DOCS, ['DATA-HANDLING.md']);
+    for (const doc of RELEASE_DOCS) assert.equal(text(doc), readFileSync(`docs/${doc}`, 'utf8'), doc + ' in the zip is the file in docs/');
     assert.equal(text('models.json'), modelsManifestText(await buildModelsManifest()), 'models.json in the zip is the manifest the script builds');
     const compat = JSON.parse(text('compat.json'));
     assert.deepEqual([compat.format, compat.version, compat.commit], ['plc-compat/1', VERSION, HEAD]);
