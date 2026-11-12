@@ -180,7 +180,7 @@ export function buildModelsPage({ app, h, row, btn, moved, chooseVoice, voiceHin
   const sourceSection = src ? h("section", { id: "modelSourceSection", "aria-labelledby": "sourceHead" }, h("h3", { class: "set-sub", id: "sourceHead", text: "Model source" }),
     row("Model files come from", sourceLabelAndHost(cfg) + (cfg.isDefaultSource() ? "" : ", set by whoever runs this copy"), null),
     updatedByHostLineApplies() ? row("Updates", UPDATED_BY_HOST_LINE, null) : null,
-    h("p", { class: "hint-text", text: "Every file is checked against its published size and SHA-256 before it is used, whichever source it comes from. Whoever runs a copy sets the source in config/app-config.json." })) : null;
+    h("p", { class: "hint-text", text: "Every model and voice file is checked against its published size and SHA-256 before it is used, whichever source it comes from. The small model that matches memory is published under a path that names its content, and is not checked by the app. Whoever runs a copy sets the source in config/app-config.json." })) : null;
   w.append(offlineNote, langSection, offlineSection, providerSection, voiceSection, otherSection, memSection, sourceSection);
   paintLanguage(); paintProvider(); startVoice(); startMemory();
   w.addEventListener("shell-refresh", () => { paintLanguage(); paintProvider(); if (vctl) { paintVoice(vctl.snapshot()); vctl.advise(); } if (mm) { paintMemory(mm.snapshot()); paintOther(mm.snapshot()); } });
