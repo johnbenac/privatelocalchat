@@ -784,7 +784,7 @@ const DAMAGES = {
   'a release that names no folder': (r) => JSON.stringify({...r, release: '0.9.0-runkit', version: '0.9.0'}),
   'a commit that is not 40 hex': (r) => JSON.stringify({...r, commit: 'abc123'})
 };
-const damage = (root, how) => { const bytes = DAMAGES[how](goodRecord(root)); writeFileSync(path.join(root, 'current.json'), bytes); return bytes; };
+const damage = (root, how, record = goodRecord(root)) => { const bytes = DAMAGES[how](record); writeFileSync(path.join(root, 'current.json'), bytes); return bytes; };
 const asides = (root) => readdirSync(root).filter((f) => f.startsWith('current.json.unusable-')).sort();
 const ADVICE = /Install a release again to recover: unpack a release and run "node serve\.mjs --upgrade \. --root .*" from it \(docs\/RUN-IT\.md\)\. The damaged file is moved aside, not deleted\./;
 
@@ -891,8 +891,9 @@ function checkApp0(r) {
 
 test('rollback, prune, check and serving refuse a damaged current.json with the new advice and leave the file alone', async () => {
   const root = await rootWith(1, 2);
+  const record = goodRecord(root);
   for (const how of Object.keys(DAMAGES)) {
-    const bytes = damage(root, how);
+    const bytes = damage(root, how, record);
     const before = readdirSync(root).sort();
     await assert.rejects(rollback({root}), (e) => { assert.match(e.message, ADVICE); assert.ok(e.message.includes(root)); return true; });
     await assert.rejects(prune({root}), ADVICE);
