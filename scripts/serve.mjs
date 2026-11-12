@@ -12,7 +12,7 @@
 // it: /help/ serves help/index.html and /help is sent to /help/. Like Pages it asks browsers to revalidate everything that a rule does not say otherwise about.
 import {createServer} from 'node:http';
 import {createReadStream,statSync} from 'node:fs';
-import {stat,readFile} from 'node:fs/promises';
+import {stat,readFile,realpath as fsRealpath} from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {parsePagesHeaders,headersFor} from './headers.mjs';
@@ -31,37 +31,82 @@ export function parseRange(header, size) {
   return {start, end};
 }
 
-/** Starts the server. Resolves { server, port, root }. */
-export async function startServer({dir, host = '127.0.0.1', port = 0, quiet = false} = {}) {
-  const root = path.resolve(dir);
-  let rules;
-  try { rules = parsePagesHeaders(await readFile(path.join(root, '_headers'), 'utf8')); }
-  catch (error) { throw new Error(`${root} is not a build: it has no _headers file (${error.code || error.message}). Build first, or point --dir at the folder that holds the build.`); }
+/**
+ * Starts the server. Resolves { server, port, root }. `dir` serves one build folder. `root` serves an operator folder: each request is answered from its live release, with the operator's
+ * settings, pages and models laid over it (overlay.mjs). `warn` takes the lines the operator's files cause while it runs; the default is standard error.
+ */
+export async function startServer({dir, root: operatorRoot, host = '127.0.0.1', port = 0, quiet = false, warn} = {}) {
+  let contextOf, shown;
+  if (operatorRoot !== undefined) {
+    if (dir !== undefined) throw new Error('Give either dir (one build) or root (an operator folder), not both.');
+    const view = (await import('./overlay.mjs')).openRoot(operatorRoot, warn ? {warn} : {});
+    await view.init();
+    contextOf = () => view.context();
+    shown = view.root;
+  } else {
+    const root = path.resolve(dir);
+    let rules;
+    try { rules = parsePagesHeaders(await readFile(path.join(root, '_headers'), 'utf8')); }
+    catch (error) { throw new Error(`${root} is not a build: it has no _headers file (${error.code || error.message}). Build first, or point --dir at the folder that holds the build.`); }
+    const context = {appDir: root, rules};
+    contextOf = async () => context;
+    shown = root;
+  }
   const send = (res, status, headers, body = '') => { res.writeHead(status, headers); res.end(body); };
   const REVALIDATE = {'Cache-Control': 'public, max-age=0, must-revalidate'};
+  const within = (base, file) => file === base || file.startsWith(base + path.sep);
+  // What a path names under `base`: { file, info }, { redirect: true } for a directory asked for without its slash, or null. With `contained`, a symlink that leaves `base` is refused.
+  const lookup = async (base, segments, pathname, {index = true, contained = false} = {}) => {
+    let file = path.resolve(base, ...segments);
+    if (!within(base, file)) return null;
+    const realBase = contained ? await fsRealpath(base).catch(() => null) : null;
+    const inside = async (f) => { if (!contained) return true; const real = realBase && await fsRealpath(f).catch(() => null); return Boolean(real) && within(realBase, real); };
+    let info = await stat(file).catch(() => null);
+    if (info && !(await inside(file))) return null;
+    if (info?.isDirectory()) {
+      if (!pathname.endsWith('/')) return {redirect: true};
+      if (!index) return null;
+      file = path.join(file, 'index.html');
+      info = await stat(file).catch(() => null);
+      if (info && !(await inside(file))) return null;
+    }
+    return info?.isFile() ? {file, info} : null;
+  };
 
   const server = createServer(async (req, res) => {
     try {
+      const ctx = await contextOf();
+      const {appDir, rules} = ctx;
       if (req.method !== 'GET' && req.method !== 'HEAD') return send(res, 405, {...headersFor(rules, '/'), Allow: 'GET, HEAD'}, 'Method not allowed');
+      const search = new URL(req.url, 'http://local').search;
       let pathname;
       try { pathname = decodeURIComponent(new URL(req.url, 'http://local').pathname); } catch { return send(res, 400, headersFor(rules, '/'), 'Bad request'); }
       if (pathname.includes('\0') || pathname.includes('\\')) return send(res, 400, headersFor(rules, '/'), 'Bad request');
       const ruleHeaders = {...REVALIDATE, ...headersFor(rules, pathname)};
-      // the file the request names, kept inside the root: normalised first, then checked
-      let file = path.resolve(root, '.' + path.posix.normalize('/' + pathname));
-      if (file !== root && !file.startsWith(root + path.sep)) return send(res, 404, ruleHeaders, 'Not found');
-      let info = await stat(file).catch(() => null);
-      if (info?.isDirectory()) {
-        if (!pathname.endsWith('/')) return send(res, 308, {...ruleHeaders, Location: pathname + '/' + new URL(req.url, 'http://local').search});
-        file = path.join(file, 'index.html');
-        info = await stat(file).catch(() => null);
+      // the file the request names, kept inside its folder: normalised first, then checked
+      const norm = path.posix.normalize('/' + pathname);
+      const segments = norm.split('/').slice(1);
+      if (ctx.page && (norm === '/' || norm === '/index.html')) {
+        const rewritten = await ctx.page();
+        if (rewritten) {
+          const headers = {'Content-Type': 'text/html; charset=utf-8', ETag: rewritten.etag, ...ruleHeaders};
+          if (req.headers['if-none-match'] === rewritten.etag) return send(res, 304, headers);
+          res.writeHead(200, {...headers, 'Content-Length': rewritten.body.length});
+          return res.end(req.method === 'HEAD' ? undefined : rewritten.body);
+        }
       }
-      if (!info?.isFile()) {
-        const body = await readFile(path.join(root, '404.html')).catch(() => Buffer.from('Not found'));
+      let hit = null;
+      if (ctx.modelsDir && segments[0] === 'models') hit = await lookup(ctx.modelsDir, segments.slice(1), pathname, {index: false, contained: true});
+      else if (ctx.pagesDir && ctx.pageOk(segments[0])) hit = await lookup(ctx.pagesDir, segments, pathname, {contained: true});
+      if (!hit && !(ctx.modelsDir && segments[0] === 'models')) hit = await lookup(appDir, segments, pathname);
+      if (hit?.redirect) return send(res, 308, {...ruleHeaders, Location: pathname + '/' + search});
+      if (!hit) {
+        const body = await readFile(path.join(appDir, '404.html')).catch(() => Buffer.from('Not found'));
         return send(res, 404, {...ruleHeaders, 'Content-Type': 'text/html; charset=utf-8'}, req.method === 'HEAD' ? '' : body);
       }
+      const {file, info} = hit;
       const etag = `W/"${info.size.toString(16)}-${Math.floor(info.mtimeMs).toString(16)}"`;
-      const headers = {'Content-Type': typeOf(file, root), 'Last-Modified': info.mtime.toUTCString(), ETag: etag, 'Accept-Ranges': 'bytes', ...ruleHeaders};
+      const headers = {'Content-Type': typeOf(file, appDir), 'Last-Modified': info.mtime.toUTCString(), ETag: etag, 'Accept-Ranges': 'bytes', ...ruleHeaders};
       if (req.headers['if-none-match'] === etag) return send(res, 304, headers);
       const range = parseRange(req.headers.range, info.size);
       if (range === 'bad') return send(res, 416, {...headers, 'Content-Range': `bytes */${info.size}`});
@@ -74,8 +119,8 @@ export async function startServer({dir, host = '127.0.0.1', port = 0, quiet = fa
     } catch { try { send(res, 500, {}, 'Server error'); } catch { /* the connection is gone */ } }
   });
   await new Promise((resolve, reject) => { server.once('error', reject); server.listen(port, host, resolve); });
-  if (!quiet) console.log(`Serving ${root} at http://${host}:${server.address().port}`);
-  return {server, port: server.address().port, root};
+  if (!quiet) console.log(`Serving ${shown} at http://${host}:${server.address().port}`);
+  return {server, port: server.address().port, root: shown};
 }
 
 const isFolder = (p) => { try { return statSync(p).isDirectory(); } catch { return false; } };
