@@ -13,7 +13,8 @@ Everything here works the same from Claude Code, Codex and opencode. Read the `b
 
 ## The loop
 
-1. Read the board: `curl -s $B/api/context/task/N.md` (the task, its notes, what it depends on) and, for
+1. Read the board: `curl -s $B/api/context/task/N.md` (`B` is `$COSMO_BOARD_URL` if that is set, else the live
+   board; the launcher and `cosmo-verify` use the same default, and a spec's `board_url` overrides it) (the task, its notes, what it depends on) and, for
    the objective it serves, its notes. A task that depends on unfinished tasks is not ready.
 2. Decide the work: one piece per executor, small enough for one session, with steps you can check.
 3. Write a spec file, one per executor (below). Scratch files go under `/var/lib/cosmoshot/`, never `/tmp`.
@@ -24,9 +25,10 @@ Everything here works the same from Claude Code, Codex and opencode. Read the `b
 6. Verify: `cosmo-verify RECEIPT` (the receipt path is in the command's output and beside the hand-back as
    `HANDBACK.receipt.json`). Exit 0 means every check passed. Read the table, not just the code: WARN rows
    (a step without a DONE line) are yours to judge.
-7. Record the checked result as a note on the board task (`X-Actor` is your own name, text starts with the
-   time from `date '+%Y-%m-%d %H:%M %Z'` that you just ran): what was verified, by which commands, and the
-   lane and seconds from the receipt. Then start the next piece.
+7. Record the checked result as ONE note on the board task (`X-Actor` and `author` are your own name). The text
+   must begin with the time in square brackets, from `date '+%Y-%m-%d %H:%M %Z'` that you just ran, as
+   `[2026-11-15 12:55 EST] what was verified...`: which commands, and the lane and seconds from the receipt.
+   Do not post it twice. Then start the next piece.
 8. Close a task (`PATCH {"status":"done"}`) only when it is yours to close, the executor's work verified with
    no FAIL, and your note is on it. If anything FAILed, leave it in progress and say so in a note.
 
@@ -37,6 +39,7 @@ JSON. Only `id`, `goal`, `steps` and a place to write are required.
     {"id": "t177-a",                       letters, digits . _ - ; also names the run folder
      "lanes": ["codex", "claude"],         preference order: claude, codex, opencode (default: all three)
      "board_task": 177,                    the executor sets it in progress and posts a note (omit for none)
+     "board_url": "...",                   optional; default $COSMO_BOARD_URL, else the live board
      "goal": "one paragraph: what and why",
      "read_first": ["/path/AGENTS.md"],    whole files, never partial
      "facts": ["things you know that save time"],
@@ -83,10 +86,18 @@ reads the receipt and hand-back. For a repository with no origin or a different 
 - Print, paste or write a credential or the router token.
 - Edit memory files by hand (use `cosmo-mem`), touch session files, or touch the live board in a test
   (use a scratch copy: `python3 /cosmoshot/planner/planner/server.py --db DB --port N`).
+- Do the executor's work yourself (edit the code, commit, push): you write the spec and start an executor;
+  if you did the work, the check proves nothing.
 - Close a task on an executor's say-so, invent a note time, or say "done" with a FAIL in the table.
 
-## On Codex
+## Plain commands (every harness)
 
-Run each `git` and `cosmo-mem` command plainly on its own (no variables, env prefix, redirection or
-`git -c ...`), or the rules that let it write `.git` do not apply. Your own commands for this skill
-(`cosmo-run`, `cosmo-verify`, `curl`, `date`) have no such limit.
+Run each shell command plainly on its own, with literal paths: no `VAR=value` assignment or prefix, no
+`$(...)`, no heredoc. Claude refuses a compound command whose parts are not all allowed, and on Codex the
+rules that let `git` and `cosmo-mem write` write `.git` apply only to plain commands (no redirection or
+`git -c ...` either). The executor brief tells executors the same.
+
+## Limits you will meet
+
+From inside Codex's `workspace-write` sandbox the opencode lane cannot start (bubblewrap cannot nest), so
+launch executors there on `claude` or `codex`. Do not loosen a sandbox to get around it; say so in your note.

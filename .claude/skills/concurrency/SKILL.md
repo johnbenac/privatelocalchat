@@ -48,3 +48,10 @@ with a concurrency test. A change without one is not finished.**
   add files by name. `cosmo-mem` already serialises its writes: its parallel callers wait, they do not race.
 - Make steps idempotent: re-running with the same input must write nothing new.
 - Say in the hand-back which concurrency tests exist, how many workers, how many repeats, and the invariants.
+
+## The helper
+
+`/cosmoshot/tools/conctest/` (standard library; see its `README.md`) does the plumbing so a test states only its invariants:
+`run_procs(cmds, start_file)` / `run_threads(fns)` start N workers released together and report a deadlock instead of
+hanging, and `repeat(fn)` runs a test `CONC_REPEAT` times (small default; `CONC_REPEAT=20` for the full check).
+Also: `Proc.kill_after(marker)` for kill -9, `scratch()`, `sqlite_check`, `git_fsck`, `json_parses`.
