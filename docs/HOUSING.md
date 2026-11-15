@@ -44,8 +44,8 @@ On this machine `origin` is written `git@gitlab.benac.dev:cosmoshot/privatelocal
 
 | File | Size | Where |
 | --- | --- | --- |
-| `plc-work-ignored.tgz` | 397,788,950 bytes (about 380 MiB), 43,155 entries | `/media/Atelier/cosmoshot/closeout-2026-11-13/` and `/media/Vivarium/closeout-2026-11-13/` (the two have the same size and the same checksum) |
-| `plc-production-work-ignored.tgz` | 1,381 bytes, three small files under `work/` | `/media/Atelier/cosmoshot/closeout-2026-11-13/` only |
+| `plc-work-ignored.tgz` | 397,788,950 bytes (about 380 MiB), 43,155 entries | `/cosmoshot/store/closeout-2026-11-13/` and `/media/Vivarium/closeout-2026-11-13/` (the two have the same size and the same checksum) |
+| `plc-production-work-ignored.tgz` | 1,381 bytes, three small files under `work/` | `/cosmoshot/store/closeout-2026-11-13/` only |
 
 `plc-work-ignored.tgz` holds the ignored `work/` of the old working copy. By the record of 2026-11-13 it contains an expired
 self-signed test key; it is a test key and has no use. I listed the archives and did not unpack them, and I did not find the key by
@@ -53,7 +53,7 @@ file name in the listing, so that line is as recorded on 2026-11-13. The archive
 one wholesale. To take one directory out of it, extract only that path into a new empty directory:
 
 ```bash
-mkdir /var/tmp/plc-work && tar -xzf /media/Atelier/cosmoshot/closeout-2026-11-13/plc-work-ignored.tgz -C /var/tmp/plc-work work/research
+mkdir /var/tmp/plc-work && tar -xzf /cosmoshot/store/closeout-2026-11-13/plc-work-ignored.tgz -C /var/tmp/plc-work work/research
 ```
 
 The commits that no branch of the old working copy reached are kept in `origin` under `refs/archive/old-working-copy/` (see the
