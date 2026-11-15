@@ -18,7 +18,7 @@ Stores: `program`, `cosmogenitor`, `sonalon`, `plc`, `cyberplanetary`, `platform
 
 The project is the one whose `cwd_prefixes` (in `/cosmoshot/tools/projects.json`) is the
 longest prefix of the directory. Sessions whose project is `program` (the planner, tools,
-skills, memory, brand, aiofourown, ecosystem-simulator) have every store read-only. A session
+skills, memory, brand, aiofourown, ecosystem-simulator) read and write every store: they are the orchestrator. A session
 of project P has store P read-write and `program` read-only.
 
 ## Read (no identity needed; works on every store)
