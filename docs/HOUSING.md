@@ -59,14 +59,18 @@ mkdir /var/tmp/plc-work && tar -xzf /cosmoshot/store/closeout-2026-11-13/plc-wor
 The commits that no branch of the old working copy reached are kept in `origin` under `refs/archive/old-working-copy/` (see the
 checklist). They are not in a clone unless it fetches that namespace.
 
-### Not part of the move, and never to be deleted
+### The three folders under /srv: moved on 2026-11-15 (board task 164)
 
-Seen from outside, by a directory listing only; none of them was changed:
+They held an earlier Private Local Chat (the April 2026 "integration kit"), not this repository's app. They are no longer
+"not part of the move": `docs/SERVICE-MOVE.md` says what each was, what ran from them and where everything is now.
 
-* `/srv/privatelocalchat`: a separate tree (own `package.json`, `src/`, `site/`, `deploy.sh`, `dist/`). As recorded on
-  2026-11-13 it is live: Caddy serves it and a dev-harness service runs from it.
-* `/srv/privatelocal`: six static files (`index.html`, `app.js`, `styles.css`, `sw.js`, `manifest.webmanifest`, `icons/`), owned by `caddy`.
-* `/srv/privatelocalchat-model-archive`: a directory with one subdirectory, dated 2026-11-11.
+* The kit's source (168 files, no credential found) is in this repository's group copy on the private branch `private/dev-harness`
+  (orphan, folder `integration-kit/`, group only; it is not on `main` or on GitHub, and `integration-kit/HOUSING.md` on that branch says why).
+* The development harness service and the three web sites run from `/var/lib/cosmoshot/privatelocalchat` (release of that branch,
+  telemetry state, the served copies). Caddy and the unit name that folder, not `/srv`.
+* The model files (`/srv/privatelocalchat-model-archive`, the served models and the telemetry) have two verified copies:
+  `/cosmoshot/store/privatelocalchat/` and `/media/Vivarium/cosmoshot/privatelocalchat/` (mode 700, `FILES` and `SHA256SUMS` in each).
+* The old folders still exist and are deleted only from the owner's list.
 
 ### Does the test suite need the working material?
 
@@ -120,7 +124,7 @@ deleted. The session of 2026-11-13 recorded 1,575 tests passing; the same number
 * Work happens in `/cosmoshot/privatelocalchat`. Every branch is pushed to `origin`. `github` is for publishing.
 * Another branch is worked on in a worktree under `.claude/worktrees/` (ignored by `.gitignore`).
 * Deleted on 2026-11-13: the three old working copies named above.
-* Kept: the second copy on both disks; the archive refs in `origin`; and the three directories under `/srv` that were not part of
-  the move.
+* Kept: the second copy on both disks; the archive refs in `origin`. The three directories under `/srv` were moved on 2026-11-15
+  (see above) and wait for the owner's deletion list.
 * The order of work: everything that is not migration waits for board task 102 "All migrations complete", at
   https://cosmoshot.benac.dev, as recorded on 2026-11-13.
