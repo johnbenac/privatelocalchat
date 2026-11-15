@@ -70,7 +70,8 @@ They held an earlier Private Local Chat (the April 2026 "integration kit"), not 
   telemetry state, the served copies). Caddy and the unit name that folder, not `/srv`.
 * The model files (`/srv/privatelocalchat-model-archive`, the served models and the telemetry) have two verified copies:
   `/cosmoshot/store/privatelocalchat/` and `/media/Vivarium/cosmoshot/privatelocalchat/` (mode 700, `FILES` and `SHA256SUMS` in each).
-* The old folders still exist and are deleted only from the owner's list.
+* The old folders were deleted from the owner's list on 2026-11-15, except `/srv/privatelocalchat/node_modules`, which stays
+  because a Sonalon tool defaults to its Playwright (`PLAYWRIGHT_MODULE` overrides it; see `docs/SERVICE-MOVE.md`).
 
 ### Does the test suite need the working material?
 
