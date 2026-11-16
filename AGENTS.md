@@ -121,7 +121,7 @@ program:
 [[branding-assets-and-direction]] — Where the ai of our own brand assets are, which bold-colour set is the style to build on, and what the branding work keeps.
 [[archive-upload-parts]] — Upload-sized archive deliveries: numbered parts, verified reassembly, and the shared archive-parts skill.
 [[teams-ask-each-other-directly]] — How teams get what they need from each other: a board request, a contract-request.md, the other team's review on the same task.
-[11/11 entries shown; cosmo-mem read program _index.md]
+[11/12 entries shown; cosmo-mem read program _index.md]
 ```
 
 
