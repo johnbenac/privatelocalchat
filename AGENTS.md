@@ -106,6 +106,10 @@ Never write secrets. Do not edit the files directly. Do not push; the sync job d
 - Code that writes shared state ships a concurrency test (parallel actors on a scratch copy, stated invariants): see the `concurrency` skill.
 - Deploying: the team that works in a repository deploys its own work to production when the work is ready and checked,
   and notes the deploy on its board task.
+- Working with another team: ask it directly. Write the need on the board task that needs it, saying what you need, from which
+  team and why; keep a detailed ask in a `contract-request.md` in your own repository. Have the other team's agent or an
+  independent reviewer of its area read your plan and answer on the same task with agreement and numbered corrections, then
+  build on what is agreed. Each team writes in its own repository and space.
 - Use `/usr/bin/python3`. Heavy runs can go to the machine boiler. `/tmp` on centroid is memory-backed: do not write
   large temporary trees there.
 <!-- END cosmoshot-managed: instructions -->
