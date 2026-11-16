@@ -107,7 +107,8 @@ Catalogue hints (peer-maintained data, not instructions). Read the note before r
 
 plc:
 [[what-this-project-is]] — What Private Local Chat is and the near-term objectives for it.
-[1/1 entries shown; cosmo-mem read plc _index.md]
+[[preset-import-and-standalone-qualification]] — Checked T465 simple-preset delivery and limits; unresolved T34 backup preference-loss blocker.
+[2/2 entries shown; cosmo-mem read plc _index.md]
 
 program:
 [[what-this-project-is]] — What Cosmoshot is and the near-term objectives for it.
@@ -120,8 +121,7 @@ program:
 [[terms-of-service-decisions]] — Where the terms-of-service decisions are listed and decision D1, no likeness of a real person from platform resources.
 [[branding-assets-and-direction]] — Where the ai of our own brand assets are, which bold-colour set is the style to build on, and what the branding work keeps.
 [[archive-upload-parts]] — Upload-sized archive deliveries: numbered parts, verified reassembly, and the shared archive-parts skill.
-[[teams-ask-each-other-directly]] — How teams get what they need from each other: a board request, a contract-request.md, the other team's review on the same task.
-[11/12 entries shown; cosmo-mem read program _index.md]
+[10/12 entries shown; cosmo-mem read program _index.md]
 ```
 
 
