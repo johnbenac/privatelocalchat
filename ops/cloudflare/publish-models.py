@@ -54,7 +54,7 @@ payload = {'state': state, 'manifest': manifest, 'extras': extras, 'sourceBucket
            'verifiedKeys': verified_keys,
            'accessKeyId': verified['id'],
            'secretAccessKey': hashlib.sha256(provision.TOKEN_FILE.read_text().strip().encode()).hexdigest()}
-helper = '/cosmoshot/tools/europe/bin/europe-ssh'
+helper = '/cosmoshot/infra/europe/bin/europe-ssh'
 subprocess.run([helper, '1', 'mkdir -p /var/tmp/privatelocalchat-transfer && chmod 700 /var/tmp/privatelocalchat-transfer && cat > /var/tmp/privatelocalchat-transfer/publish-models.py'],
                input=(ROOT / 'publish-models-remote.py').read_bytes(), check=True)
 subprocess.run([helper, '1', 'python3 -u /var/tmp/privatelocalchat-transfer/publish-models.py'],
