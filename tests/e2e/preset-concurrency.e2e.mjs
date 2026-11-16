@@ -5,11 +5,12 @@
 //
 // Invariants (stated before the run):
 //   no lost update   every import, manual save, edit, delete and backup restore that reported success is in the stored list, exactly once, at the end
-//   no corruption    the stored text always parses as a list of {id,name,prompt} with unique ids, also when a tab is killed in the middle
+//   no corruption    the stored text always parses as a list of {id,name,prompt} with unique ids, also when a tab is closed (torn down, no unload handlers) in the middle
 //   no torn read     a reader tab that polls the whole time never sees unparseable text, and never sees an id vanish that nobody deleted
 //   no silent conflict  two tabs importing the same name at once: one wins, the other is told (a conflict), nothing is added or dropped quietly
 //   no silent overwrite two Edit dialogs opened on the same record: the one committed edit survives, the stale submit is told and stores nothing, its text is kept for a retry
-//   no deadlock      a tab killed while holding the lock does not block the others; every actor finishes inside a timeout
+//   no deadlock      a tab closed (torn down, not a process kill) while holding the lock does not block the others; every actor finishes inside a timeout
+//                    (actual SIGKILL of a writer process around the real store: tests/preset-crash.test.mjs)
 //   the lock is the path  while another tab holds "plc-presets" a change waits and writes nothing; it proceeds when the holder goes (the selected path is the Web Lock, not a bare write)
 //   no rollback      nothing restores an earlier copy: a failed or unconfirmed write leaves whatever is stored
 //   node scripts/e2e.mjs preset-concurrency
@@ -139,6 +140,8 @@ try{
   await openReview(p0,JSON.stringify({name:'Imported '+repeat,prompt:'Imported text.'}));
   await Promise.all([p0.click('.app-dialog button:has-text("Add preset")'),p1.click('.app-dialog button:has-text("Save preset")')]);
   await within(Promise.all([p0,p1].map(p=>p.waitForFunction(()=>!document.querySelector('.app-dialog'),null,{timeout:10000}))),15000,'import and manual save');
+  // Closing the prompt precedes the asynchronous locked save. The selected fresh preset acknowledges completion.
+  await p1.waitForFunction(k=>{const id=document.querySelector('#presetSelect')?.value;return JSON.parse(localStorage.getItem(k)||'[]').some(p=>p.id===id&&p.name==='Pirate'&&p.prompt==='Talk like a pirate.');},KEY,{timeout:10000});
   const list=await storedList(p0);
   assert(list.length===2&&list.some(p=>p.name==='Pirate')&&list.some(p=>p.name==='Imported '+repeat),'UI manual+import repeat '+repeat+': both are kept '+JSON.stringify(list.map(p=>p.name)));
   await p1.evaluate(()=>{document.querySelector('#systemPromptInput').value='';});
@@ -198,7 +201,9 @@ try{
  }
  ok('two Edit dialogs on one preset, '+REPEATS+' repeats: one edit committed, the stale one is told and stores nothing, its text kept, retry saved');
 
- // 4. abrupt ends: the lock is the path, a tab killed while holding the lock, and a tab killed in the middle of a stream of writes
+ // 4. abrupt ends: the lock is the path, a tab torn down while holding the lock, and a tab torn down in the middle of a stream of writes.
+ //    NOTE: page.close({runBeforeUnload:false}) is an orderly tab teardown with no unload handlers. It proves a real browser frees the tab's Web Lock and that the others carry on;
+ //    it is NOT a process kill. The SIGKILL of a writer process around the real store module is tests/preset-crash.test.mjs.
  const mutateNow=(page,name)=>page.evaluate(async({b,KEY,name})=>{const {createPresetStore}=await import(b+'preset-store.mjs');const store=createPresetStore({storage:localStorage,key:KEY});
    const r=await store.mutate(list=>({list:[...list,{id:'now-'+crypto.randomUUID().slice(0,8),name,prompt:'x'}]}));return {ok:r.ok,code:r.code};},{b,KEY,name});
  // 4.0 the selected path: while another tab holds the lock, a change waits and writes nothing, and it goes through once the holder is gone
@@ -214,7 +219,7 @@ try{
   assert(done.ok&&(await storedList(main)).length===1,'repeat '+repeat+': the waiting change went through once the holder was gone: '+JSON.stringify(done));
  }
  ok('the Web Lock is the path: a change waits for another tab\'s hold, writes nothing meanwhile, then completes, '+REPEATS+' repeats');
- // 4a. a tab killed (no unload handlers) while it holds the lock
+ // 4a. a tab closed (no unload handlers; teardown, not a process kill) while it holds the lock
  for(let repeat=0;repeat<REPEATS;repeat++){
   await main.evaluate(k=>localStorage.removeItem(k),KEY);
   const victim=await newTab();
@@ -226,8 +231,8 @@ try{
   assert(after.ok,'repeat '+repeat+': the next change proceeds after the holder died: '+JSON.stringify(after));
   const list=await storedList(main);assert(list.length===1&&list[0].name==='After kill '+repeat,'repeat '+repeat+': and it is stored');
  }
- ok('a tab killed holding the lock does not block the next change, '+REPEATS+' repeats');
- // 4b. a tab killed in the middle of a stream of acknowledged writes, while another tab keeps importing
+ ok('a tab closed without unload handlers while holding the lock does not block the next change (tab teardown, not a process kill), '+REPEATS+' repeats');
+ // 4b. a tab closed (teardown, not a process kill) in the middle of a stream of acknowledged writes, while another tab keeps importing
  for(let repeat=0;repeat<REPEATS;repeat++){
   await main.evaluate(k=>localStorage.removeItem(k),KEY);
   const killed=await newTab(),acked=[];
@@ -246,7 +251,7 @@ try{
   assert(list.filter(p=>p.name.startsWith('Other '+repeat+'-')).length===4,'repeat '+repeat+': the other tab\'s four imports all survived');
   const next=await mutateNow(main,'Recovered '+repeat);assert(next.ok,'repeat '+repeat+': the store works after the kill');
  }
- ok('a tab killed in the middle of acknowledged writes: stored list whole, acknowledged writes kept, others unaffected, '+REPEATS+' repeats');
+ ok('a tab closed in the middle of acknowledged writes (teardown, not a process kill): stored list whole, acknowledged writes kept, others unaffected, '+REPEATS+' repeats');
  assert(h.errors.filter(e=>!/ResizeObserver/.test(e)).length===0,'no page errors: '+h.errors.join(' | '));
  console.log('preset-concurrency e2e: ok');
 }catch(e){console.error(e);process.exitCode=1;}

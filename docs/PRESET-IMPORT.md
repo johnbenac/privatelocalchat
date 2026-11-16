@@ -103,12 +103,21 @@ or discard. Removed meanwhile: told, nothing written. Whoever commits first wins
 
 * `tests/preset-candidate.test.mjs`: parser, limits, the bounded fragment (including a million unrelated characters around a tiny preset), conflicts, admission,
   backup merge rule, and the two real Cosmogenitor outputs in `tests/fixtures/presets/` (the test fails if they are missing).
-* `tests/preset-store.test.mjs`: the store (unreadable, malformed, read-only, full storage, no Web Locks, no rollback, kill while holding the lock, busy) and 8 parallel
+* `tests/preset-store.test.mjs`: the store (unreadable, malformed, read-only, full storage, no Web Locks, no rollback, a change that throws while holding the lock (an exception, not a process death), busy) and 8 parallel
   actors x 20 repeats including backup restores; 8 editors of one record x 20 repeats (one saved, the rest stale and writing nothing); the review box against an unreadable store.
 * `tests/e2e/preset-import.e2e.mjs`: the visible flow with the real outputs, refusals, oversized fragment, unreadable/malformed/read-error stores, a tab without Web Locks,
   vault lock/unlock/reload, a read-only vault tab, no network or model request.
 * `tests/e2e/preset-concurrency.e2e.mjs`: real tabs on one profile, 20 repeats each: 4 writing tabs and a reading tab (imports, manual changes, a restore), two tabs
-  pressing Add together, two real Edit dialogs on one preset (one edit kept, the stale one told and its text kept for retry), an import against a manual save, an import against a real backup import, the lock as the actual path, a tab killed holding the lock, a tab killed
-  mid-write.
+  pressing Add together, two real Edit dialogs on one preset (one edit kept, the stale one told and its text kept for retry), an import against a manual save, an import against a real backup import, the lock as the actual path, a tab closed without unload handlers while holding the lock, a tab closed
+  mid-write. Those two are tab **teardown** in a real browser (`page.close({ runBeforeUnload: false })`); they show the browser frees the lock and the others carry on, and are **not** a process kill.
+* `tests/preset-crash.test.mjs` (helpers `tests/helpers/preset-crash-actor.mjs`, `preset-crash-broker.mjs`): the abrupt death. 7 separate Node processes run the app's real
+  `preset-store.mjs` (4 adders, 2 editors of one preset, 1 victim), are released by a barrier, and the victim is stopped by `SIGKILL` to its process group at a chosen point: holding the lock
+  before writing, with the temp file written but not renamed, or after the rename but before it could acknowledge. 20 repeats per kill point (60 deaths total; staged: the others are already queued when the holder dies;
+  simultaneous: all released together). Checked: the victim ended by SIGKILL (no exit code) and its group is gone; the lock was freed by the death; the others finish and succeed; the list
+  always parses (a reader polls throughout); every acknowledged add is present once; the victim's change is absent before the rename and present once after it; one editor saved and one told
+  stale. Controls that must fail: no locks (lost updates), a lock a dead holder never frees (the others are stuck), a storage that writes in two parts (a torn file).
+  **What is simulated:** no browser. localStorage is a file with temp-file-and-rename `setItem`, so whole-or-absent is a property of the *storage*, not of our code; Web Locks is a broker that
+  frees the lock when the holder's connection closes, which is what the real-tab suite shows a browser doing. Power-loss durability is not tested.
+  `PLC_CRASH_REPEATS`, `PLC_CRASH_SCRATCH_ROOT` (default the system temporary folder) and `PLC_CRASH_EVIDENCE_DIR` (writes `crash-evidence.json` and per-repeat logs) adjust a run.
 * Browser suites keep their profile in a new folder under `PLC_E2E_PROFILE_ROOT` (default: the system temporary folder; this machine uses a dedicated folder on
   `/media/Vivarium`) and take their port from `E2E_PORT_OFFSET` (bases 18461 and 18462).

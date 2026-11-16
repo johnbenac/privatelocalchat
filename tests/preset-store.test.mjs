@@ -81,7 +81,8 @@ test('there is NO rollback: a write that cannot be confirmed leaves whatever is 
   assert.deepEqual(stored(storage), newer, 'the other writer\'s newer, successful write is still there: nothing was put back');
 });
 
-test('a change that throws releases the lock, writes nothing, and the next change proceeds (crash holding the lock)', async () => {
+// An exception inside the change, with an in-memory lock stand-in: this is NOT a process death (that is tests/preset-crash.test.mjs, which SIGKILLs a writer process).
+test('a change that throws releases the lock, writes nothing, and the next change proceeds (exception while holding the lock)', async () => {
   const storage = memoryStorage({ [KEY]: '[{"id":"a","name":"A","prompt":"p"}]' }); const locks = fakeLocks(); const store = createPresetStore({ storage, key: KEY, locks });
   const before = storage.getItem(KEY);
   const crashed = await store.mutate(() => { throw new Error('tab died'); });
