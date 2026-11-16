@@ -104,6 +104,8 @@ Never write secrets. Do not edit the files directly. Do not push; the sync job d
 - Commits (this machine's hook): subject `type(scope): text`, text starting lower-case, then a blank line and a body.
   Every line under 100 characters. No co-author or attribution trailers, no email addresses.
 - Code that writes shared state ships a concurrency test (parallel actors on a scratch copy, stated invariants): see the `concurrency` skill.
+- Deploying: the team that works in a repository deploys its own work to production when the work is ready and checked,
+  and notes the deploy on its board task.
 - Use `/usr/bin/python3`. Heavy runs can go to the machine boiler. `/tmp` on centroid is memory-backed: do not write
   large temporary trees there.
 <!-- END cosmoshot-managed: instructions -->
