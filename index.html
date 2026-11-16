@@ -334,6 +334,7 @@
           <label for="presetSelect">Preset</label>
           <select id="presetSelect"><option value="">No preset</option></select>
           <button type="button" id="savePresetBtn" class="secondary">Save as preset</button>
+          <button type="button" id="importPresetBtn" class="secondary">Import preset…</button>
         </div>
         <label for="systemPromptInput">System prompt:</label>
         <textarea id="systemPromptInput" placeholder="You are a helpful assistant."></textarea>
@@ -876,7 +877,7 @@
         saveThreads, currentThread, generateThreadId, growComposer, persistDraftNow, renderMessages, renderThreadList, updateComposerHint, moduleBase,
         enterSends, callSoundsOn: () => callSoundsOn(), loadSpeech: () => loadSpeech(), speechAvailable: () => speechAvailable, voiceButton: () => voiceUi.voiceButton()
       });
-      const { addMemory, savePresets, openPreferences } = assistant;
+      const { addMemory, openPreferences } = assistant;
 
       // ---- model services (chat/models/services.mjs): memory manager, shared embedder, voice choice ----
       let voiceTestHook = null;
@@ -947,7 +948,7 @@
 
       // ---- protected backups (chat/transfer/backups.mjs) ----
       const backups = createBackups({
-        el, moduleBase, threads: () => threads, folders: () => convoList.folders(), saveFolders, assistant, addMemory, savePresets, prefs, savePrefs, generateThreadId, loadDocModules, promptDialog, showToast
+        el, moduleBase, threads: () => threads, folders: () => convoList.folders(), saveFolders, assistant, addMemory, prefs, savePrefs, generateThreadId, loadDocModules, promptDialog, showToast
       });
       const { loadCrypto, passField, buildBackup, askPassphrase, restoreExtras } = backups;
 
@@ -1055,6 +1056,7 @@
         loadThreads();
         // Check if URL contains chat data and create a thread accordingly
         parseUrlParams();
+        assistant.openPresetFromAddress(); // a preset link only opens the review box (the address is not changed); adding is the person's click
         const ensuredId = ensureThreadExists();
         renderThreadList();
         // If a thread was created via URL params select it; otherwise pick the first existing

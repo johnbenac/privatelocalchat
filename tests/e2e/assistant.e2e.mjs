@@ -65,6 +65,7 @@ try{
  assert(/Answer as briefly as possible/.test(await systemOfLast()),'preset instructions sent');
  await page.fill('#systemPromptInput','Talk like a pirate.');await page.click('#savePresetBtn');
  await page.fill('.app-dialog input','Pirate');await page.click('.app-dialog button:has-text("Save preset")');
+ await page.waitForFunction(()=>[...document.querySelectorAll('#presetSelect option')].some(o=>o.textContent==='Pirate')); // the save now waits its turn for the preset lock (chat/assistant/preset-store.mjs), a moment later than before
  assert((await page.locator('#presetSelect option').allInnerTexts()).includes('Pirate'),'custom preset saved');
  ok('presets');
 

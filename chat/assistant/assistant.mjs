@@ -1,12 +1,16 @@
 // The assistant's standing context and its small tools: preferences (instructions, how Enter sends, the reply voice and speed, call sounds), memory (things you asked it to
 // remember), presets (built in and your own), and the exact-answer tools (arithmetic, unit conversion, calendar questions, slash commands answered without the model).
 // What it adds to what the model is told arrives through the event list: context:collect for preferences and memory, send:intercept and prompt:ready for the tools.
-// createAssistant(host) returns { memory, customPresets, addMemory, savePresets, openPreferences }: the page reads memory and the presets for backups and the context meter.
+// createAssistant(host) returns { memory, customPresets, addMemory, restorePresets, openPreferences, openPresetFromAddress }: the page reads memory and the presets for backups and the context meter,
+// restores a backup's presets (restorePresets, under the preset lock) and asks for a preset link in the address to be shown for review. Importing a preset file or link: preset-candidate.mjs (reading), preset-import.mjs (review box), preset-store.mjs (locked writes).
 //
 // host: el, events, messageDecorators, messageActionHandlers, actionButton (buttons under a message), model() (the thread model functions), prefs (the object), savePrefs, readJson, writeJson, messageInput, systemPromptInput, threadTitleInput, openAppDialog,
 //       promptDialog, showToast, saveThreads, currentThread(), generateThreadId, growComposer, persistDraftNow, renderMessages, renderThreadList, updateComposerHint,
 //       enterSends(), callSoundsOn(), loadSpeech(), speechAvailable() (what the browser can do), voiceButton() (null when there is no call button), moduleBase()
-import { appLocal } from "../vault/vault-store.mjs";
+import { app, appLocal } from "../vault/vault-store.mjs";
+import { createPresetStore, editPresetChange } from "./preset-store.mjs";
+import { createPresetImport } from "./preset-import.mjs";
+import { mergeBackupPresets } from "./preset-candidate.mjs";
 
 export function createAssistant(host) {
   const { el, events, prefs, savePrefs, readJson, writeJson, messageInput, systemPromptInput, threadTitleInput, openAppDialog, promptDialog, showToast, saveThreads, growComposer,
@@ -17,7 +21,13 @@ export function createAssistant(host) {
   const saveMemory = () => writeJson(appLocal, MEMORY_KEY, memory);
   let customPresets = readJson(appLocal, PRESETS_KEY, []);
   if (!Array.isArray(customPresets)) customPresets = [];
-  const savePresets = () => writeJson(appLocal, PRESETS_KEY, customPresets);
+  // Every change to the saved presets (save, edit, delete, import, backup restore) goes through `presetStore` (chat/assistant/preset-store.mjs): a lock shared by every tab, a fresh read
+  // of what is stored, one change, a write checked by reading it back. There is no whole-list writer any more: `customPresets` is only this tab's copy of what was last read or written.
+  const presetStore = createPresetStore({ storage: appLocal, key: PRESETS_KEY, isReadOnly: () => app.readOnly });
+  const adoptPresets = list => { customPresets = list; };
+  // text of an edit that was refused (a newer version of the preset was stored first, or the save failed), kept in memory so the next Edit of that preset starts from it
+  const rejectedEdits = new Map();
+  const presetFailure = outcome => showToast(outcome.message || 'The preset could not be saved.');
   const BUILTIN_PRESETS = [
     { id: 'builtin-writing', name: 'Writing helper', prompt: 'You are a careful writing assistant. Improve clarity and flow while keeping the author’s own voice and meaning. Give the revised text first, then briefly list what you changed.' },
     { id: 'builtin-tutor', name: 'Study tutor', prompt: 'You are a patient tutor. Explain step by step in plain language, use small examples, and end with one short question that checks understanding. For exercises, guide the student instead of simply giving the answer.' },
@@ -61,7 +71,34 @@ export function createAssistant(host) {
     const name = await promptDialog('Save as preset', 'Preset name', thread.title && thread.title !== 'New chat' ? thread.title : '', { confirmLabel: 'Save preset' });
     if (!name || !name.trim()) return;
     const preset = { id: 'preset-' + generateThreadId(), name: name.trim(), prompt };
-    customPresets.push(preset); savePresets(); thread.presetId = preset.id; saveThreads(); renderPresetOptions(thread); showToast('Preset saved');
+    const saved = await presetStore.mutate(list => ({ list: [...list, preset] }));
+    if (!saved.ok) { presetFailure(saved); return; }
+    adoptPresets(saved.list); thread.presetId = preset.id; saveThreads(); renderPresetOptions(thread); showToast('Preset saved');
+  });
+
+  // import: a file or a preset link is reviewed first; only the review box's "Add" makes a new preset (chat/assistant/preset-import.mjs)
+  const presetImport = createPresetImport({
+    el, openAppDialog, showToast, store: presetStore, builtins: () => BUILTIN_PRESETS, generateId: () => 'preset-' + generateThreadId(),
+    onAdded: (preset, list) => { adoptPresets(list); renderPresetOptions(currentThread()); }
+  });
+  // restoring a backup's presets: the same rules as before (a preset whose name is already one of yours is skipped, each added one gets a new id), but made under the preset lock
+  // against what is stored now. Returns { ok, added }; when presets cannot be changed (unreadable saved presets, no Web Locks, read-only tab) nothing is written and the person is told.
+  async function restorePresets(items) {
+    if (!(items || []).some(p => p?.name && p.prompt)) return { ok: true, added: 0 };
+    const done = await presetStore.mutate(list => {
+      const merged = mergeBackupPresets(list, items, () => 'preset-' + generateThreadId());
+      return merged.added ? { list: merged.list, result: merged.added } : { result: 0 };
+    });
+    if (!done.ok) { presetFailure(done); return { ok: false, added: 0 }; }
+    adoptPresets(done.list); renderPresetOptions(currentThread());
+    return { ok: true, added: done.result };
+  }
+  document.getElementById('importPresetBtn')?.addEventListener('click', () => presetImport.chooseFile());
+  // another tab changed the saved presets: show them here too (the list is read again; nothing is written)
+  window.addEventListener('storage', event => {
+    if (event.key !== PRESETS_KEY && event.key !== null) return;
+    const fresh = presetStore.read(); if (!fresh.ok) return;
+    adoptPresets(fresh.list); renderPresetOptions(currentThread());
   });
   systemPromptInput.addEventListener('input', () => { const t = currentThread(); if (t?.presetId && allPresets().find(p => p.id === t.presetId)?.prompt !== systemPromptInput.value.trim()) { delete t.presetId; presetSelect.value = ''; } });
   events.on('thread:selected', thread => renderPresetOptions(thread));
@@ -125,16 +162,31 @@ export function createAssistant(host) {
         row.appendChild(info);
         if (!p.id.startsWith('builtin-')) {
           const edit = el('button', 'secondary', 'Edit'); edit.type = 'button';
-          edit.addEventListener('click', async () => { const prompt = await promptDialog('Edit preset “' + p.name + '”', 'Instructions', p.prompt, { multiline: true }); if (prompt && prompt.trim()) { p.prompt = prompt.trim(); savePresets(); renderPresets(); renderPresetOptions(currentThread()); } });
+          edit.addEventListener('click', async () => {
+            // `p` is the record this editor shows. It is compared with the stored record inside the lock (editPresetChange): if the preset was changed or removed since, nothing is written.
+            const prompt = await promptDialog('Edit preset “' + p.name + '”', 'Instructions', rejectedEdits.get(p.id) ?? p.prompt, { multiline: true });
+            if (!prompt || !prompt.trim()) return;
+            rejectedEdits.delete(p.id);
+            const done = await presetStore.mutate(editPresetChange(p, prompt.trim()));
+            if (!done.ok) { rejectedEdits.set(p.id, prompt.trim()); presetFailure(done); return; }
+            adoptPresets(done.list);
+            if (done.result.status === 'gone') showToast('That preset was already removed. Your edit was not saved.');
+            else if (done.result.status === 'stale') { rejectedEdits.set(p.id, prompt.trim()); showToast('This preset was changed somewhere else after you opened it, so your edit was not saved. Press Edit again to see the newer text with your wording kept for you to apply.'); }
+            renderPresets(); renderPresetOptions(currentThread());
+          });
           const del = el('button', 'secondary', 'Delete'); del.type = 'button';
-          del.addEventListener('click', () => { customPresets = customPresets.filter(x => x.id !== p.id); savePresets(); renderPresets(); renderPresetOptions(currentThread()); });
+          del.addEventListener('click', async () => {
+            const done = await presetStore.mutate(list => ({ list: list.filter(x => x.id !== p.id) }));
+            if (!done.ok) { presetFailure(done); return; }
+            adoptPresets(done.list); renderPresets(); renderPresetOptions(currentThread());
+          });
           row.append(edit, del);
         }
         presetList.appendChild(row);
       });
     };
     renderPresets();
-    sec('Assistant presets', el('p', 'muted', 'Pick one under “Instructions for this chat”. Write instructions there and press “Save as preset” to add your own.'), presetList);
+    sec('Assistant presets', el('p', 'muted', 'Pick one under “Instructions for this chat”. Write instructions there and press “Save as preset” to add your own, or press “Import preset…” to review one from a file.'), presetList);
     // typing
     const enter = el('label', 'list-row'); const ecb = el('input'); ecb.type = 'checkbox'; ecb.checked = host.enterSends();
     enter.append(ecb, el('span', null, 'Enter sends the message (Shift+Enter adds a new line)'));
@@ -179,5 +231,5 @@ export function createAssistant(host) {
     return true;
   });
   events.on('prompt:ready', retool);
-  return { get memory() { return memory; }, get customPresets() { return customPresets; }, addMemory, savePresets, openPreferences };
+  return { get memory() { return memory; }, get customPresets() { return customPresets; }, addMemory, restorePresets, openPreferences, openPresetFromAddress:() => presetImport.openFromAddress() };
 }
