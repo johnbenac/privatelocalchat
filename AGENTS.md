@@ -112,15 +112,14 @@ plc:
 program:
 [[what-this-project-is]] — What Cosmoshot is and the near-term objectives for it.
 [[concept-systems-plugin-path-and-loading]] — Where the Concept Systems plugin lives and the command that loads it in Claude Code.
-[[how-memory-is-kept]] — How the shared memory stores are written, synced and rolled out, who may write which store, and what a dream may and may not land.
-[[workspace-multiple-git-repos]] — /cosmoshot is a workspace of independent project repositories, not one Git repository.
+[[how-memory-is-kept]] — Where to find memory access, safe writes and sync, instruction rollout, and dream validation contracts.
 [[any-one-lane-is-enough]] — The standing bar that any one of Claude Code, Codex or opencode on the local router must be able to run Cosmoshot, and the routing-policy mechanism that chooses lanes.
 [[development-infrastructure-scope]] — Scope and ownership of the shared developer foundation; read before expanding infrastructure into application or commercial design.
 [[sign-in-and-accounts-decision]] — How people sign in across the Cosmoshot sites, what an account may and may not do, and why it comes later.
 [[terms-of-service-decisions]] — Where the terms-of-service decisions are listed and decision D1, no likeness of a real person from platform resources.
 [[branding-assets-and-direction]] — Where the ai of our own brand assets are, which bold-colour set is the style to build on, and what the branding work keeps.
 [[teams-ask-each-other-directly]] — How teams get what they need from each other: a board request, a contract-request.md, the other team's review on the same task.
-[10/10 entries shown; cosmo-mem read program _index.md]
+[9/9 entries shown; cosmo-mem read program _index.md]
 ```
 
 
