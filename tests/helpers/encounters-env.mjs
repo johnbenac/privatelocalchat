@@ -16,9 +16,9 @@ export const thread = (id, messages = [], extra = {}) => ({ id, title: 'T ' + id
 export const msg = (id, role, content, extra = {}) => ({ id, role, content, at: 1, ...extra });
 
 /** One tab: loads the stored chats like loadThreads does, saves through the real commit. */
-export function openTab({ storage, locks, now = () => 1000, onPhase, isBlocked, tabLocks = locks } = {}) {
+export function openTab({ storage, locks, now = () => 1000, onPhase, isBlocked, tabLocks = locks, storeOptions = {} } = {}) {
   const tab = { threads: [] };
-  const store = createLedgerStore({ storage, locks: tabLocks });
+  const store = createLedgerStore({ storage, locks: tabLocks, watch: ['chatThreads'], ...storeOptions });
   const commit = createThreadCommit({ storage, store, locks: tabLocks, normalize: normalizeThread, getThreads: () => tab.threads, now, onPhase, isBlocked });
   tab.store = store; tab.commit = commit;
   tab.load = () => { const raw = storage.getItem('chatThreads'); tab.threads = (raw ? JSON.parse(raw) : []).map((t) => normalizeThread(t)).filter(Boolean); commit.init(); return tab; };

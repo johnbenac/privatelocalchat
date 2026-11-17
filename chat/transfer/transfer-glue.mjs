@@ -135,7 +135,7 @@ export function createTransferGlue(host) {
          title: titleParam ? decodeURIComponent(titleParam) : 'New chat',
          systemPrompt: systemParam ? decodeURIComponent(systemParam) : ''
        };
-       const id = await createThread(threadDetails);
+       const id = createThread(threadDetails);   // synchronous: the id is returned at once and is what is selected
        host.setCurrentThreadId(id);
       const threadObj = getThread(id);
       // Insert into UI

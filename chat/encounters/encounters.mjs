@@ -18,7 +18,7 @@ export function createEncounters(host) {
   const { storage, threads, normalizeThread = (t) => t, newId = () => `m-${Math.random().toString(16).slice(2, 10)}`, showToast = () => {}, isBlocked = () => false, isReadOnly = () => false } = host;
   const now = host.now || (() => Date.now());
   const locks = host.locks === undefined ? globalThis.navigator?.locks : host.locks;
-  const store = createLedgerStore({ storage, key: LEDGER_KEY, locks, isReadOnly, isNewer: host.isLedgerBlocked || (() => false) });
+  const store = createLedgerStore({ storage, key: LEDGER_KEY, locks, isReadOnly, isNewer: host.isLedgerBlocked || (() => false), watch: host.watch || [] });   // host.watch: the other key stored in the same lock hold (the chats), so a stale read of it is waited out too
   const told = new Set();
   const tell = (key, text) => { if (told.has(key)) return; told.add(key); try { showToast(text, 9000); } catch { /* no UI */ } };
   const commit = createThreadCommit({
@@ -26,13 +26,9 @@ export function createEncounters(host) {
     onResult: (r) => {
       if (host.onResult) host.onResult(r);
       if (r.ok && r.wrote && host.onCommitted) { try { snapshot(); host.onCommitted(r); } catch { /* the screen must not stop saving */ } }
-      if (!r.ok) {
-        if (r.code === 'read-only' || r.code === 'unsupported' || r.code === 'blocked') return;
-        tell(r.code + (r.epoch ?? ''), r.message);
-        return;
-      }
-      for (const c of r.conflicts || []) tell('c:' + c.thread + c.detail, `A chat changed in another tab (${c.detail}), so this tab did not overwrite it. Reload to see the newer version.`);
-      if (r.recording === 'failed') tell('rec-failed', 'Your chat was saved, but its conversation records could not be (storage may be full).');
+      // A refusal or a conflict is told by the ACTION that asked for the save, in its own words (chat/core/thread-state.mjs persist(), with chat/encounters/save-outcome.mjs): the sender
+      // says "your message was not sent", an import says "the import was not saved". Nothing is suppressed there; this callback only tells what no action owns.
+      if (r.ok && r.recording === 'failed') tell('rec-failed', 'Your chat was saved, but its conversation records could not be (storage may be full).');
     }
   });
 
@@ -83,13 +79,13 @@ export function createEncounters(host) {
 
   function saveThreads() { observeTemporary(); return commit.request(); }
   /**
-   * HOST CONTRACT (T418 core, for the next UI pass): `await prepare()` BEFORE reading chatThreads for the screen, then read, then call init() with no await between that read and init().
+   * HOST CONTRACT: `await prepare()` BEFORE reading chatThreads for the screen, then read ONCE, then call init(rawText) with that same text and no await between the read and init().
    * prepare finishes an interrupted earlier commit under the Web Lock first, so the UI never consumes a half-finished state. -> { ok, recovered } | { ok: false, code } (a refusal does not
    * stop the app from showing what is stored; saving then refuses the same way).
    */
   async function prepare() { const r = await commit.prepare(); snapshot(); return r; }
-  async function init() {
-    const r = commit.init();
+  async function init(raw) {
+    const r = commit.init(raw);        // `raw`: the very text the host just read and showed; the baseline is that, not a second read
     // an interrupted earlier commit (a tab killed between the two stores) is finished here, in the lock, before this tab shows or records anything more
     if (snapshot().ledger.intent) { const x = await commit.mutateLedger(() => ({})); snapshot(); if (!x.ok && host.onResult) host.onResult(x); }
     return r;
@@ -127,8 +123,19 @@ export function createEncounters(host) {
    * occurrence { source, id, digest? }, audience?, outcome?, derivedFrom?, corrects?, clock?, transcript (true: also show it in the conversation), role?
    * -> { ok: true, event, duplicate? } | { ok: false, code, message }. Same occurrence + other bytes = refusal 'occurrence-conflict'; nothing is written then.
    */
+  // The documented DISPLAY controls: `transcript` is a Boolean request to also show the message in the open chat (never the source's words: those are `text`), `role` names the shown line.
+  // Checked before anything live or shared is touched, so a wrong type is a refusal, not a side effect. A request that cannot be honoured is refused, never silently dropped.
+  function checkDisplay(spec, tref, temp) {
+    const bad = (message) => ({ ok: false, code: 'bad-transcript', message });
+    if (spec.transcript !== undefined && typeof spec.transcript !== 'boolean') return bad('`transcript` is a true/false request to show the message in the chat; the source’s own words are `text`. Nothing was recorded.');
+    if (spec.role !== undefined && spec.role !== 'user' && spec.role !== 'assistant') return bad('`role` of a shown line is "user" or "assistant". Nothing was recorded.');
+    if (spec.transcript === true && !tref) return bad('A message can only be shown in a conversation that is given. Nothing was recorded.');
+    if (spec.transcript === true && temp) return bad('Messages received into a temporary chat are kept in memory only and are not drawn into it. Nothing was recorded.');
+    return null;
+  }
   async function receive(spec = {}) {
     const tref = spec.thread ?? null;
+    const display = checkDisplay(spec, tref, Boolean(tref && isTemp(tref))); if (display) return display;
     if (tref && isTemp(tref)) {                                                    // temporary: memory only, never stored
       ensureEncounter(memory, tref, now());
       const r = recordEvent(memory, { ...spec, thread: tref, encounter: undefined, message: null, inTranscript: false }, now());
@@ -176,5 +183,5 @@ export function createEncounters(host) {
     ledgerState: () => { const s = snapshot(); return { ok: s.ok, code: s.code || null, epoch: s.ledger.epoch }; },
     lastResult: () => commit.lastResult(),
   };
-  return { saveThreads, prepare, init, clearAll, markImported: commit.markImported, markBranch: commit.markBranch, attribution, project, facade, commit, store, snapshot };
+  return { saveThreads, prepare, init, clearAll, markImported: commit.markImported, markBranch: commit.markBranch, unmarkImported: commit.unmarkImported, unmarkBranch: commit.unmarkBranch, attribution, project, facade, commit, store, snapshot };
 }

@@ -35,7 +35,10 @@ const seedThreads=()=>[{id:'ct',title:'Concurrent chat',systemPrompt:'',createdA
 const importFile=r=>JSON.stringify({format:'plc-history/1',threads:[{id:'imp-'+r,title:'Imported '+r,created:1,updated:1,messages:[{role:'user',content:'imported words '+r}]}]});
 const reseed=async(pages,{keepLedger=false}={})=>{ // the stored state a person would have before the race, then every tab loads it
  await pages[0].evaluate(([L,list,keep])=>{localStorage.setItem('chatThreads',JSON.stringify(list));if(!keep)localStorage.removeItem(L);localStorage.removeItem('plc.activeThread.v1');},[LEDGER,seedThreads(),keepLedger]);
- await within(Promise.all(pages.map(async p=>{await p.reload();await ready(p);})),30000,'the tabs to reload');
+ // the fixture write is itself a cross-process write: every tab must SEE it (before and after its reload) or an old tab/old value would be saved over it
+ const want=JSON.stringify(seedThreads()),sees=p=>p.waitForFunction(([L,w,keep])=>localStorage.getItem('chatThreads')===w&&(keep||localStorage.getItem(L)===null),[LEDGER,want,keepLedger],{timeout:10000});
+ await within(Promise.all(pages.map(sees)),15000,'every tab to see the fixture');
+ await within(Promise.all(pages.map(async p=>{await p.reload();await ready(p);await sees(p);})),30000,'the tabs to reload');
 };
 const open=(page,id)=>page.locator('#threadList li[data-id="'+id+'"] .thread-name').click();
 const toasts=page=>page.evaluate(()=>document.body.innerText);
@@ -43,11 +46,17 @@ const toasts=page=>page.evaluate(()=>document.body.innerText);
 const arm=(page,name,arg)=>page.evaluate(({name,arg})=>{
  window.__out=null;
  const idle=()=>new Promise(r=>{const t=setInterval(()=>{if(/^(Response complete\.|Response stopped|The response was interrupted)/.test(document.querySelector('#generationStatus').textContent)&&!document.querySelector('#stopGeneration').offsetParent){clearInterval(t);r();}},20);});
+ // a refused save is a visible outcome of its own (no reply is asked for): the actor is done when the app SAID so in words
+ const refusedInWords=()=>new Promise(r=>{const t=setInterval(()=>{if(/was not saved|not saved|cleared in another tab|did not overwrite|could not be saved/i.test(document.body.innerText)){clearInterval(t);r();}},20);});
+ const fresh=(L,pid)=>{try{const l=JSON.parse(localStorage.getItem(L)||'null');return l?Boolean(l.participants[pid]):null;}catch{return 'unparseable';}};
  const acts={
-  async send(){const i=document.querySelector('#messageInput');i.value=arg.text;i.dispatchEvent(new Event('input',{bubbles:true}));document.querySelector('#sendBtn').click();await new Promise(r=>setTimeout(r,60));await idle();return {ok:true};},
-  async edit(){document.querySelector('.message.user [data-action="edit-message"]').click();const ta=document.querySelector('.edit-box textarea');ta.value=arg.text;[...document.querySelectorAll('.edit-box button')].find(b=>/Save and resend/.test(b.textContent)).click();await new Promise(r=>setTimeout(r,60));await idle();return {ok:true};},
-  async receive(){const e=window.plcApp.encounters,tid=window.plcApp.currentThreadId();const p=await e.registerParticipant({thread:tid,id:arg.participant,name:'Remote',kind:'human'});
-    const r=await e.receive({thread:tid,speaker:arg.participant,expression:'external',modality:'text',text:arg.text,occurrence:{source:'surface:race',id:arg.occurrence},transcript:true});return {ok:p.ok&&r.ok,code:r.code||p.code||null,messageId:r.messageId};},
+  async send(){const i=document.querySelector('#messageInput');i.value=arg.text;i.dispatchEvent(new Event('input',{bubbles:true}));document.querySelector('#sendBtn').click();await new Promise(r=>setTimeout(r,60));const how=await Promise.race([idle().then(()=>'answered'),refusedInWords().then(()=>'refused')]);return {ok:true,how,selected:window.plcApp.currentThreadId()};},
+  async edit(){document.querySelector('.message.user [data-action="edit-message"]').click();const ta=document.querySelector('.edit-box textarea');ta.value=arg.text;[...document.querySelectorAll('.edit-box button')].find(b=>/Save and resend/.test(b.textContent)).click();await new Promise(r=>setTimeout(r,60));const how=await Promise.race([idle().then(()=>'answered'),refusedInWords().then(()=>'refused')]);return {ok:true,how,selected:window.plcApp.currentThreadId()};},
+  async receive(){const e=window.plcApp.encounters,tid=window.plcApp.currentThreadId();
+    // registration and receive are reported SEPARATELY, with the participant as storage holds it right before and after each step
+    const reg=await e.registerParticipant({thread:tid,id:arg.participant,name:'Remote',kind:'human'});const afterReg=fresh(arg.L,arg.participant);
+    const r=await e.receive({thread:tid,speaker:arg.participant,expression:'external',modality:'text',text:arg.text,occurrence:{source:'surface:race',id:arg.occurrence},transcript:true});
+    return {ok:reg.ok&&r.ok,code:r.code||reg.code||null,messageId:r.messageId,selected:tid,registration:{ok:reg.ok,code:reg.code||null,existing:Boolean(reg.existing)},receive:{ok:r.ok,code:r.code||null},participantStoredAfterRegistration:afterReg,participantStoredAfterReceive:fresh(arg.L,arg.participant)};},
   async importNow(){[...document.querySelectorAll('.app-dialog button')].find(b=>/^Import$/.test(b.textContent.trim())).click();await new Promise(r=>setTimeout(r,300));return {ok:true};},
   async trash(){document.querySelector('#threadList li[data-id="ct2"] .thread-menu-btn').click();[...document.querySelectorAll('.thread-menu button')].find(b=>b.querySelector('.btn-label')?.textContent==='Delete').click();await new Promise(r=>setTimeout(r,200));return {ok:true};},
   async clear(){document.getElementById('clearHistoryBtn').click();const end=Date.now()+5000;let b;while(!(b=[...document.querySelectorAll('.app-dialog button')].find(x=>/Delete everything/.test(x.textContent)))&&Date.now()<end)await new Promise(r=>setTimeout(r,20));if(!b)return {ok:false,code:'no-dialog'};b.click();await new Promise(r=>setTimeout(r,400));return {ok:true};},
@@ -92,12 +101,14 @@ try{
   // E: stage the real Import dialog; every other writer arms its action
   await E.setInputFiles('#importInput',{name:'history.json',mimeType:'application/json',buffer:Buffer.from(importFile(r))});await E.locator('.app-dialog:has-text("Import")').waitFor();
   const watching=reader(watcher);
-  await Promise.all([arm(A,'send',{text:'from A '+r}),arm(B,'send',{text:'from B '+r}),arm(C,'edit',{text:'edited by C '+r}),arm(D,'receive',{participant:'p:d-'+r,text:'received '+r,occurrence:'rx-'+r}),arm(E,'importNow',{}),arm(F,'trash',{})]);
+  await Promise.all([arm(A,'send',{text:'from A '+r}),arm(B,'send',{text:'from B '+r}),arm(C,'edit',{text:'edited by C '+r}),arm(D,'receive',{participant:'p:d-'+r,text:'received '+r,occurrence:'rx-'+r,L:LEDGER}),arm(E,'importNow',{}),arm(F,'trash',{})]);
   await release(writers);
   const out=await finish(writers);const seen=await stopReader(watcher,watching);
   const s=await until(async()=>{const v=await stored(main);const t=v.chat?.find(x=>x.id==='ct');return v.ledger&&!v.ledger.intent&&t&&t.messages.filter(m=>m.role==='assistant'&&/^Reply to: (from A|from B|edited by C)/.test(m.content)).length>=3&&v;},'the writers to be stored (repeat '+r+')');
   const t=s.chat.find(x=>x.id==='ct'),ids=t.messages.map(m=>m.id),L=s.ledger,ofMsg=id=>Object.values(L.events).filter(e=>e.message===id);
   assert(out.every(o=>o?.ok),'repeat '+r+': every actor was acknowledged: '+JSON.stringify(out));
+  assert(out[3].registration.ok&&out[3].receive.ok&&out[3].participantStoredAfterRegistration===true&&out[3].participantStoredAfterReceive===true,'repeat '+r+': the facade actor\'s registration and receive are each acknowledged and the participant was stored fresh after each step: '+JSON.stringify(out[3]));
+  assert(out.every((o,i)=>i===3||i>3||o.how==='answered')&&out.slice(0,3).every(o=>o.selected==='ct'),'repeat '+r+': the senders and the editor were answered (none refused) on the chat they had open: '+JSON.stringify(out));
   assert(unique(ids),'repeat '+r+': message ids unique '+ids.join());
   for(const [who,text] of [['A','from A '+r],['B','from B '+r]]){
    const m=t.messages.filter(x=>x.role==='user'&&x.content===text);assert(m.length===1,'repeat '+r+': '+who+'\'s message is stored once, found '+m.length);
@@ -126,7 +137,7 @@ try{
   await reseed(all);
   await Promise.all([A,B,C,D].map(p=>open(p,'ct')));
   const watching=reader(watcher);
-  await Promise.all([arm(A,'send',{text:'before clear A '+r}),arm(B,'send',{text:'before clear B '+r}),arm(C,'clear',{}),arm(D,'receive',{participant:'p:c-'+r,text:'late '+r,occurrence:'late-'+r})]);
+  await Promise.all([arm(A,'send',{text:'before clear A '+r}),arm(B,'send',{text:'before clear B '+r}),arm(C,'clear',{}),arm(D,'receive',{participant:'p:c-'+r,text:'late '+r,occurrence:'late-'+r,L:LEDGER})]);
   await release([A,B,C,D]);
   const out=await finish([A,B,C,D]);const seen=await stopReader(watcher,watching);
   await new Promise(res=>setTimeout(res,600));

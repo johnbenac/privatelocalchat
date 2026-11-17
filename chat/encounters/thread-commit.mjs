@@ -56,10 +56,18 @@ export function createThreadCommit({ storage, store, key = 'chatThreads', active
     return fail('malformed', 'Your saved chats are not in a form this version can read, so they were left exactly as they are and nothing was changed.');
   }
 
-  /** Call right after the conversations were loaded: remember what storage held, and the epoch. */
-  function init() {
+  function parseStored(raw) {
+    if (raw == null || raw === '') return { ok: true, list: [] };
+    try { const list = JSON.parse(raw); if (Array.isArray(list)) return { ok: true, list }; } catch { /* below */ }
+    return fail('malformed', 'Your saved chats are not in a form this version can read, so they were left exactly as they are and nothing was changed.');
+  }
+  /**
+   * Call right after the conversations were loaded: remember what storage held, and the epoch. `raw` is the EXACT text the host just read and showed (no second read of storage): the baseline is
+   * built from the same bytes the screen was built from. Without `raw` the key is read now (tests, tools).
+   */
+  function init(raw) {
     base.clear();
-    const s = readStored();
+    const s = raw === undefined ? readStored() : parseStored(raw);
     if (s.ok) for (const t of s.list) if (t && typeof t.id === 'string' && !t.temporary) { const c = canon(t); if (c) base.set(c.id, c); }
     const l = store.read(); epoch = l.ok ? l.ledger.epoch : null;
     return { threads: base.size, epoch };
@@ -288,6 +296,9 @@ export function createThreadCommit({ storage, store, key = 'chatThreads', active
     markImported: (ids) => { for (const id of ids) hints.imported.add(id); },
     /** the next commit records `id` as a branch of `source`: map is { newMessageId: sourceMessageId } */
     markBranch: (id, source, map) => hints.branch.set(id, { source, map }),
+    /** a change that was refused is taken back in this tab's memory: the hints made for it are dropped with it */
+    unmarkImported: (ids) => { for (const id of ids) hints.imported.delete(id); },
+    unmarkBranch: (id) => { hints.branch.delete(id); },
     /** an explicitly attributed message about to enter the transcript: validated and recorded inside the commit that stores it */
     plan: (messageId, thread, spec) => hints.planned.set(messageId, { thread, spec }),
     refreshEpoch: () => { const l = store.read(); epoch = l.ok ? l.ledger.epoch : null; return epoch; },

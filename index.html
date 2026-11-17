@@ -628,6 +628,7 @@
       function buildPreloadUrl(...a) { return threadState.buildPreloadUrl(...a); }
       function loadThreads(...a) { return threadState.loadThreads(...a); }
       function saveThreads(...a) { return threadState.saveThreads(...a); }
+      function persistThreads(...a) { return threadState.persist(...a); }
       function generateThreadId(...a) { return threadState.generateThreadId(...a); }
       function createThread(...a) { return threadState.createThread(...a); }
       function ensureThreadExists(...a) { return threadState.ensureThreadExists(...a); }
@@ -803,7 +804,7 @@
 
       // ---- attributed conversation records (chat/encounters/): every conversation save is one commit with its records; the facade is for later receivers ----
       const encounters = createEncounters({
-        storage: appLocal, threads: () => threads, normalizeThread: t => M.model.normalizeThread(t), newId: () => M.model.newId(), showToast,
+        storage: appLocal, watch: [THREAD_KEY], threads: () => threads, normalizeThread: t => M.model.normalizeThread(t), newId: () => M.model.newId(), showToast,
         onTranscriptChanged: t => { if (t.id === currentThreadId) messagesView.renderMessages(t, { keepScroll: true }); renderThreadList(); },   // a message a receiver added or a refused one taken back
         onCommitted: () => messagesView.refreshAttribution(currentThread()),   // the records follow the save: bring the labels on screen up to date
         isBlocked: () => vaultApp.blocked.includes(THREAD_KEY), isLedgerBlocked: () => vaultApp.blocked.includes('plc.encounters.v1'), isReadOnly: () => vaultApp.readOnly
@@ -867,7 +868,7 @@
       // ---- conversation list (chat/list/conversation-list.mjs) ----
       const convoList = createConversationList({
         encounters, el, M: () => M, events, readJson, writeJson, threads: () => threads, currentThreadId: () => currentThreadId, clearCurrentThread: () => { currentThreadId = null; },
-        getThread, createThread, selectThread, renameThread, exportThreadMarkdown, buildPreloadUrl, saveThreads, generateThreadId, generation: () => gen, threadList, messageInput,
+        getThread, createThread, selectThread, renameThread, exportThreadMarkdown, buildPreloadUrl, saveThreads, persistThreads, generateThreadId, generation: () => gen, threadList, messageInput,
         createEmoji, actionButton, messageDecorators, messageActionHandlers, closeThreadMenu, placeMenu, openThreadMenu: () => chrome.openThreadMenu, updateThreadListMinHeight,
         promptDialog, confirmDialog, copyTextDialog, openAppDialog, showToast
       });
@@ -986,7 +987,7 @@
           get currentThreadId() { return currentThreadId; }, set currentThreadId(v) { currentThreadId = v; },
           get generationBusy() { return generationBusy; }, get gen() { return gen; }
         },
-        M: () => M, drafts: () => drafts, threadTitleInput, systemPromptInput, messageInput, readJson, writeJson, THREAD_KEY, ACTIVE_THREAD_KEY, provider, sendBtn, chatNotice, updateModeBadge,
+        M: () => M, drafts: () => drafts, threadTitleInput, systemPromptInput, messageInput, readJson, writeJson, showToast, THREAD_KEY, ACTIVE_THREAD_KEY, provider, sendBtn, chatNotice, updateModeBadge,
         messageForm, closeThreadMenu, persistDraftNow, growComposer, events, closeSidebar, promptDialog, messagesView, renderThreadList: () => renderThreadList()
       });
 
@@ -997,7 +998,7 @@
         get busy() { return generationBusy; }, set busy(v) { generationBusy = v; }
       };
       sender = createSender({
-        g: gstate, M: () => M, moduleBase, currentThreadId: () => currentThreadId, saveThreads, updateChatAvailability, updateSendButtonDisabled, getThread, STATUS, messagesView, providerName,
+        g: gstate, M: () => M, moduleBase, currentThreadId: () => currentThreadId, saveThreads, persistThreads, updateChatAvailability, updateSendButtonDisabled, getThread, STATUS, messagesView, providerName,
         events, modelLabel, provider, updateAuthGuidance, isAuthError, buildAuthErrorMessage, renderThreadList: () => renderThreadList(), CONTINUE_PROMPT, getChatState, triggerEndpointGuidance,
         messageInput, docsUi, currentThread, threadTitleInput, growComposer, persistDraftNow, authTokenFor, deriveChatCompletionsUrl, showToast, el, copyText, downloadText, messageActionHandlers, offline
       });
@@ -1039,7 +1040,7 @@
       // ---- chat history in and out (chat/history/history-io.mjs) ----
       const historyIo = createHistoryIo({
         encounters, el, M: () => M, moduleBase, threads: () => threads, setThreads: list => { threads = list; }, currentThreadId: () => currentThreadId, clearCurrentThread: () => { currentThreadId = null; },
-        prefs, savePrefs, saveThreads, getThread, ensureThreadExists, selectThread, renderThreadList: () => renderThreadList(), updateChatAvailability, loadCrypto: () => loadCrypto(),
+        prefs, savePrefs, saveThreads, persistThreads, getThread, ensureThreadExists, selectThread, renderThreadList: () => renderThreadList(), updateChatAvailability, loadCrypto: () => loadCrypto(),
         askPassphrase: (...a) => askPassphrase(...a), restoreExtras: (...a) => restoreExtras(...a), openAppDialog, confirmDialog, showToast, THREAD_KEY, ACTIVE_THREAD_KEY, importInput,
         threadTitleInput, systemPromptInput, messageInput, messagesEl
       });
@@ -1075,7 +1076,7 @@
         // Check if URL contains chat data and create a thread accordingly
         await parseUrlParams();
         assistant.openPresetFromAddress(); // a preset link only opens the review box (the address is not changed); adding is the person's click
-        const ensuredId = await ensureThreadExists();
+        const ensuredId = ensureThreadExists();   // synchronous: its id is returned at once (its save is queued)
         renderThreadList();
         // If a thread was created via URL params select it; otherwise pick the first existing
         const firstThreadWithId = threads.find(thread => thread && typeof thread.id === 'string' && thread.id);
