@@ -1,0 +1,7 @@
+Pinned negative-control sources for tests/encounters-ui-concurrency.test.mjs
+Origin: the owned Private Local Chat source at commit b07001370b929044c792cf0b1d1fc591bfdc2ae5 (task/t418-ui-corrections, before the G/H fixes).
+Content: the original file bytes, unchanged; synthetic app code only, no user data. The .txt extension keeps app module/import/precache scans away.
+The test loads these files, verifies the SHA256 below and rewrites only their relative import specifiers to this clone.
+
+d7d06c68282bf0502f1e340b26fcbfc878d5a7f87e6dc079d0f751ad8e66c766  b070013-sender.mjs.txt  (original path chat/core/sender.mjs, 24421 bytes)
+345d8a6d51f862de953b5629e874504a4ff8b54d08da0974de1ab82530ae688e  b070013-conversation-list.mjs.txt  (original path chat/list/conversation-list.mjs, 15691 bytes)

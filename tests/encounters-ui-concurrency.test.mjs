@@ -13,7 +13,8 @@
 // Negative controls: the ACTUAL pre-G b070013 sender / conversation list run through the SAME scenario and the SAME invariants and must violate them.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import path from 'node:path';
 import { outcomeOf } from '../chat/encounters/save-outcome.mjs';
@@ -39,15 +40,23 @@ const clone = (v) => JSON.parse(JSON.stringify(v));
 const settle = (ms = 5) => new Promise((r) => setTimeout(r, ms));
 
 // ---------------------------------------------------------------------------------------------------------------- negative controls: the ACTUAL pre-G source
-const B070 = 'b07001370b929044c792cf0b1d1fc591bfdc2ae5';
+// The original b07001370b929044c792cf0b1d1fc591bfdc2ae5 files are pinned byte-for-byte as clone-local fixtures (tests/fixtures/encounters/PROVENANCE.txt): no git, no history, no skip.
+// A missing or altered fixture makes this file fail at load. Only the relative import specifiers are rewritten, to the ORIGINAL directory of each file in this clone.
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-async function oldModule(file) {
-  let src; try { src = execFileSync('git', ['show', `${B070}:${file}`], { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }); } catch { return null; }
-  const dir = path.dirname(path.join(root, file));
-  src = src.replace(/(from\s+['"])(\.\.?\/[^'"]+)(['"])/g, (_m, a, rel, c) => a + pathToFileURL(path.resolve(dir, rel)).href + c);
+const FIXTURES = path.join(root, 'tests', 'fixtures', 'encounters');
+const PINNED = {
+  sender: { fixture: 'b070013-sender.mjs.txt', original: 'chat/core/sender.mjs', sha256: 'd7d06c68282bf0502f1e340b26fcbfc878d5a7f87e6dc079d0f751ad8e66c766' },
+  list: { fixture: 'b070013-conversation-list.mjs.txt', original: 'chat/list/conversation-list.mjs', sha256: '345d8a6d51f862de953b5629e874504a4ff8b54d08da0974de1ab82530ae688e' }
+};
+async function oldModule(pin) {
+  const bytes = readFileSync(path.join(FIXTURES, pin.fixture));       // throws when missing: a true failure
+  const got = createHash('sha256').update(bytes).digest('hex');
+  if (got !== pin.sha256) throw new Error(`pinned fixture ${pin.fixture} is corrupt: sha256 ${got}, expected ${pin.sha256}`);
+  const dir = path.dirname(path.join(root, pin.original));
+  const src = bytes.toString('utf8').replace(/(from\s+['"])(\.\.?\/[^'"]+)(['"])/g, (_m, a, rel, c) => a + pathToFileURL(path.resolve(dir, rel)).href + c);
   return import('data:text/javascript;base64,' + Buffer.from(src).toString('base64'));
 }
-const OLD = { sender: await oldModule('chat/core/sender.mjs'), list: await oldModule('chat/list/conversation-list.mjs') };
+const OLD = { sender: await oldModule(PINNED.sender), list: await oldModule(PINNED.list) };
 
 // ---------------------------------------------------------------------------------------------------------------- the fake page pieces
 function fakeEl(tag, cls, text) {
@@ -281,7 +290,7 @@ for (const N of [4, 8, 16]) {
   });
 }
 
-test('negative control: the ACTUAL pre-G sender and conversation list (b070013) violate these invariants in the same scenario', { skip: OLD.sender && OLD.list ? false : 'b070013 is not reachable in this clone (git show failed): the control cannot run' }, async () => {
+test('negative control: the ACTUAL pre-G sender and conversation list (b070013) violate these invariants in the same scenario', async () => {
   const V = await round(4, { sender: OLD.sender.createSender, list: OLD.list.createConversationList });
   const tags = new Set(V.map((v) => v.match(/^\[([^\]]+)\]/)[1]));
   assert.ok(tags.has('composer'), 'the old prefix-slicing composer must be caught: ' + [...tags]);
