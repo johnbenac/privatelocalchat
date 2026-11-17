@@ -61,26 +61,30 @@ async function round(n, K, storeOptions) {
   await new Promise((r) => setTimeout(r, 40));
   const chat = JSON.parse(truth('chatThreads')), ledger = JSON.parse(truth('plc.encounters.v1'));
   const ids = chat.find((t) => t.id === 'shared').messages.map((m) => m.id);
-  return { acked, ids, ledger };
+  const backends = open.map((t) => t.store.coordination && t.store.coordination.backend).filter((b) => b != null);
+  return { acked, ids, ledger, tabs: open, backends };
 }
 
 for (const n of [4, 8, 16]) {
   test(`${n} tabs with stale cross-process reads: every acknowledged message survives, 20 repeats`, async () => {
     for (let r = 0; r < 20; r++) {
-      const { acked, ids, ledger } = await round(n, 3);
+      const { acked, ids, ledger, backends } = await round(n, 3);
       const missing = acked.filter((id) => !ids.includes(id));
       assert.deepEqual(missing, [], `repeat ${r}: acknowledged messages missing from storage`);
       assert.equal(new Set(ids).size, ids.length, `repeat ${r}: no duplicate message ids`);
-      assert.ok(acked.length >= n * 3 - 0 || acked.length > 0, 'something was acknowledged');
+      assert.equal(acked.length, n * 3, `repeat ${r}: exact n*3 acknowledged writes`);
       assert.equal(ledger.intent, undefined, `repeat ${r}: no intent left`);
       assert.ok(acked.every((id) => Object.values(ledger.events).some((e) => e.message === id)), `repeat ${r}: every acknowledged message has its record`);
+      // Backend identity: all actors share the same strongly consistent metadata backend
+      assert.ok(backends.every((b) => b === backends[0]), `repeat ${r}: all ${n} actors share the same backend`);
+      console.log('U_SHARED_METADATA', JSON.stringify({ actors: n, round: r, views: n, backends: 1 }));
     }
   });
 }
 
 test('control: with the barrier off the same stale-read run loses acknowledged messages', async () => {
   let lost = 0;
-  for (let r = 0; r < 20; r++) { const { acked, ids } = await round(8, 3, { fresh: false }); if (acked.some((id) => !ids.includes(id))) lost++; }
+  for (let r = 0; r < 20; r++) { const { acked, ids } = await round(8, 3, { unsafeNoCoordination: true }); if (acked.some((id) => !ids.includes(id))) lost++; }
   assert.ok(lost > 0, 'the control never lost anything, so the stale-read model proves nothing');
 });
 
