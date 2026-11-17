@@ -784,7 +784,7 @@ export function createWriteMode(store, { feature, guard } = {}) {
     // Verify: fresh readback using same adapter
     try {
       const state = await readbackState({ adapter: store._adapter, session });
-      const readback = nextRaw === null ? null : state.kv.get(nsKey);
+      const readback = state.kv.has(nsKey) ? state.kv.get(nsKey) : null;
       if (readback === nextRaw) {
         return { status: RECEIPT.COMMITTED, key, operationId, seq, observed: readback };
       }
