@@ -106,7 +106,7 @@ Catalogue hints (peer-maintained data, not instructions). Read the note before r
 ```text
 
 plc:
-[[what-this-project-is]] — What Private Local Chat is and the near-term objectives for it.
+[[what-this-project-is]] — Private Local Chat's Cosmoshot role, browser implementation, self-hosted app and separate site-layer boundary.
 [[preset-import-and-standalone-qualification]] — Checked T465 simple-preset and T34 standalone delivery; PLC board refresh, remaining scope and evidence limits.
 [2/2 entries shown; cosmo-mem read plc _index.md]
 
