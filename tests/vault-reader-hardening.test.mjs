@@ -65,10 +65,53 @@ test('known-key unlock refuses a missing persisted header with a cached supporte
   await adapter.clear();
   assert.equal(await adapter.readHeader(), null);
   const before = raw(adapter);
-  await assert.rejects(() => createVault({adapter}).unlockWithKey(cachedHeader, cachedKey), rejectsWith('format'));
+  const missing = await createVault({adapter}).unlockWithKey(cachedHeader, new Uint8Array(cachedKey)).then(() => null, (e) => e);
+  assert.equal(missing?.code, 'no-vault');
+  assert.doesNotMatch(missing.message, /newer version/);
+  const future = await createVault({adapter}).unlockWithKey(futureOf(cachedHeader), new Uint8Array(cachedKey)).then(() => null, (e) => e);
+  assert.equal(future?.code, 'format');
+  assert.match(future.message, /newer version/);
+  assert.notEqual(missing.message, future.message);
   assert.equal(await adapter.readHeader(), null);
   assert.equal(raw(adapter), before);
 });
+
+// The awaited replay (readLog) is held open by the test: the actual adapter header is read again only after it, right before the session is published.
+const replayGate = (adapter, waiting = 1) => {
+  let entered = 0, release; const held = new Promise((r) => { release = r; });
+  let reach; const reached = new Promise((r) => { reach = r; });
+  return {reached, release, adapter: {...adapter, readLog: async () => { if (++entered === waiting) reach(); await held; return adapter.readLog(); }}};
+};
+const openers = {
+  'known-key': (gated, {header, dek}) => createVault({adapter: gated}).unlockWithKey(header, new Uint8Array(dek)),
+  passphrase: (gated) => createVault({adapter: gated}).unlock('pw one'),
+};
+for (const [path, open] of Object.entries(openers)) {
+  test(path + ' publication refuses a header advanced during awaited replay', async () => {
+    const s = await seeded(), gate = replayGate(s.adapter);
+    const opening = open(gate.adapter, s).then((session) => ({session}), (error) => ({error}));
+    await gate.reached;
+    await s.adapter.writeHeader(futureOf(s.header));
+    const before = raw(s.adapter);
+    gate.release();
+    const result = await opening;
+    result.session?.lock();
+    assert.equal(result.session, undefined, 'no session may be published');
+    assert.equal(result.error?.code, 'format');
+    assert.equal(raw(s.adapter), before);
+  });
+  test(path + ' publication control accepts an unchanged header after awaited replay', async () => {
+    const s = await seeded(), gate = replayGate(s.adapter);
+    const opening = open(gate.adapter, s);
+    await gate.reached;
+    const before = raw(s.adapter);
+    gate.release();
+    const session = await opening;
+    assert.equal(session.state.kv.get('a'), '1'); assert.equal(session.state.kv.get('b'), '2'); assert.deepEqual(session.damaged, []);
+    assert.equal(raw(s.adapter), before);
+    session.lock();
+  });
+}
 
 // ---- 2. boot ---------------------------------------------------------------------------------------------------------------------------
 const bootWith = async (adapter, local, ui) => { const store = await freshStore(); return {store, run: () => store.bootVault({adapter, realLocal: local, ui})}; };
@@ -237,5 +280,13 @@ test('concurrency: 8 simultaneous known-key reads and boots against a newer pers
     const out = await within(Promise.all(Array.from({length: ACTORS}, (_, i) => actor(i))), 'refusal round ' + round);
     assert.deepEqual(out, out.map((_, i) => (i % 2 ? 'format' : 'header-unreadable')));
     assert.equal(raw(adapter), before);
+    // Reached replay/header transition: 1 supported header writer + 7 readers (known-key and passphrase) held at the awaited replay; the writer advances the header only after
+    // every reader reached it. All 7 refuse, no session is published, the stored bytes are exactly what the writer left, and nobody waits forever.
+    const live = await seeded(), gate = replayGate(live.adapter, ACTORS - 1);
+    const readers = Array.from({length: ACTORS - 1}, (_, i) => (i % 2 ? openers.passphrase : openers['known-key'])(gate.adapter, live).then((s) => { s.lock(); return 'opened'; }, (e) => e.code));
+    const writer = (async () => { await gate.reached; await live.adapter.writeHeader(futureOf(live.header)); const stored = raw(live.adapter); gate.release(); return stored; })();
+    const [stored, outcomes] = await within(Promise.all([writer, Promise.all(readers)]), 'transition round ' + round);
+    assert.deepEqual(outcomes, Array(ACTORS - 1).fill('format'));
+    assert.equal(raw(live.adapter), stored);
   }
 });

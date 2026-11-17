@@ -132,10 +132,11 @@ export function createVault({ adapter, crypto = globalThis.crypto, now = () => D
 
   const newerFormat = () => new VaultError("format", "This vault was made by a newer version of the app.");
   /** Refuse a format this version does not support: the supplied header AND the header actually stored now (a read failure rejects; nothing is written). */
+  const noVault = () => new VaultError("no-vault", "There is no vault here.");
+  const requireSupported = (header) => { if (!header) throw noVault(); if (header.format !== VAULT_FORMAT) throw newerFormat(); };
   async function requireSupportedFormat(supplied) {
-    if (supplied?.format !== VAULT_FORMAT) throw newerFormat();
-    const actual = await adapter.readHeader();
-    if (actual?.format !== VAULT_FORMAT) throw newerFormat();
+    requireSupported(supplied);
+    requireSupported(await adapter.readHeader());
   }
 
   /** Unlock with the passphrase. Returns a session, with `damaged` listing records that could not be read. */
@@ -178,6 +179,8 @@ export function createVault({ adapter, crypto = globalThis.crypto, now = () => D
         if (event?.t === "kv.set" || event?.t === "kv.del") seenKvKeys.add(String(event.k));
       } catch { gap = true; damaged.push({ seq: rec.seq, reason: "unreadable" }); }
     }
+    // The replay above awaited the adapter: the stored header may have changed meanwhile. Read the ACTUAL current header once more; the session is built right after, with no await between.
+    requireSupported(await adapter.readHeader());
     const readable = damaged.filter((d) => d.reason !== "no-key");
     const s = session(header, dekRaw, state, lastSeq, unsupported);
     s.damaged = readable;
