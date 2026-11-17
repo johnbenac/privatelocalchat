@@ -141,26 +141,32 @@ export function createVault({ adapter, crypto = globalThis.crypto, now = () => D
     const log = await adapter.readLog();
     const dek = await importAes(subtle, dekRaw);
     const state = emptyState(), damaged = [];
-    let lastSeq = 0, previous = 0;
+    let lastSeq = 0, previous = 0, firstSeq = null, gap = false;
+    const seenKvKeys = new Set();
     const keyOf = async (keyId) => {
       if (keyId === KEY_DEK) return dek;
       const raw = state.keys.get(keyId);
       return raw ? importAes(subtle, raw) : null;
     };
     for (const rec of log) {
-      if (previous && rec.seq !== previous + 1) damaged.push({ seq: previous + 1, reason: "missing", through: rec.seq - 1 });
+      if (firstSeq === null) firstSeq = rec.seq;
+      if (previous && rec.seq !== previous + 1) { gap = true; damaged.push({ seq: previous + 1, reason: "missing", through: rec.seq - 1 }); }
       previous = rec.seq; lastSeq = Math.max(lastSeq, rec.seq);
       const key = await keyOf(rec.keyId);
-      if (!key) { damaged.push({ seq: rec.seq, reason: "no-key" }); continue; } // its chat was deleted: this is expected after a destroy, not an error
+      if (!key) { damaged.push({ seq: rec.seq, reason: "no-key" }); if (rec.keyId === KEY_DEK || !/^[cd]:/.test(String(rec.keyId))) gap = true; continue; } // its chat was deleted: this is expected after a destroy, not an error
       try {
         const event = JSON.parse(dec.decode(unpad(new Uint8Array(await subtle.decrypt({ name: "AES-GCM", iv: fromB64(rec.iv), additionalData: aadFor(rec.seq, rec.keyId) }, key, fromB64(rec.data))))));
         applyEvent(state, event);
-      } catch { damaged.push({ seq: rec.seq, reason: "unreadable" }); }
+        if (event?.t === "kv.set" || event?.t === "kv.del") seenKvKeys.add(String(event.k));
+      } catch { gap = true; damaged.push({ seq: rec.seq, reason: "unreadable" }); }
     }
     const readable = damaged.filter((d) => d.reason !== "no-key");
     const s = session(header, dekRaw, state, lastSeq);
     s.damaged = readable;
     s.destroyedRecords = damaged.length - readable.length;
+    // Read-only replay evidence. A key that no kv event of the stored log ever named was never encrypted ONLY when the whole history was observed: a non-empty log that starts at seq 1,
+    // is contiguous and has no unreadable record. Compaction renumbers the log (it starts after 1), so a compacted, empty, gapped or damaged log proves nothing about absence.
+    s.history = Object.freeze({ observedHistoryComplete: log.length > 0 && firstSeq === 1 && !gap, seenKvKeys });
     return s;
   }
 
@@ -195,6 +201,7 @@ export function createVault({ adapter, crypto = globalThis.crypto, now = () => D
 
     const api = {
       header, damaged: [], destroyedRecords: 0,
+      history: Object.freeze({ observedHistoryComplete: false, seenKvKeys: new Set() }), // replaced by unlockWithKey with what the stored log showed
       get state() { return state; },
       get lastSeq() { return seq; },
       get locked() { return locked; },

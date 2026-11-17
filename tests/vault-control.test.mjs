@@ -6,6 +6,8 @@ import {createMemoryAdapter} from '../chat/vault/vault-db.mjs';
 import {createVault} from '../chat/vault/vault.mjs';
 
 globalThis.indexedDB??={}; // supported() only asks whether it exists
+// Web Locks: the tab gets the writer lock and holds it for ever. Cleanup, recovery retry and turning off need this real exclusive claim (a browser without Web Locks refuses them: tests/vault-transition-history.test.mjs).
+Object.defineProperty(globalThis,'navigator',{value:{locks:{request:(name,options,cb)=>{if(typeof options==='function')return new Promise(()=>{});cb({name});return new Promise(()=>{});}}},configurable:true,writable:true});
 const FAST=1000,MARK='CTRL-MARKER-31';
 const rig=(initial={})=>{
   const realLocal=memoryStorage(initial.local),realSession=memoryStorage(initial.session),adapter=createMemoryAdapter();

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createAppStorage,memoryStorage,createAndMigrate,removePlaintext,plaintextRemains,restorePlaintext,VAULT_MARKER,bootVault,resetBootForTests,claimWriter} from '../chat/vault/vault-store.mjs';
+import {createAppStorage,memoryStorage,createAndMigrate,removePlaintext,removeVerifiedPlaintext,plaintextRemains,restorePlaintext,VAULT_MARKER,bootVault,resetBootForTests,claimWriter} from '../chat/vault/vault-store.mjs';
 import {createVault} from '../chat/vault/vault.mjs';
 import {createMemoryAdapter} from '../chat/vault/vault-db.mjs';
 import {KEY_CLASSES,isVaulted,classOf} from '../chat/vault/key-classes.mjs';
@@ -99,7 +99,10 @@ test('migrating: everything is encrypted and read back, the plaintext stays unti
   assert.ok(ctx.realLocal.getItem(VAULT_MARKER));
   assert.ok(plaintextRemains(ctx.realLocal,ctx.realSession).includes('chatThreads'),'the plaintext copy is still there');
   assert.equal(session.state.docs.get('d1').text,MARK);
-  const removed=removePlaintext(ctx.realLocal,ctx.realSession);
+  assert.throws(()=>removePlaintext(ctx.realLocal,ctx.realSession),e=>e.code==='unverified','the old unverified export fails closed');
+  assert.ok(ctx.realLocal.getItem('chatThreads'),'and removes nothing');
+  await assert.rejects(()=>removeVerifiedPlaintext({session,adapter:ctx.adapter,realLocal:ctx.realLocal,realSession:ctx.realSession,exclusive:false}),e=>e.code==='no-exclusive');
+  const {removed}=await removeVerifiedPlaintext({session,adapter:ctx.adapter,realLocal:ctx.realLocal,realSession:ctx.realSession,exclusive:true});
   assert.ok(removed.includes('chatThreads')&&removed.includes('chatConfig'));
   assert.deepEqual(plaintextRemains(ctx.realLocal,ctx.realSession),[]);
   assert.equal(ctx.realLocal.getItem('plc.shell.collapsed'),'1','plain keys are not touched');
