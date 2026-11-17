@@ -72,6 +72,23 @@ export function buildModules(dir, kind = 'new') {
       text = replaceOnce(text, 'export async function inspectPlaintext({ session, adapter, realLocal, realSession }) {\n  await session.flush();', 'export async function inspectPlaintext({ session, adapter, realLocal, realSession }) {\n  const early = new Map(); for (const [kind, real] of [[\"local\", realLocal], [\"session\", realSession]]) for (const key of vaultedKeysOf(kind)) early.set(kind + key, rawGet(real, key));\n  await session.flush();', 'early read');
       text = replaceOnce(text, '    const raw = rawGet(real, key);\n    if (raw == null) continue;\n    if (blocked.includes(key)) { out.push', '    const raw = early.get(kind + key) ?? null;\n    if (raw == null) continue;\n    if (blocked.includes(key)) { out.push', 'early use');
     }
+    // controls for the c correction: the corrected files with exactly one guard put back to the rejected candidate's behaviour
+    if (kind === 'new-no-legacy-conflict-guard' && file === 'vault-control.mjs') {
+      text = replaceOnce(text, '(replaceDiffering && e.status === "conflict")', '(e.status === "conflict" && LEGACY_VAULT_KEYS.includes(e.key))', 'legacy exception');
+      text = replaceOnce(text, 'reconcileRaw, plaintextRemains', 'reconcileRaw, LEGACY_VAULT_KEYS, plaintextRemains', 'legacy import');
+    }
+    if (kind === 'new-undecoded-is-complete' && file === 'vault.mjs') text = replaceOnce(text, 'damaged.push({ seq: rec.seq, reason: "no-key" }); gap = true; continue; }', 'damaged.push({ seq: rec.seq, reason: "no-key" }); if (rec.keyId === KEY_DEK || !/^[cd]:/.test(String(rec.keyId))) gap = true; continue; }', 'undecoded complete');
+    if (kind === 'new-no-detached-fence' && file === 'vault-control.mjs') {
+      text = replaceOnce(text, 'const afterDetach = () => { if (!stillOurs()) throw changed(); };', 'const afterDetach = () => {};', 'no detached fence');
+      text = replaceOnce(text, 'await store().clear({ guard: stillOurs });', 'await store().clear();', 'no clear guard');
+    }
+    if (kind === 'new-no-append-guard' && file === 'vault.mjs') {
+      text = replaceOnce(text, 'if (!authorized(guard)) throw new VaultError("session-changed"', 'if (false) throw new VaultError("session-changed"', 'no append guard');
+      text = replaceOnce(text, 'await (guard === undefined || guard === null ? adapter.append(record) : adapter.append(record, { guard }));', 'await adapter.append(record);', 'no adapter guard');
+    }
+    if (kind === 'new-no-locked-recheck' && file === 'vault.mjs') text = replaceOnce(text, 'if (locked) throw new VaultError("locked", "The vault is locked.");\n        await (guard', 'await (guard', 'no locked recheck');
+    if (kind === 'new-rehydrate-after-lock' && file === 'vault.mjs') text = replaceOnce(text, 'if (locked || !authorized(guard)) return at; // durable', 'if (false) return at; // durable', 'rehydrate after lock');
+    if (kind === 'new-rehydrate-when-obsolete' && file === 'vault.mjs') text = replaceOnce(text, 'if (locked || !authorized(guard)) return at; // durable', 'if (locked) return at; // durable', 'rehydrate when obsolete');
     fs.writeFileSync(path.join(target, file), text);
   }
   return { dir, store: path.join(target, 'vault-store.mjs'), control: path.join(target, 'vault-control.mjs'), keyClasses: path.join(target, 'key-classes.mjs') };

@@ -171,6 +171,8 @@ export function createAppStorage({ realLocal, realSession, onWriteError = () => 
     get recovery() { return recovery; },
     get readOnly() { return readOnly; },
     get exclusive() { return exclusive && !readOnly; },
+    /** The lifecycle counter: bumped by every attach and detach. A multi-await action that detaches ITSELF notes the value right after its own detach and stops if it ever differs (a replacement attached). */
+    get epoch() { return epoch; },
     /** The identity of what is attached now: { session, epoch }. A multi-await action takes one at its start and asks `isCurrent` after every await and before it changes anything. */
     fence() { return { session, epoch }; },
     isCurrent(fence) { return Boolean(fence) && session !== null && fence.session === session && fence.epoch === epoch && !session.locked; },
@@ -369,6 +371,7 @@ export async function reconcileRaw({ session, adapter, realLocal, writer, exclus
   Object.defineProperty(report, "heldValues", { value: new Map(), enumerable: false });
   const hold = (key, reason, value) => { if (!report.held.some((h) => h.key === key)) report.held.push({ key, reason }); if (value != null) report.heldValues.set(key, value); };
   const check = () => { if (fence && !fence()) throw sessionChanged(); };
+  const guard = fence ? () => fence() === true : undefined; // asked again by the session at the actual append (after its crypto) and by the adapter after its own waits
   const candidates = [];
   try {
     // The raw values are read FIRST and the stored vault second: a value that another tab removes after saving it was in the vault before it left the browser storage, so it is seen in one place or the other.
@@ -406,7 +409,7 @@ export async function reconcileRaw({ session, adapter, realLocal, writer, exclus
     try {
       for (const { key, raw } of candidates) {
         check();
-        try { await session.setKv(ns("local", key), raw); } catch (error) { report.failed.push({ key, message: String(error?.message || error) }); hold(key, "write-failed", raw); unresolved.delete(key); }
+        try { await session.setKv(ns("local", key), raw, { guard }); } catch (error) { if (error?.code === "session-changed") throw error; report.failed.push({ key, message: String(error?.message || error) }); hold(key, "write-failed", raw); unresolved.delete(key); }
       }
       if (unresolved.size) {
         await session.flush();
@@ -423,7 +426,7 @@ export async function reconcileRaw({ session, adapter, realLocal, writer, exclus
       }
       if (canWrite && [...reconciled].sort().join("\n") !== [...marker].sort().join("\n") && !stored.damaged.length) {
         check();
-        try { await session.setKv(RECOVERED_KEYS, JSON.stringify([...reconciled].sort())); await session.flush(); } catch { /* the marker only limits later copying; with it missing a deleted key is HELD, not copied */ }
+        try { await session.setKv(RECOVERED_KEYS, JSON.stringify([...reconciled].sort()), { guard }); await session.flush(); } catch (error) { if (error?.code === "session-changed") throw error; /* the marker only limits later copying; with it missing a deleted key is HELD, not copied */ }
       }
     } catch (error) {
       if (error?.code === "session-changed") throw error;

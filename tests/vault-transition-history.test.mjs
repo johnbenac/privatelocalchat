@@ -294,11 +294,13 @@ test('disable: newer-format raw, a differing newer-store copy and an unreadable 
   await b.control.disable('pw'); assert.equal(ctx.local.getItem(CH), DEL, 'preserved byte for byte'); assert.equal(await ctx.adapter.readHeader(), null);
 });
 
-test('disable: the app keeps writing while it waits; the last app value wins, a document saved meanwhile is not lost, and a retained stale migrated copy is replaced as before', async () => {
+test('disable: the app keeps writing while it waits; the last app value wins, a document saved meanwhile is not lost, and a differing retained migrated copy is replaced only by the explicit choice', async () => {
   const r = await attached({ 'plc.prefs.v1': 'OLD-RETAINED-PLAINTEXT' });
   let hits = 0;
   const app = new Proxy(r.app, { get(target, key) { if (key === 'docsBackend') return { all: async () => { const seen = [...r.s.state.docs.values()]; if (!hits++) { r.app.local.setItem('plc.prefs.v1', 'live-C'); await r.s.putDoc('late', { id: 'late', name: 'late' }); } return seen; } }; const v = target[key]; return typeof v === 'function' ? v.bind(target) : v; } });
-  await r.make(app).disable('pw');
+  await assert.rejects(() => r.make(app).disable('pw'), (e) => e.code === 'conflict' && e.keys.includes('plc.prefs.v1')); // c: the retained copy differs from the live value: needs the explicit choice
+  assert.equal(r.ctx.local.getItem('plc.prefs.v1'), 'OLD-RETAINED-PLAINTEXT'); assert.ok(await r.ctx.adapter.readHeader());
+  await r.make(app).disable('pw', { replaceDiffering: true });
   assert.equal(r.ctx.local.getItem('plc.prefs.v1'), 'live-C'); assert.ok(r.docsPlain.has('late'), 'the document saved during the wait came along'); assert.ok(hits >= 2, 'documents were read again until stable');
   assert.equal(await r.ctx.adapter.readHeader(), null); assert.equal(r.ctx.local.getItem(VAULT_MARKER), null);
 });

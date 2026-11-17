@@ -264,7 +264,7 @@ test('chatThreads: raw list compared per thread id; id-less lists are unreadable
   assert.ok(ctx.local.getItem('chatThreads'));
 });
 
-test('turning encryption off keeps a differing raw copy of a newer store; the long-standing overwrite of migrated keys is unchanged', async () => {
+test('turning encryption off keeps a differing raw copy of a newer store; a differing retained copy of a migrated key is replaced only by the explicit choice', async () => {
   const ctx = ctxOf(oldInitial());
   const mods = await loadModules(built.new, { local: ctx.local, session: ctx.session, locks: lockFree });
   const { session } = await mods.store.createAndMigrate({ passphrase: 'pw', adapter: ctx.adapter, realLocal: ctx.local, realSession: ctx.session, iterations: FAST });
@@ -274,7 +274,10 @@ test('turning encryption off keeps a differing raw copy of a newer store; the lo
   await assert.rejects(() => control.disable('pw'), (e) => e.code === 'conflict');
   assert.equal(ctx.local.getItem(CH), 'RAW-DIFFERENT'); assert.equal(control.active, true);
   ctx.local.setItem(CH, chars); ctx.local.setItem('plc.prefs.v1', 'STALE-RAW');
-  await control.disable('pw');
+  // c: a retained, differing copy of a migrated key is no longer overwritten by default either (no key-name exception): it needs the separate explicit choice
+  await assert.rejects(() => control.disable('pw'), (e) => e.code === 'conflict' && e.keys.includes('plc.prefs.v1'));
+  assert.equal(ctx.local.getItem('plc.prefs.v1'), 'STALE-RAW'); assert.equal(control.active, true); assert.ok(await ctx.adapter.readHeader());
+  await control.disable('pw', { replaceDiffering: true });
   assert.equal(ctx.local.getItem('plc.prefs.v1'), '{"enterSends":true}'); assert.equal(ctx.local.getItem(CH), chars);
 });
 

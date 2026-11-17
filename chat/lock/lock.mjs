@@ -234,8 +234,19 @@ export function createLock({ el, createEmoji, readJson, writeJson, openAppDialog
         if (!pc.value) { msg.textContent = 'Type the current passphrase to turn encryption off.'; return; }
         const sure = await confirmDialog('Turn encryption off?', 'Your chats, documents, memory and settings will be stored in this browser without encryption, readable by anyone with the device.', 'Turn it off', { danger: true });
         if (!sure) return;
-        try { msg.textContent = 'Turning off…'; await vault.disable(pc.value); lockCfg = null; syncLockUi(); d.close(); showToast('Encryption is off.'); }
-        catch (error) { msg.textContent = error?.code === 'bad-passphrase' ? 'That is not the current passphrase.' : (error?.message || 'Could not turn it off.'); }
+        const off = async (options) => { await vault.disable(pc.value, options); lockCfg = null; syncLockUi(); d.close(); showToast('Encryption is off.'); };
+        try { msg.textContent = 'Turning off…'; await off(); }
+        catch (error) {
+          if (error?.code === 'conflict' && error.keys?.length) {
+            // Nothing was changed. Replacing differing unencrypted items is a SEPARATE, explicit and permanent choice; items that cannot be replaced (newer version, cannot be checked, changed meanwhile) stay and refuse again.
+            msg.textContent = 'Nothing was changed. ' + error.keys.length + ' unencrypted item(s) here differ from your encrypted data (' + error.keys.join(', ') + '), so encryption was not turned off.';
+            const replace = await confirmDialog('Replace the unencrypted items that differ?', 'These items are stored without encryption in this browser and are NOT the same as your encrypted data. Turning encryption off now would replace each of them with the encrypted version, and what they say now would be gone for good. Nothing has been changed so far. Items written by a newer version, items that cannot be checked and items that change while this runs are never replaced and will stop it again.', 'Replace them and turn it off', { danger: true });
+            if (!replace) return;
+            try { msg.textContent = 'Turning off…'; await off({ replaceDiffering: true }); } catch (again) { msg.textContent = again?.code === 'bad-passphrase' ? 'That is not the current passphrase.' : (again?.message || 'Could not turn it off.'); }
+            return;
+          }
+          msg.textContent = error?.code === 'bad-passphrase' ? 'That is not the current passphrase.' : (error?.message || 'Could not turn it off.');
+        }
       } }
     ];
     if (leftover.length) actions.unshift(

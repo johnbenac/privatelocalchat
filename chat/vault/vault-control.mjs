@@ -2,7 +2,7 @@
 // The Settings dialogs in chat/lock/lock.mjs call this; it has no DOM of its own. createVaultControl({ app, adapter, realLocal, realSession, docs, events, reload }).
 import { createVault, VaultError, DEFAULT_ITERATIONS } from "./vault.mjs";
 import { createIndexedDbAdapter } from "./vault-db.mjs";
-import { VAULT_MARKER, parseMarker, createAndMigrate, removeVerifiedPlaintext, inspectPlaintext, reconcileRaw, LEGACY_VAULT_KEYS, plaintextRemains, restorePlaintext, claimWriter } from "./vault-store.mjs";
+import { VAULT_MARKER, parseMarker, createAndMigrate, removeVerifiedPlaintext, inspectPlaintext, reconcileRaw, plaintextRemains, restorePlaintext, claimWriter } from "./vault-store.mjs";
 import { REGISTRY_KEY, parseRegistry, findNewer } from "./data-formats.mjs";
 
 const changed = () => new VaultError("session-changed", "The vault was locked or replaced while this was running, so it was stopped before it changed anything more. Nothing was lost; try again.");
@@ -92,8 +92,13 @@ export function createVaultControl({ app, adapter = null, realLocal = globalThis
     },
     async changePassphrase(current, next) { await app.vaultSession.changePassphrase(current, next, { iterations }); },
 
-    /** Turn the vault off: check the passphrase, write everything back as plain storage holds it, then remove the vault. */
-    async disable(passphrase) {
+    /**
+     * Turn the vault off: check the passphrase, write everything back as plain storage holds it, then remove the vault.
+     * An unencrypted copy that differs from the encrypted value is never overwritten by default: the call throws code "conflict" (keys listed) and changes nothing. The SEPARATE, explicit
+     * choice { replaceDiffering: true } (the person was told those items are replaced for good) replaces exactly the differing text that was seen; it never touches a value the vault does not
+     * hold, an unreadable list or a newer-format value, and a raw value that changed after it was checked still refuses.
+     */
+    async disable(passphrase, { replaceDiffering = false } = {}) {
       if (!app.active) return;
       needExclusive(app, "turning encryption off"); // before the adapter, the raw storage, the marker or the documents are touched
       return app.transition("disable", async (fence) => {
@@ -101,12 +106,13 @@ export function createVaultControl({ app, adapter = null, realLocal = globalThis
         await createVault({ adapter: store() }).unlock(passphrase).then((s) => s.lock()); // throws bad-passphrase
         current();
         await app.flush(); current();
-        // Writing the encrypted values back overwrites the plain copy. That is the long-standing behaviour for the keys every reader already migrates (the encrypted value is the live one,
-        // so an intentionally retained, since-edited plaintext copy of those is replaced), and a raw value equal to the stored one is simply replaced by the newer live one. Everything else
-        // that restoring would overwrite is kept and refuses: a differing copy of a newer store, a newer-format value, an unreadable list, and a raw value that changed after it was checked.
+        // Writing the encrypted values back overwrites the plain copy. A raw value EQUAL to the stored one is simply replaced by the newer live one. A raw value that DIFFERS is never replaced
+        // by default, whatever the key is called (there is no key-name exception: nothing here knows why a differing copy exists, and it could be the only record of something the person
+        // wrote). Only the separate explicit choice replaces those, naming exactly the text that was seen. Everything else that restoring would overwrite is kept and refuses: a newer-format
+        // value, an unreadable list, and any raw value that changed after it was checked.
         const entries = await inspectPlaintext({ session: fence.session, adapter: store(), realLocal, realSession }); current();
         const allow = { local: {}, session: {} };
-        for (const e of entries) if (e.status === "equal" || (e.status === "conflict" && LEGACY_VAULT_KEYS.includes(e.key))) allow[e.kind][e.key] = e.raw;
+        for (const e of entries) if (e.status === "equal" || (replaceDiffering && e.status === "conflict")) allow[e.kind][e.key] = e.raw;
         // documents: read until what was read is what the vault holds now (a document saved during the wait must not be lost)
         let documents = null;
         for (let attempt = 0; attempt < 4 && !documents; attempt++) {
@@ -123,8 +129,14 @@ export function createVaultControl({ app, adapter = null, realLocal = globalThis
         const snapshot = app.snapshot();
         restorePlaintext(snapshot, realLocal, realSession, { allow, blocked: blockedNow }); // throws conflict with the keys, writing nothing
         app.detach();
-        for (const d of documents) await docs.put(d);
-        await store().clear();
+        // Our own detach changed the lifecycle counter, so the fence captured at the start can never hold again. Note the counter that THIS detach produced and require it to stay: if anything
+        // attached a session while a document was being written (a replacement), this action stops before it clears the replacement's vault or its marker.
+        const detachedEpoch = app.epoch, stillOurs = () => !app.active && app.epoch === detachedEpoch;
+        const afterDetach = () => { if (!stillOurs()) throw changed(); };
+        for (const d of documents) { await docs.put(d); afterDetach(); }
+        afterDetach();
+        await store().clear({ guard: stillOurs }); // checked again by the adapter after ITS open / at its transaction's activity
+        afterDetach();
         try { realLocal.removeItem(VAULT_MARKER); } catch { /* ignore */ }
         emit("vault:locked", { off: true });
       });

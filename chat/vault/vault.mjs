@@ -153,7 +153,9 @@ export function createVault({ adapter, crypto = globalThis.crypto, now = () => D
       if (previous && rec.seq !== previous + 1) { gap = true; damaged.push({ seq: previous + 1, reason: "missing", through: rec.seq - 1 }); }
       previous = rec.seq; lastSeq = Math.max(lastSeq, rec.seq);
       const key = await keyOf(rec.keyId);
-      if (!key) { damaged.push({ seq: rec.seq, reason: "no-key" }); if (rec.keyId === KEY_DEK || !/^[cd]:/.test(String(rec.keyId))) gap = true; continue; } // its chat was deleted: this is expected after a destroy, not an error
+      // A record with no key (its chat or document was deleted, or its key never existed) is expected after a destroy and is NOT reported as damage, but it was NOT read either: whatever event it
+      // carried (any kv event can be appended under any scope) is unknown, so the history is not completely observed. No inference from the scope's name.
+      if (!key) { damaged.push({ seq: rec.seq, reason: "no-key" }); gap = true; continue; }
       try {
         const event = JSON.parse(dec.decode(unpad(new Uint8Array(await subtle.decrypt({ name: "AES-GCM", iv: fromB64(rec.iv), additionalData: aadFor(rec.seq, rec.keyId) }, key, fromB64(rec.data))))));
         applyEvent(state, event);
@@ -165,7 +167,8 @@ export function createVault({ adapter, crypto = globalThis.crypto, now = () => D
     s.damaged = readable;
     s.destroyedRecords = damaged.length - readable.length;
     // Read-only replay evidence. A key that no kv event of the stored log ever named was never encrypted ONLY when the whole history was observed: a non-empty log that starts at seq 1,
-    // is contiguous and has no unreadable record. Compaction renumbers the log (it starts after 1), so a compacted, empty, gapped or damaged log proves nothing about absence.
+    // is contiguous and in which EVERY record was decoded (no missing seq, no unreadable record, no record without a key). Compaction renumbers the log (it starts after 1), so a compacted,
+    // empty, gapped, damaged or partly undecoded log proves nothing about absence.
     s.history = Object.freeze({ observedHistoryComplete: log.length > 0 && firstSeq === 1 && !gap, seenKvKeys });
     return s;
   }
@@ -183,17 +186,30 @@ export function createVault({ adapter, crypto = globalThis.crypto, now = () => D
       const body = pad(enc.encode(JSON.stringify(event)), bucket);
       return { seq: at, keyId, iv: toB64(iv), data: toB64(await subtle.encrypt({ name: "AES-GCM", iv, additionalData: aadFor(at, keyId) }, key, body)) };
     };
-    const ensureKey = async (keyId) => {
+    const ensureKey = async (keyId, guard) => {
       if (keyId === KEY_DEK || state.keys.has(keyId)) return;
       const raw = random(32);
-      await write({ keyId: KEY_DEK, event: { t: "key.put", id: keyId, raw: toB64(raw) } });
+      await write({ keyId: KEY_DEK, event: { t: "key.put", id: keyId, raw: toB64(raw) } }, guard);
     };
+    // A guard (optional, from the action that started the write) authorizes only by returning exactly true; anything else, or a throw, refuses.
+    const authorized = (guard) => { if (guard === undefined || guard === null) return true; try { return guard() === true; } catch { return false; } };
     // writes are strictly ordered: the next seq is taken when the write starts, and applied to the state only once it is stored
-    async function write({ keyId, event }) {
+    async function write({ keyId, event }, guard) {
       if (locked) throw new VaultError("locked", "The vault is locked.");
       const at = ++seq;
       let record;
-      try { record = await seal(keyId, event, at); await adapter.append(record); } catch (error) { seq = at - 1; throw error; }
+      try {
+        record = await seal(keyId, event, at);
+        // The crypto above is awaited: the page may have locked or swapped its session meanwhile. This is the actual append boundary, so check HERE (not only before the crypto, not only after
+        // the append): a stale write is never handed to the adapter, and the adapter checks the same guard again after ITS own waits (chat/vault/vault-db.mjs).
+        if (!authorized(guard)) throw new VaultError("session-changed", "The vault was locked or replaced while this was waiting, so it was not written.");
+        if (locked) throw new VaultError("locked", "The vault is locked.");
+        await (guard === undefined || guard === null ? adapter.append(record) : adapter.append(record, { guard }));
+      } catch (error) { seq = at - 1; throw error; }
+      // The record is durable. If the session was locked while the adapter's completion was pending, lock() already cleared the in-memory state: applying the event now would put plaintext back
+      // into a locked session. The same holds for an OBSOLETE session (the guard no longer authorizes: the lifecycle that started this write ended, the session may still be unlocked): its memory
+      // is not written to either. The stored record stays (it was legitimate when written), its sequence is reported truthfully (no rollback, no resend), and memory is left as it is.
+      if (locked || !authorized(guard)) return at; // durable
       applyEvent(state, event);
       return at;
     }
@@ -205,11 +221,15 @@ export function createVault({ adapter, crypto = globalThis.crypto, now = () => D
       get state() { return state; },
       get lastSeq() { return seq; },
       get locked() { return locked; },
-      /** Append events (each { scope, event }); scope is "dek", or a key id that is created on first use. Resolves when stored. */
-      append: (items) => enqueue(async () => { let last = seq; for (const item of [].concat(items)) { await ensureKey(item.scope); last = await write({ keyId: item.scope, event: item.event }); } return last; }),
-      setKv: (k, v) => api.append({ scope: KEY_DEK, event: { t: "kv.set", k, v } }),
-      delKv: (k) => api.append({ scope: KEY_DEK, event: { t: "kv.del", k } }),
-      putThread: (id, thread) => api.append({ scope: chatKeyId(id), event: { t: "thread.put", id, thread } }),
+      /**
+       * Append events (each { scope, event }); scope is "dek", or a key id that is created on first use. Resolves when stored.
+       * options.guard (optional, () => true to proceed) is the lifecycle check of a multi-step action: it is asked when each record is actually about to be appended (after its crypto) and the
+       * write fails with code "session-changed" without being stored when it does not return exactly true.
+       */
+      append: (items, options) => { const guard = options?.guard; return enqueue(async () => { let last = seq; for (const item of [].concat(items)) { await ensureKey(item.scope, guard); last = await write({ keyId: item.scope, event: item.event }, guard); } return last; }); },
+      setKv: (k, v, options) => api.append({ scope: KEY_DEK, event: { t: "kv.set", k, v } }, options),
+      delKv: (k, options) => api.append({ scope: KEY_DEK, event: { t: "kv.del", k } }, options),
+      putThread: (id, thread, options) => api.append({ scope: chatKeyId(id), event: { t: "thread.put", id, thread } }, options),
       /** Delete a chat and destroy its key, so its old records are unreadable. */
       delThread: (id) => enqueue(async () => {
         if (state.threads.has(String(id))) await write({ keyId: chatKeyId(id), event: { t: "thread.del", id } });
