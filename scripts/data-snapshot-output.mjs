@@ -119,11 +119,20 @@ export function resolveProvenance({root,release=null,commit=null,rehearsal=false
   if(!nearest||!semver.test(nearest))refuse('no release tag (vX.Y.Z) is reachable from the checked-out commit, so its baseline release cannot be named');
   if(release!==null&&release!==nearest)refuse(`--release ${release} is not this checkout's release: ${exactTag?'it is exactly':'its nearest earlier release is'} ${nearest}`);
   const privateBuild=!exactTag;
-  if(privateBuild||rehearsal){
-    const dirty=git('status','--porcelain');
-    if(dirty===null||(dirty&&!rehearsal))refuse('A private build is captured from a clean, committed tree (git status --porcelain must be empty)'+(dirty?':\n'+dirty:''));
-  }
+  // EVERY capture from a git checkout, tagged release or private build, needs a clean tree (tracked, staged and untracked); only an explicit rehearsal may be dirty, and `accept` refuses a rehearsal.
+  const dirty=git('status','--porcelain');
+  if(dirty===null||(dirty&&!rehearsal))refuse('A capture is taken from a clean, committed tree (git status --porcelain must be empty)'+(dirty?':\n'+dirty:''));
   return {extracted:false,commitFull:head,release:nearest,exactTag,privateBuild};
+}
+
+/**
+ * The build the page reports (window.APP_BUILD) must be the declared source commit, for every kind of capture (release, private build, extracted, rehearsal). A missing or different build is a clear error.
+ */
+export function checkBuildIdentity(app,declaredCommit){
+  const seen=app&&typeof app==='object'?app.commit:undefined;
+  if(typeof seen!=='string'||!seen)throw new OutputError('build','the page reports no build commit (window.APP_BUILD.commit is missing), so it cannot be shown to be the declared source '+declaredCommit);
+  if(seen!==declaredCommit)throw new OutputError('build',`the page reports build ${seen}, not the declared source commit ${declaredCommit}`);
+  return seen;
 }
 
 const hashFolder=dir=>REQUIRED_FILES.map(f=>createHash('sha256').update(readFileSync(join(dir,f))).digest('hex')).join(' ');

@@ -13,7 +13,8 @@
 // into the repository's fixtures under the same number, again without overwriting; the person in charge of the numbering accepts one at a time.
 //
 // Provenance: a commit that is exactly a release tag is that release. Any other commit of a git checkout is a PRIVATE BUILD: the folder keeps the nearest earlier tag as `release` (the folder naming and the
-// age rule need one) and says so in meta.json (captureKind 'private-build', unpublished true, baseRelease, sourceCommit); it needs a clean tree, and the commit named is the one the page itself reports in APP_BUILD.
+// age rule need one) and says so in meta.json (captureKind 'private-build', unpublished true, baseRelease, sourceCommit). EVERY capture from a git checkout needs a clean tree (only an explicit --rehearsal may be dirty),
+// and for EVERY kind (release, private build, extracted, rehearsal) the commit declared is the one the page itself reports in APP_BUILD, checked right after the page is ready and again at the end.
 // In a git checkout --release and --commit can only repeat what the checkout is (HEAD, its nearest release); anything else is refused, and they never turn a private build into a release.
 // Only a tree with no .git (an extracted release) takes them as given (scripts/data-snapshot-output.mjs, resolveProvenance).
 // --rehearsal runs the whole capture on a dirty tree for checking the capture itself; its folder says 'rehearsal' and `accept` refuses it.
@@ -23,7 +24,7 @@ import {mkdirSync,writeFileSync,mkdtempSync,rmSync} from 'node:fs';
 import {join,resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 process.env.PLC_E2E_BRANCH??='main'; // the production build, which is what people receive
-const {accept,newStaging,writeDurable,publish,OutputError,resolveProvenance}=await import('./data-snapshot-output.mjs');
+const {accept,newStaging,writeDurable,publish,OutputError,resolveProvenance,checkBuildIdentity}=await import('./data-snapshot-output.mjs');
 const {dumpInPage,probeInPage,project,FIXTURES,PASSPHRASE,CHARACTERS_KEY,characterProblems,producerCharacters}=await import('../tests/data/lib.mjs');
 
 const args=process.argv.slice(2);
@@ -70,6 +71,7 @@ const withoutCharacters=p=>{const c=JSON.parse(JSON.stringify(p));delete c.local
 
 try{
   await ready();
+  checkBuildIdentity(await page.evaluate(()=>window.APP_BUILD),commitFull);   // before any scenario write: the page is the declared source, for every kind of capture
   const hasCharacters=await page.evaluate(async()=>{const {KEY_CLASSES}=await import(window.plcApp.moduleBase()+'chat/vault/key-classes.mjs');return 'plc.characters.v1' in KEY_CLASSES;});
   const modelRequests=()=>fetch(`http://127.0.0.1:${h.api.port}/__requests`).then(r=>r.json()).then(r=>r.length);
   // two chats, a project, a pinned chat, a document, memory, a preset, personal instructions and an unsent draft
@@ -187,7 +189,7 @@ try{
   // the format of every key as the capturing build understood it (older builds have no table: a key named ...vN is format N, anything else format 1)
   const formats=await page.evaluate(async()=>{const {KEY_CLASSES}=await import(window.plcApp.moduleBase()+'chat/vault/key-classes.mjs');return Object.fromEntries(Object.entries(KEY_CLASSES).filter(([,i])=>['user','setting'].includes(i.class)).map(([k,i])=>[k,i.format??(/\.v(\d+)$/.exec(k)?Number(/\.v(\d+)$/.exec(k)[1]):1)]));});
   const app=await page.evaluate(()=>window.APP_BUILD);
-  if(privateBuild||rehearsal)assert(app.commit===commitFull,`the page reports build ${app.commit}, not the commit being captured ${commitFull}`);
+  checkBuildIdentity(app,commitFull);   // final check, for every kind of capture
   const scenario='two chats (one with a document), a project, a pinned chat, memory, a preset, personal instructions, an unsent draft'+(hasCharacters?', three authentic producer characters saved through Import character, Review and Save (Pip, Neri with a text file and a picture, Bex with a sound)':'')+'; then the encrypted vault'+(hasCharacters?', locked, unlocked and reloaded':'')
     +(privateBuild||rehearsal?'. A post-release private writer build, unpublished: '+release+' is only the nearest earlier release.':'');
   const meta={format:'plc-data-snapshot/1',release,commit,commitFull,capturedAt:new Date().toISOString().slice(0,10),app,formats,...provenance,scenario,projection:plainProbe.projection};
