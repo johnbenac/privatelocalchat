@@ -187,6 +187,10 @@ export function createSender(host) {
 
   // One send at a time: while this tab's own message is waiting for its save, a second press (or Enter) is ignored, so an unsent message can never be pushed twice.
   let sending = false;
+  // The identity of a send whose outcome is UNKNOWN (the write may be stored, its acknowledgement failed). The retry of the SAME thread, words and attachments is the same message (same id and time),
+  // so a store that already holds it takes it as unchanged: no duplicate. Memory only: a reload forgets it (the stored message then simply shows in the chat, which the unknown sentence asks the person to check).
+  let pendingSend = null;
+  const attachmentKey = (list) => list.map((a) => a?.id ?? '').join('\u0001');
   async function handleSendMessage(event) {
     event.preventDefault();
     if (g.gen || sending) return;
@@ -208,6 +212,8 @@ export function createSender(host) {
       // so a refusal has nothing to put back and newer typing is never overwritten.
       const taken = docsUi.attachments.count() ? docsUi.attachments.take() : [];
       const userMessage = host.M().model.makeMessage('user', text, taken.length ? { attachments: taken } : {});
+      const same = pendingSend && pendingSend.thread === thread.id && pendingSend.text === text && pendingSend.attachments === attachmentKey(taken);
+      if (same) { userMessage.id = pendingSend.id; userMessage.at = pendingSend.at; } else pendingSend = null;
       await events.emitAwait('prompt:ready', userMessage);
       const updatedBefore = thread.updatedAt, titleBefore = thread.title;
       thread.messages.push(userMessage);
@@ -217,17 +223,20 @@ export function createSender(host) {
         if (derived) { thread.title = derived; threadTitleInput.value = thread.title; }
       }
       host.M().model.touch(thread);
-      const outcome = await persist(thread.id, 'Your message was not sent');
-      if (!outcome.saved) {
-        // Only this send is taken back, in this tab's own memory (nothing is written to storage): the message by id, a title derived for it, the attachments it took. The composer was never cleared.
-        const at = thread.messages.indexOf(userMessage); if (at >= 0) thread.messages.splice(at, 1);
-        if (derived && thread.title === derived) { thread.title = titleBefore; if (thread.id === host.currentThreadId()) threadTitleInput.value = titleBefore; }
-        thread.updatedAt = updatedBefore;
-        if (taken.length) docsUi.attachments.restore(taken);
-        if (thread.id === host.currentThreadId()) messagesView.renderMessages(thread, { keepScroll: true });
-        messageInput.focus();
-        return;
-      }
+       const outcome = await persist(thread.id, 'Your message was not sent');
+        pendingSend = (same && !outcome.saved) || outcome.unknown ? { thread: thread.id, text, attachments: attachmentKey(taken), id: userMessage.id, at: userMessage.at } : null;
+       if (!outcome.saved) {
+         // Only this send is taken back, in this tab's own memory (nothing is written to storage): the message by id, a title derived for it, the attachments it took. The composer was never cleared.
+
+
+         if (!outcome.unknown) { const at = thread.messages.indexOf(userMessage); if (at >= 0) thread.messages.splice(at, 1); }
+         if (derived && thread.title === derived) { thread.title = titleBefore; if (thread.id === host.currentThreadId()) threadTitleInput.value = titleBefore; }
+         thread.updatedAt = updatedBefore;
+         if (taken.length) docsUi.attachments.restore(taken);
+         if (thread.id === host.currentThreadId()) messagesView.renderMessages(thread, { keepScroll: true });
+         messageInput.focus();
+         return;
+       }
       // stored: now (and only now) the composer lets go of the words that were sent, and only if it is still exactly what was sent. A composer that changed while the save was awaited
       // (appended to, or Select All and replaced) is the person's newer text: it stays WHOLE. An equal prefix is not proof of what the person did, so nothing is sliced off it.
       if (thread.id === host.currentThreadId()) {            // (the person may have opened another chat meanwhile: that chat's composer is not ours to touch)

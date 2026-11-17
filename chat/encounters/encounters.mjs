@@ -2,7 +2,7 @@
 // ledger (plc.encounters.v1, chat/encounters/records.mjs), what the messages view shows, and the app-internal facade a later receiver (T429/T442/T458) can call.
 // createEncounters(host) returns { saveThreads, init, clearAll, markImported, markBranch, attribution, project, facade }.
 //
-// host: storage (appLocal), threads() (the live list), normalizeThread, newId, showToast, isBlocked(), isReadOnly(), locks?, now?
+// host: storage (appLocal), threads() (the live list), normalizeThread, newId, showToast, isBlocked(), isReadOnly(), locks?, now?, exclusiveWriter? (vault on: one encrypted writer, so no coordination record)
 //
 // NOT here: hosted invitations or authentication, package admission, context composition, agent scheduling, backup/transfer of the ledger (T428). The facade stores what a trusted
 // caller supplies; a source assertion, a name, a preset id or a link holder is never treated as a verified person.
@@ -18,7 +18,7 @@ export function createEncounters(host) {
   const { storage, threads, normalizeThread = (t) => t, newId = () => `m-${Math.random().toString(16).slice(2, 10)}`, showToast = () => {}, isBlocked = () => false, isReadOnly = () => false } = host;
   const now = host.now || (() => Date.now());
   const locks = host.locks === undefined ? globalThis.navigator?.locks : host.locks;
-  const store = createLedgerStore({ storage, key: LEDGER_KEY, locks, isReadOnly, isNewer: host.isLedgerBlocked || (() => false), watch: host.watch || [] });   // host.watch: the other key stored in the same lock hold (the chats), so a stale read of it is waited out too
+  const store = createLedgerStore({ storage, key: LEDGER_KEY, locks, isReadOnly, isNewer: host.isLedgerBlocked || (() => false), watch: host.watch, coordination: host.coordination, exclusiveWriter: host.exclusiveWriter, vaultOn: host.vaultOn, unsafeNoCoordination: Boolean(host.unsafeNoCoordination), coordOptions: host.coordOptions });   // host.watch: the other key stored in the same lock hold (the chats); its freshness is proven with the ledger's (chat/encounters/coordination.mjs)
   const told = new Set();
   const tell = (key, text) => { if (told.has(key)) return; told.add(key); try { showToast(text, 9000); } catch { /* no UI */ } };
   const commit = createThreadCommit({

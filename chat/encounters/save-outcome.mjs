@@ -36,7 +36,7 @@ export function outcomeOf(result, ids = null) {
   // Attribution the commit could not record for what THIS save stored. A planned facade message that was refused was never stored (the commit marks it `dropped`): that is the facade call's own
   // answer. Any other refusal means the ordinary transcript IS durable and only its conversation records are missing: a partial result, never an unsaved one.
   const attributionRefused = ok ? refused.filter((x) => x && !x.dropped && (!want || x.thread == null || want.has(x.thread))) : [];
-  return { saved, ok, code, conflicts, refused, attributionRefused, partial: saved && attributionRefused.length > 0, unknown: !ok && (r.code === 'unknown-outcome' || r.code === 'changed'), wrote: Boolean(r.wrote), message: r.message || '', warning: r.warning || null };
+  return { saved, ok, code, conflicts, refused, attributionRefused, partial: saved && attributionRefused.length > 0, unknown: !ok && !r.notStored && (r.code === 'unknown-outcome' || r.code === 'changed'), wrote: Boolean(r.wrote), message: r.message || '', warning: r.warning || null };
 }
 
 /** One sentence when a change IS stored but its conversation records could not all be written (otherwise ''). The stored text must never be restored or sent again. */

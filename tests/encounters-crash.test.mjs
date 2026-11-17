@@ -36,7 +36,7 @@ const EVIDENCE_DIR = process.env.PLC_CRASH_EVIDENCE_DIR || '';
 assert.ok(Number.isInteger(REPEATS) && REPEATS > 0, 'PLC_CRASH_REPEATS must be a positive integer');
 const KEYS = { chat: 'chatThreads', ledger: 'plc.encounters.v1' };
 // kill points: [name, nth occurrence, does the victim's message survive?]
-const POINTS = [['in-lock', 1, false], ['intent-written', 1, false], ['before-threads', 1, false], ['tmp:chatThreads', 1, false], ['renamed:chatThreads', 1, true], ['threads-written', 1, true], ['tmp:plc.encounters.v1', 2, true], ['finalized', 1, true]];
+const POINTS = [['in-lock', 1, false], ['planned', 1, false], ['intent-written', 1, false], ['before-threads', 1, false], ['tmp:chatThreads', 1, false], ['renamed:chatThreads', 1, true], ['threads-written', 1, true], ['tmp:plc.encounters.v1', 2, true], ['finalized', 1, true]];
 // kill points inside Clear history: [name, nth, does the Clear take effect (finished by the next commit)?]
 const CLEAR_POINTS = [['in-lock', 1, false], ['tmp:plc.encounters.v1', 1, false], ['renamed:plc.encounters.v1', 1, true], ['clear-intent', 1, true], ['clear-removed', 1, true]];
 const evidence = { node: process.version, platform: process.platform, repeats: REPEATS, actors: 9, runs: { kill: [], clear: [], controls: {} } };
@@ -56,6 +56,7 @@ function startActor(config) {
 }
 const groupGone = (pgid) => { try { process.kill(-pgid, 0); return false; } catch (error) { return error.code === 'ESRCH'; } };
 const put = (dir, key, value) => fs.writeFileSync(path.join(dir, encodeURIComponent(key)), typeof value === 'string' ? value : JSON.stringify(value));
+const coordOf = (dir) => { try { return JSON.parse(fs.readFileSync(path.join(dir, 'coord.json'), 'utf8')); } catch { return null; } };
 const get = (dir, key) => { try { return fs.readFileSync(path.join(dir, encodeURIComponent(key)), 'utf8'); } catch { return null; } };
 
 function seed(dir) {
@@ -108,6 +109,7 @@ async function run({ repeat, kill = null, staged = false, scenario = 'writers', 
       record.queuedAtKill = broker.queued(); record.holderAtKill = broker.holderPid(); record.victimPid = victim.pid;
       process.kill(-victim.pid, 'SIGKILL');
       await Promise.race([victim.exit, wait(5000)]);
+      record.coordAtKill = coordOf(dir);
       record.victimExit = victim.exited; record.victimGroupGone = victim.exited ? groupGone(victim.pid) : false;
     } else actors.forEach((a) => a.go());
     const finished = await Promise.race([Promise.all(others.map((a) => a.exit)).then(() => true), wait(timeoutMs).then(() => false)]);
@@ -129,7 +131,7 @@ async function run({ repeat, kill = null, staged = false, scenario = 'writers', 
     await Promise.all(actors.map((a) => a.exit));
   }
   record.reads = reads; record.tornReads = torn;
-  record.chat = get(dir, KEYS.chat); record.ledger = get(dir, KEYS.ledger);
+  record.chat = get(dir, KEYS.chat); record.ledger = get(dir, KEYS.ledger); record.coord = coordOf(dir);
   record.leftoverTempFiles = fs.readdirSync(dir).filter((f) => f.includes('.tmp-')).length;
   record.results = Object.fromEntries(others.map((a) => [a.role, { exit: a.exited, ...(a.messages.find((m) => m.t === 'result') || { missing: true }) }]));
   record.brokerEvents = broker.events.slice();
@@ -156,6 +158,13 @@ function violations(r, { expectVictim = true } = {}) {
     if (r.victimSurvivedWait) bad.push('victim ran past its stop point');
     if (!r.brokerEvents.some((e) => e.kind === 'free' && e.pid === r.victimPid && e.cause === 'disconnect')) bad.push('the lock was not freed by the victim’s death');
   }
+  // the durable coordination record (a file stand-in for IndexedDB): a hold killed after it planned leaves it OPEN; the next commit finishes it; at the end it is stable and names the stored state
+  if (r.kill && expectVictim && r.scenario === 'writers') {
+    const opened = !['in-lock'].includes(r.kill);
+    if (opened && r.coordAtKill?.state !== 'open') bad.push(`killed at ${r.kill}: the coordination record should be open, it is ${r.coordAtKill?.state}`);
+    if (!opened && r.coordAtKill?.state === 'open') bad.push('killed before it planned: the record must not be open');
+  }
+  if (r.auditor && r.coord && r.coord.state !== 'stable') bad.push('the coordination record is still open after the next commit');
   if (r.auditor && (r.auditor.missing || !r.auditor.ok)) bad.push('the auditor commit after the crash did not succeed: ' + (r.auditor.code || 'no result'));
   if (!Array.isArray(chat) && r.scenario === 'writers') { bad.push('chat history missing'); return bad; }
   const threads = Array.isArray(chat) ? chat : [];

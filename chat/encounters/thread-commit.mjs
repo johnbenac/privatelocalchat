@@ -74,7 +74,9 @@ export function createThreadCommit({ storage, store, key = 'chatThreads', active
   }
 
   // ---- recovery -------------------------------------------------------------------------------------------------------------------
-  function recover(tx, ledger) {
+  // WITH coordination an interrupted operation is finished from the durable record (store.settlePending: phase pairs, write-ahead, stable ACK). The decision by the stored chats alone (below) is
+  // used ONLY when no coordination protects the hold (an exclusive encrypted writer whose storage cannot lag, or the explicit unprotected test control): a lagging view could mislead it otherwise.
+  async function recoverUncoordinated(tx, ledger) {
     const intent = ledger.intent;
     const d = clone(ledger); delete d.intent;
     if (intent.kind === 'clear') {
@@ -87,20 +89,37 @@ export function createThreadCommit({ storage, store, key = 'chatThreads', active
     if (forward) sweepThreads(d, intent.sweep || intent.removed || []); else applyUndo(d, intent.undo || {});
     return { ...tx.write(d), recovered: forward ? 'forward' : 'back' };
   }
+  /** Before anything is decided in a hold: finish what an earlier hold left open. -> { ok, recovered } | refusal */
+  async function recover(tx) {
+    const L = tx.read();
+    if (tx.pending) {
+      const wasClear = L.ok && L.ledger.intent?.kind === 'clear';
+      const r = await store.settlePending(tx); if (!r.ok) return r;
+      if (wasClear && r.outcome === 'applied') { try { storage.removeItem(activeKey); } catch { /* the chats are gone; the pointer is only a hint */ } }
+      return { ok: true, recovered: r.recovered || (r.outcome === 'applied' ? 'forward' : 'back') };
+    }
+    if (L.ok && L.ledger.intent) {
+      if (tx.coordinated) return fail('recovery-unproven', 'An interrupted save was left by a version of the app that did not keep the safety record, so this tab does not guess what it stored. Nothing was saved.');
+      return recoverUncoordinated(tx, L.ledger);
+    }
+    return { ok: true, recovered: null };
+  }
 
   // ---- one commit -----------------------------------------------------------------------------------------------------------------
-  function commitStep(tx) {
+  // `defer(fn)`: what may change this tab's baseline (base, hints) runs ONLY after the stable ACK (run() calls it once store.critical returned ok). An unconfirmed result leaves the baseline
+  // untouched, so the next save recomputes the same patch (already stored = no change) and can never erase or duplicate the unconfirmed durable change.
+  async function commitStep(tx, defer) {
     onPhase('in-lock');
     const result = { ok: true, conflicts: [], refused: [], duplicates: [], recording: 'ok', wrote: false, recovered: null };
-    let s = readStored(); if (!s.ok) return s;
     let L = tx.read();
     if (!L.ok && L.code !== 'newer') return fail(L.code, L.message);   // malformed / unreadable: not a recognised newer store, so nothing is saved without its records
-    if (L.ok && L.ledger.intent) {
-      const r = recover(tx, L.ledger);
-      if (!r.ok) return fail(r.code, r.message);
-      result.recovered = r.recovered; L = tx.read(); s = readStored(); if (!s.ok) return s;
+    if (tx.pending || (L.ok && L.ledger.intent)) {
+      const r = await recover(tx);
+      if (!r.ok) return fail(r.code, r.message, r.unknown ? { unknown: r.unknown } : {});
+      result.recovered = r.recovered; L = tx.read();
       if (!L.ok && L.code !== 'newer') return fail(L.code, L.message);
     }
+    let s = readStored(); if (!s.ok) return s;
     if (L.ok && epoch != null && L.ledger.epoch !== epoch) return fail('stale', 'Your chat history was cleared in another tab. Reload this tab to continue; nothing from this tab was saved.', { epoch: L.ledger.epoch });
     const ledger = L.ok ? L.ledger : null;
     if (!L.ok) result.recording = 'newer';
@@ -147,8 +166,15 @@ export function createThreadCommit({ storage, store, key = 'chatThreads', active
     const removedIds = removals.filter((r) => r.present).map((r) => r.id);
     const finishBase = () => { for (const p of plans) base.set(p.id, p.tabCanon); for (const r of removals) base.delete(r.id); };
     if (!changedPlans.length && !removedIds.length) {
-      finishBase();
-      if (ledger && removals.length) { const d = clone(ledger); if (sweepThreads(d, removals.map((r) => r.id)).removed) { tx.write(d); result.wrote = true; } }  // already gone elsewhere: only the leftover records
+      defer(() => { finishBase(); clearHints(plans); });
+      if (ledger && removals.length) {   // already gone elsewhere: only the leftover records
+        const d = clone(ledger);
+        if (sweepThreads(d, removals.map((r) => r.id)).removed) {
+          const b = await tx.begin([{ [tx.key]: tx.preview(d) }], { back: { [tx.key]: L.raw } }); if (!b.ok) return fail(b.code, b.message);
+          const bw = await tx.beforeWrite(1); if (!bw.ok) return fail(bw.code, bw.message);
+          if (tx.write(d).ok) result.wrote = true;
+        }
+      }
       return result;
     }
 
@@ -160,7 +186,7 @@ export function createThreadCommit({ storage, store, key = 'chatThreads', active
     for (const p of changedPlans) if (!p.existed) newList.push(p.patched);
 
     // the records
-    let draft = null, intentLedger = null, intentText = null;
+    let draft = null, intentLedger = null, intentText = null, opIdx = null, noLedgerOp = false;
     if (ledger) {
       draft = clone(ledger);
       for (const p of changedPlans) {
@@ -169,25 +195,46 @@ export function createThreadCommit({ storage, store, key = 'chatThreads', active
       }
       const undo = diffLedger(ledger, draft);
       const intent = { id: newUuid(), kind: 'commit', startedAt: now(), threads: Object.fromEntries(changedPlans.map((p) => [p.id, { sig: sigOf(p.patched) }])), removed: removedIds, sweep: removals.map((r) => r.id), undo };
+      // the coherent phase pairs of this operation, recorded durably BEFORE any raw write: P1 = ledger with intent, P2 = + the new chats, P3 = final ledger; B = the rollback ledger (undo applied)
+      const intentAfter = { ...draft, intent, rev: draft.rev + 1 };
+      const finPre = clone(intentAfter); delete finPre.intent; sweepThreads(finPre, removals.map((r) => r.id));
+      const backPre = clone(intentAfter); delete backPre.intent; applyUndo(backPre, undo);
+      const begun = await tx.begin([{ [tx.key]: tx.preview({ ...draft, intent }) }, { [key]: JSON.stringify(newList) }, { [tx.key]: tx.preview(finPre) }], { op: intent.id, back: { [tx.key]: tx.preview(backPre) } });
+      if (!begun.ok) return fail(begun.code, begun.message, { conflicts: result.conflicts, refused: result.refused });
+      opIdx = begun;
+      onPhase('planned');
+      const bw1 = await tx.beforeWrite(1); if (!bw1.ok) return fail(bw1.code, bw1.message, { conflicts: result.conflicts, refused: result.refused, notStored: true });
+      onPhase('wal-1');
       const w = tx.write({ ...draft, intent });
       if (!w.ok) {
         // the paired mutation is all or nothing: without the records' intent the chats are NOT written. Nothing is put back either (if the outcome is unclear a later lock holder settles an intent by what chatThreads holds).
-        if (w.code === 'changed') return fail('unknown-outcome', 'The conversation records changed while this was being saved, so the result could not be confirmed. Your chats were not changed; check the chat and try again.', { conflicts: result.conflicts, refused: result.refused });
-        return fail(w.code === 'write-failed' ? 'records-write-failed' : w.code, 'The conversation records could not be saved (storage may be full), so nothing from this save was kept: your chats are unchanged and the message is still here to try again.', { conflicts: result.conflicts, refused: result.refused });
+        if (w.code === 'changed') return fail('unknown-outcome', 'The conversation records changed while this was being saved, so the result could not be confirmed. Your chats were not changed; check the chat and try again.', { conflicts: result.conflicts, refused: result.refused, notStored: true });
+        return fail(w.code === 'write-failed' ? 'records-write-failed' : w.code, 'The conversation records could not be saved (storage may be full), so nothing from this save was kept: your chats are unchanged and the message is still here to try again.', { conflicts: result.conflicts, refused: result.refused, notStored: true });
       }
       intentLedger = w.ledger; intentText = w.text;
       onPhase('intent-written');
+    } else {
+      const begun = await tx.begin([{ [key]: JSON.stringify(newList) }], { back: {} });
+      if (!begun.ok) return fail(begun.code, begun.message, { conflicts: result.conflicts, refused: result.refused });
+      opIdx = begun; noLedgerOp = true;
+      onPhase('planned');
     }
     const text = JSON.stringify(newList);
     onPhase('before-threads');
+    { const bw = await tx.beforeWrite(noLedgerOp ? 1 : 2); if (!bw.ok) return fail(bw.code, bw.message, { conflicts: result.conflicts, refused: result.refused, notStored: noLedgerOp }); }
+    onPhase('wal-2');
     try { storage.setItem(key, text); } catch {
       // put the intent back ONLY while the ledger is still exactly the text this commit wrote a moment ago; anything else is someone else's newer value and is left for recovery
       let tidied = true;
       if (intentLedger) {
         const cur = tx.read();
-        if (cur.ok && cur.raw === intentText) { const back = clone(intentLedger); delete back.intent; applyUndo(back, intentLedger.intent.undo); tidied = tx.write(back).ok; } else tidied = false;
+        if (cur.ok && cur.raw === intentText) {
+          const back = clone(intentLedger); delete back.intent; applyUndo(back, intentLedger.intent.undo);
+          const bw = await tx.beforeWrite(opIdx.bk, 1);                       // write-ahead: the rollback pair is a recorded phase pair
+          tidied = bw.ok && tx.write(back).ok;
+        } else tidied = false;
       }
-      return fail('threads-write-failed', 'This browser could not save your chats (its storage may be full or blocked). Nothing from this save was kept; the conversation on screen is unchanged.' + (tidied ? '' : ' The conversation records will be settled the next time the app saves.'));
+      return fail('threads-write-failed', 'This browser could not save your chats (its storage may be full or blocked). Nothing from this save was kept; the conversation on screen is unchanged.' + (tidied ? '' : ' The conversation records will be settled the next time the app saves.'), { notStored: true });
     }
     // read back: what is stored must be what was written for every conversation this commit touched
     const after = readStored();
@@ -197,21 +244,29 @@ export function createThreadCommit({ storage, store, key = 'chatThreads', active
     result.wrote = true;
     if (intentLedger) {
       const fin = clone(intentLedger); delete fin.intent; sweepThreads(fin, removals.map((r) => r.id));
+      const bw3 = await tx.beforeWrite(3); if (!bw3.ok) return fail(bw3.code, bw3.message, { conflicts: result.conflicts, refused: result.refused });
+      onPhase('wal-3');
       const w2 = tx.write(fin);
-      if (!w2.ok) result.warning = 'Records finished later: ' + w2.message;
+      // never ok with the records unfinished: the chats are durable, the next holder finishes the records from the open record, and THIS caller is told the outcome is not confirmed
+      if (!w2.ok) return fail('records-finish-failed', 'Your chats were saved but the conversation records could not be finished, so the save is not confirmed yet. Try again: it will not duplicate.');
       onPhase('finalized');
     }
-    finishBase();
-    for (const p of changedPlans) { hints.imported.delete(p.id); hints.branch.delete(p.id); }
-    for (const [mid, pl] of [...hints.planned]) if (changedPlans.some((p) => p.id === pl.thread)) hints.planned.delete(mid);
+    defer(() => { finishBase(); clearHints(changedPlans); });
     return result;
+  }
+  function clearHints(list) {
+    for (const p of list) { hints.imported.delete(p.id); hints.branch.delete(p.id); }
+    for (const [mid, pl] of [...hints.planned]) if (list.some((p) => p.id === pl.thread)) hints.planned.delete(mid);
   }
   const plannedFor = (threadId) => { const o = {}; for (const [mid, p] of hints.planned) if (p.thread === threadId) o[mid] = { ...p.spec, id: p.eventId }; return o; };
 
   const finish = (r) => { lastResult = r; try { onResult(r); } catch { /* a listener must not stop saving */ } return r; };
   async function run() {
     if (isBlocked()) return finish(fail('blocked', BLOCKED));
-    return finish(await store.critical((tx) => commitStep(tx)));
+    let after = null;
+    const r = await store.critical((tx) => commitStep(tx, (fn) => { after = fn; }));
+    if (r && r.ok && after) after();               // the stable ACK happened: only now does this tab's baseline move
+    return finish(r);
   }
 
   /** Save now (coalesced): resolves with the result of a commit that started after this call. Every refusal is an explicit { ok: false, code } with no shared write. */
@@ -230,9 +285,9 @@ export function createThreadCommit({ storage, store, key = 'chatThreads', active
    * fn(draft) -> { result } | { refuse, message }
    */
   function mutateLedger(fn, { thread = null } = {}) {
-    return store.critical((tx) => {
+    return store.critical(async (tx) => {
       let L = tx.read(); if (!L.ok) return L;
-      if (L.ledger.intent) { const r = recover(tx, L.ledger); if (!r.ok) return fail(r.code, r.message); L = tx.read(); if (!L.ok) return L; }
+      if (tx.pending || L.ledger.intent) { const r = await recover(tx); if (!r.ok) return fail(r.code, r.message); L = tx.read(); if (!L.ok) return L; }
       if (epoch != null && L.ledger.epoch !== epoch) return fail('stale', 'Your chat history was cleared in another tab. Reload this tab to continue; nothing was recorded.', { epoch: L.ledger.epoch });
       if (thread) {
         const s = readStored(); if (!s.ok) return s;
@@ -242,6 +297,8 @@ export function createThreadCommit({ storage, store, key = 'chatThreads', active
       const made = fn(draft) || {};
       if (made.refuse) return fail(made.refuse, made.message || 'Refused.', made.extra || {});
       if (JSON.stringify({ ...draft, rev: 0 }) === JSON.stringify({ ...L.ledger, rev: 0 })) return { ok: true, result: made.result, wrote: false, ledger: L.ledger };
+      const begun = await tx.begin([{ [tx.key]: tx.preview(draft) }], { back: { [tx.key]: L.raw } }); if (!begun.ok) return begun;
+      const bw = await tx.beforeWrite(1); if (!bw.ok) return bw;
       const w = tx.write(draft); if (!w.ok) return w;
       return { ok: true, result: made.result, wrote: true, ledger: w.ledger };
     });
@@ -252,27 +309,42 @@ export function createThreadCommit({ storage, store, key = 'chatThreads', active
     if (isBlocked()) return fail('blocked', BLOCKED);          // same refusals as request(), BEFORE anything is read or removed
     if (!locksOk) return fail('unsupported', NO_LOCKS);
     await tail.catch(() => {});
-    return store.critical((tx) => {
+    let after = null;
+    const r = await store.critical(async (tx) => {
       onPhase('in-lock');
       let L = tx.read();
       if (!L.ok && L.code !== 'newer') return fail(L.code, L.message);   // malformed / unreadable records: Clear history refuses rather than deleting chats beside records it cannot judge
-      if (L.ok && L.ledger.intent) { const r = recover(tx, L.ledger); if (!r.ok) return fail(r.code, r.message); L = tx.read(); if (!L.ok && L.code !== 'newer') return fail(L.code, L.message); }
-      let written = null, nextEpoch = epoch;
+      if (tx.pending || (L.ok && L.ledger.intent)) { const r = await recover(tx); if (!r.ok) return fail(r.code, r.message); L = tx.read(); if (!L.ok && L.code !== 'newer') return fail(L.code, L.message); }
+      let written = null, nextEpoch = epoch, clearOp = null;
       if (L.ok) {
         const curEpoch = L.ledger.epoch || 0;
         if (curEpoch >= Number.MAX_SAFE_INTEGER) return fail('exhausted', 'The conversation records epoch is exhausted; history cannot be cleared further.');
         const fresh = { ...emptyLedger(curEpoch + 1), rev: L.ledger.rev, intent: { id: newUuid(), kind: 'clear', startedAt: now() } };
+        const finPre = clone({ ...fresh, rev: fresh.rev + 1 }); delete finPre.intent;
+        // phase pairs: P1 = clear intent in the ledger, P2 = chats removed, P3 = final ledger (epoch moved on); rollback = the old ledger text
+        const b = await tx.begin([{ [tx.key]: tx.preview(fresh) }, { [key]: null }, { [tx.key]: tx.preview(finPre) }], { op: fresh.intent.id, back: { [tx.key]: L.raw } }); if (!b.ok) return b;
+        clearOp = b;
+        const bw = await tx.beforeWrite(1); if (!bw.ok) return bw;
         written = tx.write(fresh); if (!written.ok) return written;
         nextEpoch = fresh.epoch;
+      } else {
+        const b = await tx.begin([{ [key]: null }], { back: {} }); if (!b.ok) return b;
+        clearOp = b;
       }
       onPhase('clear-intent');
+      { const bw = await tx.beforeWrite(written ? 2 : 1); if (!bw.ok) return bw; }
       try { storage.removeItem(key); storage.removeItem(activeKey); } catch { return fail('clear-failed', 'Chat history could not be removed from storage.'); }
       onPhase('clear-removed');
-      if (written) { const fin = clone(written.ledger); delete fin.intent; const w = tx.write(fin); if (!w.ok) return { ok: true, warning: w.message }; }
-      base.clear(); epoch = nextEpoch;
-      hints.imported.clear(); hints.branch.clear(); hints.planned.clear();
+      if (written) {
+        const fin = clone(written.ledger); delete fin.intent;
+        const bw = await tx.beforeWrite(3); if (!bw.ok) return bw;
+        const w = tx.write(fin); if (!w.ok) return fail('records-finish-failed', 'History was cleared but the conversation records could not be finished, so the result is not confirmed yet. Try again.');
+      }
+      after = () => { base.clear(); epoch = nextEpoch; hints.imported.clear(); hints.branch.clear(); hints.planned.clear(); };   // only after the stable ACK
       return { ok: true };
     });
+    if (r && r.ok && after) after();
+    return r;
   }
 
   /**
@@ -281,11 +353,11 @@ export function createThreadCommit({ storage, store, key = 'chatThreads', active
    */
   async function prepare() {
     if (!locksOk) return fail('unsupported', NO_LOCKS);
-    return store.critical((tx) => {
+    return store.critical(async (tx) => {
       const L = tx.read();
       if (!L.ok) return L.code === 'newer' ? { ok: true, recovered: null, recording: 'newer' } : fail(L.code, L.message);
-      if (!L.ledger.intent) return { ok: true, recovered: null };
-      const r = recover(tx, L.ledger); if (!r.ok) return fail(r.code, r.message);
+      if (!tx.pending && !L.ledger.intent) return { ok: true, recovered: null };
+      const r = await recover(tx); if (!r.ok) return fail(r.code, r.message);
       return { ok: true, recovered: r.recovered };
     });
   }

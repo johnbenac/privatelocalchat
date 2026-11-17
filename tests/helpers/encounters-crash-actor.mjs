@@ -12,8 +12,10 @@ import path from 'node:path';
 import readline from 'node:readline';
 import { createEncounters } from '../../chat/encounters/encounters.mjs';
 import { normalizeThread } from '../../chat/threads.mjs';
+import { createCoordination } from '../../chat/encounters/coordination.mjs';
 
 const cfg = JSON.parse(process.argv[2]);
+const KEYS_LEDGER = 'plc.encounters.v1';
 const say = (message) => fs.writeSync(1, JSON.stringify(message) + '\n');
 const sleeper = new Int32Array(new SharedArrayBuffer(4));
 const pause = (ms) => Atomics.wait(sleeper, 0, 0, ms);
@@ -65,12 +67,23 @@ function brokerLocks(socketPath) {
     },
   };
 }
+// The durable coordination record (IndexedDB in a browser): a STAND-IN file shared by all actors, compare-and-set by gen, written whole (temp + fsync + rename). The lock serialises every call.
+// These actors' file views cannot lag (a file read is never a cache); an interrupted hold is finished from the recorded phase pairs. The lag refusals are exercised in
+// tests/encounters-store-safety.test.mjs. cfg.coordination === 'off': the unprotected design (control).
+const coordFile = path.join(cfg.dir, 'coord.json');
+const readCoord = () => { try { return JSON.parse(fs.readFileSync(coordFile, 'utf8')); } catch (error) { if (error.code === 'ENOENT') return null; throw error; } };
+const fileBackend = { kind: 'file stand-in', get: async () => readCoord(), cas: async (expect, record) => {
+  const cur = readCoord(); if ((cur ? cur.gen : null) !== expect) return false;
+  const tmp = coordFile + '.t' + process.pid; const fd = fs.openSync(tmp, 'w'); fs.writeSync(fd, JSON.stringify(record)); fs.fsyncSync(fd); fs.closeSync(fd); fs.renameSync(tmp, coordFile); return true;
+} };
+const coordination = cfg.coordination === 'off' ? undefined : createCoordination({ backend: fileBackend, keys: [KEYS_LEDGER, 'chatThreads'], read: (k) => fileStorage.getItem(k), freshMs: 150,
+  hasIntent: () => { try { return Boolean(JSON.parse(fileStorage.getItem(KEYS_LEDGER) || 'null')?.intent); } catch { return false; } } });
 const noLocks = { request: (name, options, callback) => Promise.resolve().then(callback) };
 
 // ---- the tab: load the stored chats like loadThreads, then do one ordinary operation ----
 const load = () => { const raw = fileStorage.getItem('chatThreads'); return (raw ? JSON.parse(raw) : []).map((t) => normalizeThread(t)).filter(Boolean); };
 const list = load();
-const enc = createEncounters({ storage: fileStorage, locks: cfg.locks === 'none' ? noLocks : brokerLocks(cfg.socket), threads: () => list, normalizeThread, newId: () => `rx-${cfg.role}-${process.pid}`, showToast: () => {},
+const enc = createEncounters({ storage: fileStorage, coordination, unsafeNoCoordination: cfg.coordination === 'off', locks: cfg.locks === 'none' ? noLocks : brokerLocks(cfg.socket), threads: () => list, normalizeThread, newId: () => `rx-${cfg.role}-${process.pid}`, showToast: () => {},
   now: () => Date.now(), onPhase: (p) => { phase(p); if (p === 'in-lock' && cfg.windowMs) pause(cfg.windowMs); } });
 enc.init();
 const t1 = () => list.find((t) => t.id === 't1');

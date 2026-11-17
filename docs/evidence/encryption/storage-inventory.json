@@ -367,6 +367,15 @@
       "note": "the encrypted header and log",
       "format": 1,
       "since": "v0.47.0"
+    },
+    {
+      "name": "plc-encounters-coord",
+      "store": "indexedDB",
+      "class": "plain",
+      "owner": "chat/encounters/coordination.mjs",
+      "note": "one record: the generation and SHA-256 digests of the last complete state of chatThreads and plc.encounters.v1 (no payload), the proof that a tab's view of them is fresh before it writes; removed while the vault is on",
+      "format": 1,
+      "since": "unreleased"
     }
   ],
   "deviceStores": [
@@ -395,6 +404,7 @@
       "chat/connection/private-mode.mjs",
       "chat/core/page-chrome.mjs",
       "chat/core/thread-state.mjs",
+      "chat/encounters/coordination.mjs",
       "chat/encounters/encounters.mjs",
       "chat/documents/doc-store.mjs",
       "chat/history/history-io.mjs",

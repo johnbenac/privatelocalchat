@@ -807,7 +807,9 @@
         storage: appLocal, watch: [THREAD_KEY], threads: () => threads, normalizeThread: t => M.model.normalizeThread(t), newId: () => M.model.newId(), showToast,
         onTranscriptChanged: t => { if (t.id === currentThreadId) messagesView.renderMessages(t, { keepScroll: true }); renderThreadList(); },   // a message a receiver added or a refused one taken back
         onCommitted: () => messagesView.refreshAttribution(currentThread()),   // the records follow the save: bring the labels on screen up to date
-        isBlocked: () => vaultApp.blocked.includes(THREAD_KEY), isLedgerBlocked: () => vaultApp.blocked.includes('plc.encounters.v1'), isReadOnly: () => vaultApp.readOnly
+        isBlocked: () => vaultApp.blocked.includes(THREAD_KEY), isLedgerBlocked: () => vaultApp.blocked.includes('plc.encounters.v1'), isReadOnly: () => vaultApp.readOnly,
+        exclusiveWriter: () => vaultApp.exclusive === true,   // ONLY the shared vault's verified claim (supported && writer && !readOnly): never vault-on / not-read-only alone. Without it a vault-on page refuses persistent writes (vault-writer-unverified); no digest of vault payload is ever kept
+        vaultOn: () => Boolean(vaultApp.active)
       });
       const messageDecorators = []; // later features add buttons/meta here: (thread, msg, index, ctx) => void
       // ---- the messages on screen (chat/core/messages-view.mjs) ----

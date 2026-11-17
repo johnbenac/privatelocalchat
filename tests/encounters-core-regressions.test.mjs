@@ -301,6 +301,8 @@ test('counters: rev/epoch/seq exhaustion and unsafe clock positions refuse befor
   const r = await store.mutate((d) => { ensureEncounter(d, 'z', 1); return {}; });
   assert.equal(r.ok, false); assert.equal(r.code, 'exhausted'); assert.deepEqual(storage.log, []);
   const l2 = goodLedger(); l2.rev = MAX - 1; storage.setItem(LK, JSON.stringify(l2));
+  store.coordination.backend.clear();
+  store.coordination.reset();
   const r2 = await store.mutate((d) => { ensureEncounter(d, 'z', 1); return {}; }); assert.equal(r2.ok, true); assert.equal(ledgerOf(storage).rev, MAX);
   assert.equal((await store.mutate((d) => { ensureEncounter(d, 'y', 1); return {}; })).code, 'exhausted');
   // epoch at MAX: Clear history refuses and the chats are not removed

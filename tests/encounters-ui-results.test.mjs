@@ -4,6 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { outcomeOf, sentence } from '../chat/encounters/save-outcome.mjs';
 import { createEncounters } from '../chat/encounters/encounters.mjs';
+import { resetStandIn } from '../chat/encounters/coordination.mjs';
 import { memStorage, fakeLocks, thread, msg } from './helpers/encounters-env.mjs';
 import * as model from '../chat/threads.mjs';
 
@@ -103,6 +104,7 @@ test('a refused ordinary save is told once per wording and never written back; s
   const before = p.storage.getItem('chatThreads');
   // another tab changes the message this tab then changes too: a per-chat conflict under ok:true
   const other = JSON.parse(before); other[0].messages[0].content = 'changed elsewhere'; p.storage.setItem('chatThreads', JSON.stringify(other));
+  resetStandIn(p.storage);
   p.state.threads[0].messages[0].content = 'changed here';
   const o = await ts.persist(['t1'], 'Your edit was not saved');
   assert.equal(o.saved, false); assert.equal(o.code, 'conflict');

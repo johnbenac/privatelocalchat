@@ -1,6 +1,7 @@
 // Shared test setup for the encounter ledger: a storage, a Web Lock stand-in and "tabs" that run the app's REAL commit and ledger modules against them.
 // What is real: chat/encounters/* and chat/threads.mjs (the app's own normaliser). What is stood in for: localStorage (a Map) and Web Locks (an in-process first-come queue).
 import { createLedgerStore } from '../../chat/encounters/ledger-store.mjs';
+import { createCoordination } from '../../chat/encounters/coordination.mjs';
 import { createThreadCommit } from '../../chat/encounters/thread-commit.mjs';
 import { normalizeThread, makeMessage } from '../../chat/threads.mjs';
 
@@ -29,3 +30,7 @@ export function openTab({ storage, locks, now = () => 1000, onPhase, isBlocked, 
   return tab.load();
 }
 export { makeMessage, normalizeThread };
+
+/** A tab's coordination over a SHARED record backend (the IndexedDB stand-in) and the tab's OWN view of storage. */
+export const coordFor = (storage, backend, options = {}) => createCoordination({ backend, keys: ['plc.encounters.v1', 'chatThreads'], read: (k) => storage.getItem(k),
+  hasIntent: () => { try { return Boolean(JSON.parse(storage.getItem('plc.encounters.v1') || 'null')?.intent); } catch { return false; } }, ...options });
