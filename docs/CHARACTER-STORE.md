@@ -74,7 +74,7 @@ validation or before the write refuses the admission.
 
 * `tests/character-package-external.test.mjs`: genuine Neri `exportAuthored` external bytes retained; wrong/truncated/oversized/extra/missing/unreadable streams; buffer reuse; read-once consistency; JSON round trip and tamper of the serialised source.
 * `tests/character-store.test.mjs`: the operations above on real bundles, forged preparations, lock/read-only/busy, malformed/newer/unreadable data, quota/refused/lying storage, temporary chats, parallel admissions in one tab.
-* `tests/character-store-crash.test.mjs` (+ `tests/helpers/character-crash-actor.mjs`): real processes, 4–16 actors, 20 repeats of each scenario, SIGKILL at three write boundaries, negative controls. Invariants and the exact simulated/real split are at the top of the file.
+* `tests/character-store-crash.test.mjs` (+ `tests/helpers/character-crash-actor.mjs`): real processes, 4–16 actors, 20 repeats of each scenario, SIGKILL at three write boundaries, negative controls. Invariants and the exact simulated/real split are at the top of the file. The "no locks" control does not depend on timing: its actors stop at their first fresh read of the stored state (all holding the same base), the test releases one and waits to see it acknowledged, then releases one that still holds the old base, so the lost acknowledged update happens in every repeat (the store and its locks are untouched; only that control's actor waits).
 
 ## Bounds and lifetime (added with the UI)
 

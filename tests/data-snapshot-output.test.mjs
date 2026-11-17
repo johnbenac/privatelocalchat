@@ -15,7 +15,7 @@ import {mkdirSync,mkdtempSync,readdirSync,readFileSync,writeFileSync,existsSync,
 import {join} from 'node:path';
 import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
-import {publish,accept,newStaging,writeDurable,numberedFolders,nextNumber,checkComplete,LOCK_NAME,REQUIRED_FILES} from '../scripts/data-snapshot-output.mjs';
+import {publish,accept,newStaging,writeDurable,numberedFolders,nextNumber,checkComplete,withLock,resolveProvenance,LOCK_NAME,REQUIRED_FILES} from '../scripts/data-snapshot-output.mjs';
 import {listFixtures} from './data/lib.mjs';
 
 const ACTOR=fileURLToPath(new URL('./helpers/data-snapshot-output-actor.mjs',import.meta.url));
@@ -30,7 +30,7 @@ const digest=dir=>Object.fromEntries(numberedFolders(dir).map(n=>[n,REQUIRED_FIL
 async function run(specs,{timeoutMs=60000}={}){
   const dir=scratch(),startFile=join(dir,'go');
   const procs=specs.map(s=>{
-    const p=spawn(process.execPath,[ACTOR,s.mode,s.out,s.label,startFile,s.tail||'v9.0.0-bbbbbbb'],{stdio:['ignore','pipe','pipe']});
+    const p=spawn(process.execPath,[ACTOR,s.mode,s.out,s.label,startFile,s.tail||'v9.0.0-bbbbbbb'],{stdio:['ignore','pipe','pipe'],...(s.env?{env:s.env}:{})});
     const o={spec:s,out:'',err:'',ready:null,exit:null};
     o.ready=new Promise(r=>{p.stdout.on('data',d=>{o.out+=d;if(o.out.includes('ready'))r();});p.on('close',r);});
     o.done=new Promise(r=>p.on('close',(code,signal)=>{o.exit={code,signal};r();}));
@@ -51,7 +51,7 @@ const wholeAndOwned=(out,labels)=>{
     labels.delete(meta.label);
   }
 };
-const noLeftovers=out=>{assert.equal(spawnSync('flock',['-n','-x',join(out,LOCK_NAME),'true']).status,0,'the lock is free: nothing holds it after the writers are done or dead');};
+const noLeftovers=async out=>{assert.equal(await withLock(out,()=>'taken',{waitMs:2000}),'taken','the lock is free: nothing holds it after the writers are done or dead');};
 
 for(const n of [4,8,16])test(`${n} writers at once, ${REPEAT} repeats: distinct contiguous numbers, whole fixtures, nothing overwritten, no deadlock`,{timeout:900000},async()=>{
   for(let r=0;r<REPEAT;r++){
@@ -65,7 +65,7 @@ for(const n of [4,8,16])test(`${n} writers at once, ${REPEAT} repeats: distinct 
       assert.deepEqual(numbers,Array.from({length:n},(_,i)=>i+3),`round ${r}: numbers are distinct and contiguous`);
       assert.equal(numberedFolders(out).length,n+2);
       const after=digest(out);for(const [k,v] of Object.entries(before))assert.equal(after[k],v,k+' was not touched');
-      wholeAndOwned(out,new Set(res.map(x=>x.spec.label)));noLeftovers(out);
+      wholeAndOwned(out,new Set(res.map(x=>x.spec.label)));await noLeftovers(out);
       assert.deepEqual(listFixtures(out),numberedFolders(out),'the reader lists only whole numbered folders');
     }finally{rmSync(out,{recursive:true,force:true});}
   }
@@ -90,7 +90,7 @@ for(const [mode,what] of [['crash-staging','while staging'],['crash-locked','hol
         // the next legitimate writer proceeds and gets the next number
         const next=await run([{mode:'publish',out,label:'next',tail:'v3.0.0-eeeeeee'}]);
         assert.ok(next[0].report?.ok&&next[0].report.number===7,`round ${r}: the next writer proceeds: ${JSON.stringify(next[0].report)}`);
-        noLeftovers(out);
+        await noLeftovers(out);
       }finally{rmSync(out,{recursive:true,force:true});}
     }
   });
@@ -110,10 +110,90 @@ test(`accepting one capture into the fixtures from ${8} actors at once: one winn
       assert.deepEqual(numberedFolders(fixtures),['001-v1.0.0-aaaaaaa','002-v1.1.0-aaaaaaa','003-v1.2.0-fffffff']);
       const after=digest(fixtures);for(const [k,v] of Object.entries(before))assert.equal(after[k],v);
       assert.equal(after['003-v1.2.0-fffffff'],REQUIRED_FILES.map(f=>sha(join(made.path,f))).join(),'the accepted copy is the capture, byte for byte');
-      noLeftovers(fixtures);
+      await noLeftovers(fixtures);
       assert.deepEqual(readdirSync(fixtures).filter(n=>n.startsWith('.')&&n!==LOCK_NAME),[],'no staging folder is left in the fixtures');
     }finally{rmSync(root,{recursive:true,force:true});}
   }
+});
+
+// The stated tools are Node 22 and Python 3 (docs/HOUSING.md): the lock must not lean on flock(1) or any other program. The writers run with a PATH that holds nothing at all.
+for(const n of [4,16])test(`${n} writers at once with no flock(1) (or anything else) on PATH, ${REPEAT} repeats: the same contiguous whole fixtures, nothing overwritten`,{timeout:900000},async()=>{
+  for(let r=0;r<REPEAT;r++){
+    const out=scratch(),emptyBin=join(out,'empty-bin');mkdirSync(emptyBin);
+    try{
+      seed(out,['001-v1.0.0-aaaaaaa']);const before=digest(out);
+      const res=await run(Array.from({length:n},(_,i)=>({mode:'publish',out,label:'w'+i,tail:`v2.0.${i}-c${String(i).padStart(6,'0')}`,env:{PATH:emptyBin,HOME:process.env.HOME||'/'}})));
+      for(const x of res)assert.ok(x.report?.ok&&x.exit.code===0,`round ${r}: writer ${x.spec.label} did not publish without flock(1): ${x.report?.code} ${x.report?.message} ${x.err}`);
+      assert.deepEqual(res.map(x=>x.report.number).sort((a,b)=>a-b),Array.from({length:n},(_,i)=>i+2),`round ${r}: numbers are distinct and contiguous`);
+      const after=digest(out);assert.equal(after['001-v1.0.0-aaaaaaa'],before['001-v1.0.0-aaaaaaa']);
+      wholeAndOwned(out,new Set(res.map(x=>x.spec.label)));await noLeftovers(out);
+    }finally{rmSync(out,{recursive:true,force:true});}
+  }
+});
+
+test('a lock holder that dies abruptly frees the kernel lock; a held lock is reported as busy; a missing Python 3 stops the capture with a clear error and no fallback',async()=>{
+  const root=scratch();
+  try{
+    const out=join(root,'out');mkdirSync(out);
+    // a real holder in another process, killed with SIGKILL while it holds the lock (the pipe closes, the helper exits, the kernel frees it)
+    const holder=spawn(process.execPath,['--input-type=module','-e',`import {withLock} from ${JSON.stringify(new URL('../scripts/data-snapshot-output.mjs',import.meta.url).href)};await withLock(${JSON.stringify(out)},()=>{console.log('held');return new Promise(()=>{});});`],{stdio:['ignore','pipe','inherit']});
+    await new Promise(r=>holder.stdout.on('data',d=>{if(String(d).includes('held'))r();}));
+    await assert.rejects(withLock(out,()=>'no',{waitMs:300}),{code:'busy'});
+    const gone=new Promise(r=>holder.once('exit',r));holder.kill('SIGKILL');await gone;
+    assert.equal(await withLock(out,()=>'taken',{waitMs:5000}),'taken','a dead holder never blocks the next writer');
+    // no Python 3: no lock and no publish, and the reason is readable
+    const staging=newStaging(out);for(const f of REQUIRED_FILES)writeDurable(join(staging,f),'{"label":"x"}\n');
+    await assert.rejects(publish({staging,out,tail:'v1.0.0-aaaaaaa',python:join(root,'no-such-python3')}),e=>e.code==='lock'&&/cannot be run/.test(e.message)&&/Python 3/.test(e.message));
+    assert.deepEqual(numberedFolders(out),[],'nothing was published without the lock');
+  }finally{rmSync(root,{recursive:true,force:true});}
+});
+
+// What a capture may call its source (resolveProvenance): real git repositories in scratch folders, the real function.
+const gitIn=(cwd,...a)=>{const r=spawnSync('git',a,{cwd,encoding:'utf8',env:{...process.env,GIT_AUTHOR_NAME:'t',GIT_AUTHOR_EMAIL:'',GIT_COMMITTER_NAME:'t',GIT_COMMITTER_EMAIL:''}});assert.equal(r.status,0,a.join(' ')+': '+r.stderr);return r.stdout.trim();};
+function makeRepo(){
+  const root=scratch();
+  gitIn(root,'init','-q','--template=','-b','main');gitIn(root,'config','commit.gpgsign','false');
+  writeFileSync(join(root,'a.txt'),'one\n');gitIn(root,'add','a.txt');gitIn(root,'commit','-q','-m','one');gitIn(root,'tag','v1.2.3');
+  const tagged=gitIn(root,'rev-parse','HEAD');
+  writeFileSync(join(root,'a.txt'),'two\n');gitIn(root,'commit','-q','-am','two');
+  return {root,tagged,head:gitIn(root,'rev-parse','HEAD')};
+}
+const refused=(args,re)=>assert.throws(()=>resolveProvenance(args),e=>e.code==='provenance'&&re.test(e.message),String(re));
+
+test('provenance: a git checkout decides what it is; --release and --commit cannot turn a private build into a release or skip the clean tree',()=>{
+  const {root,tagged,head}=makeRepo();
+  try{
+    const plain=resolveProvenance({root});
+    assert.deepEqual(plain,{extracted:false,commitFull:head,release:'v1.2.3',exactTag:null,privateBuild:true},'a commit after a tag is a private build of the nearest release');
+    // the overrides repeat the truth and change nothing
+    for(const o of [{release:'v1.2.3'},{commit:head},{commit:head.slice(0,10)},{release:'v1.2.3',commit:head}])assert.deepEqual(resolveProvenance({root,...o}),plain,'overrides that repeat the checkout leave it a private build: '+JSON.stringify(o));
+    // the overrides that disagree are refused, never believed
+    refused({root,commit:tagged},/not the checked-out commit/);
+    refused({root,commit:'0123456789012345678901234567890123456789'},/not the checked-out commit/);
+    refused({root,release:'v9.9.9'},/not this checkout's release/);
+    refused({root,release:'v1.2.3',commit:tagged},/not the checked-out commit/);
+    // dirty: refused with and without the overrides, allowed only as a rehearsal
+    writeFileSync(join(root,'a.txt'),'three\n');
+    for(const o of [{},{release:'v1.2.3'},{commit:head},{release:'v1.2.3',commit:head}])refused({root,...o},/clean, committed tree/);
+    assert.equal(resolveProvenance({root,rehearsal:true}).privateBuild,true);
+    gitIn(root,'checkout','-q','--','a.txt');
+    // exactly a release tag: that release, whether or not the overrides repeat it
+    gitIn(root,'checkout','-q',tagged);
+    for(const o of [{},{release:'v1.2.3',commit:tagged}])assert.deepEqual(resolveProvenance({root,...o}),{extracted:false,commitFull:tagged,release:'v1.2.3',exactTag:'v1.2.3',privateBuild:false});
+    refused({root,release:'v1.2.4'},/not this checkout's release/);
+  }finally{rmSync(root,{recursive:true,force:true});}
+});
+
+test('provenance: an extracted release tree (no .git) needs both overrides and takes them as given; a checkout with no release tag is refused',()=>{
+  const root=scratch();
+  try{
+    refused({root},/Give --release and --commit/);refused({root,release:'v1.2.3'},/Give --release and --commit/);refused({root,commit:'a'.repeat(40)},/Give --release and --commit/);
+    refused({root,release:'1.2.3',commit:'a'.repeat(40)},/not a release tag name/);refused({root,release:'v1.2.3',commit:'abc'},/full 40-character/);
+    refused({root,release:'v1.2.3',commit:'a'.repeat(40),rehearsal:true},/needs a git checkout/);
+    assert.deepEqual(resolveProvenance({root,release:'v1.2.3',commit:'a'.repeat(40)}),{extracted:true,commitFull:'a'.repeat(40),release:'v1.2.3',exactTag:null,privateBuild:false});
+    gitIn(root,'init','-q','--template=','-b','main');gitIn(root,'config','commit.gpgsign','false');writeFileSync(join(root,'a.txt'),'x\n');gitIn(root,'add','a.txt');gitIn(root,'commit','-q','-m','x');
+    refused({root},/no release tag/);refused({root,release:'v1.2.3',commit:gitIn(root,'rev-parse','HEAD')},/no release tag/);
+  }finally{rmSync(root,{recursive:true,force:true});}
 });
 
 test('refusals are clear: an incomplete staging folder, a wrong number, a rehearsal, an existing folder', async()=>{

@@ -14,15 +14,16 @@
 //
 // Provenance: a commit that is exactly a release tag is that release. Any other commit of a git checkout is a PRIVATE BUILD: the folder keeps the nearest earlier tag as `release` (the folder naming and the
 // age rule need one) and says so in meta.json (captureKind 'private-build', unpublished true, baseRelease, sourceCommit); it needs a clean tree, and the commit named is the one the page itself reports in APP_BUILD.
+// In a git checkout --release and --commit can only repeat what the checkout is (HEAD, its nearest release); anything else is refused, and they never turn a private build into a release.
+// Only a tree with no .git (an extracted release) takes them as given (scripts/data-snapshot-output.mjs, resolveProvenance).
 // --rehearsal runs the whole capture on a dirty tree for checking the capture itself; its folder says 'rehearsal' and `accept` refuses it.
 //
 // A build that stores rich characters (plc.characters.v1) also admits the producer's three authentic packages, through Import character, Review and Save.
 import {mkdirSync,writeFileSync,mkdtempSync,rmSync} from 'node:fs';
 import {join,resolve} from 'node:path';
-import {execFileSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 process.env.PLC_E2E_BRANCH??='main'; // the production build, which is what people receive
-const {accept,newStaging,writeDurable,publish,OutputError}=await import('./data-snapshot-output.mjs');
+const {accept,newStaging,writeDurable,publish,OutputError,resolveProvenance}=await import('./data-snapshot-output.mjs');
 const {dumpInPage,probeInPage,project,FIXTURES,PASSPHRASE,CHARACTERS_KEY,characterProblems,producerCharacters}=await import('../tests/data/lib.mjs');
 
 const args=process.argv.slice(2);
@@ -36,18 +37,12 @@ if(args[0]==='accept'){
 if(args[0]!=='capture'){console.error('Usage: data-snapshot.mjs capture [--release vX.Y.Z] [--commit SHA] [--out DIR] [--rehearsal]  |  accept <folder> [--into DIR]');process.exit(2);}
 const {launch,assert}=await import('../tests/e2e/harness.mjs');
 const {newProfileDir}=await import('../tests/e2e/profile-root.mjs');
-const git=(...a)=>{try{return execFileSync('git',a,{encoding:'utf8',stdio:['ignore','pipe','ignore']}).trim();}catch{return null;}};
 const rehearsal=args.includes('--rehearsal');
-const extracted=Boolean(opt('release')||opt('commit'));
-const commitFull=opt('commit')||git('rev-parse','HEAD');
-let release=opt('release')||git('describe','--tags','--abbrev=0');
-if(!release||!commitFull){console.error('Give --release and --commit when this is not a git checkout');process.exit(2);}
-const exactTag=extracted?null:git('describe','--tags','--exact-match','HEAD');
-const privateBuild=!extracted&&!exactTag;
-if(privateBuild||rehearsal){
-  const dirty=git('status','--porcelain');
-  if(dirty===null||(dirty&&!rehearsal)){console.error('A private build is captured from a clean, committed tree (git status --porcelain must be empty)'+(dirty?':\n'+dirty:''));process.exit(2);}
-}
+// What this source is comes from the checkout itself; --release and --commit cannot change it (they may only repeat it, or describe an extracted tree that has no .git)
+let provenanceOf;
+try{provenanceOf=resolveProvenance({root:resolve(fileURLToPath(new URL('..',import.meta.url))),release:opt('release'),commit:opt('commit'),rehearsal});}
+catch(e){if(e instanceof OutputError){console.error(e.message);process.exit(2);}throw e;}
+const {commitFull,release,privateBuild}=provenanceOf;
 const commit=commitFull.slice(0,7);
 const out=resolve(opt('out')||FIXTURES);
 mkdirSync(out,{recursive:true});

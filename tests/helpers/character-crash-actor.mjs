@@ -5,7 +5,9 @@
 //            fsync, rename: a reader sees all of the old value or all of the new one (PROVIDED by the storage, as a browser's localStorage does, not by our
 //            code). 'torn' (control only): truncate and write in two parts.
 //   locks    the Web Locks contract the store uses, spoken to a broker in the parent over a unix socket; the broker frees the lock when the holder's
-//            connection closes, as a browser frees a dead tab's locks. 'none' (control only): no exclusion.
+//            connection closes, as a browser frees a dead tab's locks. 'none' (control only): no exclusion. With 'none' the control may also set
+//            rendezvous: at the first fresh read inside the (absent) lock the actor says 'parked' with the revision it read and waits, without any timeout of its own, for the
+//            parent to create its release file; so which actors hold the same base, and who writes first, is decided by the parent from what it observed, not by a delay.
 //
 // Everything asynchronous (producer validation, the final byte re-verification) happens BEFORE the "ready" message; "go" starts only the commit, so the
 // actors collide at the lock. Configuration is one JSON argument; messages to the parent are JSON lines on stdout; the parent writes "go" to stdin.
@@ -23,6 +25,11 @@ const pause = (ms) => Atomics.wait(sleeper, 0, 0, ms); // blocks this process's 
 const fixture = (name) => fs.readFileSync(new URL(`../fixtures/characters/examples/${name}.bundle.json`, import.meta.url), 'utf8');
 
 let held = false, readsInLock = 0;
+function parkUntilReleased(value) {
+  let base = null; try { base = JSON.parse(value).revision; } catch { /* reported as null */ }
+  say({ t: 'parked', role: cfg.role, pid: process.pid, base });
+  while (!fs.existsSync(cfg.releaseFile)) pause(2); // released by the parent's own observation, never by elapsed time
+}
 function phase(name) {
   if (cfg.killAt !== name) return;
   say({ t: 'phase', name, pid: process.pid });
@@ -35,7 +42,7 @@ const fileStorage = {
   getItem(key) {
     if (key !== CHARACTER_STORE_KEY) throw new Error('unexpected key ' + key);
     let value; try { value = fs.readFileSync(cfg.stateFile, 'utf8'); } catch (error) { if (error.code !== 'ENOENT') throw error; value = null; }
-    if (held && readsInLock++ === 0) { phase('in-lock'); if (cfg.windowMs) pause(cfg.windowMs); } // control only: widen the read-to-write window
+    if (held && readsInLock++ === 0) { phase('in-lock'); if (cfg.rendezvous && cfg.locks === 'none') parkUntilReleased(value); } // control only: the actual first fresh read, then wait (the value read stays the value used)
     return value;
   },
   setItem(key, value) {

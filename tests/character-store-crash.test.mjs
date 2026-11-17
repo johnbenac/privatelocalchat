@@ -22,8 +22,10 @@
 //   conflicts reported  two updaters of the same record at the same version: exactly one `updated`, one `stale`; the record keeps its individualId, is at version 2 and is the winner's;
 //                the remover removes its record once; the untouched record is byte-identical to its seed
 //   victim's change  killed before the rename: absent; killed after it: present exactly once; nothing nobody asked for appears
-// Controls (the same checks must FAIL when the thing they guard is missing): no locks plus a wide read-to-write window loses updates and duplicates; a lock that a dead
-// holder never frees leaves the others stuck; a storage that writes in two parts shows a torn file after a kill.
+// Controls (the same checks must FAIL when the thing they guard is missing): no locks, with a staged interleaving the test itself observes (every actor stops at its first
+// fresh read, all holding the same base; one is released and its acknowledgement is observed; only then is an actor that already holds the old base released and overwrites it),
+// loses an acknowledged update in every repeat, with no delay and no threshold; a lock that a dead holder never frees leaves the others stuck; a storage that writes in
+// two parts shows a torn file after a kill.
 //   PLC_CRASH_REPEATS (default 20), PLC_CRASH_SCRATCH_ROOT (default: the system temporary folder), PLC_CRASH_EVIDENCE_DIR (when set, crash-evidence.json and per-run logs go there)
 import test, { after } from 'node:test';
 import assert from 'node:assert/strict';
@@ -72,6 +74,7 @@ function startActor(config) {
   actor.exit = new Promise((resolve) => child.once('exit', (code, signal) => { actor.exited = { code, signal }; resolve(actor.exited); }));
   actor.has = (type) => actor.messages.some((m) => m.t === type);
   actor.go = () => child.stdin.write('go\n');
+  actor.releaseFile = config.releaseFile || null;
   return actor;
 }
 const groupGone = (pgid) => { try { process.kill(-pgid, 0); return false; } catch (error) { return error.code === 'ESRCH'; } };
@@ -88,15 +91,15 @@ function rolesFor(total, repeat) {
   return roles;
 }
 
-async function run({ repeat, total, killAt = null, staged = false, storage = 'atomic', locks = 'broker', leak = false, windowMs = 0, timeoutMs = 25000 }) {
+async function run({ repeat, total, killAt = null, staged = false, storage = 'atomic', locks = 'broker', leak = false, rendezvous = false, timeoutMs = 25000 }) {
   const dir = fs.mkdtempSync(path.join(SCRATCH_ROOT, 'plc-char-crash-'));
   const stateFile = path.join(dir, 'characters.json'), socket = path.join(dir, 'b.sock');
   fs.writeFileSync(stateFile, seed.text);
   const broker = await startBroker(socket, { leakOnDisconnect: leak });
-  const base = { stateFile, socket, storage, locks, windowMs, waitMs: 60000 };
+  const base = { stateFile, socket, storage, locks, rendezvous, waitMs: 60000 };
   const roles = rolesFor(total - (killAt ? 1 : 0), repeat);
   if (killAt) roles.unshift({ role: 'victim', killAt, op: { kind: 'fresh', pkg: 'minimal' } });
-  const actors = roles.map((r) => startActor({ ...base, ...r }));
+  const actors = roles.map((r) => startActor({ ...base, ...r, releaseFile: path.join(dir, 'release-' + r.role) }));
   const victim = killAt ? actors[0] : null, others = actors.filter((a) => a !== victim);
   const reader = createCharacterStore({ key: CHARACTER_STORE_KEY, storage: { getItem: (k) => { try { return fs.readFileSync(stateFile, 'utf8'); } catch { return null; } }, setItem() { throw new Error('reader must not write'); } }, locks: null, crypto: webcrypto });
   let reads = 0, torn = 0, storeReadFailures = 0;
@@ -120,6 +123,21 @@ async function run({ repeat, total, killAt = null, staged = false, storage = 'at
       process.kill(-victim.pid, 'SIGKILL');
       await Promise.race([victim.exit, wait(5000)]);
       record.victimExit = victim.exited; record.victimGroupGone = victim.exited ? groupGone(victim.pid) : false;
+    } else if (rendezvous) {
+      // the actual interleaving, driven by what is observed: every actor parks at its first fresh read of the stored state (all hold the same base), then they are released one at a time,
+      // each only after the previous one's acknowledgement (its own result message, with the stored state read from the file) has been seen
+      actors.forEach((a) => a.go());
+      await until(() => actors.every((a) => a.has('parked')), 30000, 'every actor to park at its first fresh read');
+      const order = [...actors.filter((a) => a.kind === 'fresh'), ...actors.filter((a) => a.kind !== 'fresh')];
+      const first = order[0];
+      record.rendezvous = { bases: actors.map((a) => a.messages.find((m) => m.t === 'parked').base), order: order.map((a) => a.role), steps: [] };
+      for (const a of order) {
+        fs.writeFileSync(a.releaseFile, 'go');
+        await until(() => a.has('result'), 30000, a.role + ' to be acknowledged');
+        let stored = null; try { stored = JSON.parse(fs.readFileSync(stateFile, 'utf8')); } catch { /* recorded as null */ }
+        const firstId = (first.messages.find((m) => m.t === 'result') || {}).admissionId;
+        record.rendezvous.steps.push({ role: a.role, acknowledged: (a.messages.find((m) => m.t === 'result').outcomes || []).map((o) => o.status || o.code), revisionAfter: stored ? stored.revision : null, firstStillStored: stored ? stored.records.some((x) => x.admissions.includes(firstId)) : null });
+      }
     } else actors.forEach((a) => a.go());
     const finished = await Promise.race([Promise.all(others.map((a) => a.exit)).then(() => true), wait(timeoutMs).then(() => false)]);
     record.deadlock = !finished;
@@ -243,13 +261,20 @@ test(`4, 8, 12 and 16 parallel actors with no death, ${REPEATS} repeats: distinc
   }
 });
 
-test('control: without locks (and a wide read-to-write window) the same checks catch lost updates and duplicates', { timeout: 1_200_000 }, async () => {
+test('control: without locks, a stale writer released after another was acknowledged overwrites it and the same checks catch the lost update', { timeout: 1_200_000 }, async () => {
   const flagged = []; const rows = [];
   for (let repeat = 1; repeat <= REPEATS; repeat++) {
-    const r = await run({ repeat, total: 8, locks: 'none', windowMs: 10 }); r.__v = violations(r, { expectVictim: false }); rows.push(summary(r)); if (r.__v.length) flagged.push(repeat);
+    const r = await run({ repeat, total: 8, locks: 'none', rendezvous: true }); r.__v = violations(r, { expectVictim: false }); rows.push({ ...summary(r), rendezvous: r.rendezvous }); if (r.__v.length) flagged.push(repeat);
+    // the interleaving really happened, every time: all eight held the seed's revision; the first released one was acknowledged and stored; the next one, which held the old base, was
+    // acknowledged too and its write replaced the stored state, so the first one's acknowledged admission is gone
+    const x = r.rendezvous;
+    assert.ok(x, `repeat ${repeat}: no rendezvous was recorded`);
+    assert.deepEqual(x.bases, Array(8).fill(seed.revision), `repeat ${repeat}: every actor read the same base before anyone wrote`);
+    assert.deepEqual(x.steps[0].acknowledged, ['admitted']); assert.equal(x.steps[0].revisionAfter, seed.revision + 1); assert.equal(x.steps[0].firstStillStored, true, `repeat ${repeat}: the first acknowledgement was stored`);
+    assert.deepEqual(x.steps[1].acknowledged, ['admitted']); assert.equal(x.steps[1].revisionAfter, seed.revision + 1, `repeat ${repeat}: the stale writer replaced the acknowledged state (same revision)`); assert.equal(x.steps[1].firstStillStored, false, `repeat ${repeat}: the first acknowledged admission was overwritten`);
   }
   evidence.runs.controls.noLocks = { repeats: REPEATS, flagged: flagged.length, rows };
-  assert.ok(flagged.length >= Math.ceil(REPEATS * 0.9), `the unlocked store was caught in ${flagged.length}/${REPEATS} repeats`);
+  assert.equal(flagged.length, REPEATS, `the unlocked store was caught in ${flagged.length}/${REPEATS} repeats`);
   assert.ok(rows.some((r) => r.violations.some((v) => v.includes('lost update') || v.includes('revision'))), 'control must lose an acknowledged write, not just report an error');
 });
 
