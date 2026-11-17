@@ -114,13 +114,13 @@ program:
 [[what-this-project-is]] — What Cosmoshot is and the near-term objectives for it.
 [[concept-systems-plugin-path-and-loading]] — Where the Concept Systems plugin lives and the command that loads it in Claude Code.
 [[how-memory-is-kept]] — Where to find memory access, safe writes and sync, instruction rollout, and dream validation contracts.
+[[sonalon-phase-evidence-location]] — The host directory for Sonalon browser-study evidence and the phase-five record pointers.
 [[any-one-lane-is-enough]] — The standing bar that any one of Claude Code, Codex or opencode on the local router must be able to run Cosmoshot, and the routing-policy mechanism that chooses lanes.
 [[development-infrastructure-scope]] — Scope and ownership of the shared developer foundation; read before expanding infrastructure into application or commercial design.
 [[homelab-compute-autonomy]] — Use authorized homelab capacity without invented cash budgets, low core caps or repeat owner approvals.
 [[sign-in-and-accounts-decision]] — How people sign in across the Cosmoshot sites, what an account may and may not do, and why it comes later.
 [[terms-of-service-decisions]] — Where the terms-of-service decisions are listed and decision D1, no likeness of a real person from platform resources.
-[[branding-assets-and-direction]] — Where the ai of our own brand assets are, which bold-colour set is the style to build on, and what the branding work keeps.
-[9/13 entries shown; cosmo-mem read program _index.md]
+[9/14 entries shown; cosmo-mem read program _index.md]
 ```
 
 
