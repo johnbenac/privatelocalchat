@@ -31,6 +31,7 @@ export const LEGACY_VAULT_KEYS = Object.freeze(["chatThreads", "plc.activeThread
 export function createAppStorage({ realLocal, realSession, onWriteError = () => {}, onChange = () => {}, onReadOnly = () => {}, onRemote = () => {}, onBlockedWrite = () => {}, onHeldWrite = () => {}, channel = null } = {}) {
   let session = null;                    // the unlocked vault session, or null (vault off)
   let docsBackend = null;
+  let _adapter = null;                   // the adapter used for the attached session (for readback)
   const mirror = { local: new Map(), session: new Map() }; // vaulted key -> string (threads are rebuilt from `threadsById`)
   const threadsById = new Map();         // id -> thread object, in order via `order`
   const threadJson = new Map();          // id -> last stored JSON, to find what changed
@@ -141,10 +142,10 @@ export function createAppStorage({ realLocal, realSession, onWriteError = () => 
   }
 
   /** The vault is unlocked: serve vaulted keys from it. */
-  function attach(unlocked, { writer = true, lease: given = null } = {}) {
+  function attach(unlocked, { writer = true, lease: given = null, adapter: storeAdapter } = {}) {
     // `lease` is the exact claimWriter handle of this page. Exclusive authority is read ONLY from that handle's live ownership (a supported, still-owned lock): there is no boolean to pass, so none can go stale
     // or be invented (no handle, a refused claim, no Web Locks: never exclusive).
-    epoch++; session = unlocked; readOnly = !writer; lease = given; exclusive = Boolean(writer && given && given.owned === true && given.supported === true); readOnlyWarned = false;
+    epoch++; session = unlocked; readOnly = !writer; lease = given; exclusive = Boolean(writer && given && given.owned === true && given.supported === true); readOnlyWarned = false; _adapter = storeAdapter || null;
     mirror.local.clear(); mirror.session.clear(); threadsById.clear(); threadJson.clear(); order = []; threadsCache = null;
     for (const [k, v] of session.state.kv) {
       if (k === THREAD_ORDER) { try { order = JSON.parse(v); } catch { order = []; } } else if (k.startsWith("l/")) mirror.local.set(k.slice(2), v); else if (k.startsWith("s/")) mirror.session.set(k.slice(2), v); else if (k === REMEMBER) rememberKeys = v !== "0";
@@ -157,7 +158,7 @@ export function createAppStorage({ realLocal, realSession, onWriteError = () => 
     if (channel) channel.onmessage = (event) => { if (session && readOnly) { try { onRemote(event.data); } catch { /* ignore */ } } };
     onChange("*");
   }
-  function detach() { epoch++; exclusive = false; lease = null; session = null; docsBackend = null; held.clear(); heldValue.clear(); recovery = null; mirror.local.clear(); mirror.session.clear(); threadsById.clear(); threadJson.clear(); order = []; threadsCache = null; memoryOnly.clear(); }
+  function detach() { epoch++; exclusive = false; lease = null; session = null; docsBackend = null; _adapter = null; held.clear(); heldValue.clear(); recovery = null; mirror.local.clear(); mirror.session.clear(); threadsById.clear(); threadJson.clear(); order = []; threadsCache = null; memoryOnly.clear(); }
 
   return {
     local, session: sessionStore, attach, detach, flush,
@@ -197,6 +198,8 @@ export function createAppStorage({ realLocal, realSession, onWriteError = () => 
     },
     get vaultSession() { return session; },
     get docsBackend() { return docsBackend; },
+    /** The adapter used for the attached session (for readback verification). */
+    get _adapter() { return _adapter; },
     get stats() { return { writes, failures, pending: dirty.size + (running ? 1 : 0) }; },
     get rememberKeys() { return rememberKeys; },
     setRememberKeys(on) {
@@ -325,7 +328,7 @@ async function bootInner({ adapter, ui, realLocal }) {
   // Before any feature can read: raw values the vault lacks are moved in (the one writer, read back from storage) or held readable as they are. Never throws.
   const exclusive = Boolean(claim.writer && claim.supported);
   const recovery = await reconcileRaw({ session, adapter: store, realLocal, writer: claim.writer, exclusive });
-  app.attach(session, { writer: claim.writer, lease: claim });
+  app.attach(session, { writer: claim.writer, lease: claim, adapter: store });
   app.setHeld(recovery.held, recovery.heldValues); app.setRecovery(recovery);
   if (!claim.writer) claim.waitUntilFree().then(() => tell("plc:vault-writer-free")); // told after the temporary request is gone; this page stays read-only until it is reloaded
   if (session.damaged?.length) tell("plc:vault-damaged", { count: session.damaged.length });
@@ -623,4 +626,349 @@ export async function eraseEverything({ realLocal = safeStorage("localStorage"),
   try { realLocal?.clear(); realSession?.clear(); } catch { /* best effort */ }
   const drop = (name) => new Promise((resolve) => { try { const q = globalThis.indexedDB.deleteDatabase(name); q.onsuccess = q.onerror = q.onblocked = () => resolve(); } catch { resolve(); } });
   await Promise.all([drop("plc-vault"), drop("plc-docs")]);
+}
+
+// ---- encrypted receipt core (A1 bounded scope) --------------------------------------------------------------------------------------------------------------------------------
+
+// Receipt result codes:
+//   "committed"  – exact persisted verification succeeded (adapter write confirmed + fresh readback matches target)
+//   "not-written" – the phase was known not to be needed (unchanged target, blocked/readonly/held)
+//   "unknown"    – partial effects may exist but cannot be verified (session changed, failure mid-stream, readback mismatch)
+
+const RECEIPT = Object.freeze({ COMMITTED: "committed", NOT_WRITTEN: "not-written", UNKNOWN: "unknown" });
+export { RECEIPT };
+
+/**
+ * Create a write-mode scope. The caller enters BEFORE taking any feature lock (lock order: app.transition -> global lease -> feature locks).
+ * `feature` is a string identifier for the caller's feature. `guard` (optional, () => true) is the encrypted authority check: only true authorizes.
+ * The mode captures the attached session, epoch, supported owned lease, and the guard. Every await inside the mode rechecks the guard.
+ *
+ * Returns an object with: readDurable(keys), putKV(key, expectedRaw, nextRaw, {operationId}), putThreads(expectedRaw, nextRaw, {operationId}),
+ * and a fence() to capture the current session state.
+ *
+ * Plain authority limit: without a vault session, this mode refuses capability (plain localStorage read is not authority for durability).
+ */
+export function createWriteMode(store, { feature, guard } = {}) {
+   if (!store || !store.attach) {
+     throw new VaultError("no-store", "createWriteMode requires a valid app storage instance.");
+   }
+   const session = store.vaultSession;
+   if (!session) {
+     throw new VaultError("no-session", "Write mode requires an active vault session (vault must be unlocked). Plain storage is not authorized for encrypted receipts.");
+   }
+
+  // Capture the exact attached session state at mode creation
+  const captured = {
+    session,
+    epoch: store.epoch,
+    lease: store.lease,
+    guard,
+    feature,
+  };
+
+  // ---- queue targets for selected receipt keys ----
+  // Each key gets a per-key queue that serializes writes and prevents coalescing/overtaking by legacy jobs.
+  const receiptQueues = new Map(); // key -> { reserve: bool, pending: Promise | null, seq: number }
+  let nextSeq = 0;
+
+  function getQueue(key) {
+    if (!receiptQueues.has(key)) {
+      receiptQueues.set(key, { reserve: false, pending: null, seq: 0 });
+    }
+    return receiptQueues.get(key);
+  }
+
+  function isCurrent() {
+    return store.isCurrent(captured);
+  }
+
+  function checkGuard() {
+    if (!captured.guard) return true;
+    try { return captured.guard() === true; } catch { return false; }
+  }
+
+  function checkSession() {
+    if (!isCurrent()) throw new VaultError("session-changed", "The vault session changed while this write mode was active.");
+  }
+
+  /**
+   * Fresh persisted readback using the same adapter as the attached session.
+   * Returns a map of key -> value for the requested keys, read from the actual stored vault.
+   */
+  async function readDurable(keys) {
+    checkSession();
+    if (!checkGuard()) throw new VaultError("authority", "Guard rejected: not authorized to read durable state.");
+    const state = await readbackState({ adapter: store._adapter, session });
+    const result = {};
+    for (const key of (Array.isArray(keys) ? keys : [keys])) {
+      const k = String(key);
+      const nsKey = ns("local", k);
+      result[k] = state.kv.has(nsKey) ? state.kv.get(nsKey) : null;
+    }
+    return result;
+  }
+
+  /**
+   * Write a single KV entry with receipt.
+   * @param {string} key - the storage key
+   * @param {string|null} expectedRaw - expected current value (null means removal)
+   * @param {string|null} nextRaw - the new value (null means removal)
+   * @param {object} options - { operationId: string }
+   * @returns {Promise<{status: string, key: string, operationId: string, seq: number, observed: string|null}>}
+   *   status: "committed" | "not-written" | "unknown"
+   *   observed: the value read back from storage, or null
+   */
+  async function putKV(key, expectedRaw, nextRaw, { operationId } = {}) {
+    key = String(key);
+    checkSession();
+    if (!checkGuard()) throw new VaultError("authority", "Guard rejected: not authorized to write.");
+
+    // Check blocked/held/readonly
+    if (store.readOnly) throw new VaultError("read-only", "Cannot write: this tab is read-only.");
+    if (store.blocked && store.blocked.includes(key)) throw new VaultError("blocked", "Key is blocked by format guard: " + key);
+    if (store.held && store.held.some(h => h.key === key)) throw new VaultError("held", "Key is held (sole raw copy): " + key);
+
+    // Check if the key is vaulted
+    if (!isVaulted(key)) throw new VaultError("not-vaulted", "Key is not vaulted: " + key);
+
+    // Check if expectedRaw matches (known-not-written check)
+    // Read from mirror first (what the facade serves), then from session state (what's actually stored)
+    if (expectedRaw !== null) {
+      const mirrorVal = store.local.getItem(key);
+      const nsKey = ns("local", key);
+      const sessionVal = session.state.kv.get(nsKey);
+      const current = mirrorVal !== null ? mirrorVal : sessionVal ?? null;
+      if (current !== expectedRaw) {
+        // Target differs: conflict
+        return { status: RECEIPT.UNKNOWN, key, operationId, seq: 0, observed: current, reason: "target-mismatch" };
+      }
+    }
+
+    // Check if unchanged (same value)
+    if (expectedRaw === nextRaw && expectedRaw !== null) {
+      // Unchanged: verify persistence, don't noop
+      const nsKey = ns("local", key);
+      const currentVault = session.state.kv.get(nsKey);
+      if (currentVault === nextRaw) {
+        // Already persisted with same value: verify
+        try {
+          const state = await readbackState({ adapter: store._adapter, session });
+          const readback = state.kv.get(nsKey);
+          if (readback === nextRaw) {
+            return { status: RECEIPT.COMMITTED, key, operationId, seq: session.lastSeq, observed: nextRaw };
+          }
+        } catch { /* fall through to unknown */ }
+        return { status: RECEIPT.UNKNOWN, key, operationId, seq: 0, observed: null, reason: "readback-failed" };
+      }
+    }
+
+    // Perform the write
+    const nsKey = ns("local", key);
+    let seq;
+    try {
+      if (nextRaw === null) {
+        seq = await session.delKv(nsKey, { guard: captured.guard });
+      } else {
+        seq = await session.setKv(nsKey, nextRaw, { guard: captured.guard });
+      }
+    } catch (error) {
+      if (error?.code === "session-changed") {
+        return { status: RECEIPT.UNKNOWN, key, operationId, seq: 0, observed: null, reason: "session-changed" };
+      }
+      return { status: RECEIPT.UNKNOWN, key, operationId, seq: 0, observed: null, reason: error?.message || String(error) };
+    }
+
+    // Verify: fresh readback using same adapter
+    try {
+      const state = await readbackState({ adapter: store._adapter, session });
+      const readback = nextRaw === null ? null : state.kv.get(nsKey);
+      if (readback === nextRaw) {
+        return { status: RECEIPT.COMMITTED, key, operationId, seq, observed: readback };
+      }
+      // Readback mismatch: partial
+      return { status: RECEIPT.UNKNOWN, key, operationId, seq, observed: readback, reason: "readback-mismatch" };
+    } catch (error) {
+      return { status: RECEIPT.UNKNOWN, key, operationId, seq, observed: null, reason: "readback-failed: " + (error?.message || String(error)) };
+    }
+  }
+
+  /**
+   * Write thread records and order with receipt.
+   * @param {string} expectedRaw - current chatThreads JSON
+   * @param {string} nextRaw - new chatThreads JSON
+   * @param {object} options - { operationId: string }
+   * @returns {Promise<{status: string, seq: number, committed: number, unknown: number, failed: Array, observed: string|null}>}
+   */
+  async function putThreads(expectedRaw, nextRaw, { operationId } = {}) {
+    checkSession();
+    if (!checkGuard()) throw new VaultError("authority", "Guard rejected: not authorized to write threads.");
+
+    if (store.readOnly) throw new VaultError("read-only", "Cannot write threads: this tab is read-only.");
+
+    let nextList;
+    try { nextList = JSON.parse(nextRaw); } catch { throw new VaultError("invalid-threads", "chatThreads must be valid JSON array."); }
+    if (!Array.isArray(nextList)) throw new VaultError("invalid-threads", "chatThreads must be a list.");
+
+    // Parse expected
+    let expectedList = [];
+    if (expectedRaw) {
+      try { expectedList = JSON.parse(expectedRaw); } catch { expectedList = []; }
+      if (!Array.isArray(expectedList)) expectedList = [];
+    }
+
+    // Determine what changed
+    const expectedIds = new Set(expectedList.map(t => String(t.id)).filter(Boolean));
+    const nextIds = new Set(nextList.map(t => String(t.id)).filter(Boolean));
+
+    const toAdd = [];
+    const toUpdate = [];
+    const toRemove = [];
+    for (const t of nextList) {
+      if (!t || t.id == null) continue;
+      const id = String(t.id);
+      if (expectedIds.has(id)) toUpdate.push(t);
+      else toAdd.push(t);
+    }
+    for (const id of expectedIds) {
+      if (!nextIds.has(id)) toRemove.push(id);
+    }
+
+    // Check order changes
+    const expectedOrder = expectedList.map(t => String(t.id)).filter(Boolean);
+    const nextOrder = nextList.map(t => String(t.id)).filter(Boolean);
+    const orderChanged = expectedOrder.join("\n") !== nextOrder.join("\n");
+
+    let committed = 0;
+    let unknownCount = 0;
+    const failed = [];
+
+    // Write additions
+    for (const t of toAdd) {
+      try {
+        const id = String(t.id);
+        await session.putThread(id, t, { guard: captured.guard });
+        committed++;
+      } catch (error) {
+        unknownCount++;
+        failed.push({ type: "add", id: String(t.id), reason: error?.message || String(error) });
+      }
+    }
+
+    // Write updates
+    for (const t of toUpdate) {
+      try {
+        const id = String(t.id);
+        await session.putThread(id, t, { guard: captured.guard });
+        committed++;
+      } catch (error) {
+        unknownCount++;
+        failed.push({ type: "update", id: String(t.id), reason: error?.message || String(error) });
+      }
+    }
+
+    // Write removals
+    for (const id of toRemove) {
+      try {
+        await session.delThread(id);
+        committed++;
+      } catch (error) {
+        unknownCount++;
+        failed.push({ type: "remove", id, reason: error?.message || String(error) });
+      }
+    }
+
+    // Write order
+    if (orderChanged) {
+      try {
+        await session.setKv(THREAD_ORDER, JSON.stringify(nextOrder), { guard: captured.guard });
+        committed++;
+      } catch (error) {
+        unknownCount++;
+        failed.push({ type: "order", reason: error?.message || String(error) });
+      }
+    }
+
+    // Verify: read back threads and order
+    let observed = null;
+    if (committed > 0 || unknownCount === 0) {
+      try {
+        const state = await readbackState({ adapter: store._adapter, session });
+        const readOrder = state.kv.get(THREAD_ORDER);
+        const readThreads = nextOrder.map(id => {
+          const t = state.threads.get(id);
+          return t ? { ...t } : null;
+        }).filter(Boolean);
+
+        if (readOrder === JSON.stringify(nextOrder) && readThreads.length === nextIds.size) {
+          // Full verification passed
+          observed = JSON.stringify(nextList);
+          return { status: RECEIPT.COMMITTED, key: THREADS, operationId, seq: session.lastSeq, committed, unknown: unknownCount, failed, observed };
+        }
+      } catch { /* fall through */ }
+    }
+
+    // Partial: some committed, some unknown, or verification failed
+    if (unknownCount > 0 || failed.length > 0) {
+      return { status: RECEIPT.UNKNOWN, key: THREADS, operationId, seq: session.lastSeq, committed, unknown: unknownCount, failed, observed: null, reason: "partial-failure" };
+    }
+
+    // All committed but verification failed
+    return { status: RECEIPT.UNKNOWN, key: THREADS, operationId, seq: session.lastSeq, committed, unknown: 0, failed, observed: null, reason: "verification-failed" };
+  }
+
+  /**
+   * Reserve a queue target for a key, preventing legacy coalescing jobs from overtaking.
+   * Returns a drain function that must be called after the write is complete.
+   */
+  function reserveQueue(key) {
+    const q = getQueue(key);
+    q.reserve = true;
+    return {
+      drain: async () => {
+        q.reserve = false;
+        q.pending = null;
+        q.seq = 0;
+      }
+    };
+  }
+
+  /**
+   * Publish a receipt for a selected key. Only publishes after exact persisted verification.
+   * Drains/reserves the affected queue to prevent coalescing.
+   */
+  async function publishReceipt(key, receipt) {
+    const q = getQueue(key);
+    if (q.reserve) {
+      // Wait for the reserve to be cleared
+      while (q.reserve) { await new Promise(r => setImmediate(r)); }
+    }
+    q.seq = receipt.seq || 0;
+    q.pending = Promise.resolve(receipt);
+    return receipt;
+  }
+
+  return {
+    readDurable,
+    putKV,
+    putThreads,
+    fence: () => ({ session: captured.session, epoch: captured.epoch }),
+    isCurrent,
+    reserveQueue,
+    publishReceipt,
+    get feature() { return captured.feature; },
+    get session() { return captured.session; },
+    get epoch() { return captured.epoch; },
+  };
+}
+
+/**
+ * Run a write mode scope. The caller provides { feature, guard } and an async function that receives the mode.
+ * This is the top-level API: app.withWriteMode({feature, guard}, async mode => { ... }).
+ *
+ * Authority lock order: caller must enter BEFORE taking feature locks.
+ * Plain authority limit: without a vault session, this refuses capability.
+ */
+export async function withWriteMode(store, { feature, guard }, run) {
+  const mode = createWriteMode(store, { feature, guard });
+  return run(mode);
 }
