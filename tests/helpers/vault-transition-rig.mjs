@@ -189,7 +189,7 @@ export function brokerLocks(socketPath) {
           buffer += chunk; if (done || !buffer.includes('\n')) return; done = true;
           try {
             if (buffer.startsWith('n')) { socket.destroy(); resolve(await callback(null)); }
-            else resolve(await callback({ name })); // held: the callback never settles, the socket stays open until the process dies
+            else { const result = await callback({ name }); socket.destroy(); resolve(result); } // held while the callback's promise is pending (a page's lease: until it is released or the process dies); settled: the broker frees it on the closed socket, as a real request resolves after its callback
           } catch (e) { socket.destroy(); reject(e); }
         });
       });

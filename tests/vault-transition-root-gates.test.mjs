@@ -1,5 +1,5 @@
 // The four root-reproduced failures of the shared vault core candidate d79ce40f, as regression tests (the root probes root-policy-probe, post-detach-swap-probe and crypto-lock-probe).
-// Every case sets up a POSITIVE exclusive writer ({ writer: true, exclusive: true }) so a refusal can never be an unrelated "no exclusive / read-only / busy" refusal: each test
+// Every case sets up a POSITIVE exclusive writer ({ writer: true, lease: providedLease() }) so a refusal can never be an unrelated "no exclusive / read-only / busy" refusal: each test
 // first asserts the authority it relies on, and each has an unchanged positive control. Runs the app's REAL chat/vault/*.mjs copied into an owned scratch folder with ONE transform
 // (the key table gets the two supplied classes plc.characters.v1 / plc.encounters.v1). Synthetic data only. Negative controls are the same files with one guard removed.
 import test from 'node:test';
@@ -9,12 +9,13 @@ import { createMemoryAdapter } from '../chat/vault/vault-db.mjs';
 import { createVault } from '../chat/vault/vault.mjs';
 import { memoryStorage, VAULT_MARKER } from '../chat/vault/vault-store.mjs';
 import { buildModules, loadModules, scratchRoot, NEW_KEYS } from './helpers/vault-transition-rig.mjs';
+import { providedLease } from './helpers/web-locks-fake.mjs';
 
 const FAST = 1000, [CH] = NEW_KEYS;
 const root = scratchRoot();
 const cache = new Map(); // built lazily: a control whose guard text is not in the source (the unmodified candidate) fails its own test only
 const B = (k) => { if (!cache.has(k)) cache.set(k, buildModules(path.join(root, 'gates-' + k), k)); return cache.get(k); };
-const lockFree = { request: (name, options, cb) => { if (typeof options !== 'function') cb({ name }); return new Promise(() => {}); } };
+const lockFree = { request: (name, options, cb) => (options?.ifAvailable ? Promise.resolve(cb({ name })) : new Promise(() => {})) }; // as the browser: a granted request settles when its callback's promise does (a lease release)
 
 /** A positive exclusive writer over a fresh vault: { adapter, session, realLocal, realSession, app, mods, control }. */
 async function rig(which, { local = {}, crypto, docs = { put: async () => {} }, setup = async () => {} } = {}) {
@@ -24,7 +25,7 @@ async function rig(which, { local = {}, crypto, docs = { put: async () => {} }, 
   const session = await mods.vault.createVault({ adapter, crypto }).create('scratch', { iterations: FAST });
   await setup(session, adapter);
   const app = mods.store.createAppStorage({ realLocal, realSession });
-  app.attach(session, { writer: true, exclusive: true });
+  app.attach(session, { writer: true, lease: providedLease() });
   assert.equal(app.exclusive, true, 'positive authority: a real exclusive writer is established'); assert.equal(app.readOnly, false);
   const control = mods.control.createVaultControl({ app, adapter, realLocal, realSession, docs, iterations: FAST, reload: () => {}, dropDocsDb: async () => {} });
   return { adapter, session, realLocal, realSession, mods, app, control, vault: (c) => mods.vault.createVault({ adapter, crypto: c }) };
@@ -105,7 +106,7 @@ test('control: treating an undecoded c: record as expected lets recovery run (th
 
 test('gate 3: replacement attached and written during the old disable docs.put is preserved; the old disable stops without clearing the header or marker', async () => {
   let replacement, r;
-  const docs = { put: async () => { replacement = await r.vault().unlock('scratch'); r.app.attach(replacement, { writer: true, exclusive: true }); r.app.local.setItem('plc.prefs.v1', 'replacement-B'); await r.app.flush(); } };
+  const docs = { put: async () => { replacement = await r.vault().unlock('scratch'); r.app.attach(replacement, { writer: true, lease: providedLease() }); r.app.local.setItem('plc.prefs.v1', 'replacement-B'); await r.app.flush(); } };
   r = await rig('new', { docs, setup: async (s) => { await s.setKv('l/plc.prefs.v1', 'old-A'); await s.putDoc('d', { id: 'd', text: 'old-doc' }); } });
   const code = await codeOf(r.control.disable('scratch'));
   assert.equal(code, 'session-changed'); assert.equal(r.app.active, true); assert.equal(r.app.vaultSession, replacement); assert.equal(r.app.local.getItem('plc.prefs.v1'), 'replacement-B');
@@ -114,7 +115,7 @@ test('gate 3: replacement attached and written during the old disable docs.put i
 
 test('gate 3: the SAME session object attached again during docs.put is also a different lifecycle', async () => {
   let r;
-  const docs = { put: async () => { r.app.attach(r.session, { writer: true, exclusive: true }); } };
+  const docs = { put: async () => { r.app.attach(r.session, { writer: true, lease: providedLease() }); } };
   r = await rig('new', { docs, setup: async (s) => { await s.putDoc('d', { id: 'd', text: 'old-doc' }); } });
   assert.equal(await codeOf(r.control.disable('scratch')), 'session-changed'); assert.ok(await r.adapter.readHeader()); assert.equal(r.realLocal.getItem(VAULT_MARKER), '1'); assert.equal(r.app.active, true);
 });
@@ -124,14 +125,14 @@ test('gate 3 positives: an undisturbed disable with documents completes (docs wr
   const r = await rig('new', { docs: { put: async (d) => { put.push(d.id); } }, setup: async (s) => { await s.putDoc('a', { id: 'a' }); await s.putDoc('b', { id: 'b' }); } });
   assert.equal(await codeOf(r.control.disable('scratch')), null); assert.deepEqual(put.sort(), ['a', 'b']); assert.equal(await r.adapter.readHeader(), null); assert.equal(r.realLocal.getItem(VAULT_MARKER), null); assert.equal(r.app.active, false);
   let replacement; const r2 = await rig('new', { setup: async (s) => { await s.setKv('l/plc.prefs.v1', 'A'); } });
-  const app = new Proxy(r2.app, { get(t, k) { if (k === 'docsBackend') return { all: async () => { replacement = await r2.vault().unlock('scratch'); r2.session.lock(); t.detach(); t.attach(replacement, { writer: true, exclusive: true }); return []; } }; const v = t[k]; return typeof v === 'function' ? v.bind(t) : v; } });
+  const app = new Proxy(r2.app, { get(t, k) { if (k === 'docsBackend') return { all: async () => { replacement = await r2.vault().unlock('scratch'); r2.session.lock(); t.detach(); t.attach(replacement, { writer: true, lease: providedLease() }); return []; } }; const v = t[k]; return typeof v === 'function' ? v.bind(t) : v; } });
   const c2 = r2.mods.control.createVaultControl({ app, adapter: r2.adapter, realLocal: r2.realLocal, realSession: r2.realSession, docs: { put: async () => {} }, iterations: FAST });
   assert.equal(await codeOf(c2.disable('scratch')), 'session-changed'); assert.ok(await r2.adapter.readHeader()); assert.equal(r2.app.vaultSession, replacement);
 });
 
 test('control: without the detached-epoch fence the old disable clears the replacement vault (the root defect)', async () => {
   let replacement, r;
-  const docs = { put: async () => { replacement = await r.vault().unlock('scratch'); r.app.attach(replacement, { writer: true, exclusive: true }); r.app.local.setItem('plc.prefs.v1', 'replacement-B'); await r.app.flush(); } };
+  const docs = { put: async () => { replacement = await r.vault().unlock('scratch'); r.app.attach(replacement, { writer: true, lease: providedLease() }); r.app.local.setItem('plc.prefs.v1', 'replacement-B'); await r.app.flush(); } };
   r = await rig('new-no-detached-fence', { docs, setup: async (s) => { await s.setKv('l/plc.prefs.v1', 'old-A'); await s.putDoc('d', { id: 'd', text: 'old-doc' }); } });
   assert.equal(await codeOf(r.control.disable('scratch')), null, 'the defect: success'); assert.equal(await r.adapter.readHeader(), null, 'the replacement header was cleared');
 });
@@ -152,10 +153,10 @@ for (const variant of ['lock+replacement', 'lock only', 'same session detach+rea
   const r = await rig('new', { crypto: p.crypto, local: { [CH]: 'stale-action-character' }, setup: async (s) => { await s.setKv('seed', 'complete-history'); } });
   p.arm(); const pending = codeOf(r.control.retryRecovery()); await p.entered;
   let replacement = null;
-  if (variant === 'lock+replacement') { replacement = await r.vault().unlock('scratch'); r.session.lock(); r.app.detach(); r.app.attach(replacement, { writer: true, exclusive: true }); }
+  if (variant === 'lock+replacement') { replacement = await r.vault().unlock('scratch'); r.session.lock(); r.app.detach(); r.app.attach(replacement, { writer: true, lease: providedLease() }); }
   if (variant === 'lock only') { r.session.lock(); r.app.detach(); }
-  if (variant === 'same session detach+reattach') { r.app.detach(); r.app.attach(r.session, { writer: true, exclusive: true }); }
-  if (variant === 'replacement without lock') { replacement = await r.vault().unlock('scratch'); r.app.detach(); r.app.attach(replacement, { writer: true, exclusive: true }); }
+  if (variant === 'same session detach+reattach') { r.app.detach(); r.app.attach(r.session, { writer: true, lease: providedLease() }); }
+  if (variant === 'replacement without lock') { replacement = await r.vault().unlock('scratch'); r.app.detach(); r.app.attach(replacement, { writer: true, lease: providedLease() }); }
   p.release();
   assert.equal(await pending, 'session-changed'); const persisted = await storedKv(r.adapter);
   assert.equal(persisted.get('l/' + CH) ?? null, null, 'no stale record was appended to the persisted log'); assert.equal(persisted.has('meta/recoveredKeys'), false);
@@ -173,7 +174,7 @@ test('control: without the pre-append lifecycle guard the stale action is append
   const p = pausingCrypto();
   const r = await rig('new-no-append-guard', { crypto: p.crypto, local: { [CH]: 'stale-action-character' }, setup: async (s) => { await s.setKv('seed', 'complete-history'); } });
   p.arm(); const pending = codeOf(r.control.retryRecovery()); await p.entered;
-  const replacement = await r.vault().unlock('scratch'); r.app.detach(); r.app.attach(replacement, { writer: true, exclusive: true }); p.release(); // a replacement WITHOUT a lock: only the append guard can stop it
+  const replacement = await r.vault().unlock('scratch'); r.app.detach(); r.app.attach(replacement, { writer: true, lease: providedLease() }); p.release(); // a replacement WITHOUT a lock: only the append guard can stop it
   assert.equal(await pending, 'session-changed'); assert.equal((await storedKv(r.adapter)).get('l/' + CH), 'stale-action-character', 'the defect: persisted after the lifecycle changed');
 });
 
@@ -211,7 +212,7 @@ test('guards are STRICT on the memory adapter and the session: only exactly true
   const reopened = await createVault({ adapter }).unlock('scratch'); assert.equal(reopened.state.kv.get('ok'), '1'); assert.equal(reopened.state.kv.get('ok2'), '2'); assert.equal(reopened.lastSeq, 2, 'refused writes did not consume a seq');
 });
 
-for (const [label, opts, code] of [['supported:false (no real exclusive lock)', { writer: true, exclusive: false }, 'no-exclusive'], ['read-only tab', { writer: false, exclusive: false }, 'read-only']]) test('other authority classes stay refused before any mutation: ' + label, async () => {
+for (const [label, opts, code] of [['supported:false (no real exclusive lock)', { writer: true, lease: providedLease({ supported: false }) }, 'no-exclusive'], ['read-only tab', { writer: false, exclusive: false }, 'read-only']]) test('other authority classes stay refused before any mutation: ' + label, async () => {
   const adapter = createMemoryAdapter(); const realLocal = memoryStorage({ [VAULT_MARKER]: '1', 'plc.prefs.v1': 'unknown-raw-C', [CH]: 'sole' }), realSession = memoryStorage();
   const mods = await loadModules(B('new'), { local: realLocal, session: realSession, locks: lockFree });
   const session = await mods.vault.createVault({ adapter }).create('scratch', { iterations: FAST }); await session.setKv('l/plc.prefs.v1', 'encrypted-B'); await session.flush();

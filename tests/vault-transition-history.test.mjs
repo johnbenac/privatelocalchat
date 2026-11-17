@@ -8,6 +8,7 @@ import { createMemoryAdapter } from '../chat/vault/vault-db.mjs';
 import { createVault } from '../chat/vault/vault.mjs';
 import { memoryStorage, VAULT_MARKER } from '../chat/vault/vault-store.mjs';
 import { buildModules, loadModules, scratchRoot, NEW_KEYS } from './helpers/vault-transition-rig.mjs';
+import { providedLease } from './helpers/web-locks-fake.mjs';
 
 const FAST = 1000, [CH, EN] = NEW_KEYS;
 const root = scratchRoot();
@@ -16,8 +17,8 @@ const built = Object.fromEntries(kinds.map((k) => [k, buildModules(path.join(roo
 const DEL = '{"v":1,"records":[{"id":"deleted-life","text":"SYNTH-DELETED"}]}';
 const LIVE = '{"v":1,"records":[{"id":"c-1","text":"SYNTH-CHAR-1"}]}';
 const PREFS = '{"enterSends":true}';
-const lockFree = { request: (name, options, cb) => { if (typeof options !== 'function') cb({ name }); return new Promise(() => {}); } };
-const lockHeldByOther = { request: (name, options, cb) => (typeof options === 'function' ? new Promise(() => {}) : Promise.resolve(cb(null))) };
+const lockFree = { request: (name, options, cb) => (options?.ifAvailable ? Promise.resolve(cb({ name })) : new Promise(() => {})) }; // as the browser: a granted request settles when its callback's promise does (a lease release)
+const lockHeldByOther = { request: (name, options, cb) => (options?.ifAvailable ? Promise.resolve(cb(null)) : new Promise(() => {})) };
 
 const ctxOf = (initialLocal = {}, initialSession = {}) => ({ local: memoryStorage(initialLocal), session: memoryStorage(initialSession), adapter: createMemoryAdapter() });
 const dump = (st) => { const o = {}; for (let i = 0; i < st.length; i++) { const k = st.key(i); o[k] = st.getItem(k); } return o; };
@@ -203,7 +204,7 @@ test('control: treating the fallback claim as exclusive lets recovery write and 
   const ctx2 = ctxOf({ 'plc.prefs.v1': PREFS });
   await makeVault(ctx2, async (s) => { await s.setKv('l/plc.prefs.v1', PREFS); });
   const g = await boot(ctx2, 'new-no-exclusive-gate', { locks: undefined });
-  g.app.attach(g.app.vaultSession, { writer: true, exclusive: false });
+  g.app.attach(g.app.vaultSession, { writer: true, lease: providedLease({ supported: false }) });
   // the store function still refuses unless the control claims exclusivity; the removed gate is the control's only check, so this control proves the gate is what stops it
   const r = await g.control.removePlaintext(); assert.ok(r.removed.includes('plc.prefs.v1'), 'the defect: cleanup ran without exclusivity');
 });
@@ -249,7 +250,7 @@ async function attached(extraLocal = {}, { writer = true, exclusive = true, docs
   const s = await createVault({ adapter: ctx.adapter }).create('pw', { iterations: FAST });
   await s.setKv('l/plc.prefs.v1', 'encrypted-A'); for (const d of docs) await s.putDoc(d.id, d); await s.flush();
   const mods = await loadModules(built.new, { local: ctx.local, session: ctx.session, locks: lockFree });
-  mods.store.app.attach(s, { writer, exclusive });
+  mods.store.app.attach(s, { writer, lease: exclusive ? providedLease() : providedLease({ supported: false }) });
   const docsPlain = new Map(); const docsApi = { all: async () => [...docsPlain.values()], put: async (d) => { docsPlain.set(d.id, d); } };
   const make = (app = mods.store.app) => mods.control.createVaultControl({ app, adapter: ctx.adapter, realLocal: ctx.local, realSession: ctx.session, docs: docsApi, dropDocsDb: async () => {}, iterations: FAST, reload: () => {} });
   return { ctx, s, mods, app: mods.store.app, docsPlain, make, control: make() };
@@ -257,7 +258,7 @@ async function attached(extraLocal = {}, { writer = true, exclusive = true, docs
 const spyAdapter = (adapter) => { const calls = []; for (const k of Object.keys(adapter)) if (typeof adapter[k] === 'function') { const real = adapter[k]; adapter[k] = (...a) => { calls.push(k); return real.apply(adapter, a); }; } return calls; };
 
 test('disable: read-only throws before the adapter, raw storage, marker or documents are touched; no-exclusive too', async () => {
-  for (const [opts, code] of [[{ writer: false, exclusive: false }, 'read-only'], [{ writer: true, exclusive: false }, 'no-exclusive']]) {
+  for (const [opts, code] of [[{ writer: false, exclusive: false }, 'read-only'], [{ writer: true, exclusive: false }, 'no-exclusive']]) { // the `attached` helper turns these flags into a provided lease (or a supported:false claim)
     const r = await attached({ 'plc.prefs.v1': 'encrypted-A' }, opts);
     const calls = spyAdapter(r.ctx.adapter), before = dump(r.ctx.local);
     await assert.rejects(() => r.control.disable('pw'), (e) => e.code === code);
@@ -275,7 +276,7 @@ test('disable: a raw value that changes during the awaited documents read is pre
 test('control: without the final fresh comparison the value that arrived late is overwritten and the vault cleared', async () => {
   const ctx = ctxOf({ [VAULT_MARKER]: '1', 'plc.prefs.v1': 'encrypted-A' });
   const s = await createVault({ adapter: ctx.adapter }).create('pw', { iterations: FAST }); await s.setKv('l/plc.prefs.v1', 'encrypted-A'); await s.flush();
-  const mods = await loadModules(built['new-no-final-recheck'], { local: ctx.local, session: ctx.session, locks: lockFree }); mods.store.app.attach(s, { writer: true, exclusive: true });
+  const mods = await loadModules(built['new-no-final-recheck'], { local: ctx.local, session: ctx.session, locks: lockFree }); mods.store.app.attach(s, { writer: true, lease: providedLease() });
   const app = new Proxy(mods.store.app, { get(t, key) { if (key === 'docsBackend') return { all: async () => { ctx.local.setItem('plc.prefs.v1', 'raw-B'); return []; } }; const v = t[key]; return typeof v === 'function' ? v.bind(t) : v; } });
   await mods.control.createVaultControl({ app, adapter: ctx.adapter, realLocal: ctx.local, realSession: ctx.session, docs: { put: async () => {} }, iterations: FAST }).disable('pw');
   assert.equal(ctx.local.getItem('plc.prefs.v1'), 'encrypted-A', 'the defect: raw B was destroyed'); assert.equal(await ctx.adapter.readHeader(), null);
@@ -284,9 +285,9 @@ test('control: without the final fresh comparison the value that arrived late is
 test('disable: newer-format raw, a differing newer-store copy and an unreadable list are never overwritten; held sole copies stay as they are', async () => {
   const blocked = await attached({ 'plc.prefs.v1': 'newer-raw-B', 'plc.formats.v1': JSON.stringify({ formats: { 'plc.prefs.v1': 2 } }) });
   await assert.rejects(() => blocked.control.disable('pw'), (e) => e.code === 'conflict'); assert.equal(blocked.ctx.local.getItem('plc.prefs.v1'), 'newer-raw-B'); assert.ok(await blocked.ctx.adapter.readHeader());
-  const conflict = await attached(); await conflict.s.setKv('l/' + CH, LIVE); await conflict.s.flush(); conflict.mods.store.app.attach(conflict.s, { writer: true, exclusive: true }); conflict.ctx.local.setItem(CH, DEL);
+  const conflict = await attached(); await conflict.s.setKv('l/' + CH, LIVE); await conflict.s.flush(); conflict.mods.store.app.attach(conflict.s, { writer: true, lease: providedLease() }); conflict.ctx.local.setItem(CH, DEL);
   await assert.rejects(() => conflict.control.disable('pw'), (e) => e.code === 'conflict'); assert.equal(conflict.ctx.local.getItem(CH), DEL);
-  const unreadable = await attached(); await unreadable.s.putThread('t1', { id: 't1', messages: [] }); await unreadable.s.flush(); unreadable.mods.store.app.attach(unreadable.s, { writer: true, exclusive: true }); unreadable.ctx.local.setItem('chatThreads', '[{"title":"no id"}]');
+  const unreadable = await attached(); await unreadable.s.putThread('t1', { id: 't1', messages: [] }); await unreadable.s.flush(); unreadable.mods.store.app.attach(unreadable.s, { writer: true, lease: providedLease() }); unreadable.ctx.local.setItem('chatThreads', '[{"title":"no id"}]');
   await assert.rejects(() => unreadable.control.disable('pw'), (e) => e.code === 'conflict'); assert.equal(unreadable.ctx.local.getItem('chatThreads'), '[{"title":"no id"}]');
   const ctx = ctxOf({ [CH]: DEL, 'plc.prefs.v1': PREFS }); // a held (history-unproven) sole copy: restore never touches it
   await makeVault(ctx, async (s) => { await s.setKv('l/plc.prefs.v1', PREFS); await s.setKv('l/' + CH, DEL); await s.delKv('l/' + CH); await s.compact(); });
@@ -309,7 +310,7 @@ test('disable: the app keeps writing while it waits; the last app value wins, a 
 
 test('disable: lock + unlock during the awaited documents read stops before mutating, detaching or clearing the replacement session', async () => {
   const r = await attached(); let replacement;
-  const app = new Proxy(r.app, { get(target, key) { if (key === 'docsBackend') return { all: async () => { replacement = await createVault({ adapter: r.ctx.adapter }).unlock('pw'); r.s.lock(); target.detach(); target.attach(replacement, { writer: true, exclusive: true }); target.local.setItem('plc.prefs.v1', 'new-session-B'); await target.flush(); return []; } }; const v = target[key]; return typeof v === 'function' ? v.bind(target) : v; } });
+  const app = new Proxy(r.app, { get(target, key) { if (key === 'docsBackend') return { all: async () => { replacement = await createVault({ adapter: r.ctx.adapter }).unlock('pw'); r.s.lock(); target.detach(); target.attach(replacement, { writer: true, lease: providedLease() }); target.local.setItem('plc.prefs.v1', 'new-session-B'); await target.flush(); return []; } }; const v = target[key]; return typeof v === 'function' ? v.bind(target) : v; } });
   await assert.rejects(() => r.make(app).disable('pw'), (e) => e.code === 'session-changed');
   assert.equal(replacement.state.kv.get('l/plc.prefs.v1'), 'new-session-B'); assert.equal((await storedKv(r.ctx)).get('l/plc.prefs.v1'), 'new-session-B', 'the new session value is persisted'); assert.equal(r.app.active, true); assert.ok(await r.ctx.adapter.readHeader());
   assert.equal(r.ctx.local.getItem('plc.prefs.v1'), null, 'the old action wrote no raw copy');
@@ -317,7 +318,7 @@ test('disable: lock + unlock during the awaited documents read stops before muta
 
 test('the same session attached again is a different lifecycle: pointer equality alone does not pass the fence', async () => {
   const r = await attached(); const fence = r.app.fence(); assert.equal(r.app.isCurrent(fence), true);
-  r.app.detach(); r.app.attach(r.s, { writer: true, exclusive: true }); assert.equal(r.app.isCurrent(fence), false); assert.equal(r.app.isCurrent(r.app.fence()), true);
+  r.app.detach(); r.app.attach(r.s, { writer: true, lease: providedLease() }); assert.equal(r.app.isCurrent(fence), false); assert.equal(r.app.isCurrent(r.app.fence()), true);
   r.s.lock(); assert.equal(r.app.isCurrent(r.app.fence()), false);
 });
 
@@ -327,7 +328,7 @@ test('cleanup and retry started before a lock + unlock refuse and leave raw copi
   const b = await boot(ctx); const old = b.res.session;
   for (const action of ['cleanup', 'retry']) {
     const real = ctx.adapter.readLog; let armed = true;
-    ctx.adapter.readLog = async () => { const log = await real.call(ctx.adapter); if (armed) { armed = false; const fresh = await createVault({ adapter: ctx.adapter }).unlock('pw'); b.app.vaultSession.lock(); b.app.detach(); b.app.attach(fresh, { writer: true, exclusive: true }); } return log; };
+    ctx.adapter.readLog = async () => { const log = await real.call(ctx.adapter); if (armed) { armed = false; const fresh = await createVault({ adapter: ctx.adapter }).unlock('pw'); b.app.vaultSession.lock(); b.app.detach(); b.app.attach(fresh, { writer: true, lease: providedLease() }); } return log; };
     const before = dump(ctx.local);
     await assert.rejects(() => (action === 'cleanup' ? b.control.removePlaintext() : b.control.retryRecovery()), (e) => e.code === 'session-changed', action);
     ctx.adapter.readLog = real; assert.deepEqual(dump(ctx.local), before, action + ': raw untouched'); assert.equal(b.app.active, true);
@@ -341,7 +342,7 @@ test('control: without the lifecycle fence an old cleanup removes copies after t
   await makeVault(ctx, async (s) => { await s.setKv('l/plc.prefs.v1', PREFS); });
   const b = await boot(ctx, 'new-no-fence');
   const real = ctx.adapter.readLog; let armed = true;
-  ctx.adapter.readLog = async () => { const log = await real.call(ctx.adapter); if (armed) { armed = false; const fresh = await createVault({ adapter: ctx.adapter }).unlock('pw'); b.app.detach(); b.app.attach(fresh, { writer: true, exclusive: true }); } return log; };
+  ctx.adapter.readLog = async () => { const log = await real.call(ctx.adapter); if (armed) { armed = false; const fresh = await createVault({ adapter: ctx.adapter }).unlock('pw'); b.app.detach(); b.app.attach(fresh, { writer: true, lease: providedLease() }); } return log; };
   const r = await b.control.removePlaintext(); assert.ok(r.removed.includes('plc.prefs.v1'), 'the defect: the stale action carried on');
 });
 

@@ -38,7 +38,8 @@ export function createAppStorage({ realLocal, realSession, onWriteError = () => 
   let rememberKeys = true;
   let readOnly = false, readOnlyWarned = false;  // another tab holds the vault's writer lock: this tab reads, and says so when it is asked to write
   let exclusive = false;                 // the writer claim is a REAL Web Lock (claimWriter supported:true). Only then may multi-step migration, cleanup and turning-off run; { writer: true, supported: false } is not authority for them
-  let epoch = 0;                         // bumped by every attach and detach: a multi-await action captured (session, epoch) and refuses once either changed, even if the same session is attached again
+  let lease = null;                      // the claimWriter handle attached with the session (its live ownership decides `exclusive`)
+  let epoch = 0;                      // bumped by every attach and detach: a multi-await action captured (session, epoch) and refuses once either changed, even if the same session is attached again
   let inFlight = null;                   // the one scoped transition (retry, cleanup, turning off) that may run at a time on this page: { kind, promise }
   const memoryOnly = new Set();          // keys not stored at all (API keys when "remember" is off)
   const blocked = new Set();             // keys whose stored data comes from a newer version: still readable, never written or removed (chat/vault/data-formats.mjs)
@@ -140,8 +141,10 @@ export function createAppStorage({ realLocal, realSession, onWriteError = () => 
   }
 
   /** The vault is unlocked: serve vaulted keys from it. */
-  function attach(unlocked, { writer = true, exclusive: isExclusive = false } = {}) {
-    epoch++; session = unlocked; readOnly = !writer; exclusive = Boolean(writer && isExclusive); readOnlyWarned = false;
+  function attach(unlocked, { writer = true, lease: given = null } = {}) {
+    // `lease` is the exact claimWriter handle of this page. Exclusive authority is read ONLY from that handle's live ownership (a supported, still-owned lock): there is no boolean to pass, so none can go stale
+    // or be invented (no handle, a refused claim, no Web Locks: never exclusive).
+    epoch++; session = unlocked; readOnly = !writer; lease = given; exclusive = Boolean(writer && given && given.owned === true && given.supported === true); readOnlyWarned = false;
     mirror.local.clear(); mirror.session.clear(); threadsById.clear(); threadJson.clear(); order = []; threadsCache = null;
     for (const [k, v] of session.state.kv) {
       if (k === THREAD_ORDER) { try { order = JSON.parse(v); } catch { order = []; } } else if (k.startsWith("l/")) mirror.local.set(k.slice(2), v); else if (k.startsWith("s/")) mirror.session.set(k.slice(2), v); else if (k === REMEMBER) rememberKeys = v !== "0";
@@ -154,7 +157,7 @@ export function createAppStorage({ realLocal, realSession, onWriteError = () => 
     if (channel) channel.onmessage = (event) => { if (session && readOnly) { try { onRemote(event.data); } catch { /* ignore */ } } };
     onChange("*");
   }
-  function detach() { epoch++; exclusive = false; session = null; docsBackend = null; held.clear(); heldValue.clear(); recovery = null; mirror.local.clear(); mirror.session.clear(); threadsById.clear(); threadJson.clear(); order = []; threadsCache = null; memoryOnly.clear(); }
+  function detach() { epoch++; exclusive = false; lease = null; session = null; docsBackend = null; held.clear(); heldValue.clear(); recovery = null; mirror.local.clear(); mirror.session.clear(); threadsById.clear(); threadJson.clear(); order = []; threadsCache = null; memoryOnly.clear(); }
 
   return {
     local, session: sessionStore, attach, detach, flush,
@@ -170,7 +173,9 @@ export function createAppStorage({ realLocal, realSession, onWriteError = () => 
     setRecovery(report) { recovery = report; },
     get recovery() { return recovery; },
     get readOnly() { return readOnly; },
-    get exclusive() { return exclusive && !readOnly; },
+    get exclusive() { return exclusive && !readOnly && lease !== null && lease.owned === true && lease.supported === true; },
+    /** The writer-lock handle attached with the session (claimWriter's), or null. Detaching forgets it but never releases it: only the action that owns it releases it (vault-control disable). */
+    get lease() { return lease; },
     /** The lifecycle counter: bumped by every attach and detach. A multi-await action that detaches ITSELF notes the value right after its own detach and stops if it ever differs (a replacement attached). */
     get epoch() { return epoch; },
     /** The identity of what is attached now: { session, epoch }. A multi-await action takes one at its start and asks `isCurrent` after every await and before it changes anything. */
@@ -234,15 +239,37 @@ export const appLocal = app.local, appSession = app.session;
  * Without Web Locks the vault is still safe (two writers cannot both store the same seq: the second is refused), so { writer: true, supported: false } is returned.
  */
 export function claimWriter({ locks = globalThis.navigator?.locks, name = "plc-vault-writer" } = {}) {
-  if (!locks?.request) return Promise.resolve({ writer: true, supported: false, waitUntilFree: () => new Promise(() => {}) });
+  if (!locks?.request) return Promise.resolve({ writer: true, supported: false, owned: false, release: async () => false, stopWaiting() {}, waitUntilFree: () => new Promise(() => {}) }); // no Web Locks: never exclusive, nothing to release
   return new Promise((resolve) => {
-    locks.request(name, { ifAvailable: true }, (lock) => {
+    let request;
+    request = locks.request(name, { ifAvailable: true }, (lock) => {
       if (!lock) {
-        resolve({ writer: false, supported: true, waitUntilFree: () => new Promise((free) => { locks.request(name, () => { free(); return new Promise(() => {}); }); }) });
+        // Refused: another page owns the lock. This handle can only watch. waitUntilFree takes a temporary request that is given up the moment it is granted, and tells
+        // only after that request has really finished (the lock is free again): it never keeps the lock and never makes this page a writer.
+        const waiting = new Set();
+        resolve({
+          writer: false, supported: true, owned: false, release: async () => false,
+          stopWaiting() { for (const c of waiting) c.abort(); waiting.clear(); },
+          waitUntilFree: () => new Promise((free) => {
+            const ctrl = new AbortController(); waiting.add(ctrl);
+            Promise.resolve(locks.request(name, { signal: ctrl.signal }, () => undefined)).then(() => { waiting.delete(ctrl); free(); }, () => { waiting.delete(ctrl); }); // aborted: no notice
+          })
+        });
         return undefined;
       }
-      resolve({ writer: true, supported: true, waitUntilFree: () => new Promise(() => {}) });
-      return new Promise(() => {}); // held until this page goes away
+      // Granted: THIS callback's promise is the hold. Resolving it is the only way the lock ends, and `done` (the request's own completion) says it really ended.
+      let end, owned = true, released = null;
+      const hold = new Promise((r) => { end = r; });
+      const done = () => Promise.resolve(request).catch(() => {});
+      resolve({
+        writer: true, supported: true,
+        get owned() { return owned; },
+        /** Give this page's writer lock back. Idempotent; resolves true once for the call that released, after the lock is physically free. It can only end its OWN request. */
+        release() { if (released) return released.then(() => false); owned = false; end(); released = done().then(() => true); return released; },
+        stopWaiting() {},
+        waitUntilFree: () => new Promise(() => {})
+      });
+      return hold;
     });
   });
 }
@@ -298,9 +325,9 @@ async function bootInner({ adapter, ui, realLocal }) {
   // Before any feature can read: raw values the vault lacks are moved in (the one writer, read back from storage) or held readable as they are. Never throws.
   const exclusive = Boolean(claim.writer && claim.supported);
   const recovery = await reconcileRaw({ session, adapter: store, realLocal, writer: claim.writer, exclusive });
-  app.attach(session, { writer: claim.writer, exclusive });
+  app.attach(session, { writer: claim.writer, lease: claim });
   app.setHeld(recovery.held, recovery.heldValues); app.setRecovery(recovery);
-  if (!claim.writer) claim.waitUntilFree().then(() => tell("plc:vault-writer-free"));
+  if (!claim.writer) claim.waitUntilFree().then(() => tell("plc:vault-writer-free")); // told after the temporary request is gone; this page stays read-only until it is reloaded
   if (session.damaged?.length) tell("plc:vault-damaged", { count: session.damaged.length });
   if (recovery.recovered.length || recovery.held.length || recovery.conflicts.length || recovery.unreadable.length) tell("plc:vault-recovery", { recovered: recovery.recovered, held: recovery.held.map((h) => ({ ...h })), conflicts: recovery.conflicts.map((c) => c.key), unreadable: recovery.unreadable });
   return { vault: true, session, writer: claim.writer, recovery };
@@ -514,21 +541,24 @@ const sameJson = (a, b) => JSON.stringify(a) === JSON.stringify(b);
  * Put everything into a new vault and check it by reading it back with the passphrase. Does NOT delete the plaintext (the person is asked after).
  * -> { session, plaintext, documents }. Throws before changing anything the app uses if the check fails.
  */
-export async function createAndMigrate({ passphrase, adapter, realLocal, realSession, documents = [], iterations, autoMinutes = 0 }) {
+export async function createAndMigrate({ passphrase, adapter, realLocal, realSession, documents = [], iterations, autoMinutes = 0, guard = undefined }) {
+  // `guard` (optional; the action's live lease + inactive-lifecycle check, strict true) is asked where every record is actually written (header, each append) and again before the marker. A stale
+  // creator stops there with session-changed; what it had already made durable is not claimed unchanged, and it never clears a vault that may now belong to a replacement.
+  const options = guard ? { guard } : undefined, okNow = () => { try { return !guard || guard() === true; } catch { return false; } };
   const vault = createVault({ adapter });
   const plain = readPlaintext(realLocal, realSession);
-  const session = await vault.create(passphrase, { iterations });
+  const session = await vault.create(passphrase, { iterations, guard });
   try {
     for (const kind of ["local", "session"]) for (const [k, v] of Object.entries(plain[kind])) {
       if (k === THREADS) continue;
-      await session.setKv(ns(kind, k), v);
+      await session.setKv(ns(kind, k), v, options);
     }
     const threads = (() => { try { const l = JSON.parse(plain.local[THREADS] || "[]"); return Array.isArray(l) ? l : []; } catch { return []; } })();
     const newer = Object.keys(plain.local).filter((k) => k !== THREADS && !LEGACY_VAULT_KEYS.includes(k)).sort();
-    if (newer.length) await session.setKv(RECOVERED_KEYS, JSON.stringify(newer)); // these are in the vault now: a stale plaintext copy kept after a later delete is never copied back
-    for (const t of threads) if (t?.id != null) await session.putThread(String(t.id), t);
-    await session.setKv(THREAD_ORDER, JSON.stringify(threads.filter((t) => t?.id != null).map((t) => String(t.id))));
-    for (const d of documents) if (!d.temporary) await session.putDoc(d.id, d);
+    if (newer.length) await session.setKv(RECOVERED_KEYS, JSON.stringify(newer), options); // these are in the vault now: a stale plaintext copy kept after a later delete is never copied back
+    for (const t of threads) if (t?.id != null) await session.putThread(String(t.id), t, options);
+    await session.setKv(THREAD_ORDER, JSON.stringify(threads.filter((t) => t?.id != null).map((t) => String(t.id))), options);
+    for (const d of documents) if (!d.temporary) await session.putDoc(d.id, d, options);
     await session.flush();
     // read it back with the passphrase, as the next visit will, and compare with what was there
     const check = await createVault({ adapter }).unlock(passphrase);
@@ -540,10 +570,18 @@ export async function createAndMigrate({ passphrase, adapter, realLocal, realSes
     if (!sameJson(threads.filter((t) => t?.id != null).map((t) => [String(t.id), t]), threads.filter((t) => t?.id != null).map((t) => [String(t.id), check.state.threads.get(String(t.id))]))) throw new VaultError("verify", "The encrypted chats do not match.");
     for (const d of documents) if (!d.temporary && !sameJson(d, check.state.docs.get(d.id))) throw new VaultError("verify", "A document does not match.");
     check.lock();
+    if (!okNow()) throw new VaultError("session-changed", "The vault enable was interrupted; some setup data may already be saved; the original unencrypted data was kept.");
   } catch (error) {
-    session.lock(); await adapter.clear().catch(() => {});
+    session.lock();
+    // A failed creator removes its own half-made vault, but only while it is still the rightful creator: a stale one (lifecycle changed, lease gone) leaves what is stored alone.
+    if (okNow()) await adapter.clear(options).catch(() => {});
+    // vault.create() already committed the header before this block, so a session-changed from a later guarded write is an interruption AFTER durable setup data: say so (the original unencrypted data was never touched).
+    if (error?.code === "session-changed") {
+      throw new VaultError("session-changed", "The vault enable was interrupted; some setup data may already be saved; the original unencrypted data was kept.");
+    }
     throw error;
   }
+  if (!okNow()) { session.lock(); throw new VaultError("session-changed", "The vault enable was interrupted; some setup data may already be saved; the original unencrypted data was kept."); }
   try { realLocal.setItem(VAULT_MARKER, JSON.stringify({ autoMinutes, createdAt: Date.now() })); } catch { /* the marker is an optimisation */ }
   return { session, plaintext: plain, documents };
 }

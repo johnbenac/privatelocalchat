@@ -107,12 +107,13 @@ export function createVault({ adapter, crypto = globalThis.crypto, now = () => D
   }
 
   /** Create a new vault. Returns an unlocked session. Refuses if one exists. */
-  async function create(passphrase, { iterations = DEFAULT_ITERATIONS } = {}) {
+  async function create(passphrase, { iterations = DEFAULT_ITERATIONS, guard } = {}) {
     if (!passphrase) throw new VaultError("no-passphrase", "A passphrase is required.");
     if (await exists()) throw new VaultError("exists", "A vault already exists here.");
     const dekRaw = random(32);
     const header = { format: VAULT_FORMAT, createdAt: now(), wraps: [await newPassphraseWrap(dekRaw, passphrase, iterations)] };
-    await adapter.writeHeader(header);
+    // `guard` (optional, strict true, from the action that started this) is asked by the adapter where the header is actually written, after its own waits: a stale creator writes nothing.
+    await (guard === undefined || guard === null ? adapter.writeHeader(header) : adapter.writeHeader(header, { guard }));
     return session(header, dekRaw, emptyState(), 0);
   }
 
@@ -236,7 +237,7 @@ export function createVault({ adapter, crypto = globalThis.crypto, now = () => D
         if (state.keys.has(chatKeyId(id))) await write({ keyId: KEY_DEK, event: { t: "key.destroy", id: chatKeyId(id) } });
         cache.delete(chatKeyId(id));
       }),
-      putDoc: (id, doc) => api.append({ scope: docKeyId(id), event: { t: "doc.put", id, doc } }),
+      putDoc: (id, doc, options) => api.append({ scope: docKeyId(id), event: { t: "doc.put", id, doc } }, options),
       delDoc: (id) => enqueue(async () => {
         if (state.docs.has(String(id))) await write({ keyId: docKeyId(id), event: { t: "doc.del", id } });
         if (state.keys.has(docKeyId(id))) await write({ keyId: KEY_DEK, event: { t: "key.destroy", id: docKeyId(id) } });

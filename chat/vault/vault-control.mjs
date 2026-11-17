@@ -6,14 +6,21 @@ import { VAULT_MARKER, parseMarker, createAndMigrate, removeVerifiedPlaintext, i
 import { REGISTRY_KEY, parseRegistry, findNewer } from "./data-formats.mjs";
 
 const changed = () => new VaultError("session-changed", "The vault was locked or replaced while this was running, so it was stopped before it changed anything more. Nothing was lost; try again.");
+const honestPartial = () => new VaultError("session-changed", "The vault enable was interrupted; some setup data may already be saved; the original unencrypted data was kept.");
 /** Multi-step migration, cleanup and turning off need a writer that nobody else can be: a real Web Lock held by this tab. A read-only tab, or no Web Locks at all, refuses before touching anything. */
 const needExclusive = (app, what) => {
   if (app.readOnly) throw new VaultError("read-only", "This app is open in another tab, so " + what + " is not done here.");
   if (!app.exclusive) throw new VaultError("no-exclusive", "This browser cannot guarantee that only this tab is changing the encrypted vault (no Web Locks), so " + what + " is not done here. Your saved data is untouched.");
 };
 
-export function createVaultControl({ app, adapter = null, realLocal = globalThis.localStorage, realSession = globalThis.sessionStorage, docs, events = null, reload = () => location.reload(), iterations = DEFAULT_ITERATIONS, dropDocsDb = defaultDropDocsDb, now = () => Date.now() } = {}) {
+export function createVaultControl({ app, adapter = null, realLocal = globalThis.localStorage, realSession = globalThis.sessionStorage, docs, events = null, reload = () => location.reload(), iterations = DEFAULT_ITERATIONS, dropDocsDb = defaultDropDocsDb, now = () => Date.now(), locks = undefined } = {}) {
   const store = () => (adapter ||= createIndexedDbAdapter());
+  // One claim attempt. A page that just gave the lock back, or a read-only page's temporary waiter request, can hold it for an instant, so a refusal is tried again a few times before it is believed.
+  const claimOnce = async () => {
+    let claim = await claimWriter(locks ? { locks } : {});
+    for (let i = 0; i < 4 && !claim.writer && claim.supported; i++) { await new Promise((r) => setTimeout(r, 50)); claim = await claimWriter(locks ? { locks } : {}); }
+    return claim;
+  };
   const marker = () => { try { return parseMarker(realLocal.getItem(VAULT_MARKER)); } catch { return {}; } };
   const writeMarker = (patch) => { try { realLocal.setItem(VAULT_MARKER, JSON.stringify({ ...marker(), ...patch })); } catch { /* the marker is an optimisation */ } };
   const emit = (name, ...args) => { try { events?.emit(name, ...args); } catch { /* a listener must not stop this */ } };
@@ -37,13 +44,39 @@ export function createVaultControl({ app, adapter = null, realLocal = globalThis
     async enable(passphrase, { autoMinutes = 0 } = {}) {
       if (app.active) throw new VaultError("exists", "The vault is already on.");
       if (!api.supported) throw new VaultError("unsupported", "This browser cannot keep an encrypted vault.");
-      const documents = docs ? await docs.all() : [];
-      const result = await createAndMigrate({ passphrase, adapter: store(), realLocal, realSession, documents, iterations, autoMinutes });
-      const claim = await claimWriter();
-      app.attach(result.session, { writer: claim.writer, exclusive: Boolean(claim.writer && claim.supported) });
-      try { await globalThis.navigator?.storage?.persist?.(); } catch { /* the browser decides; asking makes it less likely to clear the vault under storage pressure */ }
-      emit("vault:unlocked", { fresh: true });
-      return { remaining: api.plaintextRemaining() };
+      // One scoped transition (overlap with turning off, cleanup or retry is refused as busy). It starts from an INACTIVE app and captures that epoch: if anything attaches or detaches while it waits,
+      // it stops before it persists anything more and gives back only the claim it made itself.
+      return app.transition("enable", async (fence) => {
+        const same = () => !app.active && app.epoch === fence.epoch;
+        if (!same()) throw changed();
+        // The real writer claim comes BEFORE any vault is created: another tab that owns it makes this refuse with nothing written, and no Web Locks means no new multi-step migration here.
+        let claim = await claimOnce();
+        let kept = false;
+        let result = null, attached = null;
+        try {
+          if (!claim.writer) throw new VaultError("read-only", "This app is open in another tab, so turning encryption on is not done here.");
+          if (!claim.supported) throw new VaultError("no-exclusive", "This browser cannot guarantee that only this tab is changing the encrypted vault (no Web Locks), so turning encryption on is not done here. Your saved data is untouched.");
+          if (!same()) throw changed();
+          const documents = docs ? await docs.all() : [];
+          if (!same()) throw changed();
+          // The guard is the LIVE lease plus the inactive lifecycle captured at the start: it is asked where each record (header, every append, the marker) is actually written, so a stale enable stores nothing more.
+          const guard = () => same() && claim.owned === true;
+          result = await createAndMigrate({ passphrase, adapter: store(), realLocal, realSession, documents, iterations, autoMinutes, guard });
+          if (!same()) { try { result.session.lock(); } catch { /* the replacement owns the vault now: nothing of it is touched */ } throw honestPartial(); }
+          app.attach(result.session, { writer: true, lease: claim }); kept = true;
+          attached = app.fence(); // the ATTACHED session + epoch, taken right after our own attach (no await in between)
+        } finally { if (!kept) await claim.release(); } // only THIS action's own handle; a refused or unsupported claim releases nothing
+        // After the encrypted copy is durable, the advisory storage.persist() is asked. If the session was locked, detached, replaced or the lease lost while it awaited,
+        // do not publish success or vault:unlocked: the attached session is no longer valid for this page.
+        try { await globalThis.navigator?.storage?.persist?.(); } catch { /* the browser decides; asking makes it less likely to clear the vault under storage pressure */ }
+        // Still the attached session at the attached epoch, unlocked, with this page's own live writer lease: only then is success real. Nothing is locked, detached or rolled back otherwise:
+        // a replacement (or the same object attached again, which changes the epoch) belongs to whoever attached it, and what was durably stored stays.
+        if (app.isCurrent(attached) && app.lease === claim && claim.owned === true && claim.supported === true) {
+          emit("vault:unlocked", { fresh: true });
+          return { remaining: api.plaintextRemaining() };
+        }
+        throw honestPartial();
+      });
     },
     /** What start-up found: { recovered, verified, conflicts, stale, held, blocked, unreadable, failed } (chat/vault/vault-store.mjs reconcileRaw), or null with the vault off. */
     get recovery() { return app.recovery; },
@@ -102,6 +135,7 @@ export function createVaultControl({ app, adapter = null, realLocal = globalThis
       if (!app.active) return;
       needExclusive(app, "turning encryption off"); // before the adapter, the raw storage, the marker or the documents are touched
       return app.transition("disable", async (fence) => {
+        const lease = app.lease; // THIS page's own writer-lock handle, captured with the fence: the only lock this action may ever release (never looked up again, never another page's)
         const current = () => { if (!app.isCurrent(fence)) throw changed(); };
         await createVault({ adapter: store() }).unlock(passphrase).then((s) => s.lock()); // throws bad-passphrase
         current();
@@ -133,11 +167,23 @@ export function createVaultControl({ app, adapter = null, realLocal = globalThis
         // attached a session while a document was being written (a replacement), this action stops before it clears the replacement's vault or its marker.
         const detachedEpoch = app.epoch, stillOurs = () => !app.active && app.epoch === detachedEpoch;
         const afterDetach = () => { if (!stillOurs()) throw changed(); };
-        for (const d of documents) { await docs.put(d); afterDetach(); }
-        afterDetach();
-        await store().clear({ guard: stillOurs }); // checked again by the adapter after ITS open / at its transaction's activity
-        afterDetach();
-        try { realLocal.removeItem(VAULT_MARKER); } catch { /* ignore */ }
+        try {
+          for (const d of documents) { await docs.put(d); afterDetach(); }
+          afterDetach();
+          await store().clear({ guard: stillOurs }); // checked again by the adapter after ITS open / at its transaction's activity
+          afterDetach();
+          try { realLocal.removeItem(VAULT_MARKER); } catch { /* ignore */ }
+        } catch (error) {
+          // The vault is not off: do not leave the page treating a protected origin as plain. If nothing replaced us, the stored vault is still there and our lock is still ours, the SAME session is
+          // attached again with the SAME handle. What was already written (the plain copies, any documents) is not rolled back, and a replacement session is never touched.
+          if (stillOurs() && lease?.owned && !fence.session.locked) {
+            let header = null; try { header = await store().readHeader(); } catch { header = null; }
+            if (header && stillOurs()) app.attach(fence.session, { writer: true, lease });
+          }
+          throw error;
+        }
+        // Everything is durable and the epoch is still ours: now, and only now, give back this page's own writer lock, and wait until it is physically free (another page can take it at once).
+        if (lease) await lease.release();
         emit("vault:locked", { off: true });
       });
     },
