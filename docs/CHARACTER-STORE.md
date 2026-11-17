@@ -1,8 +1,7 @@
 # Rich character store (T222 phase B)
 
 Board task T222, phase B: the conflict-safe store for admitted rich characters (`chat/characters/character-store.mjs`). It consumes the reviewed packages of
-`docs/CHARACTER-PACKAGE.md`. **This phase is the store only**: no review UI, no page wiring, no browser, vault or temporary-chat proof, no snapshot and no
-runtime. Those are the following phase and are listed under "Not done".
+`docs/CHARACTER-PACKAGE.md`. The page wiring and the review and library UI are in `docs/CHARACTER-UI.md`; this page is the store's contract.
 
 ## What is stored
 
@@ -77,8 +76,15 @@ validation or before the write refuses the admission.
 * `tests/character-store.test.mjs`: the operations above on real bundles, forged preparations, lock/read-only/busy, malformed/newer/unreadable data, quota/refused/lying storage, temporary chats, parallel admissions in one tab.
 * `tests/character-store-crash.test.mjs` (+ `tests/helpers/character-crash-actor.mjs`): real processes, 4–16 actors, 20 repeats of each scenario, SIGKILL at three write boundaries, negative controls. Invariants and the exact simulated/real split are at the top of the file.
 
-## Not done (the following phase; nothing here claims it)
+## Bounds and lifetime (added with the UI)
 
-* The key is **not classified yet**: `key-classes.mjs`, `storage-inventory.json`, `DATA-HANDLING.md`, the format guard and a writer-generated data snapshot (`tests/data-fixtures.test.mjs` fails for a classified key no snapshot wrote, and a snapshot must come from the real writer, so it is not faked) land with the page wiring. The store takes its key as a parameter for this reason, so no unclassified key literal ships in app source.
-* Review UI, explicit-admission dialog, library/detail view, real browser admission and whole-page reload, plain and encrypted-vault targets, vault lock/unlock, real Web Locks in tabs, temporary chat in a browser, newer-format banner.
+* Stored text over 4,000,000 characters is never parsed; more than 64 records is refused before any record is examined; a stored source is checked (counts, each size against the producer's limits, the base64 text against its declared size, the bytes against the asset byte manifest) before any base64 is decoded, in `checkStoredRecord` and `reopenCharacterSource` alike.
+* A revision counter at `Number.MAX_SAFE_INTEGER` still reads, but every change refuses with `exhausted` before any write (admission, update, copy and removal).
+* A temporary store is bound to its session when it is made: once the scope moves, every read and every new operation refuses with `scope-changed`, its memory is dropped and it never comes back, even if the scope's old value reappears. A store may also be given `isLocked()` (the vault is locked): it refuses with `locked` before and inside the shared write lock.
+* The key `plc.characters.v1` is now classified (`key-classes.mjs`, the storage inventory, `DATA-HANDLING.md`) and owned by `chat/characters/characters-ui.mjs`.
+
+## Not done (nothing here claims it)
+
+* The writer-generated data snapshot for `plc.characters.v1` (`tests/data-fixtures.test.mjs` fails until the combined T418/T222 capture exists) and the final combined snapshot.
+* Extended real-browser qualification of races (many tabs, abrupt tab death), delayed-hash lock races and older/newer-format banners for this key.
 * Rich backup/transfer (T428) is unimplemented and the full backup promises nothing about these records. No runtime, presentation, media or prepared execution (T442/T444/T455/T456).

@@ -52,7 +52,7 @@ export function createStorageUi(host) {
     const last = prefs.lastExportAt;
     row('Last backup', last ? new Date(last).toLocaleString() : 'Never', last ? '' : 'Browsers can clear site data. A backup is the only copy that survives that.',
       btn('Back up chats', () => { handleDialog.close(); loadTransferUi().then(ui => ui.openTransferChats()); }, 'primary'));
-    row('Protected backup', 'Encrypted with a passphrase', 'Chats, memory, projects, presets and (optionally) documents.', btn('Protected backup…', () => { handleDialog.close(); loadTransferUi().then(ui => ui.openTransferChats()); }));
+    row('Protected backup', 'Encrypted with a passphrase', 'Chats, memory, projects, presets and (optionally) documents. Saved characters and their files are not included yet: keep their original package files.', btn('Protected backup…', () => { handleDialog.close(); loadTransferUi().then(ui => ui.openTransferChats()); }));
     row('App lock', host.lock().enabled ? 'On' : 'Off', 'Hides your chats behind a passphrase on this device.', btn(host.lock().enabled ? 'Lock settings…' : 'Set a lock…', () => { handleDialog.close(); host.lock().openLockSettings(); }));
     root.appendChild(table);
     const handleDialog = openAppDialog({ title: 'Storage and backups', content: root, wide: true, actions: [{ label: 'Done', primary: true }] });

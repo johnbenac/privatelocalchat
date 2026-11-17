@@ -8,7 +8,7 @@
   "SOURCE_DATE_EPOCH": "0",
   "SITE_DIR": ""
  },
- "fileCount": 217,
+ "fileCount": 220,
  "files": {
   "404.html": {
    "bytes": 101,
@@ -99,8 +99,8 @@
    "sha256": "04b05d4a150448453450721451e58769b53b3ea4a9d9bf51321ce8159c667f8d"
   },
   "index.html": {
-   "bytes": 80812,
-   "sha256": "b4ee62bec825df93cbe7904cf6f275d9247892195d4a269e35634274ee5395d3"
+   "bytes": 81926,
+   "sha256": "405da119f3da4f811293efa00344a24a87fbe51cf2631f1833ce64dcd8a09f18"
   },
   "manifest.webmanifest": {
    "bytes": 633,
@@ -138,13 +138,25 @@
    "bytes": 29066,
    "sha256": "99d214271430536a391bd77af8827f58ddd6b269188b2de21964a6d4bc9f9805"
   },
+  "releases/0000000000000000000000000000000000000000/chat/characters/character-describe.mjs": {
+   "bytes": 4371,
+   "sha256": "44a0dd4a6e53e46b7fa95ca37fa94e38a72a335cab335237de34f203a385b3c6"
+  },
   "releases/0000000000000000000000000000000000000000/chat/characters/character-package.mjs": {
-   "bytes": 23767,
-   "sha256": "c1de7c7c34207103423d7ea3811710cba08f0a134fdd8f8ecfdde58fa2e6bd2a"
+   "bytes": 26401,
+   "sha256": "25c4b4f187bba68e41fb63a429874aa8f9a9bf99609b003f25f34277df1da9b3"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/characters/character-resources.mjs": {
+   "bytes": 5165,
+   "sha256": "e834458a3c031dada9c0ebe38d9056e2e4bcb7c0a44b24f1c19f60cf571ab757"
   },
   "releases/0000000000000000000000000000000000000000/chat/characters/character-store.mjs": {
-   "bytes": 26865,
-   "sha256": "a0828fb632712350314d497a4194136f2e903ad0f51a5109a36c780f97d0a57a"
+   "bytes": 27812,
+   "sha256": "9ab25f54805ad7abff47a15d236ccf60d288bb776ea667eb6c03993aa9abbd4a"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/characters/characters-ui.mjs": {
+   "bytes": 29616,
+   "sha256": "d788ba5c166819f0aa2f2828e17672caedef9ecd356927ffb80a875824d1e418"
   },
   "releases/0000000000000000000000000000000000000000/chat/characters/vendor/t415/SOURCE.json": {
    "bytes": 4469,
@@ -431,8 +443,8 @@
    "sha256": "ea8f8793e06b1612ec1931161328550e3f20c35a31ac849d9b8c074dd8569f2d"
   },
   "releases/0000000000000000000000000000000000000000/chat/storage/storage-ui.mjs": {
-   "bytes": 8421,
-   "sha256": "f5b0d802d57af4be5314abfdcb63859ff8f9180c0cc8806db5969359eb800a60"
+   "bytes": 8511,
+   "sha256": "f460913157ded70d3b6638f5d526d47b887aa194707a85b7a44af40dcbdaee91"
   },
   "releases/0000000000000000000000000000000000000000/chat/stream.mjs": {
    "bytes": 2898,
@@ -503,8 +515,8 @@
    "sha256": "4ba0559cc4984a22f81bb7b0f1195c6082ce7b6862fbda47146785c699c6b276"
   },
   "releases/0000000000000000000000000000000000000000/chat/vault/key-classes.mjs": {
-   "bytes": 3040,
-   "sha256": "570705c806fd32f37f21199e7655af234dc53ee875fdb0eec7aab3c9dda9f58a"
+   "bytes": 3109,
+   "sha256": "9465e6b3e8a63f186b90b655097231fd30c9d7d8de6385282779563a33f528bb"
   },
   "releases/0000000000000000000000000000000000000000/chat/vault/passkey.mjs": {
    "bytes": 5725,
@@ -667,8 +679,8 @@
    "sha256": "c5772e879f6bc50dadfcfbd55a1044748652fb18da69ca50978546dcb0c67b63"
   },
   "releases/0000000000000000000000000000000000000000/release.json": {
-   "bytes": 29035,
-   "sha256": "222cbb0edc24e6b6f6fd4fc33373746bc5a945acc8285f011503a8432170a3f2"
+   "bytes": 29512,
+   "sha256": "faaea418f11141535f1a347d5107e760b1c6f6fc8f6957851909670eb25065bf"
   },
   "releases/0000000000000000000000000000000000000000/runtime/auto-load.mjs": {
    "bytes": 565,
@@ -871,8 +883,8 @@
    "sha256": "802e46c9e6bf5a295ed08ff9debdd12d3d5c3b6f16d898ffac0ed6a7b40b06f4"
   },
   "sw.js": {
-   "bytes": 21693,
-   "sha256": "209bba09c7445efddb0c98d3ce906d120fc55695118b2a5243a0bb60e16b5b51"
+   "bytes": 21965,
+   "sha256": "432b046ea22c2cf6932e26be49f590906df52d98810afe32e23dad4531b7b298"
   },
   "version.json": {
    "bytes": 170,

@@ -70,7 +70,7 @@ Browsers offer to clear the site data of an address. In current browsers that re
 | `user` | what the person wrote or chose to keep (chats, drafts, memory, documents, API keys): goes into the vault |
 | `vault` | the encrypted store itself: nothing in it is readable without the passphrase |
 
-**Keys in local and session storage (31)**
+**Keys in local and session storage (32)**
 
 | Key | Where | Class | What it holds | Format | First release |
 | --- | --- | --- | --- | --- | --- |
@@ -79,6 +79,7 @@ Browsers offer to clear the site data of an address. In current browsers that re
 | `chatModels` | session storage | `setting` | the provider's model list | 1 | v0.0.0 |
 | `chatThreads` | local storage | `user` | every saved chat, rewritten whole on each save | 1 | v0.0.0 |
 | `plc.activeThread.v1` | local storage | `user` | which chat is open (an id) | 1 | v0.6.0 |
+| `plc.characters.v1` | local storage | `user` | rich characters the person kept: reviewed package transport, structured meaning, exact resource bytes and one local reference each (coordinated by the plc-characters lock) | 1 | v0.66.0 |
 | `plc.downloadIntent.v1` | local storage | `plain` | a model download that should resume; about the device, not the person | 1 | v0.6.0 |
 | `plc.draft` | session storage | `transient` | composer text kept across the page reload that applies an update | 1 | v0.6.0 |
 | `plc.drafts.v1` | local storage | `user` | unsent composer text per chat | 1 | v0.8.0 |

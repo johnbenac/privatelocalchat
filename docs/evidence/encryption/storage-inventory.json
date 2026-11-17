@@ -59,6 +59,15 @@
       "since": "v0.8.0"
     },
     {
+      "key": "plc.characters.v1",
+      "store": "localStorage",
+      "class": "user",
+      "owner": "chat/characters/characters-ui.mjs",
+      "note": "rich characters the person kept: reviewed package transport, structured meaning, exact resource bytes and one local reference each (coordinated by the plc-characters lock)",
+      "format": 1,
+      "since": "v0.66.0"
+    },
+    {
       "key": "plc.presets.v1",
       "store": "localStorage",
       "class": "user",
