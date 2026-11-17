@@ -1,0 +1,85 @@
+{
+  "testedCommit": "9166c2b687bc472469ab262e334f9842b7de22c5",
+  "model": "Qwen3.5-2B Q4_0",
+  "environment": "Chrome151 on Centroid NVIDIA5060Ti; desktop-environment.json",
+  "method": "Built dev assets served on the exact development origin in an isolated browser profile; real cached model and inference; live project receiver",
+  "realReply": "Two plus three is five.",
+  "normalBrowserRestartRecoveredRecords": 133,
+  "forcedRendererCrash": {
+    "via": "Chrome DevTools Page.crash after real generation",
+    "recoveredValidRecordsAfterBrowserReopen": 266,
+    "pageErrors": []
+  },
+  "latestAcknowledgedRecovery": {
+    "lastNativeSequence": 398,
+    "latestRecoveredWindowRecords": 64,
+    "receiverVerified": true
+  },
+  "postGenerationCounters": {
+    "runtime": {
+      "wasmCapacityBytes": 134217728
+    },
+    "source": {
+      "files": 0,
+      "sourceHandleLogicalBytes": 0,
+      "sourceTouchedUpperBytes": 0,
+      "readCount": 484,
+      "lastReadAt": 1793293781638,
+      "lateReadCount": 0
+    },
+    "context": {
+      "n_ctx": 4096,
+      "n_batch": 512,
+      "n_ubatch": 512,
+      "n_vocab": 248320,
+      "n_ctx_train": 262144
+    },
+    "generation": {
+      "checkpointCount": 1,
+      "checkpointCreated": 1,
+      "checkpointCurrentBytes": 20201932,
+      "checkpointEveryNTokens": 64,
+      "checkpointFreed": 0,
+      "checkpointHighWaterBytes": 20201932,
+      "checkpointReplaced": 0,
+      "checkpointRestored": 0,
+      "ctxCheckpointLimit": 1,
+      "mallocArenaBytes": 96201328,
+      "mallocFreeBytes": 1340320,
+      "mallocLiveBytes": 94861008,
+      "receiptSequence": 1,
+      "recurrentStateRestoredBytes": 0,
+      "recurrentStateSerializedBytes": 20201932,
+      "sbrkBytes": 103981056,
+      "schemaVersion": 1,
+      "timing": {
+        "decodeMs": 159.98,
+        "firstTokenMs": 257.136,
+        "prefillMs": 257.136
+      },
+      "usage": {
+        "commonPrefixTokens": 0,
+        "completionTokens": 7,
+        "evaluatedTokens": 21,
+        "promptTokens": 21,
+        "reusedTokens": 0,
+        "totalTokens": 28
+      },
+      "wasmCapacityBytes": 134217728
+    }
+  },
+  "limitations": [
+    "These counters are allocation/logical proxies, not process RSS.",
+    "Forced crash/recovery was verified on desktop; the real iPhone loading restart is unresolved."
+  ],
+  "forcedCrashDuringConstruction": {
+    "phaseAtCrash": "native-wasm-init-called",
+    "newValidRecordsRecovered": 2,
+    "lastNativePhase": 2,
+    "lastNativeOperation": 10,
+    "lastNativeEdge": 1,
+    "nativeModelReadyReached": false,
+    "lastRecoveredSequence": 406,
+    "lastRecoveredSequenceVerifiedAtReceiver": true
+  }
+}

@@ -1,0 +1,1223 @@
+{
+ "date": "2026-11-02",
+ "what": "Probe, Kitten and Kokoro against a simulated slower CPU, plus the Kokoro discrepancy measurements",
+ "honesty": [
+  "Emulation.setCPUThrottlingRate was applied as requested, but Chromium refuses it for workers (\"Operation is only supported for pages, not workers\"). The probe and both engines run in workers, so it changes neither: see cdpThrottleOnly. It is kept only as a negative result.",
+  "The slowdown actually used is CPU contention: the run is pinned to 4 logical CPUs (taskset) and k busy-loop processes are pinned to each of them, so each thread gets 1/(k+1) of a core. The nominal factor (1,2,4,6,8,12,20) is k+1. The measured probe ratio confirms it (2.0, 4.0, 6.2, 7.9, 12.2, 21.6).",
+  "It slows compute only. It does not slow memory bandwidth, add cache pressure or model a big.LITTLE phone. With 4 ORT threads, contention also stalls threads that wait for each other, so the engine factor falls faster than the single-threaded probe rises; the second sweep with 1 engine thread avoids that.",
+  "The host (Ryzen 7 5800XT) was shared and busy (load average about 12 on 16 CPUs). Probe spread over 5 runs was 2.6 to 10 percent.",
+  "Test text: \"The capital of France is Paris. This is a short test of on device speech.\" (7.91 s with Kitten, 5.03 s with Kokoro: the same text as the lane results). Warm run = second speak() on an engine that is loaded."
+ ],
+ "host": {
+  "cpu": "AMD Ryzen 7 5800XT 8-Core Processor",
+  "pinnedCpus": [
+   "4",
+   "5",
+   "6",
+   "7"
+  ],
+  "loadavgAtStart": [
+   15.72,
+   15.85,
+   12.09
+  ],
+  "text": "The capital of France is Paris. This is a short test of on device speech.",
+  "hardwareConcurrency": 4
+ },
+ "realDevices": {
+  "source": "docs/evidence/voice/lane-results.json and lane-results-kokoro.json; the S8+ probe range is from the plan",
+  "kitten": [
+   {
+    "device": "Centroid Chromium",
+    "probeMs": 137,
+    "rtf": 5.49,
+    "firstAudioMs": 742
+   },
+   {
+    "device": "Boiler Chromium",
+    "probeMs": 150,
+    "rtf": 4.78,
+    "firstAudioMs": 862
+   },
+   {
+    "device": "Brutus Firefox (N100)",
+    "probeMs": 216,
+    "rtf": 3.29,
+    "firstAudioMs": 1113
+   },
+   {
+    "device": "Galaxy S8+ Chrome",
+    "probeMs": "1997 to 4000 (cap)",
+    "rtf": 0.257,
+    "firstAudioMs": 16266
+   }
+  ],
+  "kokoro": [
+   {
+    "device": "Centroid Chromium",
+    "probeMs": 137,
+    "rtf": 2.31,
+    "firstAudioMs": 1097
+   },
+   {
+    "device": "Boiler Chromium",
+    "probeMs": 150,
+    "rtf": 2.0,
+    "firstAudioMs": 1283
+   },
+   {
+    "device": "Mac Safari",
+    "probeMs": null,
+    "rtf": 2.3,
+    "firstAudioMs": 1026
+   }
+  ]
+ },
+ "cdpThrottleOnly": {
+  "what": "Emulation.setCPUThrottlingRate on the page: probe (runs in a worker) and a main-thread loop",
+  "rates": {
+   "1": {
+    "workerProbeSamplesMs": [
+     137,
+     138.5,
+     134.2,
+     140,
+     136,
+     135.7
+    ],
+    "mainThreadLoopMs": 38,
+    "sink": true
+   },
+   "2": {
+    "workerProbeSamplesMs": [
+     137,
+     146.4,
+     143.5,
+     135.2,
+     145.3,
+     134.8
+    ],
+    "mainThreadLoopMs": 72,
+    "sink": true
+   },
+   "4": {
+    "workerProbeSamplesMs": [
+     134.9,
+     134.5,
+     134.4,
+     135,
+     136.3,
+     140.6
+    ],
+    "mainThreadLoopMs": 141,
+    "sink": true
+   },
+   "6": {
+    "workerProbeSamplesMs": [
+     135.8,
+     136.2,
+     136.5,
+     136.1,
+     136.4,
+     137.7
+    ],
+    "mainThreadLoopMs": 203,
+    "sink": true
+   },
+   "8": {
+    "workerProbeSamplesMs": [
+     141.9,
+     144.4,
+     136.7,
+     136.2,
+     150.7,
+     136.3
+    ],
+    "mainThreadLoopMs": 312,
+    "sink": true
+   },
+   "12": {
+    "workerProbeSamplesMs": [
+     141.3,
+     136.9,
+     136.7,
+     136.9,
+     136.8,
+     148.3
+    ],
+    "mainThreadLoopMs": 464,
+    "sink": true
+   },
+   "20": {
+    "workerProbeSamplesMs": [
+     140.9,
+     136.1,
+     139.9,
+     138.5,
+     141.5,
+     135.1
+    ],
+    "mainThreadLoopMs": 715,
+    "sink": true
+   }
+  }
+ },
+ "sweepDefaultThreads": {
+  "engineThreads": "default: min(4, cores) = 4",
+  "rates": {
+   "1": {
+    "slowdownNominal": 1,
+    "busyProcessesPerCore": 0,
+    "probeMs5Runs": [
+     135.2,
+     139.2,
+     139.8,
+     137.8,
+     137.4
+    ],
+    "probeMedianMs": 137.8,
+    "engines": {
+     "kitten": {
+      "loadMs": 1215,
+      "firstRun": {
+       "audioSeconds": 7.908333333333333,
+       "synthSeconds": 1.5926549999713897,
+       "realTimeFactor": 4.965503096072531,
+       "firstAudioMs": 908,
+       "chunks": 2,
+       "wallSeconds": 1.623
+      },
+      "warmRun": {
+       "audioSeconds": 7.908333333333333,
+       "synthSeconds": 1.0525049998760223,
+       "realTimeFactor": 7.513820204431219,
+       "firstAudioMs": 438,
+       "chunks": 2,
+       "wallSeconds": 1.0618150000572204
+      },
+      "startDelayMs20s": 438,
+      "voiceIsFastEnoughWithOldConfig": true
+     },
+     "kokoro": {
+      "loadMs": 1060,
+      "firstRun": {
+       "audioSeconds": 5.025,
+       "synthSeconds": 2.285079999923706,
+       "realTimeFactor": 2.1990477358200913,
+       "firstAudioMs": 1047,
+       "chunks": 2,
+       "wallSeconds": 2.2857249999046325
+      },
+      "warmRun": {
+       "audioSeconds": 5.025,
+       "synthSeconds": 2.027224999904633,
+       "realTimeFactor": 2.478757908094263,
+       "firstAudioMs": 948,
+       "chunks": 2,
+       "wallSeconds": 2.027534999847412
+      },
+      "startDelayMs20s": 948,
+      "voiceIsFastEnoughWithOldConfig": true
+     }
+    }
+   },
+   "2": {
+    "slowdownNominal": 2,
+    "busyProcessesPerCore": 1,
+    "probeMs5Runs": [
+     274.8,
+     274.6,
+     280.8,
+     276,
+     281.7
+    ],
+    "probeMedianMs": 276,
+    "engines": {
+     "kitten": {
+      "loadMs": 2491,
+      "firstRun": {
+       "audioSeconds": 7.908333333333333,
+       "synthSeconds": 4.956609999895096,
+       "realTimeFactor": 1.5955125243867703,
+       "firstAudioMs": 2877,
+       "chunks": 2,
+       "wallSeconds": 5.018180000066757
+      },
+      "warmRun": {
+       "audioSeconds": 7.908333333333333,
+       "synthSeconds": 3.3635599999427797,
+       "realTimeFactor": 2.3511795042954096,
+       "firstAudioMs": 1517,
+       "chunks": 2,
+       "wallSeconds": 3.371085000038147
+      },
+      "startDelayMs20s": 1517,
+      "voiceIsFastEnoughWithOldConfig": true
+     },
+     "kokoro": {
+      "loadMs": 2034,
+      "firstRun": {
+       "audioSeconds": 5.025,
+       "synthSeconds": 5.9690250000953675,
+       "realTimeFactor": 0.8418460301170988,
+       "firstAudioMs": 2900,
+       "chunks": 2,
+       "wallSeconds": 5.972709999799728
+      },
+      "warmRun": {
+       "audioSeconds": 5.025,
+       "synthSeconds": 5.565414999961853,
+       "realTimeFactor": 0.9028976275865219,
+       "firstAudioMs": 2509,
+       "chunks": 2,
+       "wallSeconds": 5.565959999799729
+      },
+      "startDelayMs20s": 4659.905472484985,
+      "voiceIsFastEnoughWithOldConfig": true
+     }
+    }
+   },
+   "4": {
+    "slowdownNominal": 4,
+    "busyProcessesPerCore": 3,
+    "probeMs5Runs": [
+     565.9,
+     559.2,
+     542.6,
+     543.6,
+     548.6
+    ],
+    "probeMedianMs": 548.6,
+    "engines": {
+     "kitten": {
+      "loadMs": 5224,
+      "firstRun": {
+       "audioSeconds": 7.908333333333333,
+       "synthSeconds": 8.302834999799728,
+       "realTimeFactor": 0.9524859079488017,
+       "firstAudioMs": 4063,
+       "chunks": 2,
+       "wallSeconds": 8.417740000009537
+      },
+      "warmRun": {
+       "audioSeconds": 7.908333333333333,
+       "synthSeconds": 7.81794000005722,
+       "realTimeFactor": 1.0115622956015844,
+       "firstAudioMs": 3354,
+       "chunks": 2,
+       "wallSeconds": 7.853930000066757
+      },
+      "startDelayMs20s": 3354,
+      "voiceIsFastEnoughWithOldConfig": true
+     },
+     "kokoro": {
+      "loadMs": 5093,
+      "firstRun": {
+       "audioSeconds": 5.025,
+       "synthSeconds": 12.76384500002861,
+       "realTimeFactor": 0.39369014587600654,
+       "firstAudioMs": 6077,
+       "chunks": 2,
+       "wallSeconds": 12.76446499991417
+      },
+      "warmRun": {
+       "audioSeconds": 5.025,
+       "synthSeconds": 11.94343499994278,
+       "realTimeFactor": 0.4207332312709095,
+       "firstAudioMs": 5389,
+       "chunks": 2,
+       "wallSeconds": 11.94408999991417
+      },
+      "startDelayMs20s": 32925.05970126479,
+      "voiceIsFastEnoughWithOldConfig": false
+     }
+    }
+   },
+   "6": {
+    "slowdownNominal": 6,
+    "busyProcessesPerCore": 5,
+    "probeMs5Runs": [
+     883,
+     822.2,
+     859.4,
+     814.3,
+     858.7
+    ],
+    "probeMedianMs": 858.7,
+    "engines": {
+     "kitten": {
+      "loadMs": 7912,
+      "firstRun": {
+       "audioSeconds": 7.908333333333333,
+       "synthSeconds": 13.927615000009537,
+       "realTimeFactor": 0.5678167678621155,
+       "firstAudioMs": 7319,
+       "chunks": 2,
+       "wallSeconds": 14.108450000047684
+      },
+      "warmRun": {
+       "audioSeconds": 7.908333333333333,
+       "synthSeconds": 10.728414999961853,
+       "realTimeFactor": 0.7371390213150267,
+       "firstAudioMs": 4646,
+       "chunks": 2,
+       "wallSeconds": 10.779269999980926
+      },
+      "startDelayMs20s": 11777.924130567386,
+      "voiceIsFastEnoughWithOldConfig": false
+     },
+     "kokoro": {
+      "loadMs": 6741,
+      "firstRun": {
+       "audioSeconds": 5.025,
+       "synthSeconds": 18.02778500008583,
+       "realTimeFactor": 0.2787364060518847,
+       "firstAudioMs": 8513,
+       "chunks": 2,
+       "wallSeconds": 18.034680000066757
+      },
+      "warmRun": {
+       "audioSeconds": 5.025,
+       "synthSeconds": 17.969569999933242,
+       "realTimeFactor": 0.2796394126302782,
+       "firstAudioMs": 7914,
+       "chunks": 2,
+       "wallSeconds": 17.97347000002861
+      },
+      "startDelayMs20s": 59434.676616649725,
+      "voiceIsFastEnoughWithOldConfig": false
+     }
+    }
+   },
+   "8": {
+    "slowdownNominal": 8,
+    "busyProcessesPerCore": 7,
+    "probeMs5Runs": [
+     1094.5,
+     1090.1,
+     1111.2,
+     1121.6,
+     1083.9
+    ],
+    "probeMedianMs": 1094.5,
+    "engines": {
+     "kitten": {
+      "loadMs": 10483,
+      "firstRun": {
+       "audioSeconds": 7.908333333333333,
+       "synthSeconds": 18.186954999923707,
+       "realTimeFactor": 0.4348354814407639,
+       "firstAudioMs": 9626,
+       "chunks": 2,
+       "wallSeconds": 18.409294999837876
+      },
+      "warmRun": {
+       "audioSeconds": 7.908333333333333,
+       "synthSeconds": 13.657049999952317,
+       "realTimeFactor": 0.5790660013224631,
+       "firstAudioMs": 5976,
+       "chunks": 2,
+       "wallSeconds": 13.705984999895096
+      },
+      "startDelayMs20s": 20514.377239078574,
+      "voiceIsFastEnoughWithOldConfig": false
+     },
+     "kokoro": {
+      "loadMs": 12316,
+      "firstRun": {
+       "audioSeconds": 5.025,
+       "synthSeconds": 27.735384999990462,
+       "realTimeFactor": 0.18117650070484792,
+       "firstAudioMs": 13505,
+       "chunks": 2,
+       "wallSeconds": 27.74734500002861
+      },
+      "warmRun": {
+       "audioSeconds": 5.025,
+       "synthSeconds": 23.079085000038148,
+       "realTimeFactor": 0.21772960236472522,
+       "firstAudioMs": 10373,
+       "chunks": 2,
+       "wallSeconds": 23.159674999952315
+      },
+      "startDelayMs20s": 82230.05472651999,
+      "voiceIsFastEnoughWithOldConfig": false
+     }
+    }
+   },
+   "12": {
+    "slowdownNominal": 12,
+    "busyProcessesPerCore": 11,
+    "probeMs5Runs": [
+     1685,
+     1769.5,
+     1784.8,
+     1637.1,
+     1621.1
+    ],
+    "probeMedianMs": 1685,
+    "engines": {
+     "kitten": {
+      "loadMs": 15804,
+      "firstRun": {
+       "audioSeconds": 7.908333333333333,
+       "synthSeconds": 24.504754999876024,
+       "realTimeFactor": 0.3227264803656818,
+       "firstAudioMs": 12409,
+       "chunks": 2,
+       "wallSeconds": 24.848
+      },
+      "warmRun": {
+       "audioSeconds": 7.908333333333333,
+       "synthSeconds": 20.43170999979973,
+       "realTimeFactor": 0.3870617453659459,
+       "firstAudioMs": 8661,
+       "chunks": 2,
+       "wallSeconds": 20.495
+      },
+      "startDelayMs20s": 40332.34246524695,
+      "voiceIsFastEnoughWithOldConfig": false
+     },
+     "kokoro": {
+      "loadMs": 16793,
+      "firstRun": {
+       "audioSeconds": 5.025,
+       "synthSeconds": 37.86328500008583,
+       "realTimeFactor": 0.13271431678441553,
+       "firstAudioMs": 18032,
+       "chunks": 2,
+       "wallSeconds": 37.872200000047684
+      },
+      "warmRun": {
+       "audioSeconds": 5.025,
+       "synthSeconds": 39.34953500008583,
+       "realTimeFactor": 0.12770163611816607,
+       "firstAudioMs": 18115,
+       "chunks": 2,
+       "wallSeconds": 39.459125
+      },
+      "startDelayMs20s": 154730.06467695851,
+      "voiceIsFastEnoughWithOldConfig": false
+     }
+    }
+   },
+   "20": {
+    "slowdownNominal": 20,
+    "busyProcessesPerCore": 19,
+    "probeMs5Runs": [
+     2766.3,
+     2923,
+     2975.9,
+     3001.9,
+     2997.6
+    ],
+    "probeMedianMs": 2975.9,
+    "engines": {
+     "kitten": {
+      "loadMs": 28574,
+      "firstRun": {
+       "audioSeconds": 7.908333333333333,
+       "synthSeconds": 38.594269999980924,
+       "realTimeFactor": 0.20490951981569394,
+       "firstAudioMs": 18417,
+       "chunks": 2,
+       "wallSeconds": 39.17246000003815
+      },
+      "warmRun": {
+       "audioSeconds": 7.908333333333333,
+       "synthSeconds": 33.921099999904634,
+       "realTimeFactor": 0.23313905897378231,
+       "firstAudioMs": 14874,
+       "chunks": 2,
+       "wallSeconds": 34.09282999992371
+      },
+      "startDelayMs20s": 80659.71127478516,
+      "voiceIsFastEnoughWithOldConfig": false
+     },
+     "kokoro": {
+      "loadMs": 28702,
+      "firstRun": {
+       "audioSeconds": 5.025,
+       "synthSeconds": 61.28971499991417,
+       "realTimeFactor": 0.08198765486194605,
+       "firstAudioMs": 29870,
+       "chunks": 2,
+       "wallSeconds": 61.31150999999046
+      },
+      "warmRun": {
+       "audioSeconds": 5.025,
+       "synthSeconds": 57.617380000114444,
+       "realTimeFactor": 0.0872132679408543,
+       "firstAudioMs": 25348,
+       "chunks": 2,
+       "wallSeconds": 57.740310000181196
+      },
+      "startDelayMs20s": 234670.9054730923,
+      "voiceIsFastEnoughWithOldConfig": false
+     }
+    }
+   }
+  }
+ },
+ "sweepOneEngineThread": {
+  "engineThreads": 1,
+  "rates": {
+   "1": {
+    "slowdownNominal": 1,
+    "busyProcessesPerCore": 0,
+    "probeMs5Runs": [
+     142.5,
+     138.7,
+     135.1,
+     142.5,
+     134.7
+    ],
+    "probeMedianMs": 138.7,
+    "engines": {
+     "kitten": {
+      "loadMs": 1054,
+      "firstRun": {
+       "audioSeconds": 7.908333333333333,
+       "synthSeconds": 2.020740000009537,
+       "realTimeFactor": 3.9135828128784556,
+       "firstAudioMs": 930,
+       "chunks": 2,
+       "wallSeconds": 2.050215000152588
+      },
+      "warmRun": {
+       "audioSeconds": 7.908333333333333,
+       "synthSeconds": 1.8782749998569488,
+       "realTimeFactor": 4.210423571593957,
+       "firstAudioMs": 790,
+       "chunks": 2,
+       "wallSeconds": 1.8850700001716614
+      },
+      "startDelayMs20s": 790,
+      "voiceIsFastEnoughWithOldConfig": true
+     },
+     "kokoro": {
+      "loadMs": 1154,
+      "firstRun": {
+       "audioSeconds": 5.025,
+       "synthSeconds": 4.757079999923706,
+       "realTimeFactor": 1.0563202637081133,
+       "firstAudioMs": 2188,
+       "chunks": 2,
+       "wallSeconds": 4.758875
+      },
+      "warmRun": {
+       "audioSeconds": 5.025,
+       "synthSeconds": 4.6615349998474125,
+       "realTimeFactor": 1.077971097538576,
+       "firstAudioMs": 1975,
+       "chunks": 2,
+       "wallSeconds": 4.668055000066757
+      },
+      "startDelayMs20s": 1975,
+      "voiceIsFastEnoughWithOldConfig": true
+     }
+    }
+   },
+   "2": {
+    "slowdownNominal": 2,
+    "busyProcessesPerCore": 1,
+    "probeMs5Runs": [
+     288.2,
+     276.7,
+     273.9,
+     273.3,
+     272.3
+    ],
+    "probeMedianMs": 273.9,
+    "engines": {
+     "kitten": {
+      "loadMs": 2367,
+      "firstRun": {
+       "audioSeconds": 7.908333333333333,
+       "synthSeconds": 4.4630350000858305,
+       "realTimeFactor": 1.771963099814643,
+       "firstAudioMs": 2051,
+       "chunks": 2,
+       "wallSeconds": 4.52709500002861
+      },
+      "warmRun": {
+       "audioSeconds": 7.908333333333333,
+       "synthSeconds": 3.994079999923706,
+       "realTimeFactor": 1.9800137537266145,
+       "firstAudioMs": 1738,
+       "chunks": 2,
+       "wallSeconds": 4.010525000095368
+      },
+      "startDelayMs20s": 1738,
+      "voiceIsFastEnoughWithOldConfig": true
+     },
+     "kokoro": {
+      "loadMs": 2420,
+      "firstRun": {
+       "audioSeconds": 5.025,
+       "synthSeconds": 9.92177999997139,
+       "realTimeFactor": 0.5064615421844155,
+       "firstAudioMs": 4611,
+       "chunks": 2,
+       "wallSeconds": 9.923554999828339
+      },
+      "warmRun": {
+       "audioSeconds": 5.025,
+       "synthSeconds": 9.355055000066757,
+       "realTimeFactor": 0.5371427532990605,
+       "firstAudioMs": 4198,
+       "chunks": 2,
+       "wallSeconds": 9.371244999885558
+      },
+      "startDelayMs20s": 21432.049751509483,
+      "voiceIsFastEnoughWithOldConfig": false
+     }
+    }
+   },
+   "4": {
+    "slowdownNominal": 4,
+    "busyProcessesPerCore": 3,
+    "probeMs5Runs": [
+     563.4,
+     562.9,
+     550.7,
+     553.1,
+     576
+    ],
+    "probeMedianMs": 562.9,
+    "engines": {
+     "kitten": {
+      "loadMs": 5015,
+      "firstRun": {
+       "audioSeconds": 7.908333333333333,
+       "synthSeconds": 9.681605000019074,
+       "realTimeFactor": 0.8168411470327237,
+       "firstAudioMs": 4307,
+       "chunks": 2,
+       "wallSeconds": 9.84356500005722
+      },
+      "warmRun": {
+       "audioSeconds": 7.908333333333333,
+       "synthSeconds": 8.163369999885559,
+       "realTimeFactor": 0.9687584090203187,
+       "firstAudioMs": 3448,
+       "chunks": 2,
+       "wallSeconds": 8.187409999847413
+      },
+      "startDelayMs20s": 4092.982086117325,
+      "voiceIsFastEnoughWithOldConfig": true
+     },
+     "kokoro": {
+      "loadMs": 5485,
+      "firstRun": {
+       "audioSeconds": 5.025,
+       "synthSeconds": 20.167230000019075,
+       "realTimeFactor": 0.24916659352797818,
+       "firstAudioMs": 9292,
+       "chunks": 2,
+       "wallSeconds": 20.181195000171662
+      },
+      "warmRun": {
+       "audioSeconds": 5.025,
+       "synthSeconds": 19.728889999866485,
+       "realTimeFactor": 0.2547026213858969,
+       "firstAudioMs": 8723,
+       "chunks": 2,
+       "wallSeconds": 19.75997000002861
+      },
+      "startDelayMs20s": 67245.94527310043,
+      "voiceIsFastEnoughWithOldConfig": false
+     }
+    }
+   },
+   "8": {
+    "slowdownNominal": 8,
+    "busyProcessesPerCore": 7,
+    "probeMs5Runs": [
+     1160.9,
+     1118.9,
+     1101.6,
+     1099.6,
+     1141.4
+    ],
+    "probeMedianMs": 1118.9,
+    "engines": {
+     "kitten": {
+      "loadMs": 10395,
+      "firstRun": {
+       "audioSeconds": 7.908333333333333,
+       "synthSeconds": 20.523865000009536,
+       "realTimeFactor": 0.3853237844494523,
+       "firstAudioMs": 10496,
+       "chunks": 2,
+       "wallSeconds": 20.756204999923707
+      },
+      "warmRun": {
+       "audioSeconds": 7.908333333333333,
+       "synthSeconds": 17.044565000057222,
+       "realTimeFactor": 0.46397976911154865,
+       "firstAudioMs": 7162,
+       "chunks": 2,
+       "wallSeconds": 17.111019999980925
+      },
+      "startDelayMs20s": 30267.327713527222,
+      "voiceIsFastEnoughWithOldConfig": false
+     },
+     "kokoro": {
+      "loadMs": 12346,
+      "firstRun": {
+       "audioSeconds": 5.025,
+       "synthSeconds": 41.10717499995231,
+       "realTimeFactor": 0.12224143352117556,
+       "firstAudioMs": 19071,
+       "chunks": 2,
+       "wallSeconds": 41.13608499979973
+      },
+      "warmRun": {
+       "audioSeconds": 5.025,
+       "synthSeconds": 39.20405499982834,
+       "realTimeFactor": 0.12817551653832757,
+       "firstAudioMs": 17644,
+       "chunks": 2,
+       "wallSeconds": 39.25463000011444
+      },
+      "startDelayMs20s": 153680.0398003118,
+      "voiceIsFastEnoughWithOldConfig": false
+     }
+    }
+   },
+   "12": {
+    "slowdownNominal": 12,
+    "busyProcessesPerCore": 11,
+    "probeMs5Runs": [
+     1617,
+     1757.4,
+     1638,
+     1637.3,
+     1669.6
+    ],
+    "probeMedianMs": 1638,
+    "engines": {
+     "kitten": {
+      "loadMs": 16308,
+      "firstRun": {
+       "audioSeconds": 7.908333333333333,
+       "synthSeconds": 27.584775000095366,
+       "realTimeFactor": 0.2866919644371213,
+       "firstAudioMs": 12532,
+       "chunks": 2,
+       "wallSeconds": 27.964985000133513
+      },
+      "warmRun": {
+       "audioSeconds": 7.908333333333333,
+       "synthSeconds": 25.254859999895096,
+       "realTimeFactor": 0.31314104823254546,
+       "firstAudioMs": 10705,
+       "chunks": 2,
+       "wallSeconds": 25.305085000038147
+      },
+      "startDelayMs20s": 54573.98208614144,
+      "voiceIsFastEnoughWithOldConfig": false
+     },
+     "kokoro": {
+      "loadMs": 17606,
+      "firstRun": {
+       "audioSeconds": 5.025,
+       "synthSeconds": 61.85459500002861,
+       "realTimeFactor": 0.08123891199995208,
+       "firstAudioMs": 28478,
+       "chunks": 2,
+       "wallSeconds": 61.89460000014305
+      },
+      "warmRun": {
+       "audioSeconds": 5.025,
+       "synthSeconds": 65.5223149998188,
+       "realTimeFactor": 0.07669142947732992,
+       "firstAudioMs": 29278,
+       "chunks": 2,
+       "wallSeconds": 65.63594499993324
+      },
+      "startDelayMs20s": 270063.3333326122,
+      "voiceIsFastEnoughWithOldConfig": false
+     }
+    }
+   },
+   "20": {
+    "slowdownNominal": 20,
+    "busyProcessesPerCore": 19,
+    "probeMs5Runs": [
+     2709.4,
+     2679.3,
+     2740.2,
+     2949.9,
+     2682.2
+    ],
+    "probeMedianMs": 2709.4,
+    "engines": {
+     "kitten": {
+      "loadMs": 26571,
+      "firstRun": {
+       "audioSeconds": 7.908333333333333,
+       "synthSeconds": 49.419855000019076,
+       "realTimeFactor": 0.1600234021999919,
+       "firstAudioMs": 24014,
+       "chunks": 2,
+       "wallSeconds": 50.024694999933246
+      },
+      "warmRun": {
+       "audioSeconds": 7.908333333333333,
+       "synthSeconds": 41.92199499988556,
+       "realTimeFactor": 0.18864401213145798,
+       "firstAudioMs": 17753,
+       "chunks": 2,
+       "wallSeconds": 42.045269999980924
+      },
+      "startDelayMs20s": 103772.79768148088,
+      "voiceIsFastEnoughWithOldConfig": false
+     },
+     "kokoro": {
+      "loadMs": 28062,
+      "firstRun": {
+       "audioSeconds": 5.025,
+       "synthSeconds": 103.47803499984741,
+       "realTimeFactor": 0.048561030367530754,
+       "firstAudioMs": 47862,
+       "chunks": 2,
+       "wallSeconds": 103.54701999998093
+      },
+      "warmRun": {
+       "audioSeconds": 5.025,
+       "synthSeconds": 100.16552499985696,
+       "realTimeFactor": 0.05016696113764867,
+       "firstAudioMs": 44995,
+       "chunks": 2,
+       "wallSeconds": 100.36800500011444
+      },
+      "startDelayMs20s": 423663.7562183361,
+      "voiceIsFastEnoughWithOldConfig": false
+     }
+    }
+   }
+  }
+ },
+ "kokoroDiscrepancy": {
+  "ourPipelineOneFactorAtATime": {
+   "note": "chat/voice-engine.mjs worker, no slowdown; 1, 4, 8 threads; texts of 2.3, 5.2, 9.6 and 20.2 s; repeated runs show warm-up",
+   "runs": [
+    {
+     "threads": 1,
+     "loadMs": 1163,
+     "runs": [
+      {
+       "text": "s49",
+       "audioSeconds": 5.22,
+       "synthSeconds": 5.31,
+       "rtf": 0.983,
+       "firstAudioMs": 5314,
+       "chunks": 1
+      },
+      {
+       "text": "s49",
+       "audioSeconds": 5.22,
+       "synthSeconds": 5.06,
+       "rtf": 1.032,
+       "firstAudioMs": 5056,
+       "chunks": 1
+      },
+      {
+       "text": "s49",
+       "audioSeconds": 5.22,
+       "synthSeconds": 4.99,
+       "rtf": 1.046,
+       "firstAudioMs": 4994,
+       "chunks": 1
+      },
+      {
+       "text": "short",
+       "audioSeconds": 2.27,
+       "synthSeconds": 1.98,
+       "rtf": 1.146,
+       "firstAudioMs": 1984,
+       "chunks": 1
+      },
+      {
+       "text": "short",
+       "audioSeconds": 2.27,
+       "synthSeconds": 2.02,
+       "rtf": 1.125,
+       "firstAudioMs": 2022,
+       "chunks": 1
+      },
+      {
+       "text": "s8",
+       "audioSeconds": 9.63,
+       "synthSeconds": 9.04,
+       "rtf": 1.064,
+       "firstAudioMs": 3803,
+       "chunks": 2
+      },
+      {
+       "text": "s8",
+       "audioSeconds": 9.63,
+       "synthSeconds": 9.22,
+       "rtf": 1.044,
+       "firstAudioMs": 3993,
+       "chunks": 2
+      },
+      {
+       "text": "s20",
+       "audioSeconds": 20.18,
+       "synthSeconds": 19.34,
+       "rtf": 1.043,
+       "firstAudioMs": 3840,
+       "chunks": 4
+      },
+      {
+       "text": "s20",
+       "audioSeconds": 20.18,
+       "synthSeconds": 19.05,
+       "rtf": 1.059,
+       "firstAudioMs": 3827,
+       "chunks": 4
+      }
+     ]
+    },
+    {
+     "threads": 4,
+     "loadMs": 1192,
+     "runs": [
+      {
+       "text": "s49",
+       "audioSeconds": 5.22,
+       "synthSeconds": 2.44,
+       "rtf": 2.145,
+       "firstAudioMs": 2436,
+       "chunks": 1
+      },
+      {
+       "text": "s49",
+       "audioSeconds": 5.22,
+       "synthSeconds": 2.12,
+       "rtf": 2.468,
+       "firstAudioMs": 2110,
+       "chunks": 1
+      },
+      {
+       "text": "s49",
+       "audioSeconds": 5.22,
+       "synthSeconds": 2.11,
+       "rtf": 2.472,
+       "firstAudioMs": 2113,
+       "chunks": 1
+      },
+      {
+       "text": "short",
+       "audioSeconds": 2.27,
+       "synthSeconds": 0.88,
+       "rtf": 2.585,
+       "firstAudioMs": 880,
+       "chunks": 1
+      },
+      {
+       "text": "short",
+       "audioSeconds": 2.27,
+       "synthSeconds": 0.82,
+       "rtf": 2.772,
+       "firstAudioMs": 821,
+       "chunks": 1
+      },
+      {
+       "text": "s8",
+       "audioSeconds": 9.63,
+       "synthSeconds": 3.72,
+       "rtf": 2.586,
+       "firstAudioMs": 1575,
+       "chunks": 2
+      },
+      {
+       "text": "s8",
+       "audioSeconds": 9.63,
+       "synthSeconds": 4.35,
+       "rtf": 2.213,
+       "firstAudioMs": 1915,
+       "chunks": 2
+      },
+      {
+       "text": "s20",
+       "audioSeconds": 20.18,
+       "synthSeconds": 8.16,
+       "rtf": 2.473,
+       "firstAudioMs": 1595,
+       "chunks": 4
+      },
+      {
+       "text": "s20",
+       "audioSeconds": 20.18,
+       "synthSeconds": 7.75,
+       "rtf": 2.603,
+       "firstAudioMs": 1513,
+       "chunks": 4
+      }
+     ]
+    },
+    {
+     "threads": 8,
+     "loadMs": 996,
+     "runs": [
+      {
+       "text": "s49",
+       "audioSeconds": 5.22,
+       "synthSeconds": 2.21,
+       "rtf": 2.361,
+       "firstAudioMs": 2213,
+       "chunks": 1
+      },
+      {
+       "text": "s49",
+       "audioSeconds": 5.22,
+       "synthSeconds": 2.09,
+       "rtf": 2.496,
+       "firstAudioMs": 2093,
+       "chunks": 1
+      },
+      {
+       "text": "s49",
+       "audioSeconds": 5.22,
+       "synthSeconds": 1.98,
+       "rtf": 2.634,
+       "firstAudioMs": 1983,
+       "chunks": 1
+      },
+      {
+       "text": "short",
+       "audioSeconds": 2.27,
+       "synthSeconds": 0.85,
+       "rtf": 2.691,
+       "firstAudioMs": 845,
+       "chunks": 1
+      },
+      {
+       "text": "short",
+       "audioSeconds": 2.27,
+       "synthSeconds": 0.83,
+       "rtf": 2.745,
+       "firstAudioMs": 829,
+       "chunks": 1
+      },
+      {
+       "text": "s8",
+       "audioSeconds": 9.63,
+       "synthSeconds": 3.92,
+       "rtf": 2.457,
+       "firstAudioMs": 1627,
+       "chunks": 2
+      },
+      {
+       "text": "s8",
+       "audioSeconds": 9.63,
+       "synthSeconds": 3.65,
+       "rtf": 2.636,
+       "firstAudioMs": 1533,
+       "chunks": 2
+      },
+      {
+       "text": "s20",
+       "audioSeconds": 20.18,
+       "synthSeconds": 8.38,
+       "rtf": 2.407,
+       "firstAudioMs": 1720,
+       "chunks": 4
+      },
+      {
+       "text": "s20",
+       "audioSeconds": 20.18,
+       "synthSeconds": 7.8,
+       "rtf": 2.586,
+       "firstAudioMs": 1597,
+       "chunks": 4
+      }
+     ]
+    }
+   ],
+   "host": {
+    "loadavg": [
+     70.62,
+     68.13,
+     41.41
+    ]
+   }
+  },
+  "kokoroJsRerunOnThisMachine_bundledOrt": {
+   "ortVersion": "1.22.0-dev.20250409 (bundled with kokoro-js 1.2.1 / transformers.js 3.8.1)",
+   "note": "texts: 5.2 s sentence (3 runs) and the 4.92 s spike sentence (2 runs); rtf per run in order",
+   "results": [
+    {
+     "threads": 1,
+     "rtfRuns": [
+      0.53,
+      0.561,
+      0.559,
+      0.556,
+      0.558
+     ]
+    },
+    {
+     "threads": 4,
+     "rtfRuns": [
+      0.818,
+      0.893,
+      0.854,
+      0.878,
+      0.888
+     ]
+    },
+    {
+     "threads": 8,
+     "rtfRuns": [
+      0.779,
+      0.81,
+      0.869,
+      0.818,
+      0.845
+     ]
+    }
+   ]
+  },
+  "kokoroJsRerunOnThisMachine_ort1_31_1": {
+   "ortVersion": "1.31.1 (the version the app vendors); same kokoro-js pipeline, same page, same model, same machine",
+   "results": [
+    {
+     "threads": 1,
+     "rtfRuns": [
+      1.023,
+      1.063,
+      1.052,
+      1.081,
+      1.064
+     ]
+    },
+    {
+     "threads": 4,
+     "rtfRuns": [
+      2.191,
+      2.56,
+      2.548,
+      2.628,
+      1.814
+     ]
+    },
+    {
+     "threads": 8,
+     "rtfRuns": [
+      1.672,
+      2.202,
+      2.139,
+      1.793,
+      1.603
+     ]
+    }
+   ]
+  },
+  "conclusion": "The same kokoro-js code and model on the same machine gives 0.56x (1 thread) and 0.82x to 0.89x (4 to 8 threads) with the ONNX Runtime Web it bundles (1.22.0-dev, April 2025), reproducing the spike. With ONNX Runtime Web 1.31.1, which the app vendors, it gives 1.05x and about 2.2x to 2.6x, the same as the worker pipeline (1.0x to 1.1x with 1 thread, 2.2x to 2.8x with 4 or 8). The cause is the runtime version (about 1.9x with 1 thread, 2.5x to 3x with 4). Thread count, sentence length (2 to 20 s: no effect), warm-up (about 5 percent) and text pre-processing are not the cause."
+ }
+}

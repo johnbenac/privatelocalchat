@@ -1,0 +1,98 @@
+{
+ "tier": "mini",
+ "origin": "http://127.0.0.1:18081/",
+ "steps": [
+  {
+   "name": "start",
+   "t": 1,
+   "device": {
+    "webgpu": false,
+    "simd": true,
+    "mem": 32,
+    "backend": "cpu"
+   },
+   "opfs": 999
+  },
+  {
+   "name": "selected",
+   "t": 1,
+   "tier": "mini",
+   "files": [
+    "default",
+    "light",
+    "lfm",
+    "granite",
+    "mini",
+    "nano"
+   ]
+  },
+  {
+   "name": "ready",
+   "t": 26,
+   "seconds": 25,
+   "opfsUsage": 222664538,
+   "addedMB": 223,
+   "info": {
+    "load": "ready",
+    "tier": "mini",
+    "runtime": "wllama/privatelocalchat-native-destroy-20261030-v1/compat",
+    "kind": "local-cpu",
+    "timings": {
+     "cacheCheckMs": 4,
+     "stagedFrom": "cache",
+     "stagedBytes": 222662560,
+     "constructMs": 2642
+    },
+    "loadMs": 2659,
+    "installed": {
+     "state": "complete",
+     "ok": true,
+     "files": 1,
+     "okFiles": 1,
+     "missing": 0,
+     "bad": [],
+     "bytesPresent": 222662560,
+     "bytesTotal": 222662560,
+     "deep": false,
+     "ms": 9,
+     "where": "OPFS (wllama cache)",
+     "checkedAt": 1793755483881,
+     "verifiedByLoad": true
+    }
+   }
+  },
+  {
+   "name": "generate",
+   "t": 29,
+   "tokens": 7,
+   "firstTokenMs": 2643,
+   "totalMs": 3232,
+   "text": "The capital of France is Paris."
+  },
+  {
+   "name": "generate-2",
+   "t": 32,
+   "tokens": 12,
+   "text": "Three primary colors are: Red, Blue, and Yellow."
+  },
+  {
+   "name": "unloaded",
+   "t": 32,
+   "load": "unloaded",
+   "installed": true
+  },
+  {
+   "name": "removed",
+   "t": 32,
+   "freedMB": 223,
+   "opfsUsageAfter": 1155,
+   "install": {
+    "ok": false,
+    "state": "absent",
+    "bytesPresent": 0
+   }
+  }
+ ],
+ "errors": [],
+ "totalSeconds": 32
+}

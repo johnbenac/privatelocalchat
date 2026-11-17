@@ -1,0 +1,11 @@
+{
+  "onnxruntimeWeb": "1.31.1",
+  "onnxruntimeLicense": "MIT",
+  "phonemizer": "1.2.1",
+  "phonemizerLicense": "Apache-2.0",
+  "phonemizerEmbeds": "espeak-ng (GPL-3.0)",
+  "fflate": "0.8.3",
+  "fflateLicense": "MIT",
+  "model": "KittenML/kitten-tts-nano-0.8-int8",
+  "modelLicense": "Apache-2.0"
+}

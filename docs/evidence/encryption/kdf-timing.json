@@ -1,0 +1,44 @@
+{
+  "about": "PBKDF2-SHA-256 key derivation, median of five runs with a fresh salt each, in the browser (WebCrypto). Decision: 600,000 iterations (docs/ENCRYPTION-AT-REST-PLAN.md, 4.3).",
+  "measuredAt": "2026-11-04",
+  "iterations": 600000,
+  "targetMs": 1000,
+  "devices": {
+    "centroid-chromium": {
+      "600k_ms": 100,
+      "1M_ms": 146,
+      "aes_1MB_encrypt_ms": 2.72,
+      "cores": 16,
+      "browser": "Chromium (Playwright), this machine",
+      "file": "baseline-centroid.json"
+    },
+    "veriton-firefox155": {
+      "600k_ms": 62,
+      "1M_ms": 102,
+      "aes_1MB_encrypt_ms": 1.8,
+      "cores": 20,
+      "browser": "Firefox 155 (headless), the Veriton, aarch64",
+      "file": "probe-veriton-firefox155.json"
+    },
+    "mac-safari": {
+      "600k_ms": 86,
+      "1M_ms": 144,
+      "aes_1MB_encrypt_ms": 1.1,
+      "cores": 8,
+      "browser": "Safari on macOS 26.7.1",
+      "file": "probe-mac-safari.json"
+    },
+    "galaxy-s8plus-chrome131": {
+      "600k_ms": 831,
+      "1M_ms": 1384,
+      "aes_1MB_encrypt_ms": 22.46,
+      "cores": 8,
+      "browser": "Chrome 131 on the Galaxy S8+",
+      "file": "probe-galaxy-s8plus-chrome131.json"
+    },
+    "iphone-15-pro": {
+      "browser": "Safari on iOS",
+      "status": "not measured yet: read from Settings > Encryption during step 5.4 (another project holds that phone's Safari automation channel)"
+    }
+  }
+}

@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Help | Private Local Chat</title>
+<meta name="description" content="Start guide, answers to common questions, troubleshooting and dated known issues for Private Local Chat, a free place to use AI in your browser.">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#F6F8FB" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#101820" media="(prefers-color-scheme: dark)">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Private Local Chat">
+<meta property="og:title" content="Help | Private Local Chat">
+<meta property="og:description" content="Start guide, answers to common questions, troubleshooting and dated known issues for Private Local Chat.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Help | Private Local Chat">
+<meta name="twitter:description" content="Start guide, answers to common questions, troubleshooting and dated known issues for Private Local Chat.">
+<link rel="icon" href="/brand/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/brand/favicon.ico" sizes="48x48">
+<link rel="apple-touch-icon" href="/brand/apple-touch-icon-180.png">
+<link rel="stylesheet" href="/brand/design-tokens.css">
+<link rel="stylesheet" href="/chat/public-pages.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="brand" href="/"><picture><source media="(prefers-color-scheme: dark)" srcset="/brand/wordmark-dark.svg"><img src="/brand/wordmark-light.svg" alt="Private Local Chat" width="235" height="30"></picture></a>
+    <nav class="site-nav" aria-label="Private Local Chat site"><!--plc:site-nav-->
+<ul class="site-nav-list">
+  <li><a href="/help/" aria-current="page">Help</a></li>
+  <li><a href="/about/">About</a></li>
+</ul>
+<!--/plc:site-nav--></nav>
+    <div class="header-open"><a class="button primary" href="/">Open Private Local Chat</a></div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="page-intro">
+    <h1>Help</h1>
+    <p class="lede">Setup steps, answers and fixes for Private Local Chat. This page is plain HTML: it needs no model and no script, and once the app is saved on your device it opens without a connection.</p>
+    <p class="page-meta">Last updated: <time class="last-updated" datetime="2026-11-01">2026-11-01</time></p>
+    <div class="hero-actions">
+      <a class="button primary" href="/">Open Private Local Chat</a>
+      <a class="button" href="#contact">Report a problem</a>
+    </div>
+  </div>
+
+  <nav class="toc" aria-labelledby="toc-title">
+    <h2 id="toc-title">On this page</h2>
+    <ul>
+      <li><a href="#getting-started">Getting started</a></li>
+      <li><a href="#faq">FAQ</a></li>
+      <li><a href="#troubleshooting">Troubleshooting</a></li>
+      <li><a href="#known-issues">Known issues</a></li>
+      <li><a href="#contact">Contact</a></li><!--plc:toc-community--><!--/plc:toc-community-->
+    </ul>
+  </nav>
+
+  <section id="getting-started" aria-labelledby="getting-started-title">
+    <h2 id="getting-started-title">Getting started</h2>
+    <ol class="steps prose">
+      <li><strong>Open the app.</strong> Open <a href="/">the app</a> in a current browser. There is nothing to install and no account to create.</li>
+      <li><strong>Write a message and send it.</strong> With on-device chat, the first message sets everything up. The app picks a model that suits your device (the smaller Qwen3.5-2B, about 1.20 GB, on phones and tablets and small devices; a capable computer may get the larger Qwen3.5-9B, about 5.06 GB), shows its download size, downloads it, loads it and then answers. Keep the page open while it works. A progress card shows the stage, the size and the time left, and you can cancel.</li>
+      <li><strong>Prefer an outside provider?</strong> In the app's model settings, set <em>Where replies run</em> to <em>Connected provider</em>, choose an endpoint and enter the API key from that provider. Messages in that mode go to the provider you chose; see <a href="#messages-and-providers">what happens to my messages</a>.</li>
+      <li><strong>Check readiness.</strong> The model settings show whether the model is downloaded and loaded, and <em>Ready for offline use</em> lists what else is saved on the device. See <a href="#offline-readiness">offline readiness</a> before you rely on it without a connection.</li>
+      <li><strong>Keep your work safe.</strong> Conversations live in this browser only. Use <em>Storage &amp; backups</em> in the app to back up chats, and read <a href="#backup-restoration">restoring a backup</a>.</li>
+    </ol>
+    <p class="prose">Review what AI writes. See <a href="#checking-answers">how to use AI answers</a>.</p>
+  </section>
+
+  <section id="faq" aria-labelledby="faq-title">
+    <h2 id="faq-title">Frequently asked questions</h2>
+
+    <details class="faq-item" id="what-is-private-local-chat" open>
+      <summary>What is Private Local Chat?</summary>
+      <div class="faq-body">
+        <p class="faq-answer">Private Local Chat lets you use AI in your web browser. Run a supported model on your own device or choose to connect an outside provider. Use it to draft, ask questions, explore ideas, and work through information.</p>
+        <p class="faq-more">More: <a href="/about/">About Private Local Chat</a>.</p>
+      </div>
+    </details>
+
+    <details class="faq-item" id="cost-and-account" open>
+      <summary>Is it free and do I need an account?</summary>
+      <div class="faq-body">
+        <p class="faq-answer">The app is free to use. On-device chat works without a Private Local Chat account or API key. Optional outside providers may require their own accounts and may charge for service.</p>
+      </div>
+    </details>
+
+    <details class="faq-item" id="model-downloads" open>
+      <summary>Why does it download a model?</summary>
+      <div class="faq-body">
+        <p class="faq-answer">Model files let your device generate replies locally. The first download can be substantial. Saved files can be reused while they remain in browser storage. Check the displayed download size and device guidance during setup.</p>
+        <p class="faq-more">If a download stops moving, see <a href="#stalled-download">a download stalls</a>.</p>
+      </div>
+    </details>
+
+    <details class="faq-item" id="offline" open>
+      <summary>Can I use it offline?</summary>
+      <div class="faq-body">
+        <p class="faq-answer">On a supported device, on-device text chat can work offline after the app and model are saved and ready. Check the readiness indicators and try it without a connection before relying on it while traveling. Connected providers and some voice features require network access.</p>
+        <p class="faq-more">Steps: <a href="#offline-readiness">offline readiness</a>.</p>
+      </div>
+    </details>
+
+    <details class="faq-item" id="messages-and-providers" open>
+      <summary>What happens to my messages?</summary>
+      <div class="faq-body">
+        <p class="faq-answer">In on-device text mode, the model processes conversation content on your device. When you choose a connected provider, the messages, instructions, document excerpts, and other context included in a request go to that provider. Its data practices apply to those requests.</p>
+      </div>
+    </details>
+
+    <details class="faq-item" id="voice" open>
+      <summary>Where is voice processed?</summary>
+      <div class="faq-body">
+        <p class="faq-answer">Voice uses the speech services available in your browser. Dictation and voice conversation may send audio to the browser's speech service. Speech processing and the location where text replies are generated are separate capabilities.</p>
+        <p class="faq-more">If the controls are missing, see <a href="#speech-availability">speech availability</a>.</p>
+      </div>
+    </details>
+
+    <details class="faq-item" id="compatibility" open>
+      <summary>Will it work on my device?</summary>
+      <div class="faq-body">
+        <p class="faq-answer">Compatibility and performance depend on the device, browser, available memory, and selected model. Follow the setup guidance and consult the dated known-issues section. Include your device, browser, and model when reporting setup or performance problems.</p>
+        <p class="faq-more">See <a href="#known-issues">known issues</a> and <a href="#load-failure">a model will not load</a>.</p>
+      </div>
+    </details>
+
+    <details class="faq-item" id="saved-conversations" open>
+      <summary>Where are my saved conversations?</summary>
+      <div class="faq-body">
+        <p class="faq-answer">Saved conversations are kept in this browser's storage. Each browser and device has its own storage. Back up important work before clearing site data or moving devices. Browser storage removal or loss of the device can affect what remains available.</p>
+        <p class="faq-more">See <a href="#backup-restoration">restoring a backup</a> and <a href="#transfer-chats">moving conversations</a>.</p>
+      </div>
+    </details>
+
+    <details class="faq-item" id="app-lock" open>
+      <summary>What does App lock protect?</summary>
+      <div class="faq-body">
+        <p class="faq-answer">App lock puts a passphrase screen over the app. You can also encrypt everything the app saves on this device with the same passphrase: conversations, documents, memory and settings are then unreadable without it, or without Face ID or Touch ID if you turn that on. Without encryption, App lock is a screen lock only, and saved data remains readable to someone with access to the browser's stored files. A forgotten passphrase cannot be recovered. Encrypted backups provide a separately protected copy of the included data.</p>
+      </div>
+    </details>
+
+    <details class="faq-item" id="storage" open>
+      <summary>How do I free memory or remove model files?</summary>
+      <div class="faq-body">
+        <p class="faq-answer">Unload (or clicking the loaded model in the model menu) unloads the model from working memory and keeps its downloaded files. Remove download deletes the saved model files, which can be downloaded again later. Back up important conversations before clearing all site data.</p>
+        <p class="faq-more">Steps: <a href="#model-storage">model storage</a>.</p>
+      </div>
+    </details>
+
+    <details class="faq-item" id="checking-answers" open>
+      <summary>How should I use AI answers?</summary>
+      <div class="faq-body">
+        <p class="faq-answer">Review generated work and check facts that matter. Models differ in capability and can make mistakes, misunderstand a question, or invent details.</p>
+      </div>
+    </details>
+
+    <details class="faq-item" id="transfer-settings" open>
+      <summary>How do I transfer my settings?</summary>
+      <div class="faq-body">
+        <p class="faq-answer">Open Transfer settings, review the included fields, and choose whether to include your API token. An included token is encrypted with the password you enter. Create the link or QR code and communicate the password separately. The other listed settings remain readable to the recipient.</p>
+      </div>
+    </details>
+
+    <details class="faq-item" id="unlock-token" open>
+      <summary>What if I forget the transfer password?</summary>
+      <div class="faq-body">
+        <p class="faq-answer">Import the ordinary settings and choose Continue without API token. You can retry the password later, enter a token manually, or create a new transfer from a device that still has the original token. A provider requiring authentication needs a usable token before it can answer.</p>
+      </div>
+    </details>
+
+    <details class="faq-item" id="transfer-chats" open>
+      <summary>How do I move my conversations?</summary>
+      <div class="faq-body">
+        <p class="faq-answer">Open Transfer chats and backups, review the file's included data and protection, and export it. Import the file on the receiving device and review the Merge or Replace choice. Transfer provider configuration separately through Transfer settings.</p>
+        <p class="faq-more">See <a href="#backup-restoration">restoring a backup</a>.</p>
+      </div>
+    </details>
+
+    <details class="faq-item" id="install" open>
+      <summary>How do I keep the app close at hand?</summary>
+      <div class="faq-body">
+        <p class="faq-answer">Use your browser's Install or Add to Home Screen option where available. Check app and model readiness before relying on offline use.</p>
+      </div>
+    </details>
+  </section>
+
+  <section id="troubleshooting" aria-labelledby="troubleshooting-title">
+    <h2 id="troubleshooting-title">Troubleshooting</h2>
+    <p class="prose">Each problem below has its own link, so you can share the exact fix. Do not paste API keys or private conversations into a public report.</p>
+
+    <section id="stalled-download" class="card" aria-labelledby="stalled-download-title">
+      <h3 id="stalled-download-title">A model download stalls or keeps restarting</h3>
+      <p>Downloads are split into files that are checked as they arrive, and finished files are kept. If no data arrives for two minutes, the app stops that transfer and restarts it by itself, reusing the files already saved. The progress card then says &ldquo;The download stalled. Restarting it now; nothing already downloaded is lost.&rdquo; If the connection drops, the download waits and continues when you are back online. A closed browser cannot keep downloading; it continues when you reopen the page.</p>
+      <ol>
+        <li>Keep the page open and the device awake, and check your connection. The model files come from the model source this copy is set up to use (Settings, Models, Model source shows it), so a firewall, VPN or content blocker that blocks that address stops the download.</li>
+        <li>Check free space on the device. The smaller model is about 1.20 GB and the larger one about 5.06 GB. When storage is full, saving files fails again and again.</li>
+        <li>Choose the smaller model: use &ldquo;Use the smaller model instead&rdquo; on the progress card where it is offered, or pick Qwen3.5-2B in the model settings.</li>
+        <li>Open <em>Details and repair</em> under <em>Language model</em> in Settings &gt; Models and choose <em>Verify / repair</em>. It removes only damaged files and downloads them again.</li>
+        <li>Still stuck? Choose <em>Cancel download</em>, reload the page and start again; files that are already complete are kept. Then report it with your device, browser and model (see <a href="#contact">contact</a>).</li>
+      </ol>
+    </section>
+
+    <section id="load-failure" class="card" aria-labelledby="load-failure-title">
+      <h3 id="load-failure-title">A model will not load</h3>
+      <p>Loading puts the downloaded model into memory. Common causes and what to do:</p>
+      <ul>
+        <li><strong>Not enough memory.</strong> The larger model needs about 6 GB and up to about 9 GB at its peak. Close other tabs and heavy apps, use <em>Unload</em> if another model is loaded, or choose the smaller Qwen3.5-2B model.</li>
+        <li><strong>No usable graphics card (WebGPU).</strong> The model settings say what the browser reported and what to try, such as updating the browser (Safari 26 or newer, or a current Chrome) or the graphics driver. When no GPU is usable, the smaller model can run on the processor, which is slower. That is not offered on iPhone or iPad, and the larger model needs a GPU.</li>
+        <li><strong>Damaged or incomplete files.</strong> Open <em>Advanced model controls</em> and choose <em>Verify / repair</em>.</li>
+        <li><strong>The model engine stopped.</strong> In <em>Advanced model controls</em> choose <em>Restart model engine</em>, then <em>Load model</em>.</li>
+      </ul>
+      <p>If it still fails, choose <em>Copy device details</em> in <em>Advanced model controls</em>. It copies the device, browser and model state, with no conversation text; read it before you share it. Include it, and the model you chose, in a report (see <a href="#contact">contact</a>). Related: <a href="#compatibility">will it work on my device?</a></p>
+    </section>
+
+    <section id="unexpected-reload" class="card" aria-labelledby="unexpected-reload-title">
+      <h3 id="unexpected-reload-title">The page reloads or restarts by itself</h3>
+      <ul>
+        <li><strong>A new version was published.</strong> If a page is older than the published version when it opens, the app clears its saved copy and reloads once. After that, while the app is open, it never reloads itself: a notice at the bottom says &ldquo;A new version of Private Local Chat is ready&rdquo; with <em>Reload</em> and <em>Later</em>. If a reply is being written, a model is downloading, a recording or call is open or you have a message you have not sent, <em>Reload</em> says so and asks first, and keeps an unsent message. If the app cannot start, a banner says it &ldquo;did not start properly&rdquo; with <em>Update the app</em>.</li>
+        <li><strong>The browser replaced the page.</strong> Phone browsers can replace a page that uses a lot of memory. This has been seen on an iPhone while loading a model and during long replies; see <a href="#issue-iphone-page-restarts">the known issue</a>.</li>
+      </ul>
+      <p>Your saved conversations, unsent drafts (kept per conversation) and downloaded model files stay saved. To reduce the chance of it happening again, close other tabs and apps, choose the smaller model, or set <em>Where replies run</em> to <em>Connected provider</em> or use a computer. If it keeps happening, report the device, browser, model and what you were doing (see <a href="#contact">contact</a>).</p>
+    </section>
+
+    <section id="offline-readiness" class="card" aria-labelledby="offline-readiness-title">
+      <h3 id="offline-readiness-title">Checking that it will work offline</h3>
+      <p>Open <em>Settings</em>, then <em>Models</em>, then <em>Ready for offline use</em>. One line at the top says whether this device is ready, and a list shows each thing that has to be saved on the device. Every line says <em>Ready</em>, <em>One more step</em>, <em>Not saved yet</em>, <em>Checking&hellip;</em> or <em>Not used</em>, and a button on the line does the next step.</p>
+      <ul>
+        <li><strong>This window.</strong> Shown first, and only when the browser window looks private (on iPhone, Private Browsing) or restricted. A private window cannot keep the app or a downloaded model for offline use and forgets them when it closes, so the line tells you to open the site in a normal tab. The app can only guess from what the window refuses, so it says &ldquo;looks like&rdquo;.</li>
+        <li><strong>The app.</strong> The page itself, saved by your browser. If a newer version is saved, the line says so: reload once while online to use it. If your browser window cannot keep the app at all, the line says so. Private Browsing and Lockdown Mode on iPhone turn this off: open the site in a normal Safari tab and add it to your Home Screen.</li>
+        <li><strong>Chat model.</strong> The on-device model you chose, downloaded. With a connected provider this line says <em>Not used</em>: a provider needs a connection, an on-device model does not. If your browser will not let this site save enough for the model (some phones allow only about 1 GB), the line says so instead of offering a download that cannot finish: choose a smaller model or use a connected provider.</li>
+        <li><strong>What runs the model.</strong> The program files that run the model. They are large and are saved a little after the app, so a slow connection can leave them <em>One more step</em>; <em>Save now</em> finishes it while you are online.</li>
+        <li><strong>Voice.</strong> Your device&rsquo;s own voice works offline. A voice you downloaded works offline once it is saved.</li>
+        <li><strong>Matching model.</strong> A small model (about 24 MB) that lets search and the phone-menu robot match by meaning. It is optional: without it, search still finds exact words offline. <em>Download</em> saves it while you are online.</li>
+        <li><strong>Keeping it.</strong> Browsers can delete saved data when the device is low on space. <em>Ask to keep</em> asks the browser to protect it. The browser may decline; Safari does not promise by default.</li>
+      </ul>
+      <p><strong>The Offline pill.</strong> When your device has no connection, a small <em>Offline</em> pill appears beside the model and voice pickers. With an on-device model, or a provider that runs on this device, nothing is wrong and the pill is calm. With a provider on the internet it tells you that the provider needs a connection. When the connection returns, the pill says <em>Back online</em> for a few seconds and goes away. Tap it to see what is ready and what is not.</p>
+      <p><strong>Try it once.</strong> When the line at the top says <em>Ready for offline use</em>, turn on airplane mode, reopen the app and send a message. Do this test before you travel.</p>
+      <p>A download you start while offline waits for a connection and carries on by itself. Connected providers on the internet, downloading a model, the model list refresh and some voice features need a connection. Once the app is saved, these Help pages open offline too.</p>
+    </section>
+
+    <section id="model-storage" class="card" aria-labelledby="model-storage-title">
+      <h3 id="model-storage-title">Freeing memory or removing a model</h3>
+      <ul>
+        <li><strong>Unload</strong> frees the model from working memory and keeps the downloaded files and your chats. Use it when the device is short of memory. The model loads again from the saved files.</li>
+        <li><strong>Remove download</strong> deletes the saved model files (in <em>Advanced model controls</em>, or <em>Remove files</em> in <em>Storage &amp; backups</em>). The app asks first and says your conversations will be kept. The model can be downloaded again later, and on-device chat is unavailable until it is.</li>
+        <li><strong>Clearing all site data</strong> in the browser removes conversations, settings and attached documents as well as models. Back up first (see <a href="#backup-restoration">restoring a backup</a>).</li>
+      </ul>
+    </section>
+
+    <section id="backup-restoration" class="card" aria-labelledby="backup-restoration-title">
+      <h3 id="backup-restoration-title">Backing up and restoring conversations</h3>
+      <p><strong>Back up:</strong> Open <em>Transfer chats and backups</em> (under <em>Import export and transfer</em>, or from <em>Storage &amp; backups</em> with <em>Back up chats</em>). <em>Export saved conversations</em> makes a readable file of your conversations; anyone who has the file can read it. <em>Create protected backup</em> makes a file protected with a password of at least 8 characters, holding chats, memory, projects, presets and, if you choose, documents. A forgotten password cannot be recovered, and the people who run the app cannot open the file either. Each review lists exactly what the file includes. Neither file carries provider settings or API tokens: use Transfer settings for those.</p>
+      <p><strong>Restore:</strong></p>
+      <ol>
+        <li>Choose <em>Import chats or backup</em> (under <em>Import export and transfer</em>) and pick the file. The app also reads ChatGPT and Claude data exports.</li>
+        <li>For an encrypted backup, enter the passphrase and choose <em>Unlock backup</em>. &ldquo;That passphrase did not unlock the backup, or the file was changed&rdquo; means the passphrase is wrong or the file is damaged; try again exactly as you set it.</li>
+        <li>Review the preview. <em>Add to my current chats</em> (merge) is selected first and changes nothing already there. <em>Replace all my current chats</em> is an explicit alternative and offers to download a backup of the current chats first.</li>
+        <li>Choose <em>Import</em>. Tick <em>Also restore memory, presets, projects, preferences</em> to bring those back too.</li>
+      </ol>
+      <p>If you forgot your App lock passphrase, the only way back in is to erase the app's data in this browser and restore a backup. If you turned on Face ID or Touch ID for encryption and it still works, use it to open the app, then set a new passphrase in Settings.</p>
+    </section>
+
+    <section id="speech-availability" class="card" aria-labelledby="speech-availability-title">
+      <h3 id="speech-availability-title">Dictation, voice conversation or read-aloud is missing</h3>
+      <p>Read-aloud, dictation and voice conversation use the speech services of your browser. The controls appear only where the browser offers them, and no button is shown that cannot work.</p>
+      <ul>
+        <li><strong>The microphone is blocked.</strong> Allow it for this site in the browser's site settings (in Safari: the aA menu, then Website Settings, then Microphone) and try again.</li>
+        <li><strong>The browser never lets sites use speech recognition.</strong> Some in-app browsers expose it but block it. The app then shows a message explaining what to check, and keeps the controls so you can try again. Open the app in Safari or Chrome instead (see <a href="#issue-speech-in-app-browsers">the known issue</a>).</li>
+        <li><strong>It needs a connection.</strong> The browser's speech service may send audio over the network, so dictation and voice conversation can fail offline. Read-aloud voices marked &ldquo;online&rdquo; in the voice list may also need a connection.</li>
+      </ul>
+      <p>Where speech is processed is separate from where the reply is written; see <a href="#voice">where is voice processed?</a></p>
+    </section>
+  </section>
+
+  <section id="known-issues" aria-labelledby="known-issues-title">
+    <h2 id="known-issues-title">Known issues</h2>
+    <p class="prose">Each entry names who is affected, what you see, its status, when it was last verified and what you can do. Dates are the last time the project recorded evidence, and an entry says when that was a document rather than a fresh test. Anything not listed has not been reported or verified.</p>
+<!--plc:known-issues-->
+<article class="issue" id="issue-iphone-page-restarts" aria-labelledby="issue-iphone-page-restarts-title">
+  <h3 id="issue-iphone-page-restarts-title">iPhone page restarts during loading or long replies</h3>
+  <dl class="issue-facts">
+    <dt>Affected devices</dt><dd>iPhone 15 Pro on iOS 26.6.2 (the device tested). Other iPhone and iPad models have not been checked.</dd>
+    <dt>Browsers</dt><dd>DuckDuckGo 26.6 and Safari automation sessions on that phone.</dd>
+    <dt>Models</dt><dd>Qwen3.5-2B on-device model.</dd>
+    <dt>What you see</dt><dd>The page is replaced and starts again without an error message while the model loads or a longer reply is being written. Downloaded model files stay saved.</dd>
+    <dt>Status</dt><dd><span class="badge">Open, under investigation</span></dd>
+    <dt>Last verified</dt><dd><time datetime="2026-10-30">30 October 2026</time> <span class="muted">(project investigation log; many sessions complete normally)</span></dd>
+    <dt>Workaround</dt><dd>Reopen the app: saved conversations and drafts remain and the downloaded files are reused. For dependable use on an iPhone, set Where replies run to a connected provider, or use a computer.</dd>
+  </dl>
+  <p class="update-links">Related help: <a href="/help/#unexpected-reload">The page reloads by itself</a>.</p>
+</article>
+<article class="issue" id="issue-iphone-low-storage" aria-labelledby="issue-iphone-low-storage-title">
+  <h3 id="issue-iphone-low-storage-title">Model downloads fail when the phone is nearly full</h3>
+  <dl class="issue-facts">
+    <dt>Affected devices</dt><dd>iPhone 15 Pro on iOS 26.6.2.</dd>
+    <dt>Browsers</dt><dd>Safari automation session.</dd>
+    <dt>Models</dt><dd>Qwen3.5-2B download (about 1.20 GB).</dd>
+    <dt>What you see</dt><dd>Writing downloaded files fails repeatedly with a generic message while the device has almost no free space. The app keeps retrying and keeps the files it already verified.</dd>
+    <dt>Status</dt><dd><span class="badge">Explained by device storage; the app retries automatically</span></dd>
+    <dt>Last verified</dt><dd><time datetime="2026-10-30">30 October 2026</time> <span class="muted">(USB system log recorded the out-of-space error)</span></dd>
+    <dt>Workaround</dt><dd>Free space on the phone before downloading. The project&#39;s phone tests used at least 3 GB free as the minimum before a download.</dd>
+  </dl>
+  <p class="update-links">Related help: <a href="/help/#stalled-download">A download stalls</a>.</p>
+</article>
+<article class="issue" id="issue-speech-in-app-browsers" aria-labelledby="issue-speech-in-app-browsers-title">
+  <h3 id="issue-speech-in-app-browsers-title">Dictation and voice conversation missing in some in-app browsers</h3>
+  <dl class="issue-facts">
+    <dt>Affected devices</dt><dd>iPhone.</dd>
+    <dt>Browsers</dt><dd>DuckDuckGo on iPhone exposes speech recognition but does not let websites use it. Other in-app web views may behave the same.</dd>
+    <dt>Models</dt><dd>Any (speech is separate from the model).</dd>
+    <dt>What you see</dt><dd>A message says the browser does not let websites use speech recognition, and the dictation and voice controls are turned off. They stay hidden for 14 days after the failure is seen.</dd>
+    <dt>Status</dt><dd><span class="badge">Browser limitation; the app hides the controls</span></dd>
+    <dt>Last verified</dt><dd><time datetime="2026-10-31">31 October 2026</time> <span class="muted">(release v0.11.0 documentation; not re-tested on a physical phone)</span></dd>
+    <dt>Workaround</dt><dd>Open Private Local Chat in Safari or Chrome, which support speech recognition.</dd>
+  </dl>
+  <p class="update-links">Related help: <a href="/help/#speech-availability">Speech controls missing</a>.</p>
+</article>
+<article class="issue" id="issue-processor-speed" aria-labelledby="issue-processor-speed-title">
+  <h3 id="issue-processor-speed-title">On-device chat on the processor is slow</h3>
+  <dl class="issue-facts">
+    <dt>Affected devices</dt><dd>Computers whose browser has no usable GPU (no WebGPU, no adapter, or only a software renderer).</dd>
+    <dt>Browsers</dt><dd>Browsers with WebAssembly SIMD. Not offered on iPhone or iPad.</dd>
+    <dt>Models</dt><dd>Qwen3.5-2B only. Qwen3.5-9B needs a GPU.</dd>
+    <dt>What you see</dt><dd>Replies arrive slowly. Words per second on a real processor have not been measured.</dd>
+    <dt>Status</dt><dd><span class="badge">Limitation; speed not yet measured</span></dd>
+    <dt>Last verified</dt><dd><time datetime="2026-10-31">31 October 2026</time> <span class="muted">(loading and generation verified in an automated browser test with a tiny test model)</span></dd>
+    <dt>Workaround</dt><dd>Turn on or fix the browser&#39;s GPU support, or connect a provider.</dd>
+  </dl>
+  <p class="update-links">Related help: <a href="/help/#load-failure">A model will not load</a>.</p>
+</article>
+<article class="issue" id="issue-linux-shader-f16" aria-labelledby="issue-linux-shader-f16-title">
+  <h3 id="issue-linux-shader-f16-title">2B model did not start on some Linux desktops without 16-bit shaders</h3>
+  <dl class="issue-facts">
+    <dt>Affected devices</dt><dd>Linux desktop with an NVIDIA graphics card (the tested setup).</dd>
+    <dt>Browsers</dt><dd>Chromium-based browsers where the optional shader-f16 feature was not enabled.</dd>
+    <dt>Models</dt><dd>Qwen3.5-2B on the GPU path.</dd>
+    <dt>What you see</dt><dd>The 2B model was refused because the browser lacked 16-bit shader support.</dd>
+    <dt>Status</dt><dd><span class="badge">Mitigated in v0.12.0: the model now runs on the processor when the GPU path is not possible</span></dd>
+    <dt>Last verified</dt><dd><time datetime="2026-10-31">31 October 2026</time> <span class="muted">(desktop environment receipt from 2026-10-30; processor path added the next day)</span></dd>
+    <dt>Workaround</dt><dd>Enable the browser&#39;s shader-f16 support if it offers it, or use the processor path, which is slower.</dd>
+  </dl>
+  <p class="update-links">Related help: <a href="/help/#load-failure">A model will not load</a>.</p>
+</article>
+<article class="issue" id="issue-context-window" aria-labelledby="issue-context-window-title">
+  <h3 id="issue-context-window-title">Very long replies end when the working window is full</h3>
+  <dl class="issue-facts">
+    <dt>Affected devices</dt><dd>All devices.</dd>
+    <dt>Browsers</dt><dd>All browsers.</dd>
+    <dt>Models</dt><dd>Both bundled on-device models (4,096-token window shared by the conversation and the reply).</dd>
+    <dt>What you see</dt><dd>A long conversation or answer stops when the window is full. The message says so and offers Continue or a summary.</dd>
+    <dt>Status</dt><dd><span class="badge">Known limit; raising it costs memory, which matters most on iPhone</span></dd>
+    <dt>Last verified</dt><dd><time datetime="2026-10-31">31 October 2026</time> <span class="muted">(project documentation of chat limits)</span></dd>
+    <dt>Workaround</dt><dd>Choose Continue, condense older messages into a summary, or start a new conversation.</dd>
+  </dl>
+</article>
+<article class="issue" id="issue-pictures-and-scans" aria-labelledby="issue-pictures-and-scans-title">
+  <h3 id="issue-pictures-and-scans-title">Pictures and scanned PDFs cannot be read on this device</h3>
+  <dl class="issue-facts">
+    <dt>Affected devices</dt><dd>All devices.</dd>
+    <dt>Browsers</dt><dd>All browsers.</dd>
+    <dt>Models</dt><dd>Both on-device models read text only.</dd>
+    <dt>What you see</dt><dd>Pictures are refused with an explanation, and a scanned PDF with no text layer is refused because there is no text to read.</dd>
+    <dt>Status</dt><dd><span class="badge">Not supported yet; text recognition for scans is not available offline</span></dd>
+    <dt>Last verified</dt><dd><time datetime="2026-10-31">31 October 2026</time> <span class="muted">(project documentation of chat limits)</span></dd>
+    <dt>Workaround</dt><dd>Attach text-based files, or use a connected provider that accepts pictures (its data practices then apply).</dd>
+  </dl>
+  <p class="update-links">Related help: <a href="/help/#messages-and-providers">What happens to my messages?</a>.</p>
+</article>
+<!--/plc:known-issues-->
+  </section>
+
+  <section id="contact" aria-labelledby="contact-title">
+    <h2 id="contact-title">Contact</h2>
+    <div class="card">
+      <h3>Report a bug or ask for a feature on GitHub</h3>
+      <p><a class="button primary" href="https://github.com/johnbenac/privatelocalchat/issues/new/choose" target="_blank" rel="noopener">Open GitHub Issues</a></p>
+      <p class="public-note"><strong>Public.</strong> Issues on GitHub are public and need a GitHub account. Leave out API keys and private conversations, and review screenshots and error messages before you share them. For setup or performance problems include your device, browser and model.</p>
+    </div>
+<!--plc:contact-email--><!--/plc:contact-email-->
+    <p class="prose">The source code and release downloads are on <a href="https://github.com/johnbenac/privatelocalchat" target="_blank" rel="noopener">GitHub</a>.</p>
+  </section>
+
+<!--plc:community--><!--/plc:community-->
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <nav aria-label="Private Local Chat site, footer"><!--plc:footer-nav-->
+<ul class="footer-nav-list">
+  <li><a href="/help/" aria-current="page">Help</a></li>
+  <li><a href="/about/">About</a></li>
+</ul>
+<!--/plc:footer-nav--></nav>
+    <!--plc:footer-source-->
+<p><a href="/">Open Private Local Chat</a> &middot; <a href="https://github.com/johnbenac/privatelocalchat" target="_blank" rel="noopener">Source on GitHub</a> (GNU General Public License, version 3) &middot; <a href="/LICENSE">Licence</a> &middot; <a href="/THIRD-PARTY-NOTICES.md">Notices</a></p>
+<!--/plc:footer-source-->
+  </div>
+</footer>
+<script type="module" src="/chat/transfer/public-pages.mjs"></script>
+</body>
+</html>

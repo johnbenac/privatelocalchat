@@ -1,0 +1,117 @@
+{
+ "what": "Kitten TTS nano 0.8 int8 (KittenML/kitten-tts-nano-0.8-int8 @ 84781d74e29e) with the espeak-ng based phonemizer (npm phonemizer 1.2.1), ONNX Runtime Web WASM, same 6.67 s sentence, warm second generation",
+ "date": "2026-11-02",
+ "results": {
+  "kitten-brutus-firefox-2": {
+   "threads": 2,
+   "loadMs": 1829,
+   "firstGenMs": 4793,
+   "genMs": 4329,
+   "audioSeconds": 6.67,
+   "rtf": 1.54,
+   "peak": 0.524,
+   "env": {
+    "ua": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:156.0) Gecko/20100101 Firefox/156.0",
+    "cores": 4,
+    "isolated": true,
+    "sab": "function",
+    "webgpu": false
+   }
+  },
+  "kitten-brutus-firefox-4": {
+   "threads": 4,
+   "loadMs": 2056,
+   "firstGenMs": 4482,
+   "genMs": 4199,
+   "audioSeconds": 6.67,
+   "rtf": 1.59,
+   "peak": 0.519,
+   "env": {
+    "ua": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:156.0) Gecko/20100101 Firefox/156.0",
+    "cores": 4,
+    "isolated": true,
+    "sab": "function",
+    "webgpu": false
+   }
+  },
+  "kitten-result-1": {
+   "threads": 1,
+   "loadMs": 1323,
+   "firstGenMs": 3437,
+   "genMs": 3330,
+   "audioSeconds": 6.67,
+   "rtf": 2,
+   "peak": 0.511
+  },
+  "kitten-result-4": {
+   "threads": 4,
+   "loadMs": 1441,
+   "firstGenMs": 2718,
+   "genMs": 2422,
+   "audioSeconds": 6.67,
+   "rtf": 2.75,
+   "peak": 0.548
+  },
+  "kitten-result-boiler-default-1": {
+   "threads": 1,
+   "loadMs": 1877,
+   "firstGenMs": 3909,
+   "genMs": 3554,
+   "audioSeconds": 6.67,
+   "rtf": 1.88,
+   "peak": 0.519
+  },
+  "kitten-result-boiler-default-4": {
+   "threads": 4,
+   "loadMs": 1887,
+   "firstGenMs": 3131,
+   "genMs": 2540,
+   "audioSeconds": 6.67,
+   "rtf": 2.62,
+   "peak": 0.51
+  },
+  "kitten-result-boiler-flags-1": {
+   "threads": 1,
+   "loadMs": 1861,
+   "firstGenMs": 3836,
+   "genMs": 3556,
+   "audioSeconds": 6.67,
+   "rtf": 1.87,
+   "peak": 0.557
+  },
+  "kitten-result-boiler-flags-4": {
+   "threads": 4,
+   "loadMs": 1968,
+   "firstGenMs": 3017,
+   "genMs": 2621,
+   "audioSeconds": 6.67,
+   "rtf": 2.54,
+   "peak": 0.513
+  },
+  "kitten-s8plus-chrome-4": {
+   "threads": 4,
+   "loadMs": 7901,
+   "firstGenMs": 29440,
+   "genMs": 25534,
+   "audioSeconds": 6.67,
+   "rtf": 0.26,
+   "peak": 0.515,
+   "env": {
+    "ua": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36",
+    "cores": 8,
+    "mem": 4,
+    "isolated": true,
+    "sab": "function"
+   }
+  },
+  "kitten-webkit-4": {
+   "threads": 4,
+   "loadMs": 2147,
+   "firstGenMs": 3424,
+   "genMs": 2649,
+   "audioSeconds": 6.67,
+   "rtf": 2.52,
+   "peak": 0.524
+  }
+ }
+}

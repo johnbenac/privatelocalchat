@@ -1,0 +1,116 @@
+{
+ "device": "iPhone 15 Pro, Safari on iOS 26.6.2, tiny models forced onto the processor via the host worker",
+ "build": "436ff41 (dev)",
+ "results": {
+  "mini": {
+   "state": "done",
+   "err": null,
+   "log": [
+    [
+     187,
+     "install",
+     {
+      "ok": true,
+      "s": 157
+     }
+    ],
+    [
+     188,
+     "load",
+     {
+      "ms": 1509,
+      "kind": "local-cpu"
+     }
+    ],
+    [
+     190,
+     "turn1",
+     {
+      "end": "attempt-completed",
+      "tokens": 7,
+      "firstMs": 1754,
+      "tokPerSec": 20.8,
+      "text": "The capital of France is Paris."
+     }
+    ],
+    [
+     191,
+     "turn2",
+     {
+      "end": "attempt-completed",
+      "tokens": 7,
+      "firstMs": 521,
+      "tokPerSec": 20.6,
+      "text": "The capital of Italy is Rome."
+     }
+    ],
+    [
+     193,
+     "meeting",
+     {
+      "end": "attempt-completed",
+      "tokens": 1,
+      "firstMs": 2018,
+      "tokPerSec": null,
+      "text": "Friday"
+     }
+    ]
+   ]
+  },
+  "nano": {
+   "state": "done",
+   "err": null,
+   "log": [
+    [
+     237,
+     "install",
+     {
+      "ok": true,
+      "s": 34
+     }
+    ],
+    [
+     238,
+     "load",
+     {
+      "ms": 839,
+      "kind": "local-cpu"
+     }
+    ],
+    [
+     241,
+     "turn1",
+     {
+      "end": "attempt-completed",
+      "tokens": 7,
+      "firstMs": 2498,
+      "tokPerSec": 31.9,
+      "text": "The capital of France is Paris."
+     }
+    ],
+    [
+     242,
+     "turn2",
+     {
+      "end": "attempt-completed",
+      "tokens": 7,
+      "firstMs": 531,
+      "tokPerSec": 31.6,
+      "text": "The capital of Italy is Rome."
+     }
+    ],
+    [
+     246,
+     "meeting",
+     {
+      "end": "attempt-completed",
+      "tokens": 70,
+      "firstMs": 1202,
+      "tokPerSec": 26.3,
+      "text": "SmolLM,\n\nI'm sorry for any misunderstanding, but as a helpful AI assistant, I don't have real-time capabilities to provide current time upda"
+     }
+    ]
+   ]
+  }
+ }
+}

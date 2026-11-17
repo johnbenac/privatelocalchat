@@ -1,0 +1,10 @@
+[hidden] { display: none !important; }
+#localModelPanel { border: 1px solid #9996; border-radius: 8px; padding: 12px; margin-bottom: 16px; }
+#localModelPanel h3 { margin: 0 0 12px; }
+#modelStatus { padding: 10px; background: #18773b18; border-left: 3px solid #18773b; overflow-wrap: anywhere; }
+#modelStatus[data-error="true"] { background: #ae252518; border-color: #ae2525; }
+.model-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+#modelProgress { width: 100%; }
+#modelDiagnostics { white-space: pre-wrap; max-height: 220px; overflow: auto; font-size: 11px; }
+#generationStatus { margin: 12px 16px; padding: 12px; border: 1px solid #8886; border-radius: 6px; white-space: pre-wrap; overflow-wrap: anywhere; max-height: 180px; overflow-y: auto; }
+#releaseInfo { font-size: 12px; overflow-wrap: anywhere; }

@@ -1,0 +1,45 @@
+{
+  "records": [
+    {
+      "cycle": 1,
+      "terminalType": "attempt-completed",
+      "nativeTokens": 512,
+      "cleanup": {
+        "nativeExit": "acknowledged",
+        "nativeExitMs": 12
+      },
+      "after": "unloaded"
+    },
+    {
+      "cycle": 2,
+      "terminalType": "attempt-completed",
+      "nativeTokens": 512,
+      "cleanup": {
+        "nativeExit": "acknowledged",
+        "nativeExitMs": 11
+      },
+      "after": "unloaded"
+    },
+    {
+      "cycle": 3,
+      "terminalType": "attempt-completed",
+      "nativeTokens": 512,
+      "cleanup": {
+        "nativeExit": "acknowledged",
+        "nativeExitMs": 12
+      },
+      "after": "unloaded"
+    }
+  ],
+  "errors": [],
+  "recordedAt": "2026-10-30",
+  "surface": "Real Chromium/Vulkan, NVIDIA GeForce RTX 5060 Ti",
+  "browserSessionRetained": true,
+  "pageReloadsWithVerifiedModelCache": 3,
+  "modelBytesRetained": 1202488640,
+  "newModelDownload": false,
+  "limitations": [
+    "Renderer OS process identity was not attested by this desktop harness.",
+    "This desktop test does not close the physical iPhone lifecycle gate."
+  ]
+}

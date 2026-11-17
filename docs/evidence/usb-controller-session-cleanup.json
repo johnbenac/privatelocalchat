@@ -1,0 +1,34 @@
+{
+  "recordedAt": "2026-10-30",
+  "finding": "Previous private bridge attempted final cleanup after leaving the WebInspector context manager, when the transport was already closed.",
+  "change": "The versioned operator controller removes its light-model files when the host is available, closes its owned tab, sends deleteSession, and checks session disappearance while the connection remains live.",
+  "physicalEmptyContextCheck": {
+    "ready": false,
+    "endedAt": 1793364344.8710415,
+    "shutdown": {
+      "windowClosed": true,
+      "deleteSent": true,
+      "sessionRemovalConfirmed": true,
+      "modelCleanup": {
+        "available": false
+      }
+    }
+  },
+  "oldNamespace": {
+    "stillAccessibleAfterEarlierCorrectedClose": true,
+    "reclamationProven": false
+  },
+  "checks": {
+    "pythonOperatorTestsPassed": 5,
+    "modelDownloadDuringControllerCheck": false,
+    "sharedSafariRestart": false
+  },
+  "limits": [
+    "The empty-context test does not exercise model removal with a loaded model; that path remains to be physically qualified.",
+    "Session disappearance does not prove temporary-directory removal.",
+    "Full native lifecycle and offline iPhone qualification remain open."
+  ],
+  "sources": [
+    "https://github.com/WebKit/WebKit/blob/main/Source/WebKit/UIProcess/Automation/WebAutomationSession.cpp"
+  ]
+}

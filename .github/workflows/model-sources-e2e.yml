@@ -1,0 +1,28 @@
+name: Model sources
+on:
+  pull_request:
+  push:
+    branches: [main, dev]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: model-sources-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  model-sources:
+    runs-on: ubuntu-24.04 # pinned: Playwright does not support the newer ubuntu-latest image yet
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+      - name: Where models come from, the notice, and an operator's source (docs/APP-CONFIG.md)
+        run: node tests/e2e/model-sources.e2e.mjs
+      - name: The site identity decides whether the app offers to share an address
+        run: node tests/e2e/site-identity.e2e.mjs

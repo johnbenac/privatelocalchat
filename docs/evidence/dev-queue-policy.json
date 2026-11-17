@@ -1,0 +1,289 @@
+{
+  "environment": "desktop-environment.json",
+  "runtimeBuildId": "privatelocalchat-queue-20261029-v2",
+  "wasmSha256": "a772105af5a7a0872e7461f0e33ce36b4dc979d893f651100d85cbbd80d0e6bb",
+  "method": "Same native binary, same cached 2B model, full 4096-token context, logical batch128/microbatch32, flash attention disabled to exercise the phone graph path. Native-reported policy checked before accepting results.",
+  "controls": [
+    {
+      "policy": {
+        "max": 0,
+        "batch": 64
+      },
+      "turns": [
+        {
+          "durationMs": 10299,
+          "characters": 546,
+          "usage": {
+            "commonPrefixTokens": 0,
+            "completionTokens": 512,
+            "evaluatedTokens": 27,
+            "promptTokens": 27,
+            "reusedTokens": 0,
+            "totalTokens": 539
+          },
+          "queue": {
+            "commandSubmitBatchSize": 64,
+            "graphBatchesCompleted": 7195,
+            "graphBatchesInFlightHighWater": 15,
+            "graphBatchesPending": 0,
+            "graphBatchesSubmitted": 7195,
+            "graphEvaluations": 514,
+            "maxInFlightBatches": 4294967295,
+            "queueWaitMicroseconds": 2701622,
+            "queueWaits": 8752
+          }
+        },
+        {
+          "durationMs": 12627,
+          "characters": 512,
+          "usage": {
+            "commonPrefixTokens": 23,
+            "completionTokens": 512,
+            "evaluatedTokens": 534,
+            "promptTokens": 557,
+            "reusedTokens": 23,
+            "totalTokens": 1069
+          },
+          "queue": {
+            "commandSubmitBatchSize": 64,
+            "graphBatchesCompleted": 14550,
+            "graphBatchesInFlightHighWater": 15,
+            "graphBatchesPending": 0,
+            "graphBatchesSubmitted": 14550,
+            "graphEvaluations": 1043,
+            "maxInFlightBatches": 4294967295,
+            "queueWaitMicroseconds": 7027558,
+            "queueWaits": 17632
+          }
+        },
+        {
+          "durationMs": 3825,
+          "characters": 87,
+          "usage": {
+            "commonPrefixTokens": 553,
+            "completionTokens": 88,
+            "evaluatedTokens": 565,
+            "promptTokens": 1086,
+            "reusedTokens": 521,
+            "totalTokens": 1174
+          },
+          "queue": {
+            "commandSubmitBatchSize": 64,
+            "graphBatchesCompleted": 15980,
+            "graphBatchesInFlightHighWater": 15,
+            "graphBatchesPending": 0,
+            "graphBatchesSubmitted": 15980,
+            "graphEvaluations": 1149,
+            "maxInFlightBatches": 4294967295,
+            "queueWaitMicroseconds": 9139665,
+            "queueWaits": 19314
+          }
+        }
+      ]
+    },
+    {
+      "policy": {
+        "max": 2,
+        "batch": 64
+      },
+      "turns": [
+        {
+          "durationMs": 13353,
+          "characters": 546,
+          "usage": {
+            "commonPrefixTokens": 0,
+            "completionTokens": 512,
+            "evaluatedTokens": 27,
+            "promptTokens": 27,
+            "reusedTokens": 0,
+            "totalTokens": 539
+          },
+          "queue": {
+            "commandSubmitBatchSize": 64,
+            "graphBatchesCompleted": 7195,
+            "graphBatchesInFlightHighWater": 2,
+            "graphBatchesPending": 0,
+            "graphBatchesSubmitted": 7195,
+            "graphEvaluations": 514,
+            "maxInFlightBatches": 2,
+            "queueWaitMicroseconds": 5204773,
+            "queueWaits": 12350
+          }
+        },
+        {
+          "durationMs": 13846,
+          "characters": 512,
+          "usage": {
+            "commonPrefixTokens": 23,
+            "completionTokens": 512,
+            "evaluatedTokens": 534,
+            "promptTokens": 557,
+            "reusedTokens": 23,
+            "totalTokens": 1069
+          },
+          "queue": {
+            "commandSubmitBatchSize": 64,
+            "graphBatchesCompleted": 14550,
+            "graphBatchesInFlightHighWater": 2,
+            "graphBatchesPending": 0,
+            "graphBatchesSubmitted": 14550,
+            "graphEvaluations": 1043,
+            "maxInFlightBatches": 2,
+            "queueWaitMicroseconds": 11207356,
+            "queueWaits": 24916
+          }
+        },
+        {
+          "durationMs": 4515,
+          "characters": 87,
+          "usage": {
+            "commonPrefixTokens": 553,
+            "completionTokens": 88,
+            "evaluatedTokens": 565,
+            "promptTokens": 1086,
+            "reusedTokens": 521,
+            "totalTokens": 1174
+          },
+          "queue": {
+            "commandSubmitBatchSize": 64,
+            "graphBatchesCompleted": 15980,
+            "graphBatchesInFlightHighWater": 2,
+            "graphBatchesPending": 0,
+            "graphBatchesSubmitted": 15980,
+            "graphEvaluations": 1149,
+            "maxInFlightBatches": 2,
+            "queueWaitMicroseconds": 13866078,
+            "queueWaits": 27322
+          }
+        }
+      ]
+    },
+    {
+      "policy": {
+        "max": 2,
+        "batch": 32
+      },
+      "turns": [
+        {
+          "durationMs": 17040,
+          "characters": 546,
+          "usage": {
+            "commonPrefixTokens": 0,
+            "completionTokens": 512,
+            "evaluatedTokens": 27,
+            "promptTokens": 27,
+            "reusedTokens": 0,
+            "totalTokens": 539
+          },
+          "queue": {
+            "commandSubmitBatchSize": 32,
+            "graphBatchesCompleted": 14388,
+            "graphBatchesInFlightHighWater": 2,
+            "graphBatchesPending": 0,
+            "graphBatchesSubmitted": 14388,
+            "graphEvaluations": 514,
+            "maxInFlightBatches": 2,
+            "queueWaitMicroseconds": 7041582,
+            "queueWaits": 15947
+          }
+        },
+        {
+          "durationMs": 15005,
+          "characters": 512,
+          "usage": {
+            "commonPrefixTokens": 23,
+            "completionTokens": 512,
+            "evaluatedTokens": 534,
+            "promptTokens": 557,
+            "reusedTokens": 23,
+            "totalTokens": 1069
+          },
+          "queue": {
+            "commandSubmitBatchSize": 32,
+            "graphBatchesCompleted": 29098,
+            "graphBatchesInFlightHighWater": 2,
+            "graphBatchesPending": 0,
+            "graphBatchesSubmitted": 29098,
+            "graphEvaluations": 1043,
+            "maxInFlightBatches": 2,
+            "queueWaitMicroseconds": 13904408,
+            "queueWaits": 32182
+          }
+        },
+        {
+          "durationMs": 4523,
+          "characters": 87,
+          "usage": {
+            "commonPrefixTokens": 553,
+            "completionTokens": 88,
+            "evaluatedTokens": 565,
+            "promptTokens": 1086,
+            "reusedTokens": 521,
+            "totalTokens": 1174
+          },
+          "queue": {
+            "commandSubmitBatchSize": 32,
+            "graphBatchesCompleted": 31958,
+            "graphBatchesInFlightHighWater": 2,
+            "graphBatchesPending": 0,
+            "graphBatchesSubmitted": 31958,
+            "graphEvaluations": 1149,
+            "maxInFlightBatches": 2,
+            "queueWaitMicroseconds": 16624066,
+            "queueWaits": 35294
+          }
+        }
+      ]
+    }
+  ],
+  "candidate": {
+    "maxInFlightBatches": 2,
+    "commandSubmitBatchSize": 32,
+    "drainAtGraphEnd": true
+  },
+  "limits": [
+    "Graph batches only: excludes upload commands and does not measure RSS or Metal residency.",
+    "Completed batches are acknowledged by explicit successful QueueWorkDone waits.",
+    "Desktop results do not establish iPhone survival.",
+    "The change preserves the existing output limit and does not add segmentation or substitute a model."
+  ],
+  "iphoneRetest": "FAILED: first longer generation restarted the page on iPhone 15 Pro; queue bound and graph-end drainage were active.",
+  "cancellation": {
+    "abort": "AbortError",
+    "partialCharacters": 4,
+    "nextReply": "hello",
+    "providerCounters": {
+      "received": 2,
+      "completed": 1,
+      "failed": 0,
+      "aborted": 1,
+      "tokens": 2,
+      "recoveries": 0
+    },
+    "queue": {
+      "commandSubmitBatchSize": 32,
+      "graphBatchesCompleted": 187,
+      "graphBatchesInFlightHighWater": 2,
+      "graphBatchesPending": 0,
+      "graphBatchesSubmitted": 187,
+      "graphEvaluations": 7,
+      "maxInFlightBatches": 2,
+      "queueWaitMicroseconds": 566825,
+      "queueWaits": 224
+    }
+  },
+  "iphoneFailure": {
+    "commit": "b5e747e995c6f87123b4f33ac0fe16c6c9b95803",
+    "lastProgressAt": "2026-10-30T00:41:55.439Z",
+    "pageRestartAt": "2026-10-30T00:41:56.348Z",
+    "characters": 396,
+    "chunks": 94,
+    "lastQueueCheckpoint": {
+      "graphEvaluations": 96,
+      "submitted": 2114,
+      "completed": 2114,
+      "highWater": 2
+    },
+    "cause": "Unresolved. These counters are not physical memory or an OS termination report."
+  }
+}

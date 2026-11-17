@@ -1,0 +1,35 @@
+{
+  "surface": "Prepared production artifact via local TLS and canonical-origin QA DNS mapping; not a public deployment",
+  "candidateRuntime": "privatelocalchat-queue-production-20261029-v1",
+  "compatSha256": "1bf7ed18c5cf0071d5ce2651c952778103c65d75f658b8b9638f2988912ab1b8",
+  "steps": [
+    {
+      "name": "live startup",
+      "at": "2026-10-29T21:04:10.993Z"
+    },
+    {
+      "name": "real model loaded",
+      "at": "2026-10-29T21:04:18.152Z"
+    },
+    {
+      "name": "online generation",
+      "at": "2026-10-29T21:04:19.152Z"
+    },
+    {
+      "name": "offline shell ready",
+      "at": "2026-10-29T21:04:19.156Z"
+    },
+    {
+      "name": "offline generation",
+      "at": "2026-10-29T21:04:19.566Z"
+    },
+    {
+      "name": "offline full browser reopen and generation",
+      "at": "2026-10-29T21:04:30.567Z"
+    }
+  ],
+  "errors": [],
+  "unexpectedRequests": [],
+  "productionDeployment": "not yet promoted; iPhone qualification pending",
+  "diagnostics": "Production artifact omits development UI, receiver, tail fences, GPU creation hooks and added queue diagnostics."
+}

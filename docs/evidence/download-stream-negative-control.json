@@ -1,0 +1,410 @@
+{
+  "recordedAt": "2026-10-30",
+  "question": "Can an alternate progress path remove aborted-request observations after valid model downloads?",
+  "controls": [
+    {
+      "bytesPerArm": 21250464,
+      "results": [
+        {
+          "arm": {
+            "sw": "allow",
+            "route": true
+          },
+          "installed": {
+            "ok": true,
+            "bytes": 21250464
+          },
+          "events": [
+            {
+              "kind": "request",
+              "method": "GET",
+              "type": "fetch",
+              "stage": "install",
+              "ms": 2644
+            },
+            {
+              "kind": "response",
+              "method": "GET",
+              "type": "fetch",
+              "stage": "install",
+              "ms": 3107,
+              "status": 200,
+              "bytes": "21250464"
+            },
+            {
+              "kind": "failed",
+              "method": "GET",
+              "type": "fetch",
+              "stage": "install",
+              "ms": 5895,
+              "failure": "net::ERR_ABORTED"
+            }
+          ]
+        },
+        {
+          "arm": {
+            "sw": "block",
+            "route": true
+          },
+          "installed": {
+            "ok": true,
+            "bytes": 21250464
+          },
+          "events": [
+            {
+              "kind": "request",
+              "method": "GET",
+              "type": "fetch",
+              "stage": "install",
+              "ms": 1265
+            },
+            {
+              "kind": "response",
+              "method": "GET",
+              "type": "fetch",
+              "stage": "install",
+              "ms": 1472,
+              "status": 200,
+              "bytes": "21250464"
+            },
+            {
+              "kind": "failed",
+              "method": "GET",
+              "type": "fetch",
+              "stage": "install",
+              "ms": 5331,
+              "failure": "net::ERR_ABORTED"
+            }
+          ]
+        },
+        {
+          "arm": {
+            "sw": "allow",
+            "route": false
+          },
+          "installed": {
+            "ok": true,
+            "bytes": 21250464
+          },
+          "events": [
+            {
+              "kind": "request",
+              "method": "GET",
+              "type": "fetch",
+              "stage": "install",
+              "ms": 1297
+            },
+            {
+              "kind": "response",
+              "method": "GET",
+              "type": "fetch",
+              "stage": "install",
+              "ms": 1412,
+              "status": 200,
+              "bytes": "21250464"
+            },
+            {
+              "kind": "failed",
+              "method": "GET",
+              "type": "fetch",
+              "stage": "install",
+              "ms": 7048,
+              "failure": "net::ERR_ABORTED"
+            }
+          ]
+        }
+      ],
+      "contextsClosed": true
+    },
+    {
+      "bytesPerArm": 21250464,
+      "results": [
+        {
+          "arm": {
+            "sw": "block",
+            "route": false,
+            "mode": "direct"
+          },
+          "installed": {
+            "ok": true,
+            "bytes": 21250464
+          },
+          "events": [
+            {
+              "kind": "request",
+              "method": "GET",
+              "type": "fetch",
+              "stage": "install",
+              "ms": 1268
+            },
+            {
+              "kind": "response",
+              "method": "GET",
+              "type": "fetch",
+              "stage": "install",
+              "ms": 1513,
+              "status": 200,
+              "bytes": "21250464"
+            },
+            {
+              "kind": "finished",
+              "method": "GET",
+              "type": "fetch",
+              "stage": "install",
+              "ms": 4102
+            }
+          ]
+        },
+        {
+          "arm": {
+            "sw": "block",
+            "route": false,
+            "mode": "adapter-nohash"
+          },
+          "installed": {
+            "ok": true,
+            "bytes": 21250464
+          },
+          "events": [
+            {
+              "kind": "request",
+              "method": "GET",
+              "type": "fetch",
+              "stage": "install",
+              "ms": 1315
+            },
+            {
+              "kind": "response",
+              "method": "GET",
+              "type": "fetch",
+              "stage": "install",
+              "ms": 1472,
+              "status": 200,
+              "bytes": "21250464"
+            },
+            {
+              "kind": "failed",
+              "method": "GET",
+              "type": "fetch",
+              "stage": "install",
+              "ms": 4029,
+              "failure": "net::ERR_ABORTED"
+            }
+          ]
+        },
+        {
+          "arm": {
+            "sw": "block",
+            "route": false,
+            "mode": "adapter"
+          },
+          "installed": {
+            "ok": true,
+            "bytes": 21250464
+          },
+          "events": [
+            {
+              "kind": "request",
+              "method": "GET",
+              "type": "fetch",
+              "stage": "install",
+              "ms": 1484
+            },
+            {
+              "kind": "response",
+              "method": "GET",
+              "type": "fetch",
+              "stage": "install",
+              "ms": 1630,
+              "status": 200,
+              "bytes": "21250464"
+            },
+            {
+              "kind": "failed",
+              "method": "GET",
+              "type": "fetch",
+              "stage": "install",
+              "ms": 3646,
+              "failure": "net::ERR_ABORTED"
+            }
+          ]
+        }
+      ],
+      "contextsClosed": true
+    },
+    {
+      "bytesPerArm": 21250464,
+      "results": [
+        {
+          "arm": {
+            "sw": "block",
+            "route": false,
+            "mode": "direct-signal"
+          },
+          "installed": {
+            "ok": true,
+            "bytes": 21250464
+          },
+          "events": [
+            {
+              "kind": "request",
+              "method": "GET",
+              "type": "fetch",
+              "stage": "install",
+              "ms": 1047
+            },
+            {
+              "kind": "response",
+              "method": "GET",
+              "type": "fetch",
+              "stage": "install",
+              "ms": 1393,
+              "status": 200,
+              "bytes": "21250464"
+            },
+            {
+              "kind": "finished",
+              "method": "GET",
+              "type": "fetch",
+              "stage": "install",
+              "ms": 4230
+            }
+          ]
+        },
+        {
+          "arm": {
+            "sw": "block",
+            "route": false,
+            "mode": "stream-helper"
+          },
+          "installed": {
+            "ok": true,
+            "bytes": 21250464
+          },
+          "events": [
+            {
+              "kind": "request",
+              "method": "GET",
+              "type": "fetch",
+              "stage": "install",
+              "ms": 803
+            },
+            {
+              "kind": "response",
+              "method": "GET",
+              "type": "fetch",
+              "stage": "install",
+              "ms": 972,
+              "status": 200,
+              "bytes": "21250464"
+            },
+            {
+              "kind": "finished",
+              "method": "GET",
+              "type": "fetch",
+              "stage": "install",
+              "ms": 4005
+            }
+          ]
+        },
+        {
+          "arm": {
+            "sw": "block",
+            "route": false,
+            "mode": "transform-helper"
+          },
+          "installed": {
+            "ok": true,
+            "bytes": 21250464
+          },
+          "events": [
+            {
+              "kind": "request",
+              "method": "GET",
+              "type": "fetch",
+              "stage": "install",
+              "ms": 633
+            },
+            {
+              "kind": "response",
+              "method": "GET",
+              "type": "fetch",
+              "stage": "install",
+              "ms": 800,
+              "status": 200,
+              "bytes": "21250464"
+            },
+            {
+              "kind": "failed",
+              "method": "GET",
+              "type": "fetch",
+              "stage": "install",
+              "ms": 4538,
+              "failure": "net::ERR_ABORTED"
+            }
+          ]
+        }
+      ],
+      "contextsClosed": true
+    },
+    {
+      "bytesPerArm": 21250464,
+      "results": [
+        {
+          "arm": {
+            "sw": "block",
+            "route": false,
+            "mode": "readable-progress"
+          },
+          "installed": {
+            "ok": true,
+            "bytes": 21250464
+          },
+          "events": [
+            {
+              "kind": "request",
+              "method": "GET",
+              "type": "fetch",
+              "stage": "install",
+              "ms": 997
+            },
+            {
+              "kind": "response",
+              "method": "GET",
+              "type": "fetch",
+              "stage": "install",
+              "ms": 1170,
+              "status": 200,
+              "bytes": "21250464"
+            },
+            {
+              "kind": "failed",
+              "method": "GET",
+              "type": "fetch",
+              "stage": "install",
+              "ms": 5234,
+              "failure": "net::ERR_ABORTED"
+            }
+          ]
+        }
+      ],
+      "contextsClosed": true
+    }
+  ],
+  "candidate": {
+    "unitTestsPassed": 61,
+    "browserCycles": 3,
+    "verifiedBytesPerCycle": 21250464,
+    "networkEvents": [
+      "net::ERR_ABORTED",
+      "net::ERR_ABORTED",
+      "net::ERR_ABORTED"
+    ],
+    "nativeBytesChanged": false
+  },
+  "decision": "Rejected; the direct downloader did not improve SDK-path network observations. Restore the tested implementation.",
+  "limits": [
+    "All observed completed installs retained correct bytes; request-abort events alone did not establish data loss.",
+    "The initial preview load failure and iPhone memory-limit failures remain unexplained by this control."
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "results": [
+    {
+      "browser": "Chromium",
+      "version": "151.0.7922.34",
+      "source": "disk-backed OPFS File",
+      "temporaryFileRemoved": true,
+      "bytes": 428120416,
+      "digest": "82346671a387211e56f1b1b72f20d62273313512d92cf736401e678df7eb7eaa",
+      "elapsedMs": 3806.3000000715256,
+      "activeWorkersAfter": 0,
+      "terminatedWorkers": 2,
+      "abortName": "AbortError"
+    },
+    {
+      "browser": "WebKit",
+      "version": "26.4",
+      "source": "HTTP Blob (OPFS unavailable in this WebKit build)",
+      "temporaryFileRemoved": false,
+      "bytes": 428120416,
+      "digest": "82346671a387211e56f1b1b72f20d62273313512d92cf736401e678df7eb7eaa",
+      "elapsedMs": 5819,
+      "activeWorkersAfter": 0,
+      "terminatedWorkers": 2,
+      "abortName": "AbortError"
+    }
+  ],
+  "temporaryBrowserContextsClosed": true,
+  "noPersistentProfileCreated": true,
+  "question": "Avoid whole-shard ArrayBuffer allocation during verified model installation and repair.",
+  "algorithm": "SHA-256, @noble/hashes 2.4.0, unmodified MIT-licensed vendored modules",
+  "maximumRequestedReadBytes": 1048576,
+  "workerLifetime": "One checksum; unconditional termination on success, rejection, cancellation or idle timeout.",
+  "independentChecks": {
+    "nodeCryptoDifferentialBoundaryCases": 10,
+    "knownAbcVector": true,
+    "largeLogicalShardBytes": 428120416,
+    "serialReadsBounded": true,
+    "repositoryTestsPassed": 54
+  },
+  "limitations": [
+    "A 1 MiB read bound is not a total browser physical-footprint measurement.",
+    "Linux WebKit has no OPFS in this test build; its checksum test used an HTTP Blob.",
+    "No claim that whole-shard checksums caused the earlier phone kill.",
+    "The physical full-GPU control uses the previous checksum path; this candidate is not deployed during that trial."
+  ]
+}

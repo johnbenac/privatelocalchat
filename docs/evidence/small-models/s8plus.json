@@ -1,0 +1,62 @@
+{
+ "device": "Galaxy S8+ (SM-G955U), Android 9, Chrome 131, 3.4 GB RAM",
+ "build": "436ff41 (dev)",
+ "picked": "mini (mobile-cpu-tiny)",
+ "firstRun": {
+  "firstRun": {
+   "seconds": 654,
+   "last": {
+    "t": "AI response\n\nThe capital of France is Paris.\n\ngranite-4.0-h-350m-q4_k_m \u00b7 on this device",
+    "streaming": false,
+    "tier": "mini",
+    "busy": null,
+    "bytes": null,
+    "load": "ready",
+    "err": null
+   }
+  },
+  "turn2": {
+   "seconds": 12,
+   "last": {
+    "n": 2,
+    "t": "AI response\n\nThe capital of Italy is Rome.\n\ngranite-4.0-h-350m-q4_k_m \u00b7 on this device",
+    "streaming": false
+   }
+  },
+  "after": {
+   "usageMB": 272,
+   "installed": true,
+   "tier": "mini",
+   "backend": "cpu"
+  }
+ },
+ "offline": {
+  "cold": {
+   "booted": true,
+   "pill": "Offline",
+   "hidden": false,
+   "installed": true,
+   "tier": "mini"
+  },
+  "checklist": {
+   "summary": "Ready for offline use. Chatting with your downloaded model needs no connection.",
+   "items": {
+    "app": "ready",
+    "model": "ready",
+    "runtime": "ready",
+    "voice": "ready",
+    "matching": "partial",
+    "storage": "partial"
+   }
+  },
+  "offlineReply": {
+   "seconds": 46,
+   "v": {
+    "t": "AI response\n\nGood evening.\n\ngranite-4.0-h-350m-q4_k_m \u00b7 on this device",
+    "streaming": false,
+    "load": "ready"
+   }
+  }
+ },
+ "cleanup": "model removed; free storage 519 MB before, 492 MB after"
+}

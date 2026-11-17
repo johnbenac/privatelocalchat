@@ -1,0 +1,36 @@
+--- a/cpp/wllama-build-id.h
++++ b/cpp/wllama-build-id.h
+@@ -1 +1 @@
+-#define WLLAMA_BUILD_ID "retained-v1q-chat-stable-slim-20260901"
++#define WLLAMA_BUILD_ID "privatelocalchat-native-destroy-20261030-v1"
+--- a/llama.cpp/ggml/src/ggml-webgpu/ggml-webgpu.cpp
++++ b/llama.cpp/ggml/src/ggml-webgpu/ggml-webgpu.cpp
+@@ -1268 +1268 @@
+-    return UINT32_MAX;
++    return 2u;
+@@ -1272 +1272 @@
+-    return WEBGPU_DEFAULT_COMMAND_SUBMIT_BATCH_SIZE;
++    return 32u;
+@@ -4401,0 +4402,4 @@
++
++    // Finish this graph before the next graph resets its in-flight counter.
++    // This keeps the two-batch bound valid across graph boundaries too.
++    ggml_backend_webgpu_wait_queue(ctx->global_ctx);
+--- a/cpp/wllama.cpp
++++ b/cpp/wllama.cpp
+@@ -1,3 +1,4 @@
++#include <new>
+ #include <iostream>
+ #include <vector>
+ #include <string>
+@@ -219,6 +220,10 @@
+   try
+   {
+     app.shutdown();
++    // Destroy the owning context while the worker and GPU connection are alive.
++    // Reconstruct the static object so repeated exit or final destruction is safe.
++    app.~wllama_context();
++    new (&app) wllama_context();
+     llama_backend_free();
+     return "{\"success\":true}";
+   }

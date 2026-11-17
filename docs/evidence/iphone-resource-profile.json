@@ -1,0 +1,207 @@
+{
+  "environment": "desktop-environment.json",
+  "method": "Real cached 2B model, three retained turns per configuration, fixed prompts and sampling, full 4096-token context. Journal records grouped by the current run identity before computing peaks.",
+  "iphoneObservation": "Three failed native startup rings resolve flash attention to disabled, and each enters the two-token capability decode without a return marker. A subsequent successful load produced one reply and restarted while streaming the second.",
+  "comparisons": [
+    {
+      "flashAttention": "auto-enabled-on-test-GPU",
+      "context": {
+        "n_ctx": 4096,
+        "n_batch": 512,
+        "n_ubatch": 512,
+        "n_vocab": 248320,
+        "n_ctx_train": 262144
+      },
+      "loadMs": 7160,
+      "nativeRunRecords": 242,
+      "resourceHighWater": {
+        "gpuComputeBytes": 50498048,
+        "gpuContextBytes": 50331648,
+        "sbrkBytes": 103989248,
+        "mallocLiveBytes": 95005040
+      },
+      "completedTurns": 3,
+      "turnDurationsMs": [
+        11051,
+        11230,
+        2976
+      ],
+      "turnCharacters": [
+        546,
+        512,
+        87
+      ]
+    },
+    {
+      "flashAttention": "auto-enabled-on-test-GPU",
+      "context": {
+        "n_ctx": 4096,
+        "n_batch": 128,
+        "n_ubatch": 128,
+        "n_vocab": 248320,
+        "n_ctx_train": 262144
+      },
+      "loadMs": 5510,
+      "nativeRunRecords": 254,
+      "resourceHighWater": {
+        "gpuComputeBytes": 12735488,
+        "gpuContextBytes": 50331648,
+        "sbrkBytes": 92286976,
+        "mallocLiveBytes": 81537320
+      },
+      "completedTurns": 3,
+      "turnDurationsMs": [
+        10093,
+        11464,
+        3208
+      ],
+      "turnCharacters": [
+        546,
+        512,
+        87
+      ]
+    },
+    {
+      "flashAttention": "auto-enabled-on-test-GPU",
+      "context": {
+        "n_ctx": 4096,
+        "n_batch": 32,
+        "n_ubatch": 32,
+        "n_vocab": 248320,
+        "n_ctx_train": 262144
+      },
+      "loadMs": 5763,
+      "nativeRunRecords": 254,
+      "resourceHighWater": {
+        "gpuComputeBytes": 4867840,
+        "gpuContextBytes": 50331648,
+        "sbrkBytes": 90226688,
+        "mallocLiveBytes": 79951816
+      },
+      "completedTurns": 3,
+      "turnDurationsMs": [
+        10038,
+        11678,
+        3796
+      ],
+      "turnCharacters": [
+        546,
+        512,
+        87
+      ]
+    },
+    {
+      "flashAttention": "disabled",
+      "context": {
+        "n_ctx": 4096,
+        "n_batch": 512,
+        "n_ubatch": 512,
+        "n_vocab": 248320,
+        "n_ctx_train": 262144
+      },
+      "loadMs": 6150,
+      "nativeRunRecords": 238,
+      "resourceHighWater": {
+        "gpuComputeBytes": 98580992,
+        "gpuContextBytes": 50331648,
+        "sbrkBytes": 110276608,
+        "mallocLiveBytes": 101297840
+      },
+      "completedTurns": 3,
+      "turnDurationsMs": [
+        10613,
+        11381,
+        3024
+      ],
+      "turnCharacters": [
+        546,
+        512,
+        87
+      ]
+    },
+    {
+      "flashAttention": "disabled",
+      "context": {
+        "n_ctx": 4096,
+        "n_batch": 128,
+        "n_ubatch": 128,
+        "n_vocab": 248320,
+        "n_ctx_train": 262144
+      },
+      "loadMs": 6119,
+      "nativeRunRecords": 250,
+      "resourceHighWater": {
+        "gpuComputeBytes": 24645632,
+        "gpuContextBytes": 50331648,
+        "sbrkBytes": 92909568,
+        "mallocLiveBytes": 83114488
+      },
+      "completedTurns": 3,
+      "turnDurationsMs": [
+        10149,
+        11455,
+        3210
+      ],
+      "turnCharacters": [
+        546,
+        512,
+        87
+      ]
+    },
+    {
+      "flashAttention": "disabled",
+      "context": {
+        "n_ctx": 4096,
+        "n_batch": 32,
+        "n_ubatch": 32,
+        "n_vocab": 248320,
+        "n_ctx_train": 262144
+      },
+      "loadMs": 6837,
+      "nativeRunRecords": 248,
+      "resourceHighWater": {
+        "gpuComputeBytes": 6161920,
+        "gpuContextBytes": 50331648,
+        "sbrkBytes": 90226688,
+        "mallocLiveBytes": 80350248
+      },
+      "completedTurns": 3,
+      "turnDurationsMs": [
+        10383,
+        11876,
+        3764
+      ],
+      "turnCharacters": [
+        546,
+        512,
+        87
+      ]
+    }
+  ],
+  "limitations": [
+    "Browser-visible counters are not process RSS.",
+    "Disabling flash attention on the test GPU exercises the iPhone graph path but does not reproduce WebKit or Apple GPU execution.",
+    "Smaller prefill graphs are a measured resource improvement, not proof of a resolved iPhone crash.",
+    "Creation counters in older builds had no WebGPU call sites; their zero values cannot establish absence of allocation."
+  ],
+  "candidate": {
+    "n_ctx": 4096,
+    "n_batch": 128,
+    "n_ubatch": 32,
+    "flashAttentionTest": "disabled to exercise the graph path resolved on the iPhone",
+    "completedTurns": 3,
+    "completionTokens": [
+      512,
+      512,
+      88
+    ],
+    "errors": [],
+    "resourceHighWater": {
+      "gpuComputeBytes": 6161920,
+      "gpuContextBytes": 50331648,
+      "sbrkBytes": 90226688,
+      "mallocLiveBytes": 80357000
+    },
+    "iphoneRetest": "pending"
+  }
+}

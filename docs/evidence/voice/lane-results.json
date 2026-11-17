@@ -1,0 +1,228 @@
+{
+ "date": "2026-11-02",
+ "what": "Real engine, hosted Kitten files on the project CDN, deployed dev build dddf03a; decision from the real controller (devOffer), then install, speak a 7.9 s sentence, remove.",
+ "results": {
+  "centroid-chromium": {
+   "build": "dddf03a",
+   "decision": {
+    "offer": false,
+    "candidate": null,
+    "reason": "probe-too-slow",
+    "stage": 2,
+    "ms": 136.8,
+    "downloadBytes": null
+   },
+   "installMs": 3511,
+   "speak": {
+    "audioSeconds": 7.908333333333333,
+    "synthSeconds": 1.4411499998569488,
+    "realTimeFactor": 5.487515757636838,
+    "firstAudioMs": 742,
+    "chunks": 2,
+    "samples": null
+   },
+   "verdict": {
+    "fastEnough": true,
+    "startDelayMs": 742
+   },
+   "storageBefore": {
+    "usageMB": 0.8,
+    "quotaMB": 10738
+   },
+   "storageInstalled": {
+    "usageMB": 33.7,
+    "quotaMB": 10771
+   },
+   "storageAfter": {
+    "usageMB": 41.8,
+    "quotaMB": 10779
+   },
+   "afterRemove": {
+    "id": "kitten-tts-nano-0.8-int8",
+    "installed": false,
+    "bytes": 0,
+    "totalBytes": 27649561,
+    "loaded": false,
+    "loading": false,
+    "installing": false
+   }
+  },
+  "boiler-chromium": {
+   "build": "dddf03a",
+   "decision": {
+    "offer": false,
+    "candidate": null,
+    "reason": "probe-too-slow",
+    "stage": 2,
+    "ms": 150,
+    "downloadBytes": null
+   },
+   "installMs": 4104,
+   "speak": {
+    "audioSeconds": 7.908333333333333,
+    "synthSeconds": 1.6554299998283386,
+    "realTimeFactor": 4.777207936399241,
+    "firstAudioMs": 862,
+    "chunks": 2,
+    "samples": null
+   },
+   "verdict": {
+    "fastEnough": true,
+    "startDelayMs": 862
+   },
+   "storageBefore": {
+    "usageMB": 1.1,
+    "quotaMB": 10739
+   },
+   "storageInstalled": {
+    "usageMB": 33.4,
+    "quotaMB": 10771
+   },
+   "storageAfter": {
+    "usageMB": 41.6,
+    "quotaMB": 10779
+   },
+   "afterRemove": {
+    "id": "kitten-tts-nano-0.8-int8",
+    "installed": false,
+    "bytes": 0,
+    "totalBytes": 27649561,
+    "loaded": false,
+    "loading": false,
+    "installing": false
+   }
+  },
+  "brutus-firefox": {
+   "build": "dddf03a",
+   "decision": {
+    "offer": false,
+    "candidate": null,
+    "reason": "probe-too-slow",
+    "stage": 2,
+    "ms": 216.3,
+    "downloadBytes": null
+   },
+   "installMs": 5224,
+   "speak": {
+    "audioSeconds": 7.908333333333333,
+    "synthSeconds": 2.40318,
+    "realTimeFactor": 3.2907786072343037,
+    "firstAudioMs": 1113,
+    "chunks": 2,
+    "samples": null
+   },
+   "verdict": {
+    "fastEnough": true,
+    "startDelayMs": 1113
+   },
+   "storageBefore": {
+    "usageMB": 8.4,
+    "quotaMB": 10737
+   },
+   "storageInstalled": {
+    "usageMB": 46,
+    "quotaMB": 10737
+   },
+   "storageAfter": {
+    "usageMB": 24.5,
+    "quotaMB": 10737
+   },
+   "afterRemove": {
+    "id": "kitten-tts-nano-0.8-int8",
+    "installed": false,
+    "bytes": 0,
+    "totalBytes": 27649561,
+    "loaded": false,
+    "loading": false,
+    "installing": false
+   }
+  },
+  "galaxy-s8plus-chrome": {
+   "build": "dddf03a",
+   "decision": {
+    "offer": false,
+    "candidate": null,
+    "reason": "probe-too-slow",
+    "stage": 2,
+    "ms": 4000,
+    "downloadBytes": null
+   },
+   "installMs": 10988,
+   "speak": {
+    "audioSeconds": 7.908333333333333,
+    "synthSeconds": 30.811799999999813,
+    "realTimeFactor": 0.2566657362871816,
+    "firstAudioMs": 16266,
+    "chunks": 2,
+    "samples": null
+   },
+   "verdict": {
+    "fastEnough": false,
+    "startDelayMs": 74188
+   },
+   "storageBefore": {
+    "usageMB": 41.9,
+    "quotaMB": 34335
+   },
+   "storageInstalled": {
+    "usageMB": 69.6,
+    "quotaMB": 34335
+   },
+   "storageAfter": {
+    "usageMB": 57.8,
+    "quotaMB": 34335
+   },
+   "afterRemove": {
+    "id": "kitten-tts-nano-0.8-int8",
+    "installed": false,
+    "bytes": 0,
+    "totalBytes": 27649561,
+    "loaded": false,
+    "loading": false,
+    "installing": false
+   }
+  },
+  "mac-safari": {
+   "build": "dddf03a",
+   "decision": {
+    "offer": true,
+    "candidate": "kitten",
+    "reason": "offer",
+    "stage": 2,
+    "ms": null,
+    "downloadBytes": 27648873
+   },
+   "installMs": 166025,
+   "speak": {
+    "audioSeconds": 7.908333333333333,
+    "synthSeconds": 0.9950199999999996,
+    "realTimeFactor": 7.947913944778333,
+    "firstAudioMs": 466,
+    "chunks": 2,
+    "samples": null
+   },
+   "verdict": {
+    "fastEnough": true,
+    "startDelayMs": 466
+   },
+   "storageBefore": {
+    "usageMB": 1.2,
+    "quotaMB": 82463
+   },
+   "storageAfter": {
+    "usageMB": 9277.7,
+    "quotaMB": 82463
+   },
+   "afterRemove": {
+    "id": "kitten-tts-nano-0.8-int8",
+    "installed": false,
+    "bytes": 0,
+    "totalBytes": 27649561,
+    "loaded": false,
+    "loading": false,
+    "installing": false
+   },
+   "note": "install took 166 s on this network path; the dev-origin storage of this Safari already held about 9 GB from earlier model tests"
+  }
+ }
+}

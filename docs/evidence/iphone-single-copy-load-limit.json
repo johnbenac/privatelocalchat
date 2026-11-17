@@ -1,0 +1,33 @@
+{
+  "build": "4d50add3dd427a0433da88331ad164d9eb4f8f4f",
+  "device": "iPhone 15 Pro",
+  "os": "iOS 26.6.2 (23G90)",
+  "at": "2026-10-30T10:28:42Z",
+  "phase": "first native model construction after complete download",
+  "requestedGpuLayers": 0,
+  "compilerControlWasmSha256": "dbaf064fbeefcae1ab86322a9e52b2fc0de2e52e1f9e00cf72a787ed1f1142fc",
+  "kernel": {
+    "reason": "per-process-limit",
+    "limit": "ActiveHard 2048 MB (fatal)",
+    "reportedKillFootprintKB": 2097155
+  },
+  "precedingWebKitWarning": {
+    "physFootprintMB": 1638,
+    "bmallocDirtyMB": 939,
+    "gigacageDirtyMB": 695,
+    "javascriptGcHeapCapacityMB": 3,
+    "systemVmPressureCritical": false
+  },
+  "lastTelemetry": {
+    "sourceTouchedBytes": 169681696,
+    "sourceReadCount": 298
+  },
+  "promptsDispatched": false,
+  "newCrashReportFound": false,
+  "limitations": [
+    "Warning and kill are different timestamps and accounting scopes.",
+    "Allocation tags do not identify individual owners.",
+    "The kill proves process memory exhaustion, not a specific leaking allocation."
+  ],
+  "nextControl": "Same model and native bytes, full GPU layer profile (-1)."
+}

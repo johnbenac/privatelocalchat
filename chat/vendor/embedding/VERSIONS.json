@@ -1,0 +1,8 @@
+{
+  "transformers": "4.2.0",
+  "transformersLicense": "Apache-2.0",
+  "onnxruntimeWeb": "1.26.0-dev.20260416-b7804b056c",
+  "onnxruntimeLicense": "MIT",
+  "model": "MongoDB/mdbr-leaf-ir",
+  "modelLicense": "Apache-2.0"
+}

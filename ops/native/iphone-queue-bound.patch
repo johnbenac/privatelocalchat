@@ -1,0 +1,79 @@
+--- a/cpp/wllama-build-id.h
++++ b/cpp/wllama-build-id.h
+@@ -1 +1 @@
+-#define WLLAMA_BUILD_ID "privatelocalchat-tail-20261029-v1"
++#define WLLAMA_BUILD_ID "privatelocalchat-queue-20261029-v2"
+--- a/cpp/checkpoint-diagnostics.cpp
++++ b/cpp/checkpoint-diagnostics.cpp
+@@ -19,0 +20,11 @@
++#ifdef __EMSCRIPTEN__
++extern "C" void plc_webgpu_queue_counters(uint64_t *);
++static json plc_queue_snapshot() {
++  uint64_t q[9]; plc_webgpu_queue_counters(q);
++  return {{"graphBatchesSubmitted",q[0]},{"graphBatchesCompleted",q[1]},
++          {"graphBatchesInFlightHighWater",q[2]},{"queueWaits",q[3]},
++          {"queueWaitMicroseconds",q[4]},{"graphEvaluations",q[5]},
++          {"maxInFlightBatches",q[6]},{"commandSubmitBatchSize",q[7]},
++          {"graphBatchesPending",q[8]}};
++}
++#endif
+@@ -271,0 +283,3 @@
++#ifdef __EMSCRIPTEN__
++  receipt["webGpuQueue"] = plc_queue_snapshot();
++#endif
+@@ -284,0 +299,3 @@
++#ifdef __EMSCRIPTEN__
++  snapshot["webGpuQueue"] = plc_queue_snapshot();
++#endif
+--- a/llama.cpp/ggml/src/ggml-webgpu/ggml-webgpu.cpp
++++ b/llama.cpp/ggml/src/ggml-webgpu/ggml-webgpu.cpp
+@@ -447,0 +448,2 @@
++    uint64_t plc_submitted = 0, plc_completed = 0, plc_inflight_peak = 0;
++    uint64_t plc_waits = 0, plc_wait_us = 0, plc_graphs = 0;
+@@ -1268 +1270,3 @@
+-    return UINT32_MAX;
++    const char * value = std::getenv("PLC_WEBGPU_MAX_INFLIGHT");
++    const unsigned limit = value ? (unsigned) std::strtoul(value, nullptr, 10) : 2u;
++    return limit == 0 ? UINT32_MAX : std::min(limit, 64u);
+@@ -1272 +1276,3 @@
+-    return WEBGPU_DEFAULT_COMMAND_SUBMIT_BATCH_SIZE;
++    const char * value = std::getenv("PLC_WEBGPU_SUBMIT_BATCH");
++    const unsigned size = value ? (unsigned) std::strtoul(value, nullptr, 10) : 32u;
++    return std::max(1u, std::min(size, 256u));
+@@ -1275,0 +1282 @@
++    const int64_t plc_wait_start = ggml_time_us();
+@@ -1289,0 +1297,3 @@
++    ctx->plc_completed = ctx->plc_submitted;
++    ctx->plc_waits++;
++    ctx->plc_wait_us += (uint64_t) std::max<int64_t>(0, ggml_time_us() - plc_wait_start);
+@@ -1315 +1325 @@
+-    if (num_inflight_batches >= ctx->global_ctx->max_inflight_batches) {
++    if (ctx->global_ctx->plc_submitted - ctx->global_ctx->plc_completed >= ctx->global_ctx->max_inflight_batches) {
+@@ -1321,0 +1332,3 @@
++    ctx->global_ctx->plc_submitted++;
++    ctx->global_ctx->plc_inflight_peak = std::max(ctx->global_ctx->plc_inflight_peak,
++        ctx->global_ctx->plc_submitted - ctx->global_ctx->plc_completed);
+@@ -4400,0 +4414,10 @@
++    }
++
++    ctx->global_ctx->plc_graphs++;
++    if (ctx->global_ctx->max_inflight_batches != UINT32_MAX) {
++        ggml_backend_webgpu_wait_queue(ctx->global_ctx);
++    }
++    if (ctx->global_ctx->plc_graphs % 16 == 0) {
++        speechtest_flight_emit(14, 1, 2, (unsigned) ctx->global_ctx->plc_graphs, 0,
++            (double) ctx->global_ctx->plc_submitted, (double) ctx->global_ctx->plc_completed,
++            (double) ctx->global_ctx->plc_waits, (double) ctx->global_ctx->plc_inflight_peak, 0);
+@@ -5844,0 +5868,12 @@
++
++// Numeric counters cover graph command batches; they are not GPU/process residency.
++extern "C" void plc_webgpu_queue_counters(uint64_t * out) {
++    for (size_t i = 0; i < 9; ++i) out[i] = 0;
++    if (st_flight_last_sync_ctx == nullptr) return;
++    const auto & ctx = *(webgpu_global_context *) st_flight_last_sync_ctx;
++    out[0] = ctx->plc_submitted; out[1] = ctx->plc_completed;
++    out[2] = ctx->plc_inflight_peak; out[3] = ctx->plc_waits;
++    out[4] = ctx->plc_wait_us; out[5] = ctx->plc_graphs;
++    out[6] = ctx->max_inflight_batches; out[7] = ctx->command_submit_batch_size;
++    out[8] = ctx->plc_submitted - ctx->plc_completed;
++}

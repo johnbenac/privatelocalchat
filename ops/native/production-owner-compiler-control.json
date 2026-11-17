@@ -1,0 +1,322 @@
+{
+  "source": {
+    "file": "compat.wasm",
+    "sha256": "065354247ab2a35b58cdfc909bfcf66367b715bee53a0e72856be89ddc235aaa",
+    "bytes": 14417422
+  },
+  "output": {
+    "file": "compat.wasm",
+    "sha256": "e7aa8820a87ad1bdf262fc5d3f2f65978b4de81d9c118287b1506d1450b3369a",
+    "bytes": 20661345
+  },
+  "paddedBodyBytes": 160000,
+  "changes": [
+    {
+      "function": 7527,
+      "definedFunction": 7341,
+      "beforeBytes": 97921,
+      "afterBytes": 160000
+    },
+    {
+      "function": 4926,
+      "definedFunction": 4740,
+      "beforeBytes": 86171,
+      "afterBytes": 160000
+    },
+    {
+      "function": 5061,
+      "definedFunction": 4875,
+      "beforeBytes": 79833,
+      "afterBytes": 160000
+    },
+    {
+      "function": 604,
+      "definedFunction": 418,
+      "beforeBytes": 76915,
+      "afterBytes": 160000
+    },
+    {
+      "function": 6891,
+      "definedFunction": 6705,
+      "beforeBytes": 74934,
+      "afterBytes": 160000
+    },
+    {
+      "function": 5407,
+      "definedFunction": 5221,
+      "beforeBytes": 69897,
+      "afterBytes": 160000
+    },
+    {
+      "function": 7707,
+      "definedFunction": 7521,
+      "beforeBytes": 65286,
+      "afterBytes": 160000
+    },
+    {
+      "function": 4974,
+      "definedFunction": 4788,
+      "beforeBytes": 57467,
+      "afterBytes": 160000
+    },
+    {
+      "function": 6177,
+      "definedFunction": 5991,
+      "beforeBytes": 57319,
+      "afterBytes": 160000
+    },
+    {
+      "function": 1535,
+      "definedFunction": 1349,
+      "beforeBytes": 57215,
+      "afterBytes": 160000
+    },
+    {
+      "function": 6238,
+      "definedFunction": 6052,
+      "beforeBytes": 48872,
+      "afterBytes": 160000
+    },
+    {
+      "function": 7585,
+      "definedFunction": 7399,
+      "beforeBytes": 47372,
+      "afterBytes": 160000
+    },
+    {
+      "function": 3531,
+      "definedFunction": 3345,
+      "beforeBytes": 46780,
+      "afterBytes": 160000
+    },
+    {
+      "function": 6175,
+      "definedFunction": 5989,
+      "beforeBytes": 44900,
+      "afterBytes": 160000
+    },
+    {
+      "function": 6821,
+      "definedFunction": 6635,
+      "beforeBytes": 40169,
+      "afterBytes": 160000
+    },
+    {
+      "function": 7433,
+      "definedFunction": 7247,
+      "beforeBytes": 37359,
+      "afterBytes": 160000
+    },
+    {
+      "function": 2531,
+      "definedFunction": 2345,
+      "beforeBytes": 37137,
+      "afterBytes": 160000
+    },
+    {
+      "function": 2074,
+      "definedFunction": 1888,
+      "beforeBytes": 37105,
+      "afterBytes": 160000
+    },
+    {
+      "function": 2715,
+      "definedFunction": 2529,
+      "beforeBytes": 36202,
+      "afterBytes": 160000
+    },
+    {
+      "function": 1978,
+      "definedFunction": 1792,
+      "beforeBytes": 35023,
+      "afterBytes": 160000
+    },
+    {
+      "function": 1491,
+      "definedFunction": 1305,
+      "beforeBytes": 33791,
+      "afterBytes": 160000
+    },
+    {
+      "function": 7538,
+      "definedFunction": 7352,
+      "beforeBytes": 32778,
+      "afterBytes": 160000
+    },
+    {
+      "function": 5870,
+      "definedFunction": 5684,
+      "beforeBytes": 32715,
+      "afterBytes": 160000
+    },
+    {
+      "function": 6845,
+      "definedFunction": 6659,
+      "beforeBytes": 31635,
+      "afterBytes": 160000
+    },
+    {
+      "function": 2059,
+      "definedFunction": 1873,
+      "beforeBytes": 30886,
+      "afterBytes": 160000
+    },
+    {
+      "function": 6690,
+      "definedFunction": 6504,
+      "beforeBytes": 30018,
+      "afterBytes": 160000
+    },
+    {
+      "function": 5234,
+      "definedFunction": 5048,
+      "beforeBytes": 29554,
+      "afterBytes": 160000
+    },
+    {
+      "function": 6825,
+      "definedFunction": 6639,
+      "beforeBytes": 29549,
+      "afterBytes": 160000
+    },
+    {
+      "function": 7108,
+      "definedFunction": 6922,
+      "beforeBytes": 29236,
+      "afterBytes": 160000
+    },
+    {
+      "function": 6468,
+      "definedFunction": 6282,
+      "beforeBytes": 26254,
+      "afterBytes": 160000
+    },
+    {
+      "function": 7710,
+      "definedFunction": 7524,
+      "beforeBytes": 26127,
+      "afterBytes": 160000
+    },
+    {
+      "function": 6819,
+      "definedFunction": 6633,
+      "beforeBytes": 25784,
+      "afterBytes": 160000
+    },
+    {
+      "function": 7503,
+      "definedFunction": 7317,
+      "beforeBytes": 25673,
+      "afterBytes": 160000
+    },
+    {
+      "function": 4154,
+      "definedFunction": 3968,
+      "beforeBytes": 25662,
+      "afterBytes": 160000
+    },
+    {
+      "function": 7559,
+      "definedFunction": 7373,
+      "beforeBytes": 25122,
+      "afterBytes": 160000
+    },
+    {
+      "function": 3521,
+      "definedFunction": 3335,
+      "beforeBytes": 25055,
+      "afterBytes": 160000
+    },
+    {
+      "function": 1967,
+      "definedFunction": 1781,
+      "beforeBytes": 24566,
+      "afterBytes": 160000
+    },
+    {
+      "function": 6124,
+      "definedFunction": 5938,
+      "beforeBytes": 23641,
+      "afterBytes": 160000
+    },
+    {
+      "function": 471,
+      "definedFunction": 285,
+      "beforeBytes": 23171,
+      "afterBytes": 160000
+    },
+    {
+      "function": 6817,
+      "definedFunction": 6631,
+      "beforeBytes": 22660,
+      "afterBytes": 160000
+    },
+    {
+      "function": 7554,
+      "definedFunction": 7368,
+      "beforeBytes": 22625,
+      "afterBytes": 160000
+    },
+    {
+      "function": 6818,
+      "definedFunction": 6632,
+      "beforeBytes": 21750,
+      "afterBytes": 160000
+    },
+    {
+      "function": 1421,
+      "definedFunction": 1235,
+      "beforeBytes": 20884,
+      "afterBytes": 160000
+    },
+    {
+      "function": 4449,
+      "definedFunction": 4263,
+      "beforeBytes": 20877,
+      "afterBytes": 160000
+    },
+    {
+      "function": 7455,
+      "definedFunction": 7269,
+      "beforeBytes": 20691,
+      "afterBytes": 160000
+    },
+    {
+      "function": 4950,
+      "definedFunction": 4764,
+      "beforeBytes": 20447,
+      "afterBytes": 160000
+    },
+    {
+      "function": 7716,
+      "definedFunction": 7530,
+      "beforeBytes": 20324,
+      "afterBytes": 160000
+    },
+    {
+      "function": 4102,
+      "definedFunction": 3916,
+      "beforeBytes": 20297,
+      "afterBytes": 160000
+    },
+    {
+      "function": 7555,
+      "definedFunction": 7369,
+      "beforeBytes": 20297,
+      "afterBytes": 160000
+    },
+    {
+      "function": 7556,
+      "definedFunction": 7370,
+      "beforeBytes": 20086,
+      "afterBytes": 160000
+    },
+    {
+      "function": 6657,
+      "definedFunction": 6471,
+      "beforeBytes": 20045,
+      "afterBytes": 160000
+    }
+  ],
+  "validation": "WebAssembly.validate is true and imports and exports are unchanged (checked in Node)"
+}

@@ -1,0 +1,142 @@
+{
+  "origin": "https://privatelocal.chat",
+  "startedAt": "2026-10-29T16:29:14.210Z",
+  "steps": [
+    {
+      "name": "live startup",
+      "at": "2026-10-29T16:29:19.253Z",
+      "build": {
+        "version": "2.0.0",
+        "commit": "f21d4ec9c9bd0690e539e99e1c16b39921310186",
+        "branch": "main",
+        "environment": "production",
+        "builtAt": "2026-10-29T16:24:10.368Z"
+      },
+      "state": {
+        "selection": {
+          "tier": "light",
+          "chosenBy": "default",
+          "reason": "The smaller Qwen3.5-2B model is the starting choice. Select the quality model if this device supports it.",
+          "at": null
+        },
+        "storage": {
+          "usage": 156,
+          "quota": 10737418396,
+          "persisted": false,
+          "error": null,
+          "at": 1793291359068
+        }
+      }
+    },
+    {
+      "name": "download interruption",
+      "at": "2026-10-29T16:30:01.479Z",
+      "interrupted": true,
+      "inventory": {
+        "state": "partial",
+        "ok": false,
+        "files": 13,
+        "okFiles": 1,
+        "missing": 12,
+        "bad": [],
+        "bytesPresent": 428120416,
+        "bytesTotal": 1202488640,
+        "deep": false,
+        "ms": 2,
+        "where": "OPFS (wllama cache)",
+        "checkedAt": 1793291400490
+      }
+    },
+    {
+      "name": "resumed download",
+      "at": "2026-10-29T16:31:22.711Z",
+      "inventory": {
+        "state": "complete",
+        "ok": true,
+        "files": 13,
+        "okFiles": 13,
+        "missing": 0,
+        "bad": [],
+        "bytesPresent": 1202488640,
+        "bytesTotal": 1202488640,
+        "deep": false,
+        "ms": 27,
+        "where": "OPFS (wllama cache)",
+        "checkedAt": 1793291481910
+      },
+      "lastInstall": {
+        "fetchedBytes": 774368224,
+        "keptBytes": 428120416,
+        "replaced": [],
+        "at": 1793291481910
+      }
+    },
+    {
+      "name": "real model loaded",
+      "at": "2026-10-29T16:31:28.745Z",
+      "load": {
+        "state": "ready",
+        "tier": "light",
+        "loadAttempt": 1,
+        "progress": null,
+        "lastError": null,
+        "loadedAt": 1793291487748,
+        "loadMs": 5028,
+        "info": {
+          "modelId": "qwen3.5-2b-q4_0",
+          "runtime": "wllama/retained-v1q-chat-stable-slim-20260901/compat",
+          "adapter": "wllama",
+          "loadAttempt": 1,
+          "loadMs": 5028,
+          "timings": {
+            "cacheCheckMs": 18,
+            "stagedFrom": "cache",
+            "stagedBytes": 1202488640,
+            "constructMs": 4941
+          },
+          "capabilities": {
+            "kind": "local-webgpu",
+            "structuredEnforced": [],
+            "structuredValidated": [
+              "json-schema",
+              "json-object"
+            ],
+            "structuredEnforcement": {
+              "json_schema": "validated",
+              "json_object": "validated"
+            },
+            "quantization": "Q4_0",
+            "license": "Apache-2.0",
+            "runtimeName": "wllama",
+            "runtimeVersion": "retained-v1q-chat-stable-slim-20260901",
+            "contextWindowTokens": 4096,
+            "maxOutputTokens": 1024
+          }
+        }
+      }
+    },
+    {
+      "name": "online generation",
+      "at": "2026-10-29T16:31:29.554Z",
+      "reply": "Reply with one short sentence: what is two plus three?\nTwo plus three equals five."
+    },
+    {
+      "name": "offline shell ready",
+      "at": "2026-10-29T16:31:29.558Z",
+      "status": "Offline app ready. Downloaded models can be loaded without a connection."
+    },
+    {
+      "name": "offline generation",
+      "at": "2026-10-29T16:31:29.903Z",
+      "reply": "Reply with one short sentence: what is two plus three?\nTwo plus three equals five.\nSay one brief hello.\nHello!"
+    },
+    {
+      "name": "offline reopen and generation",
+      "at": "2026-10-29T16:31:38.620Z",
+      "reply": "Reply with one short sentence: what is two plus three?\nTwo plus three equals five.\nSay one brief hello.\nHello!\nIn one short sentence, say that you are ready.\nI am ready.",
+      "unexpectedRequests": []
+    }
+  ],
+  "errors": [],
+  "unexpectedRequests": []
+}

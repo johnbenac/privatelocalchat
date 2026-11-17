@@ -1,0 +1,13 @@
+image: alpine:3.19
+
+pages:
+  stage: deploy
+  script:
+    - mkdir -p public
+    - cp index.html public/index.html
+    - cp LICENSE public/LICENSE || true
+  artifacts:
+    paths:
+      - public
+  only:
+    - main

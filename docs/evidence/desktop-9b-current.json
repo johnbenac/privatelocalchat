@@ -1,0 +1,16 @@
+{
+  "site": "https://dev.privatelocal.chat",
+  "commit": "2013b4076107f40b9889783211b64adaa9ee249a",
+  "model": "Qwen3.5-9B-q4f32_1-MLC",
+  "steps": [
+    "live startup",
+    "real model loaded",
+    "online generation",
+    "offline shell ready",
+    "offline generation",
+    "offline full browser reopen and generation"
+  ],
+  "errors": [],
+  "unexpectedRequests": [],
+  "environment": "desktop-environment.json"
+}

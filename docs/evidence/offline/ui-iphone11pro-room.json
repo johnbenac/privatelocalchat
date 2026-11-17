@@ -1,0 +1,45 @@
+{
+ "device": "iPhone 11 Pro, Safari on iOS 18.6.2",
+ "build": "2c4893b (dev)",
+ "facts": {
+  "quotaMB": 1049,
+  "summary": "Not ready for offline use yet: chat model still to save.",
+  "li": [
+   {
+    "id": "app",
+    "state": "ready",
+    "detail": "Saved on this device.",
+    "btn": false
+   },
+   {
+    "id": "model",
+    "state": "missing",
+    "detail": "Qwen3.5-2B (light) needs 1.2 GB, but this browser will only let this site save about 1.0 GB more. It may not fit on this device: try a smaller model in Settings > Models, or use a connected provider.",
+    "btn": false
+   },
+   {
+    "id": "voice",
+    "state": "ready",
+    "detail": "Your device\u2019s own voice works offline.",
+    "btn": false
+   },
+   {
+    "id": "matching",
+    "state": "partial",
+    "detail": "Not downloaded. Search still finds exact words offline.",
+    "btn": true
+   },
+   {
+    "id": "storage",
+    "state": "partial",
+    "detail": "The browser may delete saved models when it needs space.",
+    "btn": true
+   }
+  ]
+ },
+ "conclusions": [
+  "the browser allows about 1.0 GB for this site; the checklist says the 1.2 GB model may not fit and offers no download that cannot finish",
+  "the matching model has its own optional line saying search still finds exact words",
+  "screenshot: screens/iphone11-offline-room.png"
+ ]
+}

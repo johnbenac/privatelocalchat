@@ -1,0 +1,143 @@
+{
+  "recordedAt": "2026-10-30",
+  "build": "247cf3249c5d02fcafa65eba26044c51a15db0ae",
+  "device": "iPhone 15 Pro",
+  "os": "iOS 26.6.2 (23G90)",
+  "browser": "USB Safari automation",
+  "changedVariable": "Requested GPU layers 0 to -1. App-source differences from CPU trial are ops/docs only; model and compiler-control Wasm fixed.",
+  "wasmSha256": "dbaf064fbeefcae1ab86322a9e52b2fc0de2e52e1f9e00cf72a787ed1f1142fc",
+  "context": {
+    "n_ctx": 4096,
+    "n_batch": 128,
+    "n_ubatch": 32,
+    "flash_attn_policy": -1,
+    "fused_gdn_auto": true,
+    "fused_gdn_ar": true,
+    "fused_gdn_ch": true,
+    "sched_max_splits_hint": 128,
+    "ctx_checkpoints": 1,
+    "checkpoint_every_n_tokens": 64,
+    "checkpoint_clear_policy": "replace-on-reset-and-terminate",
+    "n_gpu_layers": -1
+  },
+  "loadStarts": 1,
+  "loadCompletions": 1,
+  "samePageThroughout": true,
+  "completeObjects": 2243,
+  "incompleteObjects": 0,
+  "turns": [
+    {
+      "nativeTokens": 7,
+      "streamObjects": 8,
+      "characters": 24,
+      "exactStreamMatch": true,
+      "finishReason": "stop"
+    },
+    {
+      "nativeTokens": 512,
+      "streamObjects": 514,
+      "characters": 1842,
+      "exactStreamMatch": true,
+      "finishReason": "length"
+    },
+    {
+      "nativeTokens": 9,
+      "streamObjects": 10,
+      "characters": 18,
+      "exactStreamMatch": true,
+      "finishReason": "stop"
+    },
+    {
+      "nativeTokens": 9,
+      "streamObjects": 10,
+      "characters": 18,
+      "exactStreamMatch": true,
+      "finishReason": "stop"
+    },
+    {
+      "nativeTokens": 9,
+      "streamObjects": 10,
+      "characters": 18,
+      "exactStreamMatch": true,
+      "finishReason": "stop"
+    },
+    {
+      "nativeTokens": 9,
+      "streamObjects": 10,
+      "characters": 18,
+      "exactStreamMatch": true,
+      "finishReason": "stop"
+    },
+    {
+      "nativeTokens": 9,
+      "streamObjects": 10,
+      "characters": 18,
+      "exactStreamMatch": true,
+      "finishReason": "stop"
+    },
+    {
+      "nativeTokens": 10,
+      "streamObjects": 11,
+      "characters": 19,
+      "exactStreamMatch": true,
+      "finishReason": "stop"
+    },
+    {
+      "nativeTokens": 10,
+      "streamObjects": 11,
+      "characters": 19,
+      "exactStreamMatch": true,
+      "finishReason": "stop"
+    },
+    {
+      "nativeTokens": 512,
+      "streamObjects": 514,
+      "characters": 2462,
+      "exactStreamMatch": true,
+      "finishReason": "length"
+    },
+    {
+      "nativeTokens": 512,
+      "streamObjects": 514,
+      "characters": 2536,
+      "exactStreamMatch": true,
+      "finishReason": "length"
+    },
+    {
+      "nativeTokens": 427,
+      "streamObjects": 428,
+      "characters": 2243,
+      "exactStreamMatch": true,
+      "finishReason": "stop"
+    }
+  ],
+  "nativeLast": {
+    "wasmCapacityBytes": 134217728,
+    "sourceFiles": 0,
+    "lateSourceReads": 0,
+    "checkpointHighWaterBytes": 20201932,
+    "graphBatchesPending": 0,
+    "graphBatchesInFlightHighWater": 2
+  },
+  "canary": {
+    "bytes": 67108864,
+    "randomized": true,
+    "contentsVerified": true,
+    "heldMs": 150699,
+    "released": true
+  },
+  "cancellation": {
+    "streamObservedBeforeStop": true,
+    "stopCommandCompleted": true,
+    "subsequentReplyCompleted": true,
+    "abortedNativeTokens": 57
+  },
+  "modelUnloadedAfterTrial": true,
+  "limitations": [
+    "Warning footprint samples are not a measured worst-case peak or proof of an absolute memory margin.",
+    "The extra 64 MiB probe is a bounded stress observation, not an acceptance threshold.",
+    "Offline navigation/reopen and the clean production compiler artifact remain to be qualified on the device.",
+    "This physical trial predates the bounded checksum change.",
+    "A fresh automation session uses isolated storage and cannot qualify ordinary Safari persistence across browser sessions."
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "at": "2026-10-29T16:46:04.536Z",
+  "commit": "296a432bbb878e85311db0bfd1545bea9a063abf",
+  "cancelledDuringStreaming": true,
+  "nextGenerationCompleted": true,
+  "reply": "List the integers from 1 to 1000, one per line.\nReply with one word: hello.\n1\n2\n3\n...\n1000"
+}

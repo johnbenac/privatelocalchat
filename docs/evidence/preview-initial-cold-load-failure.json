@@ -1,0 +1,12 @@
+{
+  "at": "2026-10-30T11:52:23Z",
+  "commit": "e3f952086dcd92a396710f5c89f9bad3267baa13",
+  "url": "https://cb3639ba.privatelocalchat.pages.dev",
+  "surface": "Fresh Chromium/Vulkan desktop profile",
+  "phase": "automatic loading after fresh CDN download",
+  "observedLoadState": "faulted",
+  "detailedErrorCaptured": false,
+  "initialHarnessCleanupRemovedTemporaryProfile": true,
+  "interpretation": "Unexplained initial deployed cold-load failure; a later successful attempt would not explain it.",
+  "followUp": "Preserve complete load errors, request failures and page state in the corrected harness before cleanup."
+}

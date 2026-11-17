@@ -1,0 +1,118 @@
+{
+ "origin": "http://127.0.0.1:18341",
+ "build": "main",
+ "startedAt": "2026-11-04T00:14:48.866Z",
+ "checks": [
+  {
+   "name": "A: the app is saved for offline use",
+   "ok": true,
+   "must": true,
+   "detail": "Offline app ready. Downloaded models can be loaded without a connection."
+  },
+  {
+   "name": "A: a real reply from the downloaded model",
+   "ok": true,
+   "must": true,
+   "detail": "175 s: AI response\n\nThe zebra-lantern-mw1d7c2q is a unique identifier found in the system logs.\n\nqwen3.5-2b-q4_0 · on this device\nCopy\nRegenerate\nListen\nVoice note"
+  },
+  {
+   "name": "A: the model is installed",
+   "ok": true,
+   "must": true,
+   "detail": "light"
+  },
+  {
+   "name": "A: the model runtime files are saved by the service worker",
+   "ok": true,
+   "must": false,
+   "detail": "{\"files\":172,\"bulk\":8}"
+  },
+  {
+   "name": "B: the app opens cold with no connection",
+   "ok": true,
+   "must": true,
+   "detail": ""
+  },
+  {
+   "name": "B: no failure banner and the page finished starting",
+   "ok": true,
+   "must": true,
+   "detail": ""
+  },
+  {
+   "name": "B: the earlier conversation is still there",
+   "ok": true,
+   "must": true,
+   "detail": ""
+  },
+  {
+   "name": "B: the model is still installed",
+   "ok": true,
+   "must": true,
+   "detail": "light"
+  },
+  {
+   "name": "B: a real reply from the model with no connection",
+   "ok": true,
+   "must": true,
+   "detail": "AI response\n\nTwo plus three equals five.\n\nqwen3.5-2b-q4_0 · on this device\nCopy\nRegenerate\nListen\nVoice note"
+  },
+  {
+   "name": "B: search finds the earlier conversation by its words",
+   "ok": true,
+   "must": true,
+   "detail": "0 s: Reply with one short sentence that includes the… Nov 3"
+  },
+  {
+   "name": "B: Help opens its own page",
+   "ok": true,
+   "must": true,
+   "detail": ""
+  },
+  {
+   "name": "B: the browser reports offline",
+   "ok": true,
+   "must": true,
+   "detail": ""
+  },
+  {
+   "name": "B: the connection pill says Offline, and that on-device chat still works",
+   "ok": true,
+   "must": true,
+   "detail": ""
+  },
+  {
+   "name": "B: Settings says this device is ready for offline use",
+   "ok": true,
+   "must": true,
+   "detail": "{\"app\":\"ready\",\"model\":\"ready\",\"runtime\":\"ready\",\"voice\":\"ready\",\"storage\":\"partial\"}"
+  },
+  {
+   "name": "B: no file of the app itself failed to load",
+   "ok": true,
+   "must": true,
+   "detail": ""
+  },
+  {
+   "name": "B: nothing outside this app was reached except the optional matching model",
+   "ok": true,
+   "must": true,
+   "detail": ""
+  },
+  {
+   "name": "C: back online, the app opens and still has the conversation",
+   "ok": true,
+   "must": true,
+   "detail": ""
+  }
+ ],
+ "requests": {
+  "failedOffline": [
+   "foreign /models/memory/79cbff1e617b319a/embed/tokenizer_config.json net::ERR_INTERNET_DISCONNECTED"
+  ],
+  "foreign": [
+   "https://assets.privatelocal.chat/models/memory/79cbff1e617b319a/embed/tokenizer_config.json"
+  ]
+ },
+ "finishedAt": "2026-11-04T00:19:29.581Z"
+}

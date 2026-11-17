@@ -1,0 +1,22 @@
+name: Publish CDN assets
+# Uploads the pinned small search-model set to assets.privatelocal.chat (docs/CDN-POPULATION.md). Idempotent: identical objects are kept,
+# different ones are refused. Needs a Cloudflare token that can write to the R2 bucket; the run fails with a clear error if it cannot.
+on:
+  workflow_dispatch:
+  push:
+    branches: [claude/lucid-tesla-qhjgmk]
+    paths: ['.github/workflows/publish-cdn-assets.yml']
+permissions:
+  contents: read
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install boto3
+      - name: Dry run (download and verify every hash)
+        run: python3 ops/cloudflare/publish-embedding.py --dry-run
+      - name: Publish and verify over the public URL
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: python3 ops/cloudflare/publish-embedding.py

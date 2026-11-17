@@ -1,0 +1,110 @@
+{
+  "origin": "https://dev.privatelocal.chat",
+  "startedAt": "2026-10-29T15:38:45.706Z",
+  "steps": [
+    {
+      "name": "live startup",
+      "at": "2026-10-29T15:38:52.062Z",
+      "build": {
+        "version": "2.0.0",
+        "commit": "5323b11521c7d520b60adc846b2bd9115837a735",
+        "branch": "dev",
+        "environment": "development",
+        "builtAt": "2026-10-29T15:38:08.214Z"
+      },
+      "state": {
+        "selection": {
+          "tier": "default",
+          "chosenBy": "human",
+          "at": 1793287684527,
+          "reason": "Quality tier, chosen by you on 10/29/2026, 11:28:04 AM."
+        },
+        "storage": {
+          "usage": 1732324626,
+          "quota": 12469742866,
+          "persisted": false,
+          "error": null,
+          "at": 1793288331331
+        }
+      }
+    },
+    {
+      "name": "download complete",
+      "at": "2026-10-29T15:46:21.422Z",
+      "inventory": {
+        "state": "complete",
+        "ok": true,
+        "files": 131,
+        "okFiles": 131,
+        "missing": 0,
+        "bad": [],
+        "bytesPresent": 5058447543,
+        "bytesTotal": 5058447543,
+        "deep": false,
+        "ms": 3165,
+        "where": "Cache API: webllm/model, webllm/config, webllm/wasm",
+        "checkedAt": 1793288780633
+      }
+    },
+    {
+      "name": "real model loaded",
+      "at": "2026-10-29T15:46:39.521Z",
+      "load": {
+        "state": "ready",
+        "tier": "default",
+        "loadAttempt": 1,
+        "progress": null,
+        "lastError": null,
+        "loadedAt": 1793288798914,
+        "loadMs": 17467,
+        "info": {
+          "modelId": "Qwen3.5-9B-q4f32_1-MLC",
+          "runtime": "web-llm/0.2.86",
+          "adapter": "webllm",
+          "loadAttempt": 1,
+          "loadMs": 17466,
+          "timings": {
+            "cacheCheckMs": 3234,
+            "reloadMs": 14127,
+            "firstProgressMs": 968
+          },
+          "capabilities": {
+            "kind": "local-webgpu",
+            "structuredEnforced": [
+              "json-schema"
+            ],
+            "structuredValidated": [],
+            "structuredEnforcement": {
+              "json_schema": "grammar",
+              "json_object": "grammar"
+            },
+            "quantization": "q4f32_1",
+            "license": "Apache-2.0",
+            "runtimeName": "web-llm",
+            "runtimeVersion": "0.2.86",
+            "contextWindowTokens": 4096,
+            "maxOutputTokens": 1024
+          }
+        }
+      }
+    },
+    {
+      "name": "online generation",
+      "at": "2026-10-29T15:46:47.928Z",
+      "reply": "Reply with one short sentence: what is two plus three?\nTwo plus three equals five."
+    },
+    {
+      "name": "offline generation",
+      "at": "2026-10-29T15:46:48.561Z",
+      "reply": "Reply with one short sentence: what is two plus three?\nTwo plus three equals five.\nSay one brief hello.\nHello!"
+    },
+    {
+      "name": "offline reopen and generation",
+      "at": "2026-10-29T15:47:16.542Z",
+      "reply": "Reply with one short sentence: what is two plus three?\nTwo plus three equals five.\nSay one brief hello.\nHello!\nIn one short sentence, say that you are ready.\nI am ready.",
+      "unexpectedRequests": []
+    }
+  ],
+  "errors": [],
+  "unexpectedRequests": []
+}

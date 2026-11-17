@@ -1,0 +1,55 @@
+{
+ "device": "iPhone 11 Pro, Safari on iOS 18.6.2",
+ "build": "d9538cb (dev)",
+ "method": "owned USB Safari automation context; the dev-only service-worker network switch denied every request that is not a saved file (radios stayed on)",
+ "facts": {
+  "online": {
+   "files": 173,
+   "bulk": 8,
+   "hasMd": true,
+   "persisted": false,
+   "quotaMB": 1049,
+   "usageMB": 40,
+   "standalone": false
+  },
+  "fault_on": {
+   "enabled": true,
+   "scope": "service-worker network denial; radios unchanged"
+  },
+  "offline": {
+   "booted": true,
+   "probe": "kept",
+   "input": true,
+   "controlled": true,
+   "banner": false,
+   "status": "Offline app ready. Downloaded models can be loaded without a connection.",
+   "fetchFails": null
+  },
+  "fetch_probe": {
+   "/version.json": "status 200",
+   "https://assets.privatelocal.chat/": "failed"
+  },
+  "help": {
+   "h1": null,
+   "isApp": true
+  },
+  "search": {
+   "settings": true,
+   "booted": true
+  },
+  "fault_off": {
+   "enabled": false,
+   "scope": "service-worker network denial; radios unchanged"
+  },
+  "back": "status 200"
+ },
+ "conclusions": [
+  "the saved app opens cold with the network denied, keeps local data and still reports \"Offline app ready\"",
+  "cross-origin requests (the model CDN) fail as expected while denied",
+  "the noble-hashes _md.js file is saved (173 files, 8 of them model runtime)",
+  "Safari does not grant persistent storage (persisted=false)",
+  "the browser quota on this phone is about 1 GB, less than the small model's download, which the offline checklist should state",
+  "/help offline showed the app shell: a limit of the dev-only switch (it always served /index.html for navigations); the switch now looks up the page like production does, so this is re-checked on the next device run",
+  "the iPhone 15 Pro is attached to Boiler but not listed by its USB multiplexer; it needs a replug or unlock before it can be used"
+ ]
+}

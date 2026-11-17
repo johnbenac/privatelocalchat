@@ -1,0 +1,34 @@
+{
+  "build": "436f001a018b78360030c4218b6c5babbe28b8d2",
+  "device": "iPhone 15 Pro",
+  "os": "iOS 26.6.2 (23G90)",
+  "phase": "second prompt after fresh page, deep checksum verification and model load",
+  "checksum": {
+    "verifiedBytes": 1202488640,
+    "files": 13,
+    "hashMismatch": [],
+    "durationMs": 8545,
+    "newModelDownload": false
+  },
+  "defaultGpuLayers": -1,
+  "firstReplyCompleted": true,
+  "kernel": {
+    "at": "2026-10-30T11:00:34Z",
+    "limit": "ActiveHard 2048 MB (fatal)",
+    "reason": "per-process-limit",
+    "reportedKillFootprintKB": 2097154
+  },
+  "processReuse": {
+    "sameWebContentProcessAsPriorRetainedTrial": true,
+    "previousTrialHadExplicitUnloadAndHostRestart": true,
+    "nativeShutdownProtocolBeforeTermination": false
+  },
+  "controllerStoppedWithoutRepeatingLoad": true,
+  "ownedAutomationSessionClosedAfterFailedRecovery": true,
+  "interpretation": "Full GPU placement alone is insufficient for repeat lifecycle qualification. Native teardown and process-resident allocations require investigation.",
+  "nextControl": "Request bounded native cleanup before owned-worker termination, then repeat load/unload/navigation cycles.",
+  "limitations": [
+    "Checksum completion does not establish low total browser memory.",
+    "The role of native cleanup in the kill is a hypothesis until a matched test."
+  ]
+}

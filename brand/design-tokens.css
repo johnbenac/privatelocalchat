@@ -1,0 +1,81 @@
+/* PrivateLocal.Chat visual tokens. No external fonts or dependencies. */
+:root, [data-theme="light"] {
+  --plc-background: #F6F8FB;
+  --plc-surface: #FFFFFF;
+  --plc-ink: #182332;
+  --plc-muted: #526174;
+  --plc-accent: #285BD4;
+  --plc-accent-hover: #1C45AD;
+  --plc-accent-tint: #EAF0FF;
+  --plc-border: #D6DEE8;
+  --plc-success: #21664A;
+  --plc-success-tint: #E8F5EC;
+  --plc-warning: #805100;
+  --plc-warning-tint: #FFF4D6;
+  --plc-danger: #AA3038;
+  --plc-danger-tint: #FFF0F1;
+  --plc-on-accent: #FFFFFF;
+  --plc-focus: #285BD4;
+  --plc-font: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --plc-space-1: 0.25rem;
+  --plc-space-2: 0.5rem;
+  --plc-space-3: 0.75rem;
+  --plc-space-4: 1rem;
+  --plc-space-6: 1.5rem;
+  --plc-space-8: 2rem;
+  --plc-space-12: 3rem;
+  --plc-space-16: 4rem;
+  --plc-space-24: 6rem;
+  --plc-radius-control: 0.625rem;
+  --plc-radius-panel: 1rem;
+  --plc-content-max: 72rem;
+  --plc-chat-max: 48rem;
+  --plc-control-min: 2.75rem;
+  --plc-motion-fast: 120ms;
+  --plc-motion-normal: 180ms;
+  --plc-ease: cubic-bezier(.2,.7,.2,1);
+  color-scheme: light;
+}
+[data-theme="dark"] {
+  --plc-background: #101820;
+  --plc-surface: #172330;
+  --plc-ink: #EAF0F7;
+  --plc-muted: #AAB8C7;
+  --plc-accent: #91B5FF;
+  --plc-accent-hover: #B4CCFF;
+  --plc-accent-tint: #233652;
+  --plc-border: #33465C;
+  --plc-success: #92D7AF;
+  --plc-success-tint: #1B392D;
+  --plc-warning: #F3CF83;
+  --plc-warning-tint: #3C321C;
+  --plc-danger: #FFAFB4;
+  --plc-danger-tint: #40262D;
+  --plc-on-accent: #101820;
+  --plc-focus: #91B5FF;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --plc-background: #101820;
+    --plc-surface: #172330;
+    --plc-ink: #EAF0F7;
+    --plc-muted: #AAB8C7;
+    --plc-accent: #91B5FF;
+    --plc-accent-hover: #B4CCFF;
+    --plc-accent-tint: #233652;
+    --plc-border: #33465C;
+    --plc-success: #92D7AF;
+    --plc-success-tint: #1B392D;
+    --plc-warning: #F3CF83;
+    --plc-warning-tint: #3C321C;
+    --plc-danger: #FFAFB4;
+    --plc-danger-tint: #40262D;
+    --plc-on-accent: #101820;
+    --plc-focus: #91B5FF;
+    color-scheme: dark;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root { --plc-motion-fast: 0ms; --plc-motion-normal: 0ms; }
+}

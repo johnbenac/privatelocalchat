@@ -1,0 +1,51 @@
+{
+  "recordedAt": "2026-10-30",
+  "surface": "Real Chromium/Vulkan, NVIDIA GeForce RTX 5060 Ti, dedicated QA browser profile",
+  "sourceBaseCommit": "436f001a018b78360030c4218b6c5babbe28b8d2",
+  "candidateSourceSha256": "7320c20a974b4009c711fd5b531d248c8b31b2cbd94f6447ca114e74d426b2ef",
+  "wasmSha256": "dbaf064fbeefcae1ab86322a9e52b2fc0de2e52e1f9e00cf72a787ed1f1142fc",
+  "nativeAndVendoredWrapperBytesChanged": false,
+  "policy": {
+    "request": "wllama.exit",
+    "timeoutMs": 3000,
+    "terminateOwnedWorkerAfterward": true,
+    "externalWorkerOwnershipRetained": true
+  },
+  "records": [
+    {
+      "cycle": 1,
+      "terminalType": "attempt-completed",
+      "nativeTokens": 512,
+      "cleanup": {
+        "nativeExit": "acknowledged",
+        "nativeExitMs": 15
+      },
+      "after": "unloaded"
+    },
+    {
+      "cycle": 2,
+      "terminalType": "attempt-completed",
+      "nativeTokens": 512,
+      "cleanup": {
+        "nativeExit": "acknowledged",
+        "nativeExitMs": 14
+      },
+      "after": "unloaded"
+    },
+    {
+      "cycle": 3,
+      "terminalType": "attempt-completed",
+      "nativeTokens": 512,
+      "cleanup": {
+        "nativeExit": "acknowledged",
+        "nativeExitMs": 12
+      },
+      "after": "unloaded"
+    }
+  ],
+  "errors": [],
+  "limitations": [
+    "Desktop protocol and repeated-cycle proof only; physical lifecycle and footprint comparison remain pending.",
+    "Acknowledged native cleanup does not prove that all browser or driver allocations have been reclaimed."
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "recordedAt": "2026-10-30",
+  "url": "https://cb3639ba.privatelocalchat.pages.dev",
+  "commit": "e3f952086dcd92a396710f5c89f9bad3267baa13",
+  "freshCdnDownloadBytes": 1202488640,
+  "verifiedFiles": 13,
+  "autoLoadReachedReady": true,
+  "runtime": "wllama/privatelocalchat-queue-production-20261029-v1/compat",
+  "records": [
+    {
+      "label": "short",
+      "nativeTokens": 7,
+      "characters": 24,
+      "textSha256": "4ebcf3e4571f3ad78dfa31bc52e4c07da54e6c12a84ae56b6b3860fe32dde2ff"
+    },
+    {
+      "label": "long",
+      "nativeTokens": 512,
+      "characters": 2538,
+      "textSha256": "c9a1aff033bbe3f7457d7bc38ebc14e72ae3ee9b77d59f0aac767f4539d40009"
+    }
+  ],
+  "observedAbortedWeightRequests": 13,
+  "unexpectedOriginRequestsObserved": false,
+  "modelRemovalVerifiedBytes": 0,
+  "temporaryProfileRemovalVerified": true,
+  "qualification": "Functional fresh-install inference observed; initial load failure remains unexplained.",
+  "limitations": [
+    "The first fresh-load attempt faulted without a preserved detailed error.",
+    "The second attempt completed generation and model removal; a strict request-error assertion failed on 13 net::ERR_ABORTED observations.",
+    "The role and timing of those request-abort observations were not established.",
+    "No iPhone lifecycle or memory-margin qualification is claimed."
+  ]
+}

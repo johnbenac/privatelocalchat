@@ -1,0 +1,31 @@
+{
+ "what": "Kokoro-82M q8 (onnx-community/Kokoro-82M-v1.0-ONNX, model_quantized.onnx) via kokoro-js 1.2.1 and transformers.js, WASM backend, headless Chromium on Centroid (16 cores, no GPU), cross-origin isolated. Second generation of a 4.9 s sentence; model fetched from Hugging Face for the spike only.",
+ "date": "2026-11-02",
+ "results": {
+  "threads_1": {
+   "threads": 1,
+   "loadMs": 10801,
+   "genMs": 8761,
+   "audioSeconds": 4.92,
+   "rtf": 0.56,
+   "sampleRate": 24000,
+   "samples": 118200,
+   "peak": "0.534",
+   "wallSeconds": 29,
+   "isolated": true
+  },
+  "threads_8": {
+   "threads": 8,
+   "loadMs": 10514,
+   "genMs": 5754,
+   "audioSeconds": 4.92,
+   "rtf": 0.86,
+   "sampleRate": 24000,
+   "samples": 118200,
+   "peak": "0.534",
+   "wallSeconds": 22,
+   "isolated": true
+  }
+ },
+ "conclusion": "Runs, produces audio, but below real time on CPU (0.56x with 1 thread, 0.86x with 8). Needs a real GPU adapter or is not viable as a streaming voice on CPU."
+}

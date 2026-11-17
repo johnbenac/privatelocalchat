@@ -1,0 +1,60 @@
+{
+ "device": "iPhone 11 Pro, Safari on iOS 18.6.2 (automation session: OPFS cannot be opened, IndexedDB cannot store Blobs)",
+ "build": "c4dd77b (dev)",
+ "flow": "sent \"hi\" and nothing else",
+ "result": {
+  "seconds": 22,
+  "last": {
+   "t": "AI response\nHello! I'm here to help you with any math or science-related questions. What's on your mind?\nsmollm2-135m-instruct-q4_k_m \u00b7 on this device\n\n\n\n\n\n",
+   "streaming": false,
+   "tier": "nano",
+   "busy": null,
+   "bytes": null,
+   "load": "ready",
+   "installed": true,
+   "err": null
+  }
+ },
+ "history": [
+  "Cache API fallback with the 223 MB Granite 350M: download and checksum passed, the page froze while the model loaded (twice; once at the very end of the download)",
+  "IndexedDB chunks: its Blob values cannot be stored in this kind of session",
+  "SmolLM2-135M (105 MB) in the Cache API: downloads, loads and answers",
+  "default now: SmolLM2-135M where OPFS cannot be opened"
+ ],
+ "offline": {
+  "method": "dev network switch in the automation session (radios stay on)",
+  "persist_after_reload": {
+   "installed": true,
+   "tier": "nano",
+   "install": "complete",
+   "cacheNames": [
+    "plc-dev-network-fault",
+    "plc-shell-f07f053794d1ad7492deef866f0b4bfafe96bc10",
+    "plc-model-files-v1",
+    "webllm/config",
+    "webllm/model",
+    "webllm/wasm"
+   ],
+   "cacheEntries": 4,
+   "est": 146,
+   "persisted": false
+  },
+  "cold_offline": {
+   "cold": {
+    "booted": true,
+    "pillHidden": false,
+    "pill": "Offline\n",
+    "installed": true,
+    "tier": "nano"
+   },
+   "reply": {
+    "t": "AI response\nI'd like you to ask a question about mathematics, physics, chemistry, biology, etc., and I'll do my best to provide clear explan",
+    "streaming": false,
+    "load": "ready",
+    "busy": null,
+    "err": null
+   }
+  },
+  "note": "the model, kept in the Cache API because OPFS cannot be opened there, survives a fresh page load and answers with the network denied (9 s); the checklist said Ready for offline use"
+ }
+}

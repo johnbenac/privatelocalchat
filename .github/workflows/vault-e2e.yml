@@ -1,0 +1,29 @@
+name: Vault e2e
+on:
+  pull_request:
+  push:
+    branches: [main, dev]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: vault-e2e-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  vault-e2e:
+    runs-on: ubuntu-24.04 # pinned: Playwright does not support the newer ubuntu-latest image yet
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+      - name: Vault e2e (no plaintext at rest, unlock, a page killed mid-reply, two tabs, migration on and off, passkey with a virtual authenticator)
+        # The real Face ID check on a phone is step 5.4 of docs/ENCRYPTION-AT-REST-PLAN.md and is not run here.
+        run: |
+          node tests/e2e/vault.e2e.mjs
+          node tests/e2e/vault-passkey.e2e.mjs

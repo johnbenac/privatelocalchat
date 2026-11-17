@@ -1,0 +1,125 @@
+--- a/cpp/wllama-build-id.h
++++ b/cpp/wllama-build-id.h
+@@ -1 +1 @@
+-#define WLLAMA_BUILD_ID "retained-v1q-chat-stable-slim-20260901"
++#define WLLAMA_BUILD_ID "privatelocalchat-tail-20261029-v1"
+--- a/cpp/wllama-context.h
++++ b/cpp/wllama-context.h
+@@ -864 +864,4 @@
+-    if (!ctx_server.load_model(params))
++    speechtest_flight_emit(11,13,1,13,0,0,0,0,0,0);
++    const bool plc_loaded=ctx_server.load_model(params);
++    speechtest_flight_emit(11,13,2,13,0,plc_loaded?1:0,0,0,0,0);
++    if (!plc_loaded)
+@@ -871,0 +875 @@
++    speechtest_flight_emit(11,14,1,14,0,0,0,0,0,0);
+@@ -872,0 +877 @@
++    speechtest_flight_emit(11,14,2,14,0,0,0,0,0,0);
+@@ -876,0 +882 @@
++    speechtest_flight_emit(11,15,1,15,0,0,0,0,0,0);
+@@ -877,0 +884 @@
++    speechtest_flight_emit(11,15,2,15,0,0,0,0,0,0);
+--- a/llama.cpp/common/common.cpp
++++ b/llama.cpp/common/common.cpp
+@@ -1458,0 +1459,6 @@
++
++extern "C" void speechtest_flight_emit(int,int,int,unsigned,unsigned,double,double,double,double,unsigned);
++static inline void plc_load_trace(unsigned op,int edge,double value=0,unsigned error=0){
++    speechtest_flight_emit(11,op,edge,op,0,value,0,0,0,error);
++}
++
+@@ -1459,0 +1466 @@
++    plc_load_trace(1,1);
+@@ -1466 +1473,3 @@
+-
++    bool removed = false;
++
++    plc_load_trace(2,1);
+@@ -1467,0 +1477 @@
++    plc_load_trace(2,2);
+@@ -1473,0 +1484 @@
++    plc_load_trace(3,1,(double)tmp.size());
+@@ -1474,0 +1486 @@
++    plc_load_trace(3,2,(double)tmp.size(),(unsigned)ret);
+@@ -1488 +1500,4 @@
+-    if (!llama_memory_seq_rm(mem, 0, 1, -1)) {
++    plc_load_trace(4,1);
++    removed = llama_memory_seq_rm(mem, 0, 1, -1);
++    plc_load_trace(4,2,removed?1:0);
++    if (!removed) {
+@@ -1494,0 +1510 @@
++    plc_load_trace(5,1);
+@@ -1495,0 +1512,2 @@
++    plc_load_trace(5,2);
++    plc_load_trace(6,1);
+@@ -1496,0 +1515,2 @@
++    plc_load_trace(6,2);
++    plc_load_trace(1,2,(double)res);
+--- a/llama.cpp/tools/server/server-context.cpp
++++ b/llama.cpp/tools/server/server-context.cpp
+@@ -1,0 +2,6 @@
++
++extern "C" void speechtest_flight_emit(int,int,int,unsigned,unsigned,double,double,double,double,unsigned);
++static inline void plc_load_trace(unsigned op,int edge,double value=0,unsigned error=0){
++    speechtest_flight_emit(11,op,edge,op,0,value,0,0,0,error);
++}
++
+@@ -1012,0 +1019 @@
++        plc_load_trace(7,1);
+@@ -1013,0 +1021 @@
++        plc_load_trace(7,2);
+@@ -1210,0 +1219 @@
++            plc_load_trace(8,1);
+@@ -1211,0 +1221 @@
++            plc_load_trace(8,2);
+@@ -1235,0 +1246 @@
++            plc_load_trace(9,1,(double)n_batch);
+@@ -1236,0 +1248 @@
++            plc_load_trace(9,2,(double)n_batch);
+@@ -1278 +1290,4 @@
+-            return init();
++            plc_load_trace(10,1);
++            const bool initialized=init();
++            plc_load_trace(10,2,initialized?1:0);
++            return initialized;
+@@ -1341,0 +1357 @@
++                plc_load_trace(11,1);
+@@ -1343 +1359,3 @@
+-
++                plc_load_trace(11,2);
++
++                plc_load_trace(12,1);
+@@ -1345,0 +1364 @@
++                plc_load_trace(12,2);
+--- a/llama.cpp/ggml/src/ggml-backend.cpp
++++ b/llama.cpp/ggml/src/ggml-backend.cpp
+@@ -5,0 +6,6 @@
++
++extern "C" int speechtest_model_ready;
++static inline void plc_graph_trace(unsigned op,int edge,double value=0,unsigned error=0){
++    if(!speechtest_model_ready)speechtest_flight_emit(12,op,edge,op,0,value,0,0,0,error);
++}
++
+@@ -1988,0 +1995 @@
++    plc_graph_trace(1,1,(double)graph->n_nodes);
+@@ -1998 +2005,4 @@
+-    if (!ggml_backend_sched_alloc_splits(sched)) {
++    plc_graph_trace(2,1);
++    const bool plc_allocated=ggml_backend_sched_alloc_splits(sched);
++    plc_graph_trace(2,2,plc_allocated?1:0);
++    if (!plc_allocated) {
+@@ -2002,0 +2013 @@
++    plc_graph_trace(1,2);
+@@ -2013,0 +2025 @@
++    plc_graph_trace(4,1);
+@@ -2025 +2037,5 @@
+-    return ggml_backend_sched_compute_splits(sched);
++    plc_graph_trace(3,1);
++    const enum ggml_status plc_result=ggml_backend_sched_compute_splits(sched);
++    plc_graph_trace(3,2,(double)plc_result);
++    plc_graph_trace(4,2,(double)plc_result);
++    return plc_result;
+@@ -2028,0 +2045 @@
++    plc_graph_trace(5,1);
+@@ -2038,0 +2056 @@
++    plc_graph_trace(5,2);

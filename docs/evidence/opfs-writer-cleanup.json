@@ -1,0 +1,30 @@
+{
+  "dateUtc": "2026-10-30",
+  "change": "Application-owned OPFS model-cache writer; pinned native runtime files unchanged",
+  "unitTestsPassed": 49,
+  "realBrowser": {
+    "created": 11,
+    "terminated": 11,
+    "openFailures": 10,
+    "size": 10485760,
+    "sha256": "bf313e437e5254989c2e53578d3dba313234c9356ec3e3720ab53e780a9da9c1",
+    "cacheManagerIntegration": {
+      "ok": true,
+      "files": 2,
+      "fetchedBytes": 1048576,
+      "keptOnSecondInstall": 1048576
+    },
+    "retainedWorkers": 0
+  },
+  "coverage": [
+    "Open, write and close rejection terminate their worker",
+    "Hung worker operation times out and releases its input",
+    "Serial writes bound outstanding chunks",
+    "Ten actual browser open failures leave zero workers",
+    "Actual pinned cache-manager download, metadata, hash verification and reuse succeed"
+  ],
+  "limits": [
+    "This proves cleanup behavior; it does not establish the cause of prior iPhone termination.",
+    "Physical retry and model generation with the new writer remain to qualify."
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "nativeWasmSha256": "77d16dd0a2ba93b504ae2c799ed1ae4e3eebefd834dbb74ed9245287abd146af",
+  "trigger": "Synthetic GPUValidationError passed to the actual native device error callback; native Wasm aborted afterward",
+  "realNativeAbortObserved": true,
+  "gpuErrorObject": {
+    "name": "GPUValidationError",
+    "message": "Controlled native device error: diagnostic buffer fixture"
+  },
+  "errorObjectSha256": "7f44f869db8598e452f38f07bbc34d8e469f5f4802e1bf4b4c9b047c1f9168ba",
+  "missingParts": [],
+  "metadataEventObserved": true,
+  "actualCloudflareReceiver": true,
+  "modelCacheBytes": 1202488640,
+  "modelRedownloaded": false,
+  "scope": "Desktop zero-layer-offload diagnostic fault-path qualification; not iPhone reliability qualification",
+  "successfulHttp200Responses": 5,
+  "receivedEventCount": 309
+}

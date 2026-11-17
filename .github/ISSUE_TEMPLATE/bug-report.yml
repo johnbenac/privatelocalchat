@@ -1,0 +1,41 @@
+name: Bug report
+description: Report a problem with Private Local Chat.
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Submissions are public and require a GitHub account. Do not include API keys,
+        private conversations, or other sensitive information. Review screenshots
+        and error messages before sharing them.
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Explain how to encounter the problem, using non-private example content.
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happened?
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Browser and device
+      placeholder: "For example: Safari 26 on iPhone, or Chrome on Windows"
+    validations:
+      required: true
+  - type: input
+    id: app-version
+    attributes:
+      label: App version or site address
+      description: Optional. Include the version if known; omit private URL parameters.

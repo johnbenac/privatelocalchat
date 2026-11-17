@@ -1,0 +1,99 @@
+{
+  "origin": "https://dev.privatelocal.chat",
+  "startedAt": "2026-10-29T15:38:44.536Z",
+  "steps": [
+    {
+      "name": "live startup",
+      "at": "2026-10-29T15:38:49.323Z",
+      "build": {
+        "version": "2.0.0",
+        "commit": "5323b11521c7d520b60adc846b2bd9115837a735",
+        "branch": "dev",
+        "environment": "development",
+        "builtAt": "2026-10-29T15:38:08.214Z"
+      },
+      "state": {
+        "selection": {
+          "tier": "light",
+          "chosenBy": "human",
+          "at": 1793287014141,
+          "reason": "Light tier, chosen by you on 10/29/2026, 11:16:54 AM. It uses less memory than the quality model."
+        },
+        "storage": {
+          "usage": 1263544348,
+          "quota": 12000962588,
+          "persisted": false,
+          "error": null,
+          "at": 1793288328584
+        }
+      }
+    },
+    {
+      "name": "real model loaded",
+      "at": "2026-10-29T15:38:57.430Z",
+      "load": {
+        "state": "ready",
+        "tier": "light",
+        "loadAttempt": 1,
+        "progress": null,
+        "lastError": null,
+        "loadedAt": 1793288337096,
+        "loadMs": 7709,
+        "info": {
+          "modelId": "qwen3.5-2b-q4_0",
+          "runtime": "wllama/retained-v1q-chat-stable-slim-20260901/compat",
+          "adapter": "wllama",
+          "loadAttempt": 1,
+          "loadMs": 7708,
+          "timings": {
+            "cacheCheckMs": 21,
+            "stagedFrom": "cache",
+            "stagedBytes": 1202488640,
+            "constructMs": 7620
+          },
+          "capabilities": {
+            "kind": "local-webgpu",
+            "structuredEnforced": [],
+            "structuredValidated": [
+              "json-schema",
+              "json-object"
+            ],
+            "structuredEnforcement": {
+              "json_schema": "validated",
+              "json_object": "validated"
+            },
+            "quantization": "Q4_0",
+            "license": "Apache-2.0",
+            "runtimeName": "wllama",
+            "runtimeVersion": "retained-v1q-chat-stable-slim-20260901",
+            "contextWindowTokens": 4096,
+            "maxOutputTokens": 1024
+          }
+        }
+      }
+    },
+    {
+      "name": "online generation",
+      "at": "2026-10-29T15:38:58.215Z",
+      "reply": "Reply with one short sentence: what is two plus three?\nTwo plus three equals five.\nReply with one short sentence: what is two plus three?\nTwo plus three equals five."
+    },
+    {
+      "name": "offline shell ready",
+      "at": "2026-10-29T15:38:58.220Z",
+      "status": "Offline app ready. Downloaded models can be loaded without a connection."
+    },
+    {
+      "name": "offline generation",
+      "at": "2026-10-29T15:38:58.563Z",
+      "reply": "Reply with one short sentence: what is two plus three?\nTwo plus three equals five.\nReply with one short sentence: what is two plus three?\nTwo plus three equals five.\nSay one brief hello.\nHello!"
+    },
+    {
+      "name": "offline reopen and generation",
+      "at": "2026-10-29T15:39:08.446Z",
+      "reply": "Reply with one short sentence: what is two plus three?\nTwo plus three equals five.\nReply with one short sentence: what is two plus three?\nTwo plus three equals five.\nSay one brief hello.\nHello!\nIn one short sentence, say that you are ready.\nI am ready.",
+      "unexpectedRequests": []
+    }
+  ],
+  "errors": [],
+  "unexpectedRequests": []
+}

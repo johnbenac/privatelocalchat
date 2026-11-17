@@ -1,0 +1,48 @@
+{
+  "buildId": "privatelocalchat-native-destroy-20261030-v1",
+  "baseBuildId": "retained-v1q-chat-stable-slim-20260901",
+  "compiler": "Emscripten 4.0.20-git",
+  "compilerReleaseCommit": "c387d7a7e9537d0041d2c3ae71b7538cc978104e",
+  "loadRequestFields": 69,
+  "loadResponseFields": 23,
+  "compatOnly": true,
+  "patchSha256": "4fd4a8fb61160ccae465ec93333f659d543aedcdb53f79e40fed60fccbd245ac",
+  "baseSourceSha256": {
+    "cpp/wllama-build-id.h": "fb7d01b88873b7df626edcf0f41bdc56cff14ca86b88ec4e81db070c80809f68",
+    "cpp/wllama-context.h": "1aa52f2acfd825f0c33ad827f39822905ad3a2cebe14ec5ba1bf7c285efe07c8",
+    "llama.cpp/common/common.cpp": "e3d3839319794e706287e32936ecfb4554606fe34912edc18d11929bd3f039d5",
+    "llama.cpp/tools/server/server-context.cpp": "fd633652c66a9187283f34102b28aee708faf4692d64791067498ef113c2b3fc",
+    "llama.cpp/ggml/src/ggml-backend.cpp": "6dcf439d2d49e4df07c72b6730d86ca3978fdb7e95999e0492d7c281ffa17b74",
+    "CMakeLists.txt": "c52c9029029cea19cc397bf897d1ba8e5eab18a25af37c41a052adffdf8ad9f5",
+    "cpp/checkpoint-diagnostics.cpp": "e8bc79eac400a712d6b53d591df48dd2a986c90655c5f22484177f9f61f1201a",
+    "scripts/patch_native_action_guard.mjs": "201657e0845d6daa2dc2e80e9bc1d6edead861402e1a5fd09b0eaff940b7b131",
+    "llama.cpp/ggml/src/ggml-webgpu/ggml-webgpu.cpp": "70062cc4e7f14fe87d4b0c363a2489054bec256cdb3b1fb18a073c8390198daf",
+    "cpp/wllama.cpp": "c3da9bff6986c6a0f497199e2783cb7524ad218d63b1dd0888ec06a1842bc2b3"
+  },
+  "files": {
+    "compat.wasm": {
+      "bytes": 14417422,
+      "sha256": "065354247ab2a35b58cdfc909bfcf66367b715bee53a0e72856be89ddc235aaa"
+    },
+    "compat-worker.js": {
+      "bytes": 170426,
+      "sha256": "95f2a03073e5bdcf8c7a3bdfe953981a17498947679c3c6737a59bdcd4c485a6"
+    },
+    "wllama.js": {
+      "bytes": 414522,
+      "sha256": "267d7e3d29d273934c8c756ed719f971f84d7d3428e479c64bb2b8346721f6a6"
+    }
+  },
+  "developmentDiagnostics": false,
+  "patchPath": "ops/native/native-owner-cleanup.patch",
+  "queuePolicy": {
+    "maxInFlightBatches": 2,
+    "commandSubmitBatchSize": 32,
+    "drainAtGraphEnd": true
+  },
+  "wrapperSource": "ops/native/base-wllama-v1q.js",
+  "wrapperSourceSha256": "9d383dbc0b540407bbdaa9a1a60cf69e5cc88287f6be8bdf641eec1315664031",
+  "experimentalPurpose": "Explicit owning-context destruction before worker termination; no compiler padding.",
+  "status": "experimental-not-selected",
+  "qualification": "Matched zero-layer-offload ownership control only; full GPU and iPhone gates remain open."
+}

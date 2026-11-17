@@ -1,0 +1,61 @@
+{
+  "build": {
+    "version": "2.0.0",
+    "commit": "e3f952086dcd92a396710f5c89f9bad3267baa13",
+    "branch": "main",
+    "environment": "production",
+    "builtAt": "2026-10-30T11:39:44.532Z"
+  },
+  "wasmHash": "ea9d24143b3c1ba6a0c73213be7dbc7fc57c0472b8e55d6cf7206807ad1fe0fd",
+  "records": [
+    {
+      "label": "online-short",
+      "nativeTokens": 7,
+      "characters": 24
+    },
+    {
+      "label": "online-long",
+      "nativeTokens": 512,
+      "characters": 2428
+    },
+    {
+      "label": "cleanup",
+      "nativeExit": "acknowledged",
+      "nativeExitMs": 13
+    },
+    {
+      "label": "after-page-reload-long",
+      "nativeTokens": 512,
+      "characters": 2428
+    },
+    {
+      "label": "offline-retained",
+      "nativeTokens": 7,
+      "characters": 24
+    },
+    {
+      "label": "cleanup",
+      "nativeExit": "acknowledged",
+      "nativeExitMs": 12
+    },
+    {
+      "label": "whole-browser-reopened-offline",
+      "nativeTokens": 7,
+      "characters": 24
+    },
+    {
+      "label": "cleanup",
+      "nativeExit": "acknowledged",
+      "nativeExitMs": 13
+    }
+  ],
+  "errors": [],
+  "scope": "Production-mode build, real Chromium/Vulkan on NVIDIA GeForce RTX 5060 Ti, dedicated existing model cache",
+  "diagnosticUiAndControlGlobalsAbsent": true,
+  "nativeHashAttestedFromFetchedBytes": true,
+  "modelBytesReused": 1202488640,
+  "limitations": [
+    "Physical iPhone lifecycle, offline and margin checks remain open.",
+    "This is a local HTTPS artifact qualification, with separate deployed read-back proof."
+  ]
+}

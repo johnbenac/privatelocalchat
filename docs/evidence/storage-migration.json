@@ -1,0 +1,10 @@
+{
+  "legacyThreadsUnchanged": true,
+  "legacySettingsUnchanged": true,
+  "apiControlsRetainValues": true,
+  "localModeSeparatesApi": true,
+  "bannerRemoved": true,
+  "sourceAndFeedbackLinks": true,
+  "errors": [],
+  "method": "Old live app and new built app on the same browser origin, using synthetic preexisting data"
+}

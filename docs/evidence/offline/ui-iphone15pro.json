@@ -1,0 +1,106 @@
+{
+ "device": "iPhone 15 Pro, Safari on iOS 26.6.2 (WebGPU available, about 41 GB of browser storage)",
+ "build": "9ed961e (dev)",
+ "method": "owned USB Safari automation context; development-only service-worker network switch (radios stay on, the browser still reports online)",
+ "ui": {
+  "build": {
+   "c": true,
+   "commit": "9ed961e",
+   "s": "Offline app ready. Downloaded models can be loaded without a connection."
+  },
+  "facts": {
+   "files": 179,
+   "bulk": 8,
+   "hasMd": true,
+   "persisted": false,
+   "quotaMB": 41232,
+   "webgpu": true
+  },
+  "checklist": {
+   "summary": "Not ready for offline use yet: chat model still to save.",
+   "items": {
+    "app": "ready: Saved on this device.",
+    "model": "missing: Qwen3.5-2B (light) is not downloaded yet.",
+    "voice": "ready: Your device\u2019s own voice works offline.",
+    "matching": "partial: Not downloaded. Search still finds exact words offline.",
+    "storage": "partial: The browser may delete saved models when it needs space."
+   }
+  },
+  "open_page": {
+   "onLine": true,
+   "booted": true,
+   "pillHidden": false,
+   "pill": "Offline\n",
+   "title": "You are offline. On-device chat still works."
+  },
+  "cold": {
+   "onLine": true,
+   "booted": true,
+   "pillHidden": false,
+   "pill": "Offline\n",
+   "title": "You are offline. On-device chat still works."
+  },
+  "probe_kept": "kept",
+  "/help": {
+   "h1": "Help",
+   "isApp": false
+  },
+  "/privacy": {
+   "h1": "Privacy",
+   "isApp": false
+  },
+  "back": {
+   "onLine": true,
+   "booted": true,
+   "pillHidden": false,
+   "pill": "Back online\n",
+   "title": "Back online."
+  },
+  "after": {
+   "onLine": true,
+   "booted": true,
+   "pillHidden": true,
+   "pill": "Back online",
+   "title": "Back online."
+  }
+ },
+ "model": {
+  "download_seconds": 175,
+  "online_reply": {
+   "streaming": false,
+   "text": "AI response\nTwo plus three equals five.\nqwen3.5-2b-q4_0 \u00b7 on this device\n\n\n\n\n\n"
+  },
+  "cold_offline": {
+   "booted": true,
+   "pill": "Offline\n",
+   "hidden": false,
+   "installed": true
+  },
+  "checklist_offline": {
+   "summary": "Ready for offline use. Chatting with your downloaded model needs no connection.",
+   "items": {
+    "app": "ready",
+    "model": "ready",
+    "runtime": "ready",
+    "voice": "ready",
+    "matching": "partial",
+    "storage": "partial"
+   }
+  },
+  "offline_load": {
+   "ready": true,
+   "err": null
+  },
+  "offline_reply": {
+   "streaming": false,
+   "text": "AI response\nI am ready.\nqwen3.5-2b-q4_0 \u00b7 on this device\n\n\n\n\n\n"
+  }
+ },
+ "cleanup": "network switch turned off; the downloaded model removed (bytesPresent 0 reported by the controller); session closed; the site's storage estimate still read about 1.8 GB right after removal, which may lag the deletion",
+ "conclusions": [
+  "the pill, the checklist, a cold start with the network denied, Help and Privacy from their own saved pages, and the return all behave as on the iPhone 11 Pro",
+  "with the 2B model downloaded and the network denied, a cold start loads the model from the saved files and gives a real reply",
+  "the checklist said Ready for offline use (app, model, runtime, voice ready; matching model and keeping it were advice)",
+  "not airplane mode: the radios stayed on"
+ ]
+}

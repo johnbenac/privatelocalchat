@@ -1,0 +1,10 @@
+{
+  "onnxruntimeWeb": "1.31.1",
+  "onnxruntimeLicense": "MIT",
+  "phonemizer": "1.2.1",
+  "phonemizerLicense": "Apache-2.0",
+  "phonemizerEmbeds": "espeak-ng (GPL-3.0)",
+  "pipelinePortedFrom": "kokoro-js 1.2.1 (Apache-2.0)",
+  "model": "onnx-community/Kokoro-82M-v1.0-ONNX (model_quantized.onnx)",
+  "modelLicense": "Apache-2.0"
+}

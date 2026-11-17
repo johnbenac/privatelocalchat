@@ -1,0 +1,27 @@
+{
+  "runtimeBuildId": "privatelocalchat-tail-20261029-v1",
+  "compatWasmSha256": "95f819cdf3ef979df7f0263d71bd0305fb560049a21b14ef1eea6c804d4d3f51",
+  "loadCompleted": true,
+  "realReply": "Two plus three is five.",
+  "cancellationThenReply": {
+    "cancelled": true,
+    "reply": "Hello",
+    "providerCounters": {
+      "received": 2,
+      "completed": 1,
+      "failed": 0,
+      "aborted": 1,
+      "tokens": 2,
+      "recoveries": 0
+    }
+  },
+  "tailMarkersReceivedAtLiveReceiver": {
+    "phases": [
+      11,
+      12
+    ],
+    "capabilityDecodePreAndPost": true
+  },
+  "pageErrors": [],
+  "scope": "Desktop control for added diagnostics; iPhone failure remains unresolved."
+}

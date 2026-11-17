@@ -1,0 +1,2141 @@
+{
+ "description": "Held-out evaluation queries for the phone-menu intent router (chat/roberta/intent-router.mjs). None of them may appear in INTENT_PHRASES (tests/intent-router.test.mjs checks). intent null = off-topic, must route to low confidence. Written in the style of browser speech-to-text: lowercase, no punctuation, filler words, mis-hearings.",
+ "version": 1,
+ "queries": [
+  {
+   "text": "um is this thing private",
+   "intent": "privacy",
+   "kind": "noisy"
+  },
+  {
+   "text": "how safe is my information here",
+   "intent": "privacy",
+   "kind": "plain"
+  },
+  {
+   "text": "i wanna know if anyone can read what i write",
+   "intent": "privacy",
+   "kind": "noisy"
+  },
+  {
+   "text": "tell me about privacy and security",
+   "intent": "privacy",
+   "kind": "plain"
+  },
+  {
+   "text": "hey roberta is it confidential",
+   "intent": "privacy",
+   "kind": "noisy"
+  },
+  {
+   "text": "so is it sending information to the cloud or not",
+   "intent": "privacy.cloud",
+   "kind": "owner"
+  },
+  {
+   "text": "tell me is this cloud connected",
+   "intent": "privacy.cloud",
+   "kind": "owner"
+  },
+  {
+   "text": "and what about the cloud",
+   "intent": "privacy.cloud",
+   "kind": "owner"
+  },
+  {
+   "text": "does anything i type go up to the cloud",
+   "intent": "privacy.cloud",
+   "kind": "noisy"
+  },
+  {
+   "text": "are my messages transmitted over the internet to some company",
+   "intent": "privacy.cloud",
+   "kind": "plain"
+  },
+  {
+   "text": "so who actually has my data",
+   "intent": "privacy.storage",
+   "kind": "owner"
+  },
+  {
+   "text": "where exactly is my data stored",
+   "intent": "privacy.storage",
+   "kind": "owner"
+  },
+  {
+   "text": "uh where is all my stuff saved",
+   "intent": "privacy.storage",
+   "kind": "noisy"
+  },
+  {
+   "text": "who is able to read my old conversations",
+   "intent": "privacy.storage",
+   "kind": "plain"
+  },
+  {
+   "text": "is my chat history kept on your servers",
+   "intent": "privacy.storage",
+   "kind": "noisy"
+  },
+  {
+   "text": "what about chat g p t",
+   "intent": "privacy.provider",
+   "kind": "noisy"
+  },
+  {
+   "text": "if i hook up open a i do they see my stuff",
+   "intent": "privacy.provider",
+   "kind": "noisy"
+  },
+  {
+   "text": "i have my own a p i key what happens then",
+   "intent": "privacy.provider",
+   "kind": "noisy"
+  },
+  {
+   "text": "is it safe to use an outside service with this",
+   "intent": "privacy.provider",
+   "kind": "plain"
+  },
+  {
+   "text": "do i have to make an account",
+   "intent": "privacy.account",
+   "kind": "noisy"
+  },
+  {
+   "text": "is this free or do i have to pay",
+   "intent": "privacy.account",
+   "kind": "plain"
+  },
+  {
+   "text": "are there any ads or trackers in here",
+   "intent": "privacy.account",
+   "kind": "plain"
+  },
+  {
+   "text": "do you collect analytics",
+   "intent": "privacy.account",
+   "kind": "noisy"
+  },
+  {
+   "text": "is sign in required",
+   "intent": "privacy.account",
+   "kind": "noisy"
+  },
+  {
+   "text": "can i speak to this app",
+   "intent": "talking",
+   "kind": "noisy"
+  },
+  {
+   "text": "what voice things can it do",
+   "intent": "talking",
+   "kind": "plain"
+  },
+  {
+   "text": "does this app have voice",
+   "intent": "talking",
+   "kind": "noisy"
+  },
+  {
+   "text": "can it read the answers to me",
+   "intent": "talking.read",
+   "kind": "noisy"
+  },
+  {
+   "text": "make it speak the reply",
+   "intent": "talking.read",
+   "kind": "plain"
+  },
+  {
+   "text": "i want it to read aloud",
+   "intent": "talking.read",
+   "kind": "noisy"
+  },
+  {
+   "text": "change the voice to something slower",
+   "intent": "talking.read",
+   "kind": "plain"
+  },
+  {
+   "text": "can i dictate my questions",
+   "intent": "talking.dictate",
+   "kind": "noisy"
+  },
+  {
+   "text": "type with my voice instead",
+   "intent": "talking.dictate",
+   "kind": "plain"
+  },
+  {
+   "text": "how does speech to text work here",
+   "intent": "talking.dictate",
+   "kind": "noisy"
+  },
+  {
+   "text": "does my voice leave the phone when i dictate",
+   "intent": "talking.dictate",
+   "kind": "plain"
+  },
+  {
+   "text": "can i call it like a phone call",
+   "intent": "talking.call",
+   "kind": "noisy"
+  },
+  {
+   "text": "hands free conversation",
+   "intent": "talking.call",
+   "kind": "plain"
+  },
+  {
+   "text": "how do i hang up the call",
+   "intent": "talking.call",
+   "kind": "noisy"
+  },
+  {
+   "text": "how do i start talking back and forth",
+   "intent": "talking.call",
+   "kind": "plain"
+  },
+  {
+   "text": "how do voice notes actually work",
+   "intent": "talking.notes",
+   "kind": "noisy"
+  },
+  {
+   "text": "can it make an audio note out of the answer",
+   "intent": "talking.notes",
+   "kind": "plain"
+  },
+  {
+   "text": "can i record something long and have it kept",
+   "intent": "talking.notes",
+   "kind": "noisy"
+  },
+  {
+   "text": "can i download the models on my phone",
+   "intent": "setup",
+   "kind": "owner"
+  },
+  {
+   "text": "how do i get started",
+   "intent": "setup",
+   "kind": "noisy"
+  },
+  {
+   "text": "i want to install the ai model",
+   "intent": "setup",
+   "kind": "plain"
+  },
+  {
+   "text": "download the model please",
+   "intent": "setup",
+   "kind": "noisy"
+  },
+  {
+   "text": "uh set this up for me",
+   "intent": "setup",
+   "kind": "noisy"
+  },
+  {
+   "text": "how big is the model",
+   "intent": "setup.size",
+   "kind": "noisy"
+  },
+  {
+   "text": "how many megabytes do i need to download",
+   "intent": "setup.size",
+   "kind": "noisy"
+  },
+  {
+   "text": "will downloading use up my mobile data",
+   "intent": "setup.size",
+   "kind": "plain"
+  },
+  {
+   "text": "how much room will it take on my phone",
+   "intent": "setup.size",
+   "kind": "plain"
+  },
+  {
+   "text": "does it work with no internet",
+   "intent": "setup.offline",
+   "kind": "noisy"
+  },
+  {
+   "text": "can i use it on an airplane",
+   "intent": "setup.offline",
+   "kind": "plain"
+  },
+  {
+   "text": "do i need to be connected all the time",
+   "intent": "setup.offline",
+   "kind": "noisy"
+  },
+  {
+   "text": "offline",
+   "intent": "setup.offline",
+   "kind": "noisy"
+  },
+  {
+   "text": "will this run on my iphone",
+   "intent": "setup.compat",
+   "kind": "noisy"
+  },
+  {
+   "text": "is my laptop powerful enough",
+   "intent": "setup.compat",
+   "kind": "plain"
+  },
+  {
+   "text": "why is it so slow",
+   "intent": "setup.compat",
+   "kind": "noisy"
+  },
+  {
+   "text": "does it need a gpu",
+   "intent": "setup.compat",
+   "kind": "plain"
+  },
+  {
+   "text": "which phones work with this",
+   "intent": "setup.compat",
+   "kind": "plain"
+  },
+  {
+   "text": "how can i tell my friends about this",
+   "intent": "share",
+   "kind": "noisy"
+  },
+  {
+   "text": "give me a link to send to my dad",
+   "intent": "share",
+   "kind": "plain"
+  },
+  {
+   "text": "show me the q r code",
+   "intent": "share",
+   "kind": "noisy"
+  },
+  {
+   "text": "recommend it to my sister",
+   "intent": "share",
+   "kind": "plain"
+  },
+  {
+   "text": "i want to bring my chats back from a backup file",
+   "intent": "restore",
+   "kind": "noisy"
+  },
+  {
+   "text": "load my old backup",
+   "intent": "restore",
+   "kind": "plain"
+  },
+  {
+   "text": "import conversations from a file",
+   "intent": "restore",
+   "kind": "plain"
+  },
+  {
+   "text": "i bought a new phone how do i get my chats back",
+   "intent": "restore",
+   "kind": "noisy"
+  },
+  {
+   "text": "how do i save all my chats to a file",
+   "intent": "export",
+   "kind": "noisy"
+  },
+  {
+   "text": "make a backup of my conversations",
+   "intent": "export",
+   "kind": "plain"
+  },
+  {
+   "text": "export my history",
+   "intent": "export",
+   "kind": "noisy"
+  },
+  {
+   "text": "download a copy of my chats",
+   "intent": "export",
+   "kind": "plain"
+  },
+  {
+   "text": "how do i change settings",
+   "intent": "settings",
+   "kind": "noisy"
+  },
+  {
+   "text": "can i move my configuration to another device",
+   "intent": "settings",
+   "kind": "plain"
+  },
+  {
+   "text": "settings",
+   "intent": "settings",
+   "kind": "noisy"
+  },
+  {
+   "text": "send my settings to my other phone",
+   "intent": "settings.transfer",
+   "kind": "noisy"
+  },
+  {
+   "text": "transfer my configuration with a q r code",
+   "intent": "settings.transfer",
+   "kind": "plain"
+  },
+  {
+   "text": "move settings to a new browser",
+   "intent": "settings.transfer",
+   "kind": "noisy"
+  },
+  {
+   "text": "where do i enter my a p i key",
+   "intent": "settings.provider",
+   "kind": "noisy"
+  },
+  {
+   "text": "connect to open router",
+   "intent": "settings.provider",
+   "kind": "noisy"
+  },
+  {
+   "text": "use my own server like lm studio",
+   "intent": "settings.provider",
+   "kind": "plain"
+  },
+  {
+   "text": "how do i add a custom endpoint",
+   "intent": "settings.provider",
+   "kind": "plain"
+  },
+  {
+   "text": "i would like to leave a voice message",
+   "intent": "voicemail",
+   "kind": "noisy"
+  },
+  {
+   "text": "can i record a message for you",
+   "intent": "voicemail",
+   "kind": "plain"
+  },
+  {
+   "text": "leave a message after the beep",
+   "intent": "voicemail",
+   "kind": "noisy"
+  },
+  {
+   "text": "please take a message for me",
+   "intent": "voicemail",
+   "kind": "plain"
+  },
+  {
+   "text": "i need some help",
+   "intent": "help",
+   "kind": "noisy"
+  },
+  {
+   "text": "something's broken",
+   "intent": "help",
+   "kind": "noisy"
+  },
+  {
+   "text": "i'm having trouble",
+   "intent": "help",
+   "kind": "noisy"
+  },
+  {
+   "text": "it doesn't work help",
+   "intent": "help",
+   "kind": "noisy"
+  },
+  {
+   "text": "the download is frozen",
+   "intent": "help.stuck",
+   "kind": "noisy"
+  },
+  {
+   "text": "download stuck at ninety percent",
+   "intent": "help.stuck",
+   "kind": "noisy"
+  },
+  {
+   "text": "download will not finish",
+   "intent": "help.stuck",
+   "kind": "plain"
+  },
+  {
+   "text": "my model keeps failing to download",
+   "intent": "help.stuck",
+   "kind": "noisy"
+  },
+  {
+   "text": "the model will not load",
+   "intent": "help.load",
+   "kind": "noisy"
+  },
+  {
+   "text": "it crashes when i try to start the model",
+   "intent": "help.load",
+   "kind": "plain"
+  },
+  {
+   "text": "it says out of memory",
+   "intent": "help.load",
+   "kind": "noisy"
+  },
+  {
+   "text": "the page reloads every time i load the ai",
+   "intent": "help.load",
+   "kind": "plain"
+  },
+  {
+   "text": "the microphone is not working",
+   "intent": "help.mic",
+   "kind": "noisy"
+  },
+  {
+   "text": "it can't hear me",
+   "intent": "help.mic",
+   "kind": "noisy"
+  },
+  {
+   "text": "microphone permission was denied",
+   "intent": "help.mic",
+   "kind": "plain"
+  },
+  {
+   "text": "where is the voice button",
+   "intent": "help.mic",
+   "kind": "noisy"
+  },
+  {
+   "text": "how do i free up space on my phone",
+   "intent": "help.storage",
+   "kind": "noisy"
+  },
+  {
+   "text": "delete the downloaded model",
+   "intent": "help.storage",
+   "kind": "plain"
+  },
+  {
+   "text": "remove all the files",
+   "intent": "help.storage",
+   "kind": "noisy"
+  },
+  {
+   "text": "clear my data",
+   "intent": "help.storage",
+   "kind": "plain"
+  },
+  {
+   "text": "just let me chat",
+   "intent": "chat",
+   "kind": "noisy"
+  },
+  {
+   "text": "skip the menu",
+   "intent": "chat",
+   "kind": "plain"
+  },
+  {
+   "text": "i want to start typing",
+   "intent": "chat",
+   "kind": "noisy"
+  },
+  {
+   "text": "go to the chat screen",
+   "intent": "chat",
+   "kind": "plain"
+  },
+  {
+   "text": "who am i talking to",
+   "intent": "about.who",
+   "kind": "noisy"
+  },
+  {
+   "text": "are you a real person",
+   "intent": "about.who",
+   "kind": "noisy"
+  },
+  {
+   "text": "are you human",
+   "intent": "about.who",
+   "kind": "noisy"
+  },
+  {
+   "text": "what are you exactly",
+   "intent": "about.who",
+   "kind": "plain"
+  },
+  {
+   "text": "do you have any emotions",
+   "intent": "about.who",
+   "kind": "plain"
+  },
+  {
+   "text": "what is this app",
+   "intent": "about.what",
+   "kind": "noisy"
+  },
+  {
+   "text": "what is this website for",
+   "intent": "about.what",
+   "kind": "plain"
+  },
+  {
+   "text": "explain what this does",
+   "intent": "about.what",
+   "kind": "noisy"
+  },
+  {
+   "text": "what can this thing do",
+   "intent": "about.what",
+   "kind": "plain"
+  },
+  {
+   "text": "can i install this on my phone",
+   "intent": "about.install",
+   "kind": "noisy"
+  },
+  {
+   "text": "how do i add it to the home screen",
+   "intent": "about.install",
+   "kind": "plain"
+  },
+  {
+   "text": "put it on my desktop as an app",
+   "intent": "about.install",
+   "kind": "plain"
+  },
+  {
+   "text": "make this an app on my iphone",
+   "intent": "about.install",
+   "kind": "noisy"
+  },
+  {
+   "text": "say it again",
+   "intent": "ctl.repeat",
+   "kind": "noisy"
+  },
+  {
+   "text": "repeat the options",
+   "intent": "ctl.repeat",
+   "kind": "plain"
+  },
+  {
+   "text": "can you go over that one more time",
+   "intent": "ctl.repeat",
+   "kind": "noisy"
+  },
+  {
+   "text": "what were my choices",
+   "intent": "ctl.repeat",
+   "kind": "plain"
+  },
+  {
+   "text": "repeat the menu",
+   "intent": "ctl.repeat",
+   "kind": "noisy"
+  },
+  {
+   "text": "go back to the last menu",
+   "intent": "ctl.back",
+   "kind": "noisy"
+  },
+  {
+   "text": "take me back please",
+   "intent": "ctl.back",
+   "kind": "plain"
+  },
+  {
+   "text": "no go back",
+   "intent": "ctl.back",
+   "kind": "noisy"
+  },
+  {
+   "text": "never mind go back",
+   "intent": "ctl.back",
+   "kind": "noisy"
+  },
+  {
+   "text": "can strangers read what i am writing here",
+   "intent": "privacy",
+   "kind": "hard"
+  },
+  {
+   "text": "should i worry about who sees my questions",
+   "intent": "privacy",
+   "kind": "hard"
+  },
+  {
+   "text": "is any of this going to some company's computers",
+   "intent": "privacy.cloud",
+   "kind": "hard"
+  },
+  {
+   "text": "does my text get shipped off to a data center",
+   "intent": "privacy.cloud",
+   "kind": "hard"
+  },
+  {
+   "text": "are you phoning home with what i say",
+   "intent": "privacy.cloud",
+   "kind": "hard"
+  },
+  {
+   "text": "is this thing hooked up to the internet while i talk to it",
+   "intent": "privacy.cloud",
+   "kind": "hard"
+  },
+  {
+   "text": "if i close the tab will my conversations still be there",
+   "intent": "privacy.storage",
+   "kind": "hard"
+  },
+  {
+   "text": "which computer holds my chat logs",
+   "intent": "privacy.storage",
+   "kind": "hard"
+  },
+  {
+   "text": "can the developers look at my old messages",
+   "intent": "privacy.storage",
+   "kind": "hard"
+  },
+  {
+   "text": "what if i plug in my own subscription from another ai company",
+   "intent": "privacy.provider",
+   "kind": "hard"
+  },
+  {
+   "text": "if i add a key for an external service who sees my questions",
+   "intent": "privacy.provider",
+   "kind": "hard"
+  },
+  {
+   "text": "do you want my email address",
+   "intent": "privacy.account",
+   "kind": "hard"
+  },
+  {
+   "text": "does it cost money",
+   "intent": "privacy.account",
+   "kind": "hard"
+  },
+  {
+   "text": "is there a subscription",
+   "intent": "privacy.account",
+   "kind": "hard"
+  },
+  {
+   "text": "do you follow what i do on the site",
+   "intent": "privacy.account",
+   "kind": "hard"
+  },
+  {
+   "text": "tell me about the audio features",
+   "intent": "talking",
+   "kind": "hard"
+  },
+  {
+   "text": "can i use this hands free by speaking",
+   "intent": "talking",
+   "kind": "hard"
+  },
+  {
+   "text": "can you say the answers out loud",
+   "intent": "talking.read",
+   "kind": "hard"
+  },
+  {
+   "text": "can it speak to me",
+   "intent": "talking.read",
+   "kind": "hard"
+  },
+  {
+   "text": "can i just say my question instead of typing it",
+   "intent": "talking.dictate",
+   "kind": "hard"
+  },
+  {
+   "text": "how do i speak my message",
+   "intent": "talking.dictate",
+   "kind": "hard"
+  },
+  {
+   "text": "can we have a live voice chat",
+   "intent": "talking.call",
+   "kind": "hard"
+  },
+  {
+   "text": "is there a way to talk to it like a telephone",
+   "intent": "talking.call",
+   "kind": "hard"
+  },
+  {
+   "text": "can i save a spoken clip",
+   "intent": "talking.notes",
+   "kind": "hard"
+  },
+  {
+   "text": "what's an audio message",
+   "intent": "talking.notes",
+   "kind": "hard"
+  },
+  {
+   "text": "what do i do first",
+   "intent": "setup",
+   "kind": "hard"
+  },
+  {
+   "text": "i'd like to get the offline brain",
+   "intent": "setup",
+   "kind": "hard"
+  },
+  {
+   "text": "how do i get this working",
+   "intent": "setup",
+   "kind": "hard"
+  },
+  {
+   "text": "how heavy is the file",
+   "intent": "setup.size",
+   "kind": "hard"
+  },
+  {
+   "text": "will it eat my data allowance",
+   "intent": "setup.size",
+   "kind": "hard"
+  },
+  {
+   "text": "what's the footprint of the model on disk",
+   "intent": "setup.size",
+   "kind": "hard"
+  },
+  {
+   "text": "can i use this in the middle of nowhere",
+   "intent": "setup.offline",
+   "kind": "hard"
+  },
+  {
+   "text": "no signal will it still answer",
+   "intent": "setup.offline",
+   "kind": "hard"
+  },
+  {
+   "text": "does it need a connection once it's installed",
+   "intent": "setup.offline",
+   "kind": "hard"
+  },
+  {
+   "text": "my old tablet is it going to cope",
+   "intent": "setup.compat",
+   "kind": "hard"
+  },
+  {
+   "text": "is a ten year old computer okay",
+   "intent": "setup.compat",
+   "kind": "hard"
+  },
+  {
+   "text": "what hardware do i need",
+   "intent": "setup.compat",
+   "kind": "hard"
+  },
+  {
+   "text": "my brother would like this how do i pass it on",
+   "intent": "share",
+   "kind": "hard"
+  },
+  {
+   "text": "how do i get my coworkers to try it",
+   "intent": "share",
+   "kind": "hard"
+  },
+  {
+   "text": "i have a file from my old phone with my conversations",
+   "intent": "restore",
+   "kind": "hard"
+  },
+  {
+   "text": "bring back my archived chats",
+   "intent": "restore",
+   "kind": "hard"
+  },
+  {
+   "text": "i want a copy of everything i wrote",
+   "intent": "export",
+   "kind": "hard"
+  },
+  {
+   "text": "how can i keep my conversations safe in a file",
+   "intent": "export",
+   "kind": "hard"
+  },
+  {
+   "text": "where are the preferences",
+   "intent": "settings",
+   "kind": "hard"
+  },
+  {
+   "text": "how do i configure things",
+   "intent": "settings",
+   "kind": "hard"
+  },
+  {
+   "text": "i want the same setup on my laptop as my phone",
+   "intent": "settings.transfer",
+   "kind": "hard"
+  },
+  {
+   "text": "pass my configuration through a link",
+   "intent": "settings.transfer",
+   "kind": "hard"
+  },
+  {
+   "text": "plug in another company's ai",
+   "intent": "settings.provider",
+   "kind": "hard"
+  },
+  {
+   "text": "where do i paste the token",
+   "intent": "settings.provider",
+   "kind": "hard"
+  },
+  {
+   "text": "hook it up to a different backend",
+   "intent": "settings.provider",
+   "kind": "hard"
+  },
+  {
+   "text": "i want to dictate a long note to you",
+   "intent": "voicemail",
+   "kind": "hard"
+  },
+  {
+   "text": "leave you a spoken note",
+   "intent": "voicemail",
+   "kind": "hard"
+  },
+  {
+   "text": "i can't figure this out",
+   "intent": "help",
+   "kind": "hard"
+  },
+  {
+   "text": "this isn't doing what it should",
+   "intent": "help",
+   "kind": "hard"
+  },
+  {
+   "text": "the progress bar hasn't moved for an hour",
+   "intent": "help.stuck",
+   "kind": "hard"
+  },
+  {
+   "text": "the download just sits there",
+   "intent": "help.stuck",
+   "kind": "hard"
+  },
+  {
+   "text": "the app dies when it starts the ai",
+   "intent": "help.load",
+   "kind": "hard"
+  },
+  {
+   "text": "loading the model fails with an error",
+   "intent": "help.load",
+   "kind": "hard"
+  },
+  {
+   "text": "you don't pick up my voice",
+   "intent": "help.mic",
+   "kind": "hard"
+  },
+  {
+   "text": "the browser won't let me use the mic",
+   "intent": "help.mic",
+   "kind": "hard"
+  },
+  {
+   "text": "my device is full what can i get rid of",
+   "intent": "help.storage",
+   "kind": "hard"
+  },
+  {
+   "text": "the model is taking over my storage",
+   "intent": "help.storage",
+   "kind": "hard"
+  },
+  {
+   "text": "enough with the menu take me to the conversation",
+   "intent": "chat",
+   "kind": "hard"
+  },
+  {
+   "text": "i just want to ask my question",
+   "intent": "chat",
+   "kind": "hard"
+  },
+  {
+   "text": "is there a human behind this",
+   "intent": "about.who",
+   "kind": "hard"
+  },
+  {
+   "text": "what kind of thing am i speaking with",
+   "intent": "about.who",
+   "kind": "hard"
+  },
+  {
+   "text": "what's the point of this site",
+   "intent": "about.what",
+   "kind": "hard"
+  },
+  {
+   "text": "give me the short version of what you do",
+   "intent": "about.what",
+   "kind": "hard"
+  },
+  {
+   "text": "can this live on my home screen",
+   "intent": "about.install",
+   "kind": "hard"
+  },
+  {
+   "text": "is there an app version",
+   "intent": "about.install",
+   "kind": "hard"
+  },
+  {
+   "text": "i missed that say it once more",
+   "intent": "ctl.repeat",
+   "kind": "hard"
+  },
+  {
+   "text": "list the choices again",
+   "intent": "ctl.repeat",
+   "kind": "hard"
+  },
+  {
+   "text": "that's wrong go back",
+   "intent": "ctl.back",
+   "kind": "hard"
+  },
+  {
+   "text": "return to where we were",
+   "intent": "ctl.back",
+   "kind": "hard"
+  },
+  {
+   "text": "what's the weather like today",
+   "intent": null,
+   "kind": "off-topic"
+  },
+  {
+   "text": "what is two plus two",
+   "intent": null,
+   "kind": "off-topic"
+  },
+  {
+   "text": "tell me a joke",
+   "intent": null,
+   "kind": "off-topic"
+  },
+  {
+   "text": "give me a recipe for pancakes",
+   "intent": null,
+   "kind": "off-topic"
+  },
+  {
+   "text": "who won the football game last night",
+   "intent": null,
+   "kind": "off-topic"
+  },
+  {
+   "text": "how tall is mount everest",
+   "intent": null,
+   "kind": "off-topic"
+  },
+  {
+   "text": "what's the capital of france",
+   "intent": null,
+   "kind": "off-topic"
+  },
+  {
+   "text": "play some music",
+   "intent": null,
+   "kind": "off-topic"
+  },
+  {
+   "text": "set a timer for ten minutes",
+   "intent": null,
+   "kind": "off-topic"
+  },
+  {
+   "text": "what time is it",
+   "intent": null,
+   "kind": "off-topic"
+  },
+  {
+   "text": "how do i get to the airport",
+   "intent": null,
+   "kind": "off-topic"
+  },
+  {
+   "text": "translate hello into spanish",
+   "intent": null,
+   "kind": "off-topic"
+  },
+  {
+   "text": "write me a poem about the sea",
+   "intent": null,
+   "kind": "off-topic"
+  },
+  {
+   "text": "what is the stock price of apple",
+   "intent": null,
+   "kind": "off-topic"
+  },
+  {
+   "text": "sing me a song",
+   "intent": null,
+   "kind": "off-topic"
+  },
+  {
+   "text": "asdf qwerty zxcv",
+   "intent": null,
+   "kind": "off-topic"
+  },
+  {
+   "text": "blah blah blah",
+   "intent": null,
+   "kind": "off-topic"
+  },
+  {
+   "text": "hmm",
+   "intent": null,
+   "kind": "off-topic"
+  },
+  {
+   "text": "um",
+   "intent": null,
+   "kind": "off-topic"
+  },
+  {
+   "text": "one two three testing",
+   "intent": null,
+   "kind": "off-topic"
+  },
+  {
+   "text": "how do i fix my car",
+   "intent": null,
+   "kind": "off-topic"
+  },
+  {
+   "text": "what is the meaning of life",
+   "intent": null,
+   "kind": "off-topic"
+  },
+  {
+   "text": "best pizza near me",
+   "intent": null,
+   "kind": "off-topic"
+  },
+  {
+   "text": "who is the president of brazil",
+   "intent": null,
+   "kind": "off-topic"
+  },
+  {
+   "text": "how many calories are in a banana",
+   "intent": null,
+   "kind": "off-topic"
+  },
+  {
+   "text": "what's the best way to learn guitar",
+   "intent": null,
+   "kind": "off-topic"
+  },
+  {
+   "text": "who painted the mona lisa",
+   "intent": null,
+   "kind": "off-topic"
+  },
+  {
+   "text": "convert ten miles to kilometers",
+   "intent": null,
+   "kind": "off-topic"
+  },
+  {
+   "text": "what is the square root of sixteen",
+   "intent": null,
+   "kind": "off-topic"
+  },
+  {
+   "text": "tell me about dinosaurs",
+   "intent": null,
+   "kind": "off-topic"
+  },
+  {
+   "text": "should i buy a new car",
+   "intent": null,
+   "kind": "off-topic"
+  },
+  {
+   "text": "how do i cook rice",
+   "intent": null,
+   "kind": "off-topic"
+  },
+  {
+   "text": "what's trending in the news",
+   "intent": null,
+   "kind": "off-topic"
+  },
+  {
+   "text": "which phone should i buy",
+   "intent": null,
+   "kind": "off-topic-adjacent"
+  },
+  {
+   "text": "how do i download music",
+   "intent": null,
+   "kind": "off-topic-adjacent"
+  },
+  {
+   "text": "what's the best way to share a photo on instagram",
+   "intent": null,
+   "kind": "off-topic-adjacent"
+  },
+  {
+   "text": "how do i back up my photos to google",
+   "intent": null,
+   "kind": "off-topic-adjacent"
+  },
+  {
+   "text": "how do i delete a text message",
+   "intent": null,
+   "kind": "off-topic-adjacent"
+  },
+  {
+   "text": "does this app spy on me",
+   "intent": "privacy",
+   "kind": "blind"
+  },
+  {
+   "text": "is my stuff protected from hackers",
+   "intent": "privacy",
+   "kind": "blind"
+  },
+  {
+   "text": "how much of my information is exposed",
+   "intent": "privacy",
+   "kind": "blind"
+  },
+  {
+   "text": "is this running on someone else's servers",
+   "intent": "privacy.cloud",
+   "kind": "blind"
+  },
+  {
+   "text": "does this need the cloud to answer me",
+   "intent": "privacy.cloud",
+   "kind": "blind"
+  },
+  {
+   "text": "do my questions travel across the web",
+   "intent": "privacy.cloud",
+   "kind": "blind"
+  },
+  {
+   "text": "ok so is it cloud based or what",
+   "intent": "privacy.cloud",
+   "kind": "blind"
+  },
+  {
+   "text": "where do my conversations end up",
+   "intent": "privacy.storage",
+   "kind": "blind"
+  },
+  {
+   "text": "do you hold on to my messages",
+   "intent": "privacy.storage",
+   "kind": "blind"
+  },
+  {
+   "text": "can other people on this computer see my old chats",
+   "intent": "privacy.storage",
+   "kind": "blind"
+  },
+  {
+   "text": "what happens to my saved conversations if i clear the browser",
+   "intent": "privacy.storage",
+   "kind": "blind"
+  },
+  {
+   "text": "what happens to my privacy if i switch to chat g p t",
+   "intent": "privacy.provider",
+   "kind": "blind"
+  },
+  {
+   "text": "using an outside company's model is that private",
+   "intent": "privacy.provider",
+   "kind": "blind"
+  },
+  {
+   "text": "do i lose privacy when i bring my own key",
+   "intent": "privacy.provider",
+   "kind": "blind"
+  },
+  {
+   "text": "is registration needed",
+   "intent": "privacy.account",
+   "kind": "blind"
+  },
+  {
+   "text": "will i get charged anything",
+   "intent": "privacy.account",
+   "kind": "blind"
+  },
+  {
+   "text": "do you put cookies on my browser",
+   "intent": "privacy.account",
+   "kind": "blind"
+  },
+  {
+   "text": "is there a paid plan",
+   "intent": "privacy.account",
+   "kind": "blind"
+  },
+  {
+   "text": "i would rather use my voice than type tell me about that",
+   "intent": "talking",
+   "kind": "blind"
+  },
+  {
+   "text": "what are the speaking and hearing features",
+   "intent": "talking",
+   "kind": "blind"
+  },
+  {
+   "text": "can this app listen and talk",
+   "intent": "talking",
+   "kind": "blind"
+  },
+  {
+   "text": "have the assistant read its answers aloud",
+   "intent": "talking.read",
+   "kind": "blind"
+  },
+  {
+   "text": "which voice does it use to speak",
+   "intent": "talking.read",
+   "kind": "blind"
+  },
+  {
+   "text": "can i hear the replies",
+   "intent": "talking.read",
+   "kind": "blind"
+  },
+  {
+   "text": "speak instead of typing a message",
+   "intent": "talking.dictate",
+   "kind": "blind"
+  },
+  {
+   "text": "turn what i say into text in the box",
+   "intent": "talking.dictate",
+   "kind": "blind"
+  },
+  {
+   "text": "is there voice typing",
+   "intent": "talking.dictate",
+   "kind": "blind"
+  },
+  {
+   "text": "how do i have a back and forth spoken conversation",
+   "intent": "talking.call",
+   "kind": "blind"
+  },
+  {
+   "text": "what does the phone icon do",
+   "intent": "talking.call",
+   "kind": "blind"
+  },
+  {
+   "text": "can i chat with it while i'm cooking without touching the screen",
+   "intent": "talking.call",
+   "kind": "blind"
+  },
+  {
+   "text": "can the replies become audio files",
+   "intent": "talking.notes",
+   "kind": "blind"
+  },
+  {
+   "text": "i'd like to listen to a long answer later",
+   "intent": "talking.notes",
+   "kind": "blind"
+  },
+  {
+   "text": "what is a voice note here",
+   "intent": "talking.notes",
+   "kind": "blind"
+  },
+  {
+   "text": "how do i install the brain",
+   "intent": "setup",
+   "kind": "blind"
+  },
+  {
+   "text": "kick off the download",
+   "intent": "setup",
+   "kind": "blind"
+  },
+  {
+   "text": "what do i need to do to start using this",
+   "intent": "setup",
+   "kind": "blind"
+  },
+  {
+   "text": "what is the download size",
+   "intent": "setup.size",
+   "kind": "blind"
+  },
+  {
+   "text": "is it going to be a big file",
+   "intent": "setup.size",
+   "kind": "blind"
+  },
+  {
+   "text": "how long will the download take on my connection",
+   "intent": "setup.size",
+   "kind": "blind"
+  },
+  {
+   "text": "after i set it up can i switch off wifi",
+   "intent": "setup.offline",
+   "kind": "blind"
+  },
+  {
+   "text": "works on a flight",
+   "intent": "setup.offline",
+   "kind": "blind"
+  },
+  {
+   "text": "do i need internet to chat once it's downloaded",
+   "intent": "setup.offline",
+   "kind": "blind"
+  },
+  {
+   "text": "can my phone handle this",
+   "intent": "setup.compat",
+   "kind": "blind"
+  },
+  {
+   "text": "will this run on my five year old laptop",
+   "intent": "setup.compat",
+   "kind": "blind"
+  },
+  {
+   "text": "what kind of device do i need",
+   "intent": "setup.compat",
+   "kind": "blind"
+  },
+  {
+   "text": "is it going to be slow on a chromebook",
+   "intent": "setup.compat",
+   "kind": "blind"
+  },
+  {
+   "text": "i want to send this to my mother",
+   "intent": "share",
+   "kind": "blind"
+  },
+  {
+   "text": "how do i show this to a friend",
+   "intent": "share",
+   "kind": "blind"
+  },
+  {
+   "text": "is there a link i can pass along",
+   "intent": "share",
+   "kind": "blind"
+  },
+  {
+   "text": "put my old conversations back from the file",
+   "intent": "restore",
+   "kind": "blind"
+  },
+  {
+   "text": "i have an exported file i want to load",
+   "intent": "restore",
+   "kind": "blind"
+  },
+  {
+   "text": "how do i get my backup into this device",
+   "intent": "restore",
+   "kind": "blind"
+  },
+  {
+   "text": "i would like to download all my conversations",
+   "intent": "export",
+   "kind": "blind"
+  },
+  {
+   "text": "create a backup file",
+   "intent": "export",
+   "kind": "blind"
+  },
+  {
+   "text": "how do i keep my chats before i clear my browser",
+   "intent": "export",
+   "kind": "blind"
+  },
+  {
+   "text": "where can i adjust my configuration",
+   "intent": "settings",
+   "kind": "blind"
+  },
+  {
+   "text": "open the settings area",
+   "intent": "settings",
+   "kind": "blind"
+  },
+  {
+   "text": "carry my settings over to my tablet",
+   "intent": "settings.transfer",
+   "kind": "blind"
+  },
+  {
+   "text": "share my setup with my other device using a code",
+   "intent": "settings.transfer",
+   "kind": "blind"
+  },
+  {
+   "text": "i have an api key where do i put it",
+   "intent": "settings.provider",
+   "kind": "blind"
+  },
+  {
+   "text": "can i use a server on my home network",
+   "intent": "settings.provider",
+   "kind": "blind"
+  },
+  {
+   "text": "switch to another company's model",
+   "intent": "settings.provider",
+   "kind": "blind"
+  },
+  {
+   "text": "can i leave you a voice mail",
+   "intent": "voicemail",
+   "kind": "blind"
+  },
+  {
+   "text": "i want to say something long out loud and have it saved",
+   "intent": "voicemail",
+   "kind": "blind"
+  },
+  {
+   "text": "record my message now",
+   "intent": "voicemail",
+   "kind": "blind"
+  },
+  {
+   "text": "i'm lost can someone help me",
+   "intent": "help",
+   "kind": "blind"
+  },
+  {
+   "text": "there's a problem with this",
+   "intent": "help",
+   "kind": "blind"
+  },
+  {
+   "text": "i need assistance",
+   "intent": "help",
+   "kind": "blind"
+  },
+  {
+   "text": "the model download is not progressing",
+   "intent": "help.stuck",
+   "kind": "blind"
+  },
+  {
+   "text": "it keeps saying downloading but nothing happens",
+   "intent": "help.stuck",
+   "kind": "blind"
+  },
+  {
+   "text": "the download got stuck partway",
+   "intent": "help.stuck",
+   "kind": "blind"
+  },
+  {
+   "text": "my model fails to start",
+   "intent": "help.load",
+   "kind": "blind"
+  },
+  {
+   "text": "the app crashed when loading the language model",
+   "intent": "help.load",
+   "kind": "blind"
+  },
+  {
+   "text": "it ran out of memory trying to load",
+   "intent": "help.load",
+   "kind": "blind"
+  },
+  {
+   "text": "my voice isn't being picked up",
+   "intent": "help.mic",
+   "kind": "blind"
+  },
+  {
+   "text": "the microphone button is greyed out",
+   "intent": "help.mic",
+   "kind": "blind"
+  },
+  {
+   "text": "i denied microphone access by mistake",
+   "intent": "help.mic",
+   "kind": "blind"
+  },
+  {
+   "text": "i need to clear some room",
+   "intent": "help.storage",
+   "kind": "blind"
+  },
+  {
+   "text": "how do i uninstall the model files",
+   "intent": "help.storage",
+   "kind": "blind"
+  },
+  {
+   "text": "get rid of everything the app saved",
+   "intent": "help.storage",
+   "kind": "blind"
+  },
+  {
+   "text": "forget the menu i want to chat now",
+   "intent": "chat",
+   "kind": "blind"
+  },
+  {
+   "text": "go straight to chatting",
+   "intent": "chat",
+   "kind": "blind"
+  },
+  {
+   "text": "i am done here let me type",
+   "intent": "chat",
+   "kind": "blind"
+  },
+  {
+   "text": "am i speaking to a real human",
+   "intent": "about.who",
+   "kind": "blind"
+  },
+  {
+   "text": "what exactly are you",
+   "intent": "about.who",
+   "kind": "blind"
+  },
+  {
+   "text": "are you intelligent or just a recording",
+   "intent": "about.who",
+   "kind": "blind"
+  },
+  {
+   "text": "what does private local chat do",
+   "intent": "about.what",
+   "kind": "blind"
+  },
+  {
+   "text": "what is this thing",
+   "intent": "about.what",
+   "kind": "blind"
+  },
+  {
+   "text": "give me an introduction to the app",
+   "intent": "about.what",
+   "kind": "blind"
+  },
+  {
+   "text": "how can i add this to my phone like an app",
+   "intent": "about.install",
+   "kind": "blind"
+  },
+  {
+   "text": "can i put this on my desktop",
+   "intent": "about.install",
+   "kind": "blind"
+  },
+  {
+   "text": "pin it to my dock",
+   "intent": "about.install",
+   "kind": "blind"
+  },
+  {
+   "text": "could you repeat the menu",
+   "intent": "ctl.repeat",
+   "kind": "blind"
+  },
+  {
+   "text": "say the choices again please",
+   "intent": "ctl.repeat",
+   "kind": "blind"
+  },
+  {
+   "text": "i didn't catch that",
+   "intent": "ctl.repeat",
+   "kind": "blind"
+  },
+  {
+   "text": "go to the previous menu",
+   "intent": "ctl.back",
+   "kind": "blind"
+  },
+  {
+   "text": "back please",
+   "intent": "ctl.back",
+   "kind": "blind"
+  },
+  {
+   "text": "take me one step back",
+   "intent": "ctl.back",
+   "kind": "blind"
+  },
+  {
+   "text": "how do i bake bread",
+   "intent": null,
+   "kind": "blind-off-topic"
+  },
+  {
+   "text": "what is the tallest building in the world",
+   "intent": null,
+   "kind": "blind-off-topic"
+  },
+  {
+   "text": "tell me a story about a dragon",
+   "intent": null,
+   "kind": "blind-off-topic"
+  },
+  {
+   "text": "who invented the telephone",
+   "intent": null,
+   "kind": "blind-off-topic"
+  },
+  {
+   "text": "what's my horoscope",
+   "intent": null,
+   "kind": "blind-off-topic"
+  },
+  {
+   "text": "how far is the moon",
+   "intent": null,
+   "kind": "blind-off-topic"
+  },
+  {
+   "text": "recommend a good movie",
+   "intent": null,
+   "kind": "blind-off-topic"
+  },
+  {
+   "text": "when does the pharmacy open",
+   "intent": null,
+   "kind": "blind-off-topic"
+  },
+  {
+   "text": "what is the speed of light",
+   "intent": null,
+   "kind": "blind-off-topic"
+  },
+  {
+   "text": "i like turtles",
+   "intent": null,
+   "kind": "blind-off-topic"
+  },
+  {
+   "text": "how many days until christmas",
+   "intent": null,
+   "kind": "blind-off-topic"
+  },
+  {
+   "text": "help me write an email to my boss",
+   "intent": null,
+   "kind": "blind-off-topic"
+  },
+  {
+   "text": "how do i make my phone battery last longer",
+   "intent": null,
+   "kind": "blind-off-topic-adjacent"
+  },
+  {
+   "text": "what's the best microphone to buy",
+   "intent": null,
+   "kind": "blind-off-topic-adjacent"
+  },
+  {
+   "text": "how do i share a file on dropbox",
+   "intent": null,
+   "kind": "blind-off-topic-adjacent"
+  },
+  {
+   "text": "um so before i start typing anything personal i just want to know that nobody else is going to get to see it",
+   "intent": "privacy",
+   "kind": "blind2"
+  },
+  {
+   "text": "when i ask a question does it get sent out to some server on the internet to be answered",
+   "intent": "privacy.cloud",
+   "kind": "blind2"
+  },
+  {
+   "text": "is it a cloud thing",
+   "intent": "privacy.cloud",
+   "kind": "blind2"
+  },
+  {
+   "text": "so where do all my past conversations get kept",
+   "intent": "privacy.storage",
+   "kind": "blind2"
+  },
+  {
+   "text": "will somebody else have a copy of the things i said",
+   "intent": "privacy.storage",
+   "kind": "blind2"
+  },
+  {
+   "text": "what if i want to use the paid one from open a i how does that affect my privacy",
+   "intent": "privacy.provider",
+   "kind": "blind2"
+  },
+  {
+   "text": "do i need to log in or give you my details",
+   "intent": "privacy.account",
+   "kind": "blind2"
+  },
+  {
+   "text": "is this thing going to charge me",
+   "intent": "privacy.account",
+   "kind": "blind2"
+  },
+  {
+   "text": "i've got trouble typing so i'd like to know what voice stuff there is",
+   "intent": "talking",
+   "kind": "blind2"
+  },
+  {
+   "text": "can it read me the answer so i don't have to look at the screen",
+   "intent": "talking.read",
+   "kind": "blind2"
+  },
+  {
+   "text": "make the thing say the reply",
+   "intent": "talking.read",
+   "kind": "blind2"
+  },
+  {
+   "text": "i'd rather say my message than type it can i do that",
+   "intent": "talking.dictate",
+   "kind": "blind2"
+  },
+  {
+   "text": "does it turn my speech into writing",
+   "intent": "talking.dictate",
+   "kind": "blind2"
+  },
+  {
+   "text": "i want to actually talk with it as in a phone call back and forth",
+   "intent": "talking.call",
+   "kind": "blind2"
+  },
+  {
+   "text": "can i turn what it wrote into a recording",
+   "intent": "talking.notes",
+   "kind": "blind2"
+  },
+  {
+   "text": "so how do i actually get the ai onto my device",
+   "intent": "setup",
+   "kind": "blind2"
+  },
+  {
+   "text": "let's get it installed",
+   "intent": "setup",
+   "kind": "blind2"
+  },
+  {
+   "text": "i'm on a data plan so how many gigabytes is this download going to be",
+   "intent": "setup.size",
+   "kind": "blind2"
+  },
+  {
+   "text": "if i'm somewhere without any internet does it still work",
+   "intent": "setup.offline",
+   "kind": "blind2"
+  },
+  {
+   "text": "can i turn off my wifi and keep chatting",
+   "intent": "setup.offline",
+   "kind": "blind2"
+  },
+  {
+   "text": "i have an older android phone will it be able to run this",
+   "intent": "setup.compat",
+   "kind": "blind2"
+  },
+  {
+   "text": "does my computer need a special graphics card",
+   "intent": "setup.compat",
+   "kind": "blind2"
+  },
+  {
+   "text": "my friend would love this how can i get it to her",
+   "intent": "share",
+   "kind": "blind2"
+  },
+  {
+   "text": "can you give me a link i can message to somebody",
+   "intent": "share",
+   "kind": "blind2"
+  },
+  {
+   "text": "i exported my chats last month and now i want them back",
+   "intent": "restore",
+   "kind": "blind2"
+  },
+  {
+   "text": "how can i load the file i saved",
+   "intent": "restore",
+   "kind": "blind2"
+  },
+  {
+   "text": "i want to keep a copy of all my chats somewhere safe",
+   "intent": "export",
+   "kind": "blind2"
+  },
+  {
+   "text": "how do i back up everything",
+   "intent": "export",
+   "kind": "blind2"
+  },
+  {
+   "text": "how do i adjust the settings of this app",
+   "intent": "settings",
+   "kind": "blind2"
+  },
+  {
+   "text": "i've set everything up on my laptop and want it on my phone too",
+   "intent": "settings.transfer",
+   "kind": "blind2"
+  },
+  {
+   "text": "how do i connect it to chat g p t with my own key",
+   "intent": "settings.provider",
+   "kind": "blind2"
+  },
+  {
+   "text": "can i point it at my own server",
+   "intent": "settings.provider",
+   "kind": "blind2"
+  },
+  {
+   "text": "i'd like to say something to you and have it recorded",
+   "intent": "voicemail",
+   "kind": "blind2"
+  },
+  {
+   "text": "can i leave a long voice message",
+   "intent": "voicemail",
+   "kind": "blind2"
+  },
+  {
+   "text": "uh something went wrong and i don't know what to do",
+   "intent": "help",
+   "kind": "blind2"
+  },
+  {
+   "text": "the download bar is not moving at all",
+   "intent": "help.stuck",
+   "kind": "blind2"
+  },
+  {
+   "text": "my download has been going for ages and is still not done",
+   "intent": "help.stuck",
+   "kind": "blind2"
+  },
+  {
+   "text": "i downloaded the model but now it won't open",
+   "intent": "help.load",
+   "kind": "blind2"
+  },
+  {
+   "text": "every time i try to load it the page crashes",
+   "intent": "help.load",
+   "kind": "blind2"
+  },
+  {
+   "text": "when i press the mic nothing happens",
+   "intent": "help.mic",
+   "kind": "blind2"
+  },
+  {
+   "text": "it keeps saying microphone not allowed",
+   "intent": "help.mic",
+   "kind": "blind2"
+  },
+  {
+   "text": "how do i get rid of the big file so i have room again",
+   "intent": "help.storage",
+   "kind": "blind2"
+  },
+  {
+   "text": "my phone says storage full because of this app",
+   "intent": "help.storage",
+   "kind": "blind2"
+  },
+  {
+   "text": "ok i've heard enough let's just talk",
+   "intent": "chat",
+   "kind": "blind2"
+  },
+  {
+   "text": "take me to the chat now",
+   "intent": "chat",
+   "kind": "blind2"
+  },
+  {
+   "text": "wait am i talking to a human or a machine",
+   "intent": "about.who",
+   "kind": "blind2"
+  },
+  {
+   "text": "do you actually understand me",
+   "intent": "about.who",
+   "kind": "blind2"
+  },
+  {
+   "text": "so what is this website",
+   "intent": "about.what",
+   "kind": "blind2"
+  },
+  {
+   "text": "what is it that you guys do here",
+   "intent": "about.what",
+   "kind": "blind2"
+  },
+  {
+   "text": "can i get this as an app on my phone",
+   "intent": "about.install",
+   "kind": "blind2"
+  },
+  {
+   "text": "add to home screen how",
+   "intent": "about.install",
+   "kind": "blind2"
+  },
+  {
+   "text": "sorry what were the options again",
+   "intent": "ctl.repeat",
+   "kind": "blind2"
+  },
+  {
+   "text": "can you say all that again",
+   "intent": "ctl.repeat",
+   "kind": "blind2"
+  },
+  {
+   "text": "no not that go back",
+   "intent": "ctl.back",
+   "kind": "blind2"
+  },
+  {
+   "text": "i pressed the wrong thing can we go back",
+   "intent": "ctl.back",
+   "kind": "blind2"
+  },
+  {
+   "text": "what's the best restaurant in town",
+   "intent": null,
+   "kind": "blind2-off-topic"
+  },
+  {
+   "text": "how do i change a tire",
+   "intent": null,
+   "kind": "blind2-off-topic"
+  },
+  {
+   "text": "what is photosynthesis",
+   "intent": null,
+   "kind": "blind2-off-topic"
+  },
+  {
+   "text": "can you help me with my math homework",
+   "intent": null,
+   "kind": "blind2-off-topic"
+  },
+  {
+   "text": "who is the king of england",
+   "intent": null,
+   "kind": "blind2-off-topic"
+  },
+  {
+   "text": "how long do i boil an egg",
+   "intent": null,
+   "kind": "blind2-off-topic"
+  },
+  {
+   "text": "what's a good name for a dog",
+   "intent": null,
+   "kind": "blind2-off-topic"
+  },
+  {
+   "text": "when is the next full moon",
+   "intent": null,
+   "kind": "blind2-off-topic"
+  },
+  {
+   "text": "play my favorite song",
+   "intent": null,
+   "kind": "blind2-off-topic"
+  },
+  {
+   "text": "turn on the lights",
+   "intent": null,
+   "kind": "blind2-off-topic"
+  },
+  {
+   "text": "how old is the earth",
+   "intent": null,
+   "kind": "blind2-off-topic"
+  },
+  {
+   "text": "give me a workout plan",
+   "intent": null,
+   "kind": "blind2-off-topic"
+  },
+  {
+   "text": "my wifi keeps disconnecting how do i fix my router",
+   "intent": null,
+   "kind": "blind2-off-topic-adjacent"
+  },
+  {
+   "text": "how do i record a phone call",
+   "intent": null,
+   "kind": "blind2-off-topic-adjacent"
+  },
+  {
+   "text": "how do i install an app on my smart tv",
+   "intent": null,
+   "kind": "blind2-off-topic-adjacent"
+  }
+ ]
+}

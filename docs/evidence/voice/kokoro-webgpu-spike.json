@@ -1,0 +1,40 @@
+{
+ "date": "2026-11-02",
+ "what": "Kokoro-82M (onnx-community/Kokoro-82M-v1.0-ONNX) via kokoro-js and transformers.js, WebGPU backend, Chromium on Boiler (NVIDIA RTX 3060, no shader-f16). Warm second generation of a 4.9 to 5.3 s sentence; model fetched from Hugging Face for the spike.",
+ "results": {
+  "fp32": {
+   "device": "webgpu",
+   "dtype": "fp32",
+   "loadMs": 32383,
+   "genMs": 729,
+   "audioSeconds": 4.9,
+   "rtf": 6.72,
+   "peak": 0.523,
+   "nan": false,
+   "gpu": {
+    "vendor": "nvidia",
+    "f16": false
+   },
+   "intelligibility": {
+    "asr": "faster-whisper tiny.en int8",
+    "wer": 0.0,
+    "transcript": "The capital of France is Paris. This is a short test of on-device speech."
+   }
+  },
+  "q8": {
+   "device": "webgpu",
+   "dtype": "q8",
+   "loadMs": 10426,
+   "genMs": 7324,
+   "audioSeconds": 5.3,
+   "rtf": 0.72,
+   "peak": 0.668,
+   "nan": false,
+   "gpu": {
+    "vendor": "nvidia",
+    "f16": false
+   }
+  }
+ },
+ "conclusion": "fp32 on a real GPU: perfect read-back (WER 0.0) at 6.7x real time, but the model is 326 MB. q8 on WebGPU runs mostly on the CPU (0.72x)."
+}

@@ -1,0 +1,36 @@
+{
+  "dateUtc": "2026-10-30",
+  "build": "e7302bf1c5a3746e100076ff9828e8869a618233",
+  "device": {
+    "productType": "iPhone16,1",
+    "ios": "26.6.2",
+    "build": "23G90"
+  },
+  "finding": "Actual APFS ENOSPC during WebKit writes; generic browser errors did not identify the underlying storage shortage",
+  "observations": {
+    "kernelErrno": 28,
+    "kernelMessage": "No space left on device",
+    "webKitAffected": true,
+    "otherSystemServicesAffected": true,
+    "amountDataAvailableAfterCleanupBytes": 505454592,
+    "totalDataAvailableFieldBytes": 76507250688,
+    "genericProbeError": {
+      "name": "UnknownError",
+      "phase": "open",
+      "message": "The operation failed for an unknown transient reason (e.g. out of memory)."
+    }
+  },
+  "cleanup": {
+    "automaticTestDownloadCancelled": true,
+    "isolatedAutomationModelBytesRemoved": 564402176,
+    "isolatedAutomationRemainingModelBytes": 0,
+    "normalBrowserStorageTouched": false
+  },
+  "limits": [
+    "The TotalDataAvailable field was misleading for immediate write headroom; do not treat it as usable free space.",
+    "This establishes a storage failure during these trials, not the cause of historical generation-time process termination.",
+    "No new relevant Jetsam report was found."
+  ],
+  "privateSystemLogSha256": "02297e2ab4d550968fcd137c4a3dc5c221de71ee645df01b2f7f26a0004fff9f",
+  "next": "Obtain at least 3 GB of real device headroom before another automated model download."
+}

@@ -1,0 +1,35 @@
+{
+  "recordedAt": "2026-10-30",
+  "scope": "Model storage policy and dedicated desktop QA profile; no claim of measured iPhone duplicate bytes",
+  "before": {
+    "verifiedDuplicateWeightBytesInOrdinaryHttpCache": 774368224,
+    "verifiedDuplicateFiles": 12,
+    "explicitModelStorageRetained": true
+  },
+  "change": {
+    "host": "assets.privatelocal.chat",
+    "weightExtensions": [
+      ".gguf",
+      ".bin"
+    ],
+    "browserCacheControl": "no-store",
+    "cloudflareEdgePolicyUnchanged": true,
+    "oldBrowserCopiesNotRetroactivelyPurged": true
+  },
+  "browserProof": {
+    "downloadedBytes": 21250464,
+    "sha256": "aca1933a48f2c201ddf469272d4f28448c65a81cc00cbeeba8d240913dd42535",
+    "ordinaryHttpFetchOfflineAvailable": false,
+    "explicitCacheStorageOfflineBytes": 21250464,
+    "temporaryExplicitCacheRemoved": true
+  },
+  "cleanup": {
+    "dedicatedQaHttpCacheCleared": true,
+    "modelOpfsRetained": true,
+    "personalBrowserStorageUntouched": true
+  },
+  "limitations": [
+    "A small explicit-cache persistence probe does not qualify full 9B model inference.",
+    "Browser no-store prevents HTTP duplication; the intentional offline model copy still consumes storage."
+  ]
+}

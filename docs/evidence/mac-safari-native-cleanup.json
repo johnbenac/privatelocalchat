@@ -1,0 +1,46 @@
+{
+  "recordedAt": "2026-10-30",
+  "build": "9f4805b80b1a74c86df4dc196fee9efd5ae4e1c0",
+  "surface": "Normal macOS Safari 27.0 / Metal, owned test window",
+  "modelBytesReused": 1202488640,
+  "turns": [
+    {
+      "nativeTokens": 512,
+      "nativeChunks": 514,
+      "exactTextMatch": true
+    },
+    {
+      "nativeTokens": 512,
+      "nativeChunks": 514,
+      "exactTextMatch": true
+    },
+    {
+      "nativeTokens": 512,
+      "nativeChunks": 514,
+      "exactTextMatch": true
+    }
+  ],
+  "cleanups": [
+    {
+      "nativeExit": "acknowledged",
+      "nativeExitMs": 31
+    },
+    {
+      "nativeExit": "acknowledged",
+      "nativeExitMs": 37
+    },
+    {
+      "nativeExit": "acknowledged",
+      "nativeExitMs": 36
+    }
+  ],
+  "completeObjects": 1598,
+  "pageSessions": 4,
+  "limitations": [
+    "Desktop Safari result only; iPhone lifecycle and margin checks remain open.",
+    "Renderer OS process identity and physical footprint were not attested in this test."
+  ],
+  "modelBytesAfterCleanup": 0,
+  "receiverClearedAfterQueuedEventsDrained": true,
+  "remoteControlDisabledAfterTrial": true
+}

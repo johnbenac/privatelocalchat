@@ -1,0 +1,13 @@
+{
+ "supportEmail": null,
+ "supportOwner": null,
+ "discussionsUrl": null,
+ "discussionsOwner": null,
+ "verifiedOn": null,
+ "demo": null,
+ "hostingLogs": null,
+ "umbrella": {
+  "name": "Example Org",
+  "url": "https://example.org/"
+ }
+}

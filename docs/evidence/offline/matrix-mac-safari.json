@@ -1,0 +1,33 @@
+{
+ "device": "Mac, Safari (macOS 26.7.1)",
+ "build": "59e18b7 (main)",
+ "method": "app served from this machine through the existing reverse tunnel to the Mac's 127.0.0.1; the server was stopped to make the origin unreachable; the Mac network stayed up",
+ "facts": {
+  "online": {
+   "files": 167,
+   "bulk": 8,
+   "hasMd": true,
+   "persisted": false,
+   "quotaGB": 82.5,
+   "usageMB": 42.5
+  },
+  "offline": {
+   "href": "http://127.0.0.1:18081/",
+   "booted": true,
+   "probe": "kept",
+   "input": true,
+   "controlled": true,
+   "banner": false
+  },
+  "help": {
+   "h1": "Help",
+   "isApp": false
+  }
+ },
+ "conclusions": [
+  "the saved app opens cold with the origin gone and keeps local data",
+  "the public Help page opens its own saved document",
+  "the noble-hashes _md.js file is saved",
+  "Safari does not grant persistent storage by default (persisted=false)"
+ ]
+}

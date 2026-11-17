@@ -1,0 +1,28 @@
+name: Update behaviour
+on:
+  pull_request:
+  push:
+    branches: [main, dev]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: update-e2e-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  update-e2e:
+    runs-on: ubuntu-24.04 # pinned: Playwright does not support the newer ubuntu-latest image yet
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+      - name: A new build arrives while a tab is open (docs/UPGRADE-BEHAVIOUR.md)
+        run: node tests/e2e/update-midsession.e2e.mjs
+      - name: A page older than the published build repairs itself once
+        run: node tests/e2e/fresh.e2e.mjs

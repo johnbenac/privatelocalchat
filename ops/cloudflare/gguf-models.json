@@ -1,0 +1,280 @@
+{
+ "lfm25_2_6b_q3": {
+  "prefix": "models/LFM2.5-2.6B-Q3_K_M/f4a289c8a200a5ca71005ba7abc2dad33058a450/",
+  "licenseFile": "ops/cloudflare/licenses/lfm.txt",
+  "licenseName": "LFM Open License v1.0",
+  "note": "LiquidAI/LFM2.5-2.6B revision f4a289c8a200a5ca71005ba7abc2dad33058a450, quantised to Q3_K_M with llama.cpp dd4623a74, split into 6 GGUF files. Immutable.",
+  "configurationId": "lfm-2.5-2.6b-q3-k-m-8k-f16-wllama-3.5.1-bounded16m-native-tools-token-count-v4",
+  "sourceBase": "https://assets.privatelocal.chat/models/LFM2.5-2.6B-Q3_K_M/f4a289c8a200a5ca71005ba7abc2dad33058a450/",
+  "languageModel": {
+   "id": "LiquidAI/LFM2.5-2.6B",
+   "sourceRevision": "f4a289c8a200a5ca71005ba7abc2dad33058a450",
+   "quantization": "Q3_K_M",
+   "quantizerCommit": "dd4623a74f0c85e6b1dd9ee99a92b9c67cac3708",
+   "license": "LFM Open License 1.0",
+   "totalBytes": 1366846112
+  },
+  "context": {
+   "n_ctx": 8192,
+   "n_batch": 32,
+   "n_ubatch": 32,
+   "n_parallel": 1,
+   "cache_type_k": "f16",
+   "cache_type_v": "f16",
+   "n_threads": 1,
+   "jinja": true,
+   "n_gpu_layers": -1
+  },
+  "sampling": {
+   "answer": {
+    "temperature": 0.2,
+    "top_p": 0.9,
+    "top_k": 40,
+    "repetition_penalty": 1.05,
+    "seed": 1,
+    "max_tokens": 256
+   },
+   "route": {
+    "temperature": 0,
+    "top_p": 1,
+    "top_k": 1,
+    "seed": 1,
+    "max_tokens": 128
+   }
+  },
+  "files": [
+   {
+    "path": "lfm2.5-2.6b-q3-k-m-dd4623a74-split.gguf-00001-of-00006.gguf",
+    "bytes": 262781600,
+    "sha256": "488a959f5bd9fb3bc8d58d3da6adc6a16e2c5163c1d6d16114153f6db9a3ecfe"
+   },
+   {
+    "path": "lfm2.5-2.6b-q3-k-m-dd4623a74-split.gguf-00002-of-00006.gguf",
+    "bytes": 251228768,
+    "sha256": "6616bddb49507826b54f1824fff68e4e511fd3b1b0d843d782361309803b8b05"
+   },
+   {
+    "path": "lfm2.5-2.6b-q3-k-m-dd4623a74-split.gguf-00003-of-00006.gguf",
+    "bytes": 244003488,
+    "sha256": "1522f0c25bdeff98af95126950450c4aecbfb3bc618372b7b69ef66cf50fc6cb"
+   },
+   {
+    "path": "lfm2.5-2.6b-q3-k-m-dd4623a74-split.gguf-00004-of-00006.gguf",
+    "bytes": 251187072,
+    "sha256": "78da32222dcd9612fad563655262f4282807a80e701b5ac567a4c33396159d71"
+   },
+   {
+    "path": "lfm2.5-2.6b-q3-k-m-dd4623a74-split.gguf-00005-of-00006.gguf",
+    "bytes": 249206304,
+    "sha256": "96c64033c89c160d7c184bfc150dfcc42e46a51cce46fb090c4a3263fd0eff7d"
+   },
+   {
+    "path": "lfm2.5-2.6b-q3-k-m-dd4623a74-split.gguf-00006-of-00006.gguf",
+    "bytes": 108438880,
+    "sha256": "fefbf7f5b1dbea7d6b13c506730c14ec6ecb97f7720e3d43398b089c37307606"
+   }
+  ],
+  "totalBytes": 1366846112
+ },
+ "granite40_h_1b_q4km": {
+  "prefix": "models/Granite-4.0-H-1B-Q4_K_M/d18cca4c121edb87d022116d281ce212c9136f57/",
+  "licenseFile": "ops/cloudflare/licenses/granite.txt",
+  "licenseName": "Apache-2.0",
+  "note": "ibm-granite/granite-4.0-h-1b revision d18cca4c121edb87d022116d281ce212c9136f57, quantised to Q4_K_M with llama.cpp dd4623a74, split into 12 GGUF files. Immutable.",
+  "configurationId": "granite-4.0-h-1b-q4-k-m-16k-f16-wllama-3.5.1-bounded16m-native-tools-v1",
+  "sourceBase": "https://assets.privatelocal.chat/models/Granite-4.0-H-1B-Q4_K_M/d18cca4c121edb87d022116d281ce212c9136f57/",
+  "languageModel": {
+   "id": "ibm-granite/granite-4.0-h-1b",
+   "sourceRevision": "d18cca4c121edb87d022116d281ce212c9136f57",
+   "sourceSha256": "2858260e27d3cee8ceb8eb5b46a54c29385e9eff8e4c6f170f8fc3d00e7c61be",
+   "quantization": "Q4_K_M",
+   "quantizerCommit": "dd4623a74f0c85e6b1dd9ee99a92b9c67cac3708",
+   "license": "Apache-2.0",
+   "textOnly": true,
+   "totalBytes": 901163200
+  },
+  "context": {
+   "n_ctx": 16384,
+   "n_batch": 32,
+   "n_ubatch": 32,
+   "n_parallel": 1,
+   "cache_type_k": "f16",
+   "cache_type_v": "f16",
+   "n_threads": 1,
+   "jinja": true,
+   "n_gpu_layers": -1
+  },
+  "sampling": {
+   "answer": {
+    "temperature": 0.2,
+    "top_p": 0.9,
+    "top_k": 40,
+    "repetition_penalty": 1.05,
+    "seed": 1,
+    "max_tokens": 256
+   },
+   "route": {
+    "temperature": 0,
+    "top_p": 1,
+    "top_k": 1,
+    "seed": 1,
+    "max_tokens": 128
+   }
+  },
+  "files": [
+   {
+    "path": "granite-4.0-h-1b-q4-k-m-dd4623a74-00001-of-00012.gguf",
+    "bytes": 129991264,
+    "sha256": "6fdde6fa573266ff25d3e3fd025eec998e7dbdb280ed20fc24a051b210c72389"
+   },
+   {
+    "path": "granite-4.0-h-1b-q4-k-m-dd4623a74-00002-of-00012.gguf",
+    "bytes": 77065408,
+    "sha256": "8b2d0cded9145bb081b84435b6b2cb88c2115ee575131491599947d5cdbbec64"
+   },
+   {
+    "path": "granite-4.0-h-1b-q4-k-m-dd4623a74-00003-of-00012.gguf",
+    "bytes": 74216448,
+    "sha256": "58ee1f468f073fc486c53a7691bbd8902be95b85c5c046cdd247545869396c31"
+   },
+   {
+    "path": "granite-4.0-h-1b-q4-k-m-dd4623a74-00004-of-00012.gguf",
+    "bytes": 75443392,
+    "sha256": "5d84cc90b6caecbbdab4c02ff151897d671d2fb68d1c5ed2f57c80631afb1c9f"
+   },
+   {
+    "path": "granite-4.0-h-1b-q4-k-m-dd4623a74-00005-of-00012.gguf",
+    "bytes": 73821376,
+    "sha256": "31b11d49817fd192be640f4f906055ee2a22d4bca098311f8a46905071033be2"
+   },
+   {
+    "path": "granite-4.0-h-1b-q4-k-m-dd4623a74-00006-of-00012.gguf",
+    "bytes": 72594432,
+    "sha256": "8c66364eec3d2217c6e90e38604f1276b9bb9f7f5f1568c491eb58dd6c9ac473"
+   },
+   {
+    "path": "granite-4.0-h-1b-q4-k-m-dd4623a74-00007-of-00012.gguf",
+    "bytes": 70738464,
+    "sha256": "ff46a314e2ba0bb1f3aa230d6373e30a97411a7a782f7d8befb2e5bd9fde465e"
+   },
+   {
+    "path": "granite-4.0-h-1b-q4-k-m-dd4623a74-00008-of-00012.gguf",
+    "bytes": 73747776,
+    "sha256": "236ea1bab05adfe955054b989cd3386200f5bd7c5f63ef34c3abf7ebbef8a29e"
+   },
+   {
+    "path": "granite-4.0-h-1b-q4-k-m-dd4623a74-00009-of-00012.gguf",
+    "bytes": 72797184,
+    "sha256": "d040f9f95f98642c44c94dc2613be180c2955810e6559e352dc9eea4d3b2a0d0"
+   },
+   {
+    "path": "granite-4.0-h-1b-q4-k-m-dd4623a74-00010-of-00012.gguf",
+    "bytes": 73821376,
+    "sha256": "4c7ab38146422d18635464a436b2e7a7c33e33278fa172391180f523f470c959"
+   },
+   {
+    "path": "granite-4.0-h-1b-q4-k-m-dd4623a74-00011-of-00012.gguf",
+    "bytes": 77663168,
+    "sha256": "904585cc23d2fda086289bbd7219d7199842a1650377c08a662055135e62e952"
+   },
+   {
+    "path": "granite-4.0-h-1b-q4-k-m-dd4623a74-00012-of-00012.gguf",
+    "bytes": 29262912,
+    "sha256": "ac4d95ff62e5ad509309371de48859e9bd20aa489e4c7622a1e6958a83f3ed76"
+   }
+  ],
+  "totalBytes": 901163200
+ },
+ "smollm2_135m_q4km": {
+  "prefix": "models/SmolLM2-135M-Instruct-Q4_K_M/09816acd5d99df7be770d85ea30822623dab342c/",
+  "licenseFile": "ops/cloudflare/licenses/smollm2-135m-instruct.txt",
+  "licenseName": "Apache-2.0",
+  "note": "bartowski/SmolLM2-135M-Instruct-GGUF at 09816acd5d99df7be770d85ea30822623dab342c (Q4_K_M, one file), published unchanged. Derived from HuggingFaceTB/SmolLM2-135M-Instruct (Apache-2.0). Immutable.",
+  "configurationId": "smollm2-135m-instruct-q4-k-m-4k-f16-wllama-3.5.1-v1",
+  "sourceBase": "https://huggingface.co/bartowski/SmolLM2-135M-Instruct-GGUF/resolve/09816acd5d99df7be770d85ea30822623dab342c/",
+  "languageModel": {
+   "id": "HuggingFaceTB/SmolLM2-135M-Instruct",
+   "sourceRevision": "09816acd5d99df7be770d85ea30822623dab342c",
+   "quantization": "Q4_K_M",
+   "license": "Apache-2.0",
+   "textOnly": true,
+   "totalBytes": 105454432,
+   "ggufRepo": "bartowski/SmolLM2-135M-Instruct-GGUF"
+  },
+  "context": {
+   "n_ctx": 4096,
+   "n_batch": 128,
+   "n_ubatch": 32,
+   "n_parallel": 1,
+   "cache_type_k": "f16",
+   "cache_type_v": "f16",
+   "n_threads": 1,
+   "jinja": true,
+   "n_gpu_layers": -1
+  },
+  "sampling": {
+   "answer": {
+    "temperature": 0.2,
+    "top_p": 0.9,
+    "top_k": 40,
+    "repetition_penalty": 1.1,
+    "seed": 1,
+    "max_tokens": 256
+   }
+  },
+  "files": [
+   {
+    "path": "SmolLM2-135M-Instruct-Q4_K_M.gguf",
+    "bytes": 105454432,
+    "sha256": "2e8040ceae7815abe0dcb3540b9995eaa1fa0d2ca9e797d0a635ae4433c68c2d"
+   }
+  ],
+  "totalBytes": 105454432
+ },
+ "granite40_h_350m_q4km": {
+  "prefix": "models/Granite-4.0-H-350M-Q4_K_M/a864f823cce6e6048b5752e2816fe7a23987d790/",
+  "licenseFile": "ops/cloudflare/licenses/granite-4.0-h-350m.txt",
+  "licenseName": "Apache-2.0",
+  "note": "ibm-granite/granite-4.0-h-350m-GGUF at a864f823cce6e6048b5752e2816fe7a23987d790 (Q4_K_M, one file), published unchanged. Derived from ibm-granite/granite-4.0-h-350m (Apache-2.0). Immutable.",
+  "configurationId": "granite-4.0-h-350m-q4-k-m-4k-f16-wllama-3.5.1-v1",
+  "sourceBase": "https://huggingface.co/ibm-granite/granite-4.0-h-350m-GGUF/resolve/a864f823cce6e6048b5752e2816fe7a23987d790/",
+  "languageModel": {
+   "id": "ibm-granite/granite-4.0-h-350m",
+   "sourceRevision": "a864f823cce6e6048b5752e2816fe7a23987d790",
+   "quantization": "Q4_K_M",
+   "license": "Apache-2.0",
+   "textOnly": true,
+   "totalBytes": 222662560,
+   "ggufRepo": "ibm-granite/granite-4.0-h-350m-GGUF"
+  },
+  "context": {
+   "n_ctx": 4096,
+   "n_batch": 128,
+   "n_ubatch": 32,
+   "n_parallel": 1,
+   "cache_type_k": "f16",
+   "cache_type_v": "f16",
+   "n_threads": 1,
+   "jinja": true,
+   "n_gpu_layers": -1
+  },
+  "sampling": {
+   "answer": {
+    "temperature": 0.2,
+    "top_p": 0.9,
+    "top_k": 40,
+    "repetition_penalty": 1.05,
+    "seed": 1,
+    "max_tokens": 256
+   }
+  },
+  "files": [
+   {
+    "path": "granite-4.0-h-350m-Q4_K_M.gguf",
+    "bytes": 222662560,
+    "sha256": "0a8d6a7373602fadfba274a640ba784b86cc6847f1c67f1b0a90fa2ec266b7fb"
+   }
+  ],
+  "totalBytes": 222662560
+ }
+}

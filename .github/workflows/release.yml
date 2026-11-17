@@ -1,0 +1,66 @@
+name: Release
+on:
+  workflow_run:
+    workflows: ["Deploy Cloudflare Pages"]
+    branches: [main]
+    types: [completed]
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+  actions: read
+  id-token: write       # the provenance attestation of the release files (actions/attest-build-provenance)
+  attestations: write
+
+jobs:
+  release:
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0  # semantic-release needs tags/history
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: A release needs the data upgrade suite green for this commit
+        # tests/e2e/data-upgrade.e2e.mjs loads data from earlier releases into this build (docs/DATA-COMPATIBILITY.md). It runs on every push to main, beside the deploy.
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          for attempt in $(seq 1 60); do
+            result=$(gh run list --workflow "Data upgrade" --commit "$SHA" --limit 1 --json status,conclusion --jq '.[0] | "\(.status) \(.conclusion)"' 2>/dev/null || true)
+            case "$result" in
+              "completed success") echo "The data upgrade suite passed for $SHA."; exit 0 ;;
+              completed*) echo "The data upgrade suite did not pass for $SHA ($result). No release."; exit 1 ;;
+            esac
+            echo "Waiting for the data upgrade suite for $SHA (${result:-not started})..."
+            sleep 30
+          done
+          echo "The data upgrade suite did not finish for $SHA. No release."; exit 1
+      - name: Install dependencies
+        # The release zips are built from this commit (scripts/package-release.mjs), which needs the build's dependencies.
+        run: npm ci
+      - name: Semantic Release
+        id: release
+        uses: cycjimmy/semantic-release-action@v4
+        with:
+          extra_plugins: |
+            @semantic-release/changelog
+            @semantic-release/exec
+            @semantic-release/git
+            @semantic-release/github
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}   # the notes read the previous release's compat.json with gh
+      - name: Attest the release files
+        # After the release, as its own step: if this fails the release stands and the files are still published with their checksums.
+        # `gh attestation verify <file> --repo johnbenac/privatelocalchat` checks a download against it (docs/RELEASING.md).
+        if: steps.release.outputs.new_release_published == 'true'
+        continue-on-error: true
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: release-assets/*

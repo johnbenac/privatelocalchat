@@ -1,0 +1,42 @@
+{
+  "dateUtc": "2026-10-30",
+  "status": "Prepared and locally sampled for output parity; not selected or deployed",
+  "preparedFrontendBuild": {
+    "version": "2.0.0",
+    "commit": "9f666203389c9dee18289b7f10bdbe48af082260",
+    "branch": "main",
+    "environment": "production",
+    "builtAt": "2026-10-30T09:23:04.343Z"
+  },
+  "baselineWasmSha256": "1bf7ed18c5cf0071d5ce2651c952778103c65d75f658b8b9638f2988912ab1b8",
+  "candidateWasmSha256": "ea9d24143b3c1ba6a0c73213be7dbc7fc57c0472b8e55d6cf7206807ad1fe0fd",
+  "nativeRuntime": "wllama/privatelocalchat-queue-production-20261029-v1/compat",
+  "changedBodies": 51,
+  "sourceReconstructionVerified": true,
+  "unchangedImportsAndExports": true,
+  "productionUiExcludesDevelopmentControls": true,
+  "realGpu": "Chromium/Vulkan on NVIDIA; cached real 2B model",
+  "parity": [
+    {
+      "turn": 1,
+      "nativeCompletionTokens": 7,
+      "exactTextMatch": true
+    },
+    {
+      "turn": 2,
+      "nativeCompletionTokens": 28,
+      "exactTextMatch": true
+    },
+    {
+      "turn": 3,
+      "nativeCompletionTokens": 512,
+      "exactTextMatch": true
+    }
+  ],
+  "limits": [
+    "Sampled output parity does not establish iPhone survival or memory margin",
+    "The current production artifact selection and live deployment are unchanged",
+    "The candidate must be qualified and explicitly selected before source promotion can carry this workaround"
+  ],
+  "privateReceiptSha256": "1d209fad2e55efddde8bd4b897dcf238ee703fee0215b8ea61c528aeff86eb99"
+}

@@ -1,0 +1,67 @@
+{
+  "dateUtc": "2026-10-30",
+  "experiment": "E02",
+  "build": "eb8a16d6b1cb24efb9c4a8b73e5e156c3140d4a3",
+  "variant": "privatelocalchat-compiler-control-20261030-v1",
+  "wasmSha256": "dbaf064fbeefcae1ab86322a9e52b2fc0de2e52e1f9e00cf72a787ed1f1142fc",
+  "device": "User-reported iPhone 15 Pro, DuckDuckGo",
+  "samePageAcrossObservedTrial": true,
+  "automaticLoad": {
+    "startedAt": "2026-10-30T06:30:22.006Z",
+    "completedAt": "2026-10-30T06:30:27.358Z",
+    "durationMs": 5350
+  },
+  "downloadGap": "User confirmed multitasking, subsequent resumption and Ready; absence of packets was not treated as proof of eviction.",
+  "longCompletedReply": {
+    "nativeUsage": {
+      "commonPrefixTokens": 1,
+      "completionTokens": 211,
+      "evaluatedTokens": 173,
+      "promptTokens": 173,
+      "reusedTokens": 0,
+      "totalTokens": 384
+    },
+    "timing": {
+      "decodeMs": 172099.64,
+      "firstTokenMs": 123058.08,
+      "prefillMs": 123058.08
+    },
+    "wasmCapacityBytes": 945422336,
+    "checkpointCount": 1,
+    "checkpointCurrentBytes": 20201932,
+    "queue": {
+      "commandSubmitBatchSize": 32,
+      "graphBatchesCompleted": 504,
+      "graphBatchesInFlightHighWater": 1,
+      "graphBatchesPending": 0,
+      "graphBatchesSubmitted": 504,
+      "graphEvaluations": 520,
+      "maxInFlightBatches": 2,
+      "queueWaitMicroseconds": 8605060,
+      "queueWaits": 3572
+    },
+    "userReportedNoGlitch": true
+  },
+  "interpretation": "Initial physical evidence supports continuing the compiler candidate. A 211-native-token reply survived on the same page. This is not a matched-prompt causal proof, measured process margin, or a completed release gate.",
+  "limits": [
+    "This build captured counts/timing, not prompt or response content. Exact instructions, word count, text and token boundaries are unverified.",
+    "The first Gettysburg attempt produced only 12 native tokens; it was not a long-response qualification.",
+    "CPU-heavy placement was held fixed. Prompt processing and decoding are both slow.",
+    "No new OS termination report or process-footprint trace was collected in this trial."
+  ],
+  "next": [
+    "Add verified full-object capture without changing runtime bytes or placement.",
+    "Add bounded two-way remote commands so further phone trials can be driven and observed by the agent.",
+    "Use a separate experiment for GPU offload restoration."
+  ],
+  "privateReceipts": [
+    {
+      "file": "work/evidence/iphone-compiler-startup.json",
+      "sha256": "eae2f264c534f0cdd1f5ab9ff33b650c37a3d819fa157c6e906a806aa1945e62"
+    },
+    {
+      "file": "work/evidence/iphone-compiler-long-complete.json",
+      "sha256": "d34fb5376192e2cf58bdcd0ea6135a62fe5e29b35ed4fcf5236a784bbb9af18b"
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "buildId": "privatelocalchat-owner-cleanup-debug-20261030-v1",
+  "baseBuildId": "retained-v1q-chat-stable-slim-20260901",
+  "compiler": "Emscripten 4.0.20-git",
+  "compilerReleaseCommit": "c387d7a7e9537d0041d2c3ae71b7538cc978104e",
+  "loadRequestFields": 69,
+  "loadResponseFields": 23,
+  "compatOnly": true,
+  "patchSha256": "655089b7754623daa5def588e43eb6077c200a7e0c0bf2b8ff1a7979bc459b0e",
+  "baseSourceSha256": {
+    "cpp/wllama-build-id.h": "fb7d01b88873b7df626edcf0f41bdc56cff14ca86b88ec4e81db070c80809f68",
+    "cpp/wllama-context.h": "1aa52f2acfd825f0c33ad827f39822905ad3a2cebe14ec5ba1bf7c285efe07c8",
+    "llama.cpp/common/common.cpp": "e3d3839319794e706287e32936ecfb4554606fe34912edc18d11929bd3f039d5",
+    "llama.cpp/tools/server/server-context.cpp": "fd633652c66a9187283f34102b28aee708faf4692d64791067498ef113c2b3fc",
+    "llama.cpp/ggml/src/ggml-backend.cpp": "6dcf439d2d49e4df07c72b6730d86ca3978fdb7e95999e0492d7c281ffa17b74",
+    "CMakeLists.txt": "c52c9029029cea19cc397bf897d1ba8e5eab18a25af37c41a052adffdf8ad9f5",
+    "cpp/checkpoint-diagnostics.cpp": "e8bc79eac400a712d6b53d591df48dd2a986c90655c5f22484177f9f61f1201a",
+    "scripts/patch_native_action_guard.mjs": "201657e0845d6daa2dc2e80e9bc1d6edead861402e1a5fd09b0eaff940b7b131",
+    "llama.cpp/ggml/src/ggml-webgpu/ggml-webgpu.cpp": "70062cc4e7f14fe87d4b0c363a2489054bec256cdb3b1fb18a073c8390198daf",
+    "cpp/wllama.cpp": "c3da9bff6986c6a0f497199e2783cb7524ad218d63b1dd0888ec06a1842bc2b3"
+  },
+  "webGpuCreationCounters": true,
+  "queuePatchSha256": "526a20939c9a6796f29878003d3fea887c1f8a8e7e25e9b612bc90d8f07f1604",
+  "queuePolicy": {
+    "maxInFlightBatches": 2,
+    "commandSubmitBatchSize": 32,
+    "drainAtGraphEnd": true
+  },
+  "wrapperSource": "ops/native/base-wllama-v1q.js",
+  "wrapperSourceSha256": "9d383dbc0b540407bbdaa9a1a60cf69e5cc88287f6be8bdf641eec1315664031",
+  "catalogBaseBuildId": "privatelocalchat-queue-production-20261029-v1",
+  "developmentDiagnostics": true,
+  "ownerCleanupPatchPath": "ops/native/dev-native-owner-cleanup.patch",
+  "ownerCleanupPatchSha256": "25193dd20067da54d81b9c291c727beb991b85882cd95d2e43c09bcde21271c5",
+  "compilerControl": {
+    "id": "privatelocalchat-owner-compiler-control-20261030-v1",
+    "sourceSha256": "6544e252a008a6d0e6e619ccbc19abce3745196cb3df4a23ac419b4098aeb080",
+    "receipt": "ops/native/dev-owner-compiler-control.json",
+    "tool": "ops/native/compiler-control.mjs",
+    "toolSha256": "9cd32b3a4bcd31065e23c5aeb81443195414a404f12713fecc34882ef429cf99",
+    "changedBodies": 51,
+    "minimumOriginalBodyBytesExclusive": 20000,
+    "maximumOriginalBodyBytesInclusive": 100000,
+    "paddedBodyBytes": 160000,
+    "diagnosticIntervention": true
+  },
+  "webGpuInstrumentationSha256": "642aa1f75bed67c24e154aefc64b0621c8c66ec1cd47a36b53f0005b0c805c74",
+  "webGpuDeviceErrors": true,
+  "symbolMap": {
+    "tool": "ops/native/native-symbols.mjs",
+    "toolSha256": "e0c9ee1fbdcc08d8489d2f64a9ec58f1b738e612763bb8132162800cd04dda21",
+    "symbolsSha256": "f5409ee9308619746ae6e668c135eeb26519a831e4d882888c1fe3af98289d40",
+    "wasmSourceSha256": "6544e252a008a6d0e6e619ccbc19abce3745196cb3df4a23ac419b4098aeb080"
+  },
+  "files": {
+    "compat.wasm": {
+      "sha256": "77d16dd0a2ba93b504ae2c799ed1ae4e3eebefd834dbb74ed9245287abd146af",
+      "bytes": 20674262
+    },
+    "compat-worker.js": {
+      "sha256": "9a8e3cba6433064672fedbc41ecbf03c13969c8ccb2b6fa4bc0769ad6c6bbcbf",
+      "bytes": 170895
+    },
+    "wllama.js": {
+      "sha256": "31d5b039d2928bb64d2002dbad7dd916a8f26214f6c25ab979861f133402d958",
+      "bytes": 495548
+    }
+  }
+}

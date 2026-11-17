@@ -1,0 +1,24 @@
+{
+  "implementationCommit": "9b746466ac5ef13fb0aa958002db85b0ecb9a4dd",
+  "unitChecks": {
+    "development": 35,
+    "productionCandidate": 24,
+    "result": "pass"
+  },
+  "browserControlFixture": [
+    "Interrupted download intent persisted",
+    "Page reload resumed without a second click",
+    "Model loaded automatically",
+    "Further reopen did not repeat loading"
+  ],
+  "realModel": {
+    "surface": "Locally routed development artifact, actual cached Qwen3.5-2B and native GPU runtime",
+    "nativeBuildId": "privatelocalchat-queue-20261029-v2",
+    "result": "Saved request resumed after reload; complete inventory skipped download; model automatically loaded and answered arithmetic correctly."
+  },
+  "limits": [
+    "Fixture download failures are simulated; the separate inference check uses the actual model.",
+    "This does not resolve the iPhone generation crash.",
+    "No background download is promised while the page is closed."
+  ]
+}

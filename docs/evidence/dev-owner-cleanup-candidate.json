@@ -1,0 +1,117 @@
+{
+  "recordedAt": "2026-10-30",
+  "nativeBuildId": "privatelocalchat-owner-cleanup-debug-20261030-v1",
+  "variant": "privatelocalchat-owner-compiler-control-20261030-v1",
+  "wasmSha256": "77d16dd0a2ba93b504ae2c799ed1ae4e3eebefd834dbb74ed9245287abd146af",
+  "unitChecksPassed": 63,
+  "source": "Source-built owning-context cleanup plus existing checkpoint/queue instrumentation, refreshed compatibility symbols and bounded device-error forwarding",
+  "compilerControl": "51 bodies; restoration verifies exact 6544e252 baseline. Padding remains a diagnostic intervention.",
+  "fullGpuCycles": [
+    {
+      "arm": "candidate",
+      "gpu": "RTX 5060",
+      "admissionScope": "Desktop test admission based on measured ~1210 MiB buffer demand plus reserve; not iPhone margin qualification",
+      "nativeHash": "77d16dd0a2ba93b504ae2c799ed1ae4e3eebefd834dbb74ed9245287abd146af",
+      "buildId": "privatelocalchat-owner-cleanup-debug-20261030-v1",
+      "modelCacheBytes": 1202488640,
+      "modelRedownloaded": false,
+      "nativeTokens": 512,
+      "textSha256": "c9a1aff033bbe3f7457d7bc38ebc14e72ae3ee9b77d59f0aac767f4539d40009",
+      "cleanup": {
+        "nativeExit": "acknowledged",
+        "beforeNativeExit": {
+          "wasm_capacity_bytes": 134217728,
+          "malloc_arena_bytes": 82440016,
+          "malloc_live_bytes": 79907072,
+          "malloc_free_bytes": 2532944,
+          "malloc_keepcost_bytes": 995096,
+          "sbrk_bytes": 90230784,
+          "qaGpuBufferCalls": {
+            "createdCount": 10,
+            "createdBytes": 1268986248,
+            "destroyedCount": 1,
+            "destroyedBytes": 993280,
+            "explicitlyUndestroyedBytes": 1267992968
+          }
+        },
+        "nativeExitMs": 62
+      },
+      "errors": [],
+      "observations": "GPU counters record createBuffer/destroy calls, not garbage collection or physical GPU residency. Test-only glue hooks leave native Wasm bytes unchanged.",
+      "cycle": 1
+    },
+    {
+      "arm": "candidate",
+      "gpu": "RTX 5060",
+      "admissionScope": "Desktop test admission based on measured ~1210 MiB buffer demand plus reserve; not iPhone margin qualification",
+      "nativeHash": "77d16dd0a2ba93b504ae2c799ed1ae4e3eebefd834dbb74ed9245287abd146af",
+      "buildId": "privatelocalchat-owner-cleanup-debug-20261030-v1",
+      "modelCacheBytes": 1202488640,
+      "modelRedownloaded": false,
+      "nativeTokens": 512,
+      "textSha256": "c9a1aff033bbe3f7457d7bc38ebc14e72ae3ee9b77d59f0aac767f4539d40009",
+      "cleanup": {
+        "nativeExit": "acknowledged",
+        "beforeNativeExit": {
+          "wasm_capacity_bytes": 134217728,
+          "malloc_arena_bytes": 82440016,
+          "malloc_live_bytes": 79907072,
+          "malloc_free_bytes": 2532944,
+          "malloc_keepcost_bytes": 995096,
+          "sbrk_bytes": 90230784,
+          "qaGpuBufferCalls": {
+            "createdCount": 10,
+            "createdBytes": 1268986248,
+            "destroyedCount": 1,
+            "destroyedBytes": 993280,
+            "explicitlyUndestroyedBytes": 1267992968
+          }
+        },
+        "nativeExitMs": 73
+      },
+      "errors": [],
+      "observations": "GPU counters record createBuffer/destroy calls, not garbage collection or physical GPU residency. Test-only glue hooks leave native Wasm bytes unchanged.",
+      "cycle": 2
+    },
+    {
+      "arm": "candidate",
+      "gpu": "RTX 5060",
+      "admissionScope": "Desktop test admission based on measured ~1210 MiB buffer demand plus reserve; not iPhone margin qualification",
+      "nativeHash": "77d16dd0a2ba93b504ae2c799ed1ae4e3eebefd834dbb74ed9245287abd146af",
+      "buildId": "privatelocalchat-owner-cleanup-debug-20261030-v1",
+      "modelCacheBytes": 1202488640,
+      "modelRedownloaded": false,
+      "nativeTokens": 512,
+      "textSha256": "c9a1aff033bbe3f7457d7bc38ebc14e72ae3ee9b77d59f0aac767f4539d40009",
+      "cleanup": {
+        "nativeExit": "acknowledged",
+        "beforeNativeExit": {
+          "wasm_capacity_bytes": 134217728,
+          "malloc_arena_bytes": 82440016,
+          "malloc_live_bytes": 79907072,
+          "malloc_free_bytes": 2532944,
+          "malloc_keepcost_bytes": 995096,
+          "sbrk_bytes": 90230784,
+          "qaGpuBufferCalls": {
+            "createdCount": 10,
+            "createdBytes": 1268986248,
+            "destroyedCount": 1,
+            "destroyedBytes": 993280,
+            "explicitlyUndestroyedBytes": 1267992968
+          }
+        },
+        "nativeExitMs": 57
+      },
+      "errors": [],
+      "observations": "GPU counters record createBuffer/destroy calls, not garbage collection or physical GPU residency. Test-only glue hooks leave native Wasm bytes unchanged.",
+      "cycle": 3
+    }
+  ],
+  "nativeErrorStreamReceipt": "native-device-error-stream.json",
+  "selection": "Development candidate selected locally; deployment read-back pending",
+  "limits": [
+    "Desktop full-GPU cycles do not qualify iPhone physical footprint, offline recovery, or production.",
+    "The clean production 06535424 artifact is separate and remains unselected.",
+    "Synthetic callback injection validates the diagnostic fault path; it is not a naturally occurring GPU validation failure."
+  ]
+}

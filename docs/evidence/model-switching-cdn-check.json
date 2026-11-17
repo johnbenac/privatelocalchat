@@ -1,0 +1,71 @@
+{
+ "origin": "https://dev.privatelocal.chat/",
+ "steps": [
+  {
+   "n": "ready:granite",
+   "load": "ready",
+   "loadTier": "granite",
+   "sel": "granite",
+   "inst": {
+    "default": "none",
+    "light": "none",
+    "lfm": "none",
+    "granite": "complete"
+   },
+   "reply": "ready",
+   "usageMB": 901
+  },
+  {
+   "n": "ready:lfm",
+   "load": "ready",
+   "loadTier": "lfm",
+   "sel": "lfm",
+   "inst": {
+    "default": "none",
+    "light": "none",
+    "lfm": "complete",
+    "granite": "complete"
+   },
+   "reply": "ready",
+   "usageMB": 2268
+  },
+  {
+   "n": "both downloaded",
+   "load": "ready",
+   "loadTier": "lfm",
+   "sel": "lfm",
+   "inst": {
+    "default": "none",
+    "light": "none",
+    "lfm": "complete",
+    "granite": "complete"
+   }
+  },
+  {
+   "n": "switched back (granite not loaded until asked)",
+   "load": "loading",
+   "loadTier": "granite",
+   "sel": "granite",
+   "inst": {
+    "default": "none",
+    "light": "none",
+    "lfm": "complete",
+    "granite": "complete"
+   }
+  },
+  {
+   "n": "removed both",
+   "load": "unloaded",
+   "loadTier": "granite",
+   "sel": "granite",
+   "inst": {
+    "default": "none",
+    "light": "none",
+    "lfm": "none",
+    "granite": "none"
+   },
+   "usageMB": 0
+  }
+ ],
+ "errors": []
+}

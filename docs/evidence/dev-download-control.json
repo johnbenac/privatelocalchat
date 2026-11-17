@@ -1,0 +1,39 @@
+{
+  "dateUtc": "2026-10-30",
+  "surface": "Real local HTTPS and CDN downloads; real Chromium/Vulkan; receiver worker with fixture R2 storage",
+  "workingTreeBaseCommit": "9f666203389c9dee18289b7f10bdbe48af082260",
+  "checks": {
+    "nativeCompletionTokens": 512,
+    "nativeChunks": 514,
+    "exactTextMatch": true,
+    "requestMessagesMatch": true,
+    "ownerPolicyObservedMs": 3195,
+    "verifiedBytesKeptAfterCancel": 428120416,
+    "downloadResumed": true,
+    "automaticallyLoaded": true,
+    "samePage": true,
+    "errors": []
+  },
+  "sourceSha256": {
+    "index.html": "91fa579023747d27d112fc8fdcc7c629b4781f72882ebd0e13566cf6b63a7d48",
+    "local-models.js": "0d1d791ded5d89ffa529e27b2a164fe805fe9d6c8f6581ab88434904c0e18b8c",
+    "dev-tools/ui.mjs": "fc22a2e81d73a1741f6051dc72bf5251937928ba317127ce524c381df9b2ddc2",
+    "dev-tools/remote-control.mjs": "9e70e70d56164de2567f3553e8a18d2a91f90138d2b5b73e05fc4e1b3fef4f26",
+    "dev-tools/receiver-worker.js": "2a270db47b38ba2426f682cf4f38a4a2d65c3f984c3d977d49aafc6dfe978483",
+    "runtime/providers/opfs-stream-writer.mjs": "aaa23a2057f9818301e7a4a8eb4a32d810c0ec0f2bac10551cb88cc74b01e20a",
+    "runtime/providers/opfs-write-worker.mjs": "7927f472065694fee756d4dfe1c2f81dd4275e99ccc86cd9b7c6daf553c28c6f"
+  },
+  "coverage": [
+    "An owner grant is learned after entering the receiver URL, without reloading",
+    "Remote download and cancel preserve a verified shard",
+    "Resume completes all 13 real model files and automatically loads",
+    "Native request and all 514 stream objects reconstruct the 512-token reply exactly",
+    "Stop during a subsequent generation and unload succeed",
+    "Temporary browser profile removed after the test"
+  ],
+  "limits": [
+    "Fixture R2 storage; published controls need live endpoint verification",
+    "Desktop Vulkan is not iPhone acceptance",
+    "An earlier intercepted-request test failed to serve a nested worker; a real HTTPS server removed that harness limitation"
+  ]
+}

@@ -1,0 +1,3046 @@
+{
+ "generatedAt": "2026-11-03T02:35:52.293Z",
+ "machine": {
+  "cpu": "AMD Ryzen 7 5800XT 8-Core Processor",
+  "cores": 16,
+  "totalMemGB": 63,
+  "platform": "linux",
+  "kernel": "6.14.0-37-generic"
+ },
+ "browser": "Chromium, new headless mode, executable /root/.cache/ms-playwright/chromium-1234/chrome-linux64/chrome",
+ "note": "Measured on a desktop Linux machine with a headless Chromium. The app page is idle in API mode: NO local chat model was loaded (none can be loaded here).",
+ "methods": {
+  "uasm": "performance.measureUserAgentSpecificMemory()",
+  "cdpHeap": "CDP Runtime.getHeapUsage per page/worker target",
+  "cdpPerf": "CDP Performance.getMetrics (page)",
+  "cdpMemory": "CDP Memory.getDOMCounters",
+  "rss": "/proc/<pid>/status VmRSS and VmHWM, smaps_rollup Pss, renderer processes from CDP SystemInfo.getProcessInfo"
+ },
+ "runs": [
+  {
+   "engine": "kitten",
+   "threadsRequested": 1,
+   "browserVersion": "151.0.7922.34",
+   "env": {
+    "crossOriginIsolated": true,
+    "deviceMemory": 32,
+    "cores": 16,
+    "hasUasm": true,
+    "ua": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.0.0 Safari/537.36"
+   },
+   "snapshots": [
+    {
+     "label": "baseline",
+     "at": "2026-11-03T02:35:55.358Z",
+     "rss": {
+      "renderer": {
+       "count": 2,
+       "rssMB": 229.4,
+       "hwmMB": 229.4,
+       "pssMB": 106.2,
+       "threads": 26,
+       "each": [
+        {
+         "type": "renderer",
+         "pid": 3081778,
+         "rssMB": 69.2,
+         "hwmMB": 69.2,
+         "threads": 9,
+         "pssMB": 20
+        },
+        {
+         "type": "renderer",
+         "pid": 3081758,
+         "rssMB": 160.2,
+         "hwmMB": 160.2,
+         "threads": 17,
+         "pssMB": 86.2
+        }
+       ]
+      },
+      "allProcesses": {
+       "count": 6,
+       "rssMB": 748.2,
+       "pssMB": 360.9
+      }
+     },
+     "cdp": {
+      "v8HeapUsedMBAllTargets": 4,
+      "targets": [
+       {
+        "type": "worker",
+        "url": "host.worker.mjs",
+        "usedMB": 0.9,
+        "totalMB": 2.4
+       },
+       {
+        "type": "page",
+        "url": "",
+        "usedMB": 3.1,
+        "totalMB": 5.8,
+        "perf": {
+         "jsHeapUsedMB": 3.1,
+         "jsHeapTotalMB": 5.8,
+         "nodes": 2071,
+         "documents": 8,
+         "jsEventListeners": 223
+        },
+        "domCounters": {
+         "documents": 8,
+         "nodes": 2071,
+         "jsEventListeners": 223
+        }
+       }
+      ]
+     },
+     "uasm": {
+      "totalMB": 3.1,
+      "breakdown": [
+       {
+        "bytesMB": 2.3,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         ":Window"
+        ]
+       }
+      ],
+      "tookMs": 9458
+     }
+    },
+    {
+     "label": "installed",
+     "at": "2026-11-03T02:36:05.337Z",
+     "rss": {
+      "renderer": {
+       "count": 2,
+       "rssMB": 266.6,
+       "hwmMB": 271.7,
+       "pssMB": 142.7,
+       "threads": 32,
+       "each": [
+        {
+         "type": "renderer",
+         "pid": 3081778,
+         "rssMB": 69.1,
+         "hwmMB": 69.1,
+         "threads": 9,
+         "pssMB": 19.6
+        },
+        {
+         "type": "renderer",
+         "pid": 3081758,
+         "rssMB": 197.5,
+         "hwmMB": 202.6,
+         "threads": 23,
+         "pssMB": 123.1
+        }
+       ]
+      },
+      "allProcesses": {
+       "count": 6,
+       "rssMB": 814.3,
+       "pssMB": 426
+      }
+     },
+     "cdp": {
+      "v8HeapUsedMBAllTargets": 4.1,
+      "targets": [
+       {
+        "type": "worker",
+        "url": "host.worker.mjs",
+        "usedMB": 0.9,
+        "totalMB": 2.4
+       },
+       {
+        "type": "page",
+        "url": "",
+        "usedMB": 3.2,
+        "totalMB": 6.6,
+        "perf": {
+         "jsHeapUsedMB": 3.2,
+         "jsHeapTotalMB": 6.6,
+         "nodes": 1665,
+         "documents": 3,
+         "jsEventListeners": 195
+        },
+        "domCounters": {
+         "documents": 3,
+         "nodes": 1665,
+         "jsEventListeners": 195
+        }
+       }
+      ]
+     },
+     "uasm": {
+      "totalMB": 4.7,
+      "breakdown": [
+       {
+        "bytesMB": 1.2,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         "host.worker.mjs:DedicatedWorkerGlobalScope"
+        ]
+       },
+       {
+        "bytesMB": 2.6,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         ":Window"
+        ]
+       }
+      ],
+      "tookMs": 15004
+     }
+    },
+    {
+     "label": "loaded",
+     "at": "2026-11-03T02:36:23.001Z",
+     "rss": {
+      "renderer": {
+       "count": 2,
+       "rssMB": 441.3,
+       "hwmMB": 477.7,
+       "pssMB": 316.9,
+       "threads": 33,
+       "each": [
+        {
+         "type": "renderer",
+         "pid": 3081778,
+         "rssMB": 69.1,
+         "hwmMB": 69.1,
+         "threads": 9,
+         "pssMB": 19.6
+        },
+        {
+         "type": "renderer",
+         "pid": 3081758,
+         "rssMB": 372.2,
+         "hwmMB": 408.6,
+         "threads": 24,
+         "pssMB": 297.3
+        }
+       ]
+      },
+      "allProcesses": {
+       "count": 6,
+       "rssMB": 992.7,
+       "pssMB": 602.4
+      }
+     },
+     "cdp": {
+      "v8HeapUsedMBAllTargets": 7.2,
+      "targets": [
+       {
+        "type": "worker",
+        "url": "worker.js",
+        "usedMB": 3.6,
+        "totalMB": 6.9
+       },
+       {
+        "type": "worker",
+        "url": "host.worker.mjs",
+        "usedMB": 0.7,
+        "totalMB": 1.6
+       },
+       {
+        "type": "page",
+        "url": "",
+        "usedMB": 2.9,
+        "totalMB": 3.8,
+        "perf": {
+         "jsHeapUsedMB": 2.9,
+         "jsHeapTotalMB": 3.8,
+         "nodes": 1672,
+         "documents": 3,
+         "jsEventListeners": 197
+        },
+        "domCounters": {
+         "documents": 3,
+         "nodes": 1672,
+         "jsEventListeners": 197
+        }
+       }
+      ]
+     },
+     "uasm": {
+      "totalMB": 146.1,
+      "breakdown": [
+       {
+        "bytesMB": 1.2,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         "host.worker.mjs:DedicatedWorkerGlobalScope"
+        ]
+       },
+       {
+        "bytesMB": 141.4,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         "worker.js:DedicatedWorkerGlobalScope"
+        ]
+       },
+       {
+        "bytesMB": 2.6,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         ":Window"
+        ]
+       }
+      ],
+      "tookMs": 18015
+     }
+    },
+    {
+     "label": "after warm-up speak",
+     "at": "2026-11-03T02:36:41.915Z",
+     "rss": {
+      "renderer": {
+       "count": 2,
+       "rssMB": 420.4,
+       "hwmMB": 522,
+       "pssMB": 296,
+       "threads": 33,
+       "each": [
+        {
+         "type": "renderer",
+         "pid": 3081778,
+         "rssMB": 69.1,
+         "hwmMB": 69.1,
+         "threads": 9,
+         "pssMB": 19.6
+        },
+        {
+         "type": "renderer",
+         "pid": 3081758,
+         "rssMB": 351.3,
+         "hwmMB": 452.9,
+         "threads": 24,
+         "pssMB": 276.4
+        }
+       ]
+      },
+      "allProcesses": {
+       "count": 6,
+       "rssMB": 971.8,
+       "pssMB": 581.5
+      }
+     },
+     "cdp": {
+      "v8HeapUsedMBAllTargets": 9.7,
+      "targets": [
+       {
+        "type": "worker",
+        "url": "worker.js",
+        "usedMB": 6.1,
+        "totalMB": 8.1
+       },
+       {
+        "type": "worker",
+        "url": "host.worker.mjs",
+        "usedMB": 0.7,
+        "totalMB": 1.6
+       },
+       {
+        "type": "page",
+        "url": "",
+        "usedMB": 2.9,
+        "totalMB": 3.8,
+        "perf": {
+         "jsHeapUsedMB": 2.9,
+         "jsHeapTotalMB": 3.8,
+         "nodes": 1665,
+         "documents": 3,
+         "jsEventListeners": 197
+        },
+        "domCounters": {
+         "documents": 3,
+         "nodes": 1665,
+         "jsEventListeners": 197
+        }
+       }
+      ]
+     },
+     "uasm": {
+      "totalMB": 148.3,
+      "breakdown": [
+       {
+        "bytesMB": 1.2,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         "host.worker.mjs:DedicatedWorkerGlobalScope"
+        ]
+       },
+       {
+        "bytesMB": 2.7,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         ":Window"
+        ]
+       },
+       {
+        "bytesMB": 143.3,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         "worker.js:DedicatedWorkerGlobalScope"
+        ]
+       }
+      ],
+      "tookMs": 16015
+     }
+    },
+    {
+     "label": "after long speak",
+     "at": "2026-11-03T02:37:15.932Z",
+     "rss": {
+      "renderer": {
+       "count": 2,
+       "rssMB": 479.9,
+       "hwmMB": 493.6,
+       "pssMB": 355.3,
+       "threads": 34,
+       "each": [
+        {
+         "type": "renderer",
+         "pid": 3081778,
+         "rssMB": 69.2,
+         "hwmMB": 69.2,
+         "threads": 9,
+         "pssMB": 19.6
+        },
+        {
+         "type": "renderer",
+         "pid": 3081758,
+         "rssMB": 410.7,
+         "hwmMB": 424.4,
+         "threads": 25,
+         "pssMB": 335.7
+        }
+       ]
+      },
+      "allProcesses": {
+       "count": 6,
+       "rssMB": 1029.4,
+       "pssMB": 638.7
+      }
+     },
+     "cdp": {
+      "v8HeapUsedMBAllTargets": 10.1,
+      "targets": [
+       {
+        "type": "worker",
+        "url": "worker.js",
+        "usedMB": 6.5,
+        "totalMB": 7.7
+       },
+       {
+        "type": "worker",
+        "url": "host.worker.mjs",
+        "usedMB": 0.7,
+        "totalMB": 1.6
+       },
+       {
+        "type": "page",
+        "url": "",
+        "usedMB": 2.9,
+        "totalMB": 3.8,
+        "perf": {
+         "jsHeapUsedMB": 2.9,
+         "jsHeapTotalMB": 3.8,
+         "nodes": 1666,
+         "documents": 3,
+         "jsEventListeners": 197
+        },
+        "domCounters": {
+         "documents": 3,
+         "nodes": 1666,
+         "jsEventListeners": 197
+        }
+       }
+      ]
+     },
+     "uasm": {
+      "totalMB": 233.4,
+      "breakdown": [
+       {
+        "bytesMB": 228.7,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         "worker.js:DedicatedWorkerGlobalScope"
+        ]
+       },
+       {
+        "bytesMB": 2.6,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         ":Window"
+        ]
+       },
+       {
+        "bytesMB": 1.2,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         "host.worker.mjs:DedicatedWorkerGlobalScope"
+        ]
+       }
+      ],
+      "tookMs": 12015
+     }
+    },
+    {
+     "label": "after unload",
+     "at": "2026-11-03T02:37:29.991Z",
+     "rss": {
+      "renderer": {
+       "count": 2,
+       "rssMB": 243,
+       "hwmMB": 493.6,
+       "pssMB": 118,
+       "threads": 33,
+       "each": [
+        {
+         "type": "renderer",
+         "pid": 3081778,
+         "rssMB": 69.2,
+         "hwmMB": 69.2,
+         "threads": 9,
+         "pssMB": 19.6
+        },
+        {
+         "type": "renderer",
+         "pid": 3081758,
+         "rssMB": 173.8,
+         "hwmMB": 424.4,
+         "threads": 24,
+         "pssMB": 98.4
+        }
+       ]
+      },
+      "allProcesses": {
+       "count": 6,
+       "rssMB": 792.3,
+       "pssMB": 401.4
+      }
+     },
+     "cdp": {
+      "v8HeapUsedMBAllTargets": 3.7,
+      "targets": [
+       {
+        "type": "worker",
+        "url": "host.worker.mjs",
+        "usedMB": 0.7,
+        "totalMB": 1.6
+       },
+       {
+        "type": "page",
+        "url": "",
+        "usedMB": 3,
+        "totalMB": 3.8,
+        "perf": {
+         "jsHeapUsedMB": 3,
+         "jsHeapTotalMB": 3.8,
+         "nodes": 1666,
+         "documents": 3,
+         "jsEventListeners": 197
+        },
+        "domCounters": {
+         "documents": 3,
+         "nodes": 1666,
+         "jsEventListeners": 197
+        }
+       }
+      ]
+     },
+     "uasm": {
+      "totalMB": 5,
+      "breakdown": [
+       {
+        "bytesMB": 1.2,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         "host.worker.mjs:DedicatedWorkerGlobalScope"
+        ]
+       },
+       {
+        "bytesMB": 2.6,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         ":Window"
+        ]
+       }
+      ],
+      "tookMs": 13002
+     }
+    },
+    {
+     "label": "after remove",
+     "at": "2026-11-03T02:37:45.082Z",
+     "rss": {
+      "renderer": {
+       "count": 2,
+       "rssMB": 239.7,
+       "hwmMB": 493.6,
+       "pssMB": 114.7,
+       "threads": 33,
+       "each": [
+        {
+         "type": "renderer",
+         "pid": 3081778,
+         "rssMB": 69.2,
+         "hwmMB": 69.2,
+         "threads": 9,
+         "pssMB": 19.6
+        },
+        {
+         "type": "renderer",
+         "pid": 3081758,
+         "rssMB": 170.5,
+         "hwmMB": 424.4,
+         "threads": 24,
+         "pssMB": 95.1
+        }
+       ]
+      },
+      "allProcesses": {
+       "count": 6,
+       "rssMB": 762.7,
+       "pssMB": 371.8
+      }
+     },
+     "cdp": {
+      "v8HeapUsedMBAllTargets": 3.7,
+      "targets": [
+       {
+        "type": "worker",
+        "url": "host.worker.mjs",
+        "usedMB": 0.7,
+        "totalMB": 1.6
+       },
+       {
+        "type": "page",
+        "url": "",
+        "usedMB": 3,
+        "totalMB": 3.8,
+        "perf": {
+         "jsHeapUsedMB": 3,
+         "jsHeapTotalMB": 3.8,
+         "nodes": 1668,
+         "documents": 3,
+         "jsEventListeners": 195
+        },
+        "domCounters": {
+         "documents": 3,
+         "nodes": 1668,
+         "jsEventListeners": 195
+        }
+       }
+      ]
+     },
+     "uasm": {
+      "totalMB": 5,
+      "breakdown": [
+       {
+        "bytesMB": 2.3,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         ":Window"
+        ]
+       },
+       {
+        "bytesMB": 1.2,
+        "types": [
+         "Shared"
+        ],
+        "urls": []
+       },
+       {
+        "bytesMB": 1.2,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         "host.worker.mjs:DedicatedWorkerGlobalScope"
+        ]
+       }
+      ],
+      "tookMs": 19015
+     }
+    }
+   ],
+   "errors": [],
+   "load": {
+    "loadMs": 1124,
+    "voices": 8
+   },
+   "pagePid": 3081758,
+   "speak": {
+    "audioSeconds": 69.9,
+    "wallSeconds": 17.8,
+    "realTimeFactor": 3.92,
+    "chunks": 9,
+    "textChars": 823,
+    "rssSamples": 18,
+    "peakPageRendererRssMB": 410.7,
+    "peakPageRendererPssMB": 335.7,
+    "peakAllProcessesRssMB": 1029.4,
+    "uasmSamplesMB": [
+     233.8,
+     233.8,
+     233.8,
+     233.8,
+     233.8,
+     233.8,
+     233.8,
+     233.8,
+     233.8
+    ],
+    "peakUasmMB": 233.8,
+    "peakV8HeapUsedMB": 10.9,
+    "note": "UASM calls (each forces a GC) were started every 2 s during synthesis, so the audio/wall time is a little longer than a quiet run"
+   },
+   "summary": {
+    "pagePid": 3081758,
+    "baselineRssMB": 160.2,
+    "loadedRssMB": 372.2,
+    "peakRssMB": 410.7,
+    "extraAtLoadRssMB": 212,
+    "extraPeakRssMB": 250.5,
+    "extraPeakPssMB": 249.5,
+    "extraHwmMB": 264.2,
+    "extraAfterUnloadRssMB": 13.6,
+    "extraAfterRemoveRssMB": 10.3,
+    "baselineUasmMB": 3.1,
+    "loadedUasmMB": 146.1,
+    "afterSpeakUasmMB": 233.4,
+    "peakUasmMB": 233.8,
+    "extraLoadedUasmMB": 143,
+    "extraAfterSpeakUasmMB": 230.3,
+    "extraPeakUasmMB": 230.7,
+    "extraAfterUnloadUasmMB": 1.9,
+    "extraAfterRemoveUasmMB": 1.9
+   }
+  },
+  {
+   "engine": "kitten",
+   "threadsRequested": 4,
+   "browserVersion": "151.0.7922.34",
+   "env": {
+    "crossOriginIsolated": true,
+    "deviceMemory": 32,
+    "cores": 16,
+    "hasUasm": true,
+    "ua": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.0.0 Safari/537.36"
+   },
+   "snapshots": [
+    {
+     "label": "baseline",
+     "at": "2026-11-03T02:38:07.208Z",
+     "rss": {
+      "renderer": {
+       "count": 2,
+       "rssMB": 230.3,
+       "hwmMB": 230.3,
+       "pssMB": 106,
+       "threads": 26,
+       "each": [
+        {
+         "type": "renderer",
+         "pid": 3095163,
+         "rssMB": 70.2,
+         "hwmMB": 70.2,
+         "threads": 9,
+         "pssMB": 20.1
+        },
+        {
+         "type": "renderer",
+         "pid": 3095143,
+         "rssMB": 160.1,
+         "hwmMB": 160.1,
+         "threads": 17,
+         "pssMB": 85.9
+        }
+       ]
+      },
+      "allProcesses": {
+       "count": 6,
+       "rssMB": 748.8,
+       "pssMB": 360
+      }
+     },
+     "cdp": {
+      "v8HeapUsedMBAllTargets": 4,
+      "targets": [
+       {
+        "type": "worker",
+        "url": "host.worker.mjs",
+        "usedMB": 0.9,
+        "totalMB": 2.4
+       },
+       {
+        "type": "page",
+        "url": "",
+        "usedMB": 3.1,
+        "totalMB": 6.1,
+        "perf": {
+         "jsHeapUsedMB": 3.1,
+         "jsHeapTotalMB": 6.1,
+         "nodes": 2071,
+         "documents": 8,
+         "jsEventListeners": 223
+        },
+        "domCounters": {
+         "documents": 8,
+         "nodes": 2071,
+         "jsEventListeners": 223
+        }
+       }
+      ]
+     },
+     "uasm": {
+      "totalMB": 3.2,
+      "breakdown": [
+       {
+        "bytesMB": 2.3,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         ":Window"
+        ]
+       }
+      ],
+      "tookMs": 16482
+     }
+    },
+    {
+     "label": "installed",
+     "at": "2026-11-03T02:38:24.138Z",
+     "rss": {
+      "renderer": {
+       "count": 2,
+       "rssMB": 266.7,
+       "hwmMB": 272.3,
+       "pssMB": 142.4,
+       "threads": 32,
+       "each": [
+        {
+         "type": "renderer",
+         "pid": 3095163,
+         "rssMB": 70,
+         "hwmMB": 70,
+         "threads": 9,
+         "pssMB": 19.8
+        },
+        {
+         "type": "renderer",
+         "pid": 3095143,
+         "rssMB": 196.7,
+         "hwmMB": 202.3,
+         "threads": 23,
+         "pssMB": 122.6
+        }
+       ]
+      },
+      "allProcesses": {
+       "count": 6,
+       "rssMB": 813.7,
+       "pssMB": 424.6
+      }
+     },
+     "cdp": {
+      "v8HeapUsedMBAllTargets": 4.2,
+      "targets": [
+       {
+        "type": "worker",
+        "url": "host.worker.mjs",
+        "usedMB": 0.9,
+        "totalMB": 2.4
+       },
+       {
+        "type": "page",
+        "url": "",
+        "usedMB": 3.3,
+        "totalMB": 6.3,
+        "perf": {
+         "jsHeapUsedMB": 3.3,
+         "jsHeapTotalMB": 6.3,
+         "nodes": 1666,
+         "documents": 3,
+         "jsEventListeners": 195
+        },
+        "domCounters": {
+         "documents": 3,
+         "nodes": 1666,
+         "jsEventListeners": 195
+        }
+       }
+      ]
+     },
+     "uasm": {
+      "totalMB": 5,
+      "breakdown": [
+       {
+        "bytesMB": 2.6,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         ":Window"
+        ]
+       },
+       {
+        "bytesMB": 1.2,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         "host.worker.mjs:DedicatedWorkerGlobalScope"
+        ]
+       }
+      ],
+      "tookMs": 17003
+     }
+    },
+    {
+     "label": "loaded",
+     "at": "2026-11-03T02:38:43.817Z",
+     "rss": {
+      "renderer": {
+       "count": 2,
+       "rssMB": 451.8,
+       "hwmMB": 488.5,
+       "pssMB": 327.1,
+       "threads": 36,
+       "each": [
+        {
+         "type": "renderer",
+         "pid": 3095163,
+         "rssMB": 70,
+         "hwmMB": 70,
+         "threads": 9,
+         "pssMB": 19.7
+        },
+        {
+         "type": "renderer",
+         "pid": 3095143,
+         "rssMB": 381.8,
+         "hwmMB": 418.5,
+         "threads": 27,
+         "pssMB": 307.4
+        }
+       ]
+      },
+      "allProcesses": {
+       "count": 6,
+       "rssMB": 1003.8,
+       "pssMB": 613.2
+      }
+     },
+     "cdp": {
+      "v8HeapUsedMBAllTargets": 7.2,
+      "targets": [
+       {
+        "type": "worker",
+        "url": "ort thread worker",
+        "skipped": true
+       },
+       {
+        "type": "worker",
+        "url": "ort thread worker",
+        "skipped": true
+       },
+       {
+        "type": "worker",
+        "url": "ort thread worker",
+        "skipped": true
+       },
+       {
+        "type": "worker",
+        "url": "host.worker.mjs",
+        "usedMB": 0.7,
+        "totalMB": 1.6
+       },
+       {
+        "type": "worker",
+        "url": "worker.js",
+        "usedMB": 3.6,
+        "totalMB": 7.2
+       },
+       {
+        "type": "page",
+        "url": "",
+        "usedMB": 2.9,
+        "totalMB": 3.6,
+        "perf": {
+         "jsHeapUsedMB": 2.9,
+         "jsHeapTotalMB": 3.6,
+         "nodes": 1673,
+         "documents": 3,
+         "jsEventListeners": 197
+        },
+        "domCounters": {
+         "documents": 3,
+         "nodes": 1673,
+         "jsEventListeners": 197
+        }
+       }
+      ]
+     },
+     "uasm": {
+      "totalMB": 148.2,
+      "breakdown": [
+       {
+        "bytesMB": 1.2,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         "host.worker.mjs:DedicatedWorkerGlobalScope"
+        ]
+       },
+       {
+        "bytesMB": 143.2,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         "worker.js:DedicatedWorkerGlobalScope"
+        ]
+       },
+       {
+        "bytesMB": 2.6,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         ":Window"
+        ]
+       }
+      ],
+      "tookMs": 60002
+     }
+    },
+    {
+     "label": "after warm-up speak",
+     "at": "2026-11-03T02:39:44.396Z",
+     "rss": {
+      "renderer": {
+       "count": 2,
+       "rssMB": 521.1,
+       "hwmMB": 521.1,
+       "pssMB": 396.3,
+       "threads": 37,
+       "each": [
+        {
+         "type": "renderer",
+         "pid": 3095163,
+         "rssMB": 70.1,
+         "hwmMB": 70.1,
+         "threads": 9,
+         "pssMB": 19.8
+        },
+        {
+         "type": "renderer",
+         "pid": 3095143,
+         "rssMB": 451,
+         "hwmMB": 451,
+         "threads": 28,
+         "pssMB": 376.5
+        }
+       ]
+      },
+      "allProcesses": {
+       "count": 6,
+       "rssMB": 1070,
+       "pssMB": 679.8
+      }
+     },
+     "cdp": {
+      "v8HeapUsedMBAllTargets": 9.7,
+      "targets": [
+       {
+        "type": "worker",
+        "url": "ort thread worker",
+        "skipped": true
+       },
+       {
+        "type": "worker",
+        "url": "ort thread worker",
+        "skipped": true
+       },
+       {
+        "type": "worker",
+        "url": "ort thread worker",
+        "skipped": true
+       },
+       {
+        "type": "worker",
+        "url": "host.worker.mjs",
+        "usedMB": 0.7,
+        "totalMB": 1.6
+       },
+       {
+        "type": "worker",
+        "url": "worker.js",
+        "usedMB": 6.1,
+        "totalMB": 6.8
+       },
+       {
+        "type": "page",
+        "url": "",
+        "usedMB": 2.9,
+        "totalMB": 3.6,
+        "perf": {
+         "jsHeapUsedMB": 2.9,
+         "jsHeapTotalMB": 3.6,
+         "nodes": 1695,
+         "documents": 3,
+         "jsEventListeners": 197
+        },
+        "domCounters": {
+         "documents": 3,
+         "nodes": 1695,
+         "jsEventListeners": 197
+        }
+       }
+      ]
+     },
+     "uasm": {
+      "totalMB": 150,
+      "breakdown": [
+       {
+        "bytesMB": 1.2,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         "host.worker.mjs:DedicatedWorkerGlobalScope"
+        ]
+       },
+       {
+        "bytesMB": 145,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         "worker.js:DedicatedWorkerGlobalScope"
+        ]
+       },
+       {
+        "bytesMB": 2.6,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         ":Window"
+        ]
+       }
+      ],
+      "tookMs": 60003
+     }
+    },
+    {
+     "label": "after long speak",
+     "at": "2026-11-03T02:41:44.437Z",
+     "rss": {
+      "renderer": {
+       "count": 2,
+       "rssMB": 482.9,
+       "hwmMB": 483.7,
+       "pssMB": 358.1,
+       "threads": 37,
+       "each": [
+        {
+         "type": "renderer",
+         "pid": 3095163,
+         "rssMB": 70.1,
+         "hwmMB": 70.1,
+         "threads": 9,
+         "pssMB": 19.8
+        },
+        {
+         "type": "renderer",
+         "pid": 3095143,
+         "rssMB": 412.8,
+         "hwmMB": 413.6,
+         "threads": 28,
+         "pssMB": 338.3
+        }
+       ]
+      },
+      "allProcesses": {
+       "count": 6,
+       "rssMB": 1031.2,
+       "pssMB": 640.6
+      }
+     },
+     "cdp": {
+      "v8HeapUsedMBAllTargets": 10.1,
+      "targets": [
+       {
+        "type": "worker",
+        "url": "ort thread worker",
+        "skipped": true
+       },
+       {
+        "type": "worker",
+        "url": "ort thread worker",
+        "skipped": true
+       },
+       {
+        "type": "worker",
+        "url": "ort thread worker",
+        "skipped": true
+       },
+       {
+        "type": "worker",
+        "url": "host.worker.mjs",
+        "usedMB": 0.7,
+        "totalMB": 1.6
+       },
+       {
+        "type": "worker",
+        "url": "worker.js",
+        "usedMB": 6.5,
+        "totalMB": 7.4
+       },
+       {
+        "type": "page",
+        "url": "",
+        "usedMB": 2.9,
+        "totalMB": 3.8,
+        "perf": {
+         "jsHeapUsedMB": 2.9,
+         "jsHeapTotalMB": 3.8,
+         "nodes": 1693,
+         "documents": 3,
+         "jsEventListeners": 197
+        },
+        "domCounters": {
+         "documents": 3,
+         "nodes": 1693,
+         "jsEventListeners": 197
+        }
+       }
+      ]
+     },
+     "uasm": {
+      "totalMB": 236.4,
+      "breakdown": [
+       {
+        "bytesMB": 231.6,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         "worker.js:DedicatedWorkerGlobalScope"
+        ]
+       },
+       {
+        "bytesMB": 2.6,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         ":Window"
+        ]
+       },
+       {
+        "bytesMB": 1.2,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         "host.worker.mjs:DedicatedWorkerGlobalScope"
+        ]
+       }
+      ],
+      "tookMs": 60003
+     }
+    },
+    {
+     "label": "after unload",
+     "at": "2026-11-03T02:42:46.483Z",
+     "rss": {
+      "renderer": {
+       "count": 2,
+       "rssMB": 483.3,
+       "hwmMB": 483.3,
+       "pssMB": 358.5,
+       "threads": 37,
+       "each": [
+        {
+         "type": "renderer",
+         "pid": 3095163,
+         "rssMB": 70.1,
+         "hwmMB": 70.1,
+         "threads": 9,
+         "pssMB": 19.8
+        },
+        {
+         "type": "renderer",
+         "pid": 3095143,
+         "rssMB": 413.2,
+         "hwmMB": 413.2,
+         "threads": 28,
+         "pssMB": 338.7
+        }
+       ]
+      },
+      "allProcesses": {
+       "count": 6,
+       "rssMB": 1031.7,
+       "pssMB": 641.2
+      }
+     },
+     "cdp": {
+      "v8HeapUsedMBAllTargets": 3.5,
+      "targets": [
+       {
+        "type": "worker",
+        "url": "host.worker.mjs",
+        "usedMB": 0.7,
+        "totalMB": 1.6
+       },
+       {
+        "type": "page",
+        "url": "",
+        "usedMB": 2.8,
+        "totalMB": 3.8,
+        "perf": {
+         "jsHeapUsedMB": 2.8,
+         "jsHeapTotalMB": 3.8,
+         "nodes": 1697,
+         "documents": 3,
+         "jsEventListeners": 197
+        },
+        "domCounters": {
+         "documents": 3,
+         "nodes": 1697,
+         "jsEventListeners": 197
+        }
+       }
+      ]
+     },
+     "uasm": {
+      "totalMB": 4.5,
+      "breakdown": [
+       {
+        "bytesMB": 1.2,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         "host.worker.mjs:DedicatedWorkerGlobalScope"
+        ]
+       },
+       {
+        "bytesMB": 2.6,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         ":Window"
+        ]
+       }
+      ],
+      "tookMs": 60002
+     }
+    },
+    {
+     "label": "after remove",
+     "at": "2026-11-03T02:43:48.548Z",
+     "rss": {
+      "renderer": {
+       "count": 2,
+       "rssMB": 240.1,
+       "hwmMB": 240.1,
+       "pssMB": 114.8,
+       "threads": 33,
+       "each": [
+        {
+         "type": "renderer",
+         "pid": 3095163,
+         "rssMB": 70.1,
+         "hwmMB": 70.1,
+         "threads": 9,
+         "pssMB": 19.8
+        },
+        {
+         "type": "renderer",
+         "pid": 3095143,
+         "rssMB": 170,
+         "hwmMB": 170,
+         "threads": 24,
+         "pssMB": 95
+        }
+       ]
+      },
+      "allProcesses": {
+       "count": 6,
+       "rssMB": 761.8,
+       "pssMB": 370.6
+      }
+     },
+     "cdp": {
+      "v8HeapUsedMBAllTargets": 3.4,
+      "targets": [
+       {
+        "type": "worker",
+        "url": "host.worker.mjs",
+        "usedMB": 0.7,
+        "totalMB": 1.6
+       },
+       {
+        "type": "page",
+        "url": "",
+        "usedMB": 2.7,
+        "totalMB": 3.8,
+        "perf": {
+         "jsHeapUsedMB": 2.7,
+         "jsHeapTotalMB": 3.8,
+         "nodes": 1695,
+         "documents": 3,
+         "jsEventListeners": 195
+        },
+        "domCounters": {
+         "documents": 3,
+         "nodes": 1695,
+         "jsEventListeners": 195
+        }
+       }
+      ]
+     },
+     "uasm": {
+      "totalMB": 4.4,
+      "breakdown": [
+       {
+        "bytesMB": 2.5,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         ":Window"
+        ]
+       },
+       {
+        "bytesMB": 1.2,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         "host.worker.mjs:DedicatedWorkerGlobalScope"
+        ]
+       }
+      ],
+      "tookMs": 19014
+     }
+    }
+   ],
+   "errors": [],
+   "load": {
+    "loadMs": 1148,
+    "voices": 8
+   },
+   "pagePid": 3095143,
+   "speak": {
+    "audioSeconds": 69.9,
+    "wallSeconds": 9.5,
+    "realTimeFactor": 7.33,
+    "chunks": 9,
+    "textChars": 823,
+    "rssSamples": 17,
+    "peakPageRendererRssMB": 426.8,
+    "peakPageRendererPssMB": 352.2,
+    "peakAllProcessesRssMB": 1045.2,
+    "uasmSamplesMB": [
+     236.9,
+     236.9,
+     236.9,
+     236.9,
+     236.9
+    ],
+    "peakUasmMB": 236.9,
+    "peakV8HeapUsedMB": 10.7,
+    "note": "UASM calls (each forces a GC) were started every 2 s during synthesis, so the audio/wall time is a little longer than a quiet run"
+   },
+   "summary": {
+    "pagePid": 3095143,
+    "baselineRssMB": 160.1,
+    "loadedRssMB": 381.8,
+    "peakRssMB": 426.8,
+    "extraAtLoadRssMB": 221.7,
+    "extraPeakRssMB": 266.7,
+    "extraPeakPssMB": 266.3,
+    "extraHwmMB": 253.5,
+    "extraAfterUnloadRssMB": 253.1,
+    "extraAfterRemoveRssMB": 9.9,
+    "baselineUasmMB": 3.2,
+    "loadedUasmMB": 148.2,
+    "afterSpeakUasmMB": 236.4,
+    "peakUasmMB": 236.9,
+    "extraLoadedUasmMB": 145,
+    "extraAfterSpeakUasmMB": 233.2,
+    "extraPeakUasmMB": 233.7,
+    "extraAfterUnloadUasmMB": 1.3,
+    "extraAfterRemoveUasmMB": 1.2
+   }
+  },
+  {
+   "engine": "kokoro",
+   "threadsRequested": 1,
+   "browserVersion": "151.0.7922.34",
+   "env": {
+    "crossOriginIsolated": true,
+    "deviceMemory": 32,
+    "cores": 16,
+    "hasUasm": true,
+    "ua": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.0.0 Safari/537.36"
+   },
+   "snapshots": [
+    {
+     "label": "baseline",
+     "at": "2026-11-03T02:44:10.924Z",
+     "rss": {
+      "renderer": {
+       "count": 2,
+       "rssMB": 228.3,
+       "hwmMB": 228.3,
+       "pssMB": 105.1,
+       "threads": 27,
+       "each": [
+        {
+         "type": "renderer",
+         "pid": 3124798,
+         "rssMB": 69.7,
+         "hwmMB": 69.7,
+         "threads": 9,
+         "pssMB": 20
+        },
+        {
+         "type": "renderer",
+         "pid": 3124779,
+         "rssMB": 158.6,
+         "hwmMB": 158.6,
+         "threads": 18,
+         "pssMB": 85.1
+        }
+       ]
+      },
+      "allProcesses": {
+       "count": 6,
+       "rssMB": 742.9,
+       "pssMB": 356.1
+      }
+     },
+     "cdp": {
+      "v8HeapUsedMBAllTargets": 4,
+      "targets": [
+       {
+        "type": "worker",
+        "url": "host.worker.mjs",
+        "usedMB": 0.9,
+        "totalMB": 2.4
+       },
+       {
+        "type": "page",
+        "url": "",
+        "usedMB": 3.1,
+        "totalMB": 6.1,
+        "perf": {
+         "jsHeapUsedMB": 3.1,
+         "jsHeapTotalMB": 6.1,
+         "nodes": 2071,
+         "documents": 8,
+         "jsEventListeners": 223
+        },
+        "domCounters": {
+         "documents": 8,
+         "nodes": 2071,
+         "jsEventListeners": 223
+        }
+       }
+      ]
+     },
+     "uasm": {
+      "totalMB": 3.1,
+      "breakdown": [
+       {
+        "bytesMB": 2.3,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         ":Window"
+        ]
+       }
+      ],
+      "tookMs": 15485
+     }
+    },
+    {
+     "label": "installed",
+     "at": "2026-11-03T02:44:27.719Z",
+     "rss": {
+      "renderer": {
+       "count": 2,
+       "rssMB": 334.2,
+       "hwmMB": 334.2,
+       "pssMB": 209.9,
+       "threads": 32,
+       "each": [
+        {
+         "type": "renderer",
+         "pid": 3124798,
+         "rssMB": 69.5,
+         "hwmMB": 69.5,
+         "threads": 9,
+         "pssMB": 19.6
+        },
+        {
+         "type": "renderer",
+         "pid": 3124779,
+         "rssMB": 264.7,
+         "hwmMB": 264.7,
+         "threads": 23,
+         "pssMB": 190.3
+        }
+       ]
+      },
+      "allProcesses": {
+       "count": 6,
+       "rssMB": 946.5,
+       "pssMB": 557.5
+      }
+     },
+     "cdp": {
+      "v8HeapUsedMBAllTargets": 4.2,
+      "targets": [
+       {
+        "type": "worker",
+        "url": "host.worker.mjs",
+        "usedMB": 0.9,
+        "totalMB": 2.4
+       },
+       {
+        "type": "page",
+        "url": "",
+        "usedMB": 3.3,
+        "totalMB": 5.6,
+        "perf": {
+         "jsHeapUsedMB": 3.3,
+         "jsHeapTotalMB": 5.6,
+         "nodes": 1665,
+         "documents": 3,
+         "jsEventListeners": 195
+        },
+        "domCounters": {
+         "documents": 3,
+         "nodes": 1665,
+         "jsEventListeners": 195
+        }
+       }
+      ]
+     },
+     "uasm": {
+      "totalMB": 4.7,
+      "breakdown": [
+       {
+        "bytesMB": 2.7,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         ":Window"
+        ]
+       },
+       {
+        "bytesMB": 1.2,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         "host.worker.mjs:DedicatedWorkerGlobalScope"
+        ]
+       }
+      ],
+      "tookMs": 18004
+     }
+    },
+    {
+     "label": "loaded",
+     "at": "2026-11-03T02:44:48.466Z",
+     "rss": {
+      "renderer": {
+       "count": 2,
+       "rssMB": 619.2,
+       "hwmMB": 656.8,
+       "pssMB": 494.7,
+       "threads": 33,
+       "each": [
+        {
+         "type": "renderer",
+         "pid": 3124798,
+         "rssMB": 69.5,
+         "hwmMB": 69.5,
+         "threads": 9,
+         "pssMB": 19.6
+        },
+        {
+         "type": "renderer",
+         "pid": 3124779,
+         "rssMB": 549.7,
+         "hwmMB": 587.3,
+         "threads": 24,
+         "pssMB": 475.1
+        }
+       ]
+      },
+      "allProcesses": {
+       "count": 6,
+       "rssMB": 1235.2,
+       "pssMB": 845.1
+      }
+     },
+     "cdp": {
+      "v8HeapUsedMBAllTargets": 7.4,
+      "targets": [
+       {
+        "type": "worker",
+        "url": "host.worker.mjs",
+        "usedMB": 0.7,
+        "totalMB": 1.6
+       },
+       {
+        "type": "worker",
+        "url": "worker-kokoro.js",
+        "usedMB": 3.7,
+        "totalMB": 5.9
+       },
+       {
+        "type": "page",
+        "url": "",
+        "usedMB": 3,
+        "totalMB": 3.8,
+        "perf": {
+         "jsHeapUsedMB": 3,
+         "jsHeapTotalMB": 3.8,
+         "nodes": 1674,
+         "documents": 3,
+         "jsEventListeners": 197
+        },
+        "domCounters": {
+         "documents": 3,
+         "nodes": 1674,
+         "jsEventListeners": 197
+        }
+       }
+      ]
+     },
+     "uasm": {
+      "totalMB": 274.3,
+      "breakdown": [
+       {
+        "bytesMB": 2.7,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         ":Window"
+        ]
+       },
+       {
+        "bytesMB": 1.2,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         "host.worker.mjs:DedicatedWorkerGlobalScope"
+        ]
+       },
+       {
+        "bytesMB": 269.3,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         "worker-kokoro.js:DedicatedWorkerGlobalScope"
+        ]
+       }
+      ],
+      "tookMs": 16004
+     }
+    },
+    {
+     "label": "after warm-up speak",
+     "at": "2026-11-03T02:45:06.680Z",
+     "rss": {
+      "renderer": {
+       "count": 2,
+       "rssMB": 535.8,
+       "hwmMB": 656.8,
+       "pssMB": 411.3,
+       "threads": 33,
+       "each": [
+        {
+         "type": "renderer",
+         "pid": 3124798,
+         "rssMB": 69.5,
+         "hwmMB": 69.5,
+         "threads": 9,
+         "pssMB": 19.6
+        },
+        {
+         "type": "renderer",
+         "pid": 3124779,
+         "rssMB": 466.3,
+         "hwmMB": 587.3,
+         "threads": 24,
+         "pssMB": 391.7
+        }
+       ]
+      },
+      "allProcesses": {
+       "count": 6,
+       "rssMB": 1151.8,
+       "pssMB": 761.7
+      }
+     },
+     "cdp": {
+      "v8HeapUsedMBAllTargets": 9.2,
+      "targets": [
+       {
+        "type": "worker",
+        "url": "host.worker.mjs",
+        "usedMB": 0.7,
+        "totalMB": 1.6
+       },
+       {
+        "type": "worker",
+        "url": "worker-kokoro.js",
+        "usedMB": 5.5,
+        "totalMB": 7.8
+       },
+       {
+        "type": "page",
+        "url": "",
+        "usedMB": 3,
+        "totalMB": 3.8,
+        "perf": {
+         "jsHeapUsedMB": 3,
+         "jsHeapTotalMB": 3.8,
+         "nodes": 1667,
+         "documents": 3,
+         "jsEventListeners": 197
+        },
+        "domCounters": {
+         "documents": 3,
+         "nodes": 1667,
+         "jsEventListeners": 197
+        }
+       }
+      ]
+     },
+     "uasm": {
+      "totalMB": 275.7,
+      "breakdown": [
+       {
+        "bytesMB": 2.7,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         ":Window"
+        ]
+       },
+       {
+        "bytesMB": 1.2,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         "host.worker.mjs:DedicatedWorkerGlobalScope"
+        ]
+       },
+       {
+        "bytesMB": 271.1,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         "worker-kokoro.js:DedicatedWorkerGlobalScope"
+        ]
+       }
+      ],
+      "tookMs": 12004
+     }
+    },
+    {
+     "label": "after long speak",
+     "at": "2026-11-03T02:46:06.549Z",
+     "rss": {
+      "renderer": {
+       "count": 2,
+       "rssMB": 648.8,
+       "hwmMB": 651.9,
+       "pssMB": 524.1,
+       "threads": 34,
+       "each": [
+        {
+         "type": "renderer",
+         "pid": 3124798,
+         "rssMB": 69.6,
+         "hwmMB": 69.6,
+         "threads": 9,
+         "pssMB": 19.6
+        },
+        {
+         "type": "renderer",
+         "pid": 3124779,
+         "rssMB": 579.2,
+         "hwmMB": 582.3,
+         "threads": 25,
+         "pssMB": 504.5
+        }
+       ]
+      },
+      "allProcesses": {
+       "count": 6,
+       "rssMB": 1261.5,
+       "pssMB": 847.2
+      }
+     },
+     "cdp": {
+      "v8HeapUsedMBAllTargets": 9.8,
+      "targets": [
+       {
+        "type": "worker",
+        "url": "host.worker.mjs",
+        "usedMB": 0.7,
+        "totalMB": 1.6
+       },
+       {
+        "type": "worker",
+        "url": "worker-kokoro.js",
+        "usedMB": 6.1,
+        "totalMB": 7.2
+       },
+       {
+        "type": "page",
+        "url": "",
+        "usedMB": 3,
+        "totalMB": 4.1,
+        "perf": {
+         "jsHeapUsedMB": 3,
+         "jsHeapTotalMB": 4.1,
+         "nodes": 1690,
+         "documents": 3,
+         "jsEventListeners": 197
+        },
+        "domCounters": {
+         "documents": 3,
+         "nodes": 1690,
+         "jsEventListeners": 197
+        }
+       }
+      ]
+     },
+     "uasm": {
+      "totalMB": 383,
+      "breakdown": [
+       {
+        "bytesMB": 1.2,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         "host.worker.mjs:DedicatedWorkerGlobalScope"
+        ]
+       },
+       {
+        "bytesMB": 378.3,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         "worker-kokoro.js:DedicatedWorkerGlobalScope"
+        ]
+       },
+       {
+        "bytesMB": 2.6,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         ":Window"
+        ]
+       }
+      ],
+      "tookMs": 11015
+     }
+    },
+    {
+     "label": "after unload",
+     "at": "2026-11-03T02:46:19.619Z",
+     "rss": {
+      "renderer": {
+       "count": 2,
+       "rssMB": 245.8,
+       "hwmMB": 645.4,
+       "pssMB": 120.9,
+       "threads": 33,
+       "each": [
+        {
+         "type": "renderer",
+         "pid": 3124798,
+         "rssMB": 69.6,
+         "hwmMB": 69.6,
+         "threads": 9,
+         "pssMB": 19.6
+        },
+        {
+         "type": "renderer",
+         "pid": 3124779,
+         "rssMB": 176.2,
+         "hwmMB": 575.8,
+         "threads": 24,
+         "pssMB": 101.3
+        }
+       ]
+      },
+      "allProcesses": {
+       "count": 6,
+       "rssMB": 858.6,
+       "pssMB": 442.7
+      }
+     },
+     "cdp": {
+      "v8HeapUsedMBAllTargets": 3.7,
+      "targets": [
+       {
+        "type": "worker",
+        "url": "host.worker.mjs",
+        "usedMB": 0.7,
+        "totalMB": 1.6
+       },
+       {
+        "type": "page",
+        "url": "",
+        "usedMB": 3,
+        "totalMB": 4.1,
+        "perf": {
+         "jsHeapUsedMB": 3,
+         "jsHeapTotalMB": 4.1,
+         "nodes": 1666,
+         "documents": 3,
+         "jsEventListeners": 197
+        },
+        "domCounters": {
+         "documents": 3,
+         "nodes": 1666,
+         "jsEventListeners": 197
+        }
+       }
+      ]
+     },
+     "uasm": {
+      "totalMB": 4.7,
+      "breakdown": [
+       {
+        "bytesMB": 2.6,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         ":Window"
+        ]
+       },
+       {
+        "bytesMB": 1.2,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         "host.worker.mjs:DedicatedWorkerGlobalScope"
+        ]
+       }
+      ],
+      "tookMs": 17003
+     }
+    },
+    {
+     "label": "after remove",
+     "at": "2026-11-03T02:46:38.659Z",
+     "rss": {
+      "renderer": {
+       "count": 2,
+       "rssMB": 242.6,
+       "hwmMB": 244.6,
+       "pssMB": 116.3,
+       "threads": 34,
+       "each": [
+        {
+         "type": "renderer",
+         "pid": 3124798,
+         "rssMB": 71.3,
+         "hwmMB": 71.3,
+         "threads": 10,
+         "pssMB": 20.2
+        },
+        {
+         "type": "renderer",
+         "pid": 3124779,
+         "rssMB": 171.3,
+         "hwmMB": 173.3,
+         "threads": 24,
+         "pssMB": 96.1
+        }
+       ]
+      },
+      "allProcesses": {
+       "count": 6,
+       "rssMB": 768.6,
+       "pssMB": 375
+      }
+     },
+     "cdp": {
+      "v8HeapUsedMBAllTargets": 3.7,
+      "targets": [
+       {
+        "type": "worker",
+        "url": "host.worker.mjs",
+        "usedMB": 0.7,
+        "totalMB": 1.6
+       },
+       {
+        "type": "page",
+        "url": "",
+        "usedMB": 3,
+        "totalMB": 4.1,
+        "perf": {
+         "jsHeapUsedMB": 3,
+         "jsHeapTotalMB": 4.1,
+         "nodes": 1668,
+         "documents": 3,
+         "jsEventListeners": 195
+        },
+        "domCounters": {
+         "documents": 3,
+         "nodes": 1668,
+         "jsEventListeners": 195
+        }
+       }
+      ]
+     },
+     "uasm": {
+      "totalMB": 5,
+      "breakdown": [
+       {
+        "bytesMB": 2.6,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         ":Window"
+        ]
+       },
+       {
+        "bytesMB": 1.2,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         "host.worker.mjs:DedicatedWorkerGlobalScope"
+        ]
+       },
+       {
+        "bytesMB": 1,
+        "types": [
+         "Shared"
+        ],
+        "urls": []
+       }
+      ],
+      "tookMs": 13015
+     }
+    }
+   ],
+   "errors": [],
+   "load": {
+    "loadMs": 1212,
+    "voices": 8
+   },
+   "pagePid": 3124779,
+   "speak": {
+    "audioSeconds": 50,
+    "wallSeconds": 47.7,
+    "realTimeFactor": 1.05,
+    "chunks": 9,
+    "textChars": 823,
+    "rssSamples": 18,
+    "peakPageRendererRssMB": 579.2,
+    "peakPageRendererPssMB": 504.4,
+    "peakAllProcessesRssMB": 1261.5,
+    "uasmSamplesMB": [
+     383.1,
+     383.1,
+     383.1,
+     383.1,
+     383.1,
+     383.1,
+     383.1,
+     383.1,
+     383.1,
+     383.1,
+     383.1,
+     383.1,
+     383.1,
+     383.1,
+     383.1,
+     383.1,
+     383.1,
+     383.1,
+     383.1,
+     383.1,
+     383.1,
+     383.1,
+     383.1,
+     383.1
+    ],
+    "peakUasmMB": 383.1,
+    "peakV8HeapUsedMB": 10.2,
+    "note": "UASM calls (each forces a GC) were started every 2 s during synthesis, so the audio/wall time is a little longer than a quiet run"
+   },
+   "summary": {
+    "pagePid": 3124779,
+    "baselineRssMB": 158.6,
+    "loadedRssMB": 549.7,
+    "peakRssMB": 579.2,
+    "extraAtLoadRssMB": 391.1,
+    "extraPeakRssMB": 420.6,
+    "extraPeakPssMB": 419.3,
+    "extraHwmMB": 423.7,
+    "extraAfterUnloadRssMB": 17.6,
+    "extraAfterRemoveRssMB": 12.7,
+    "baselineUasmMB": 3.1,
+    "loadedUasmMB": 274.3,
+    "afterSpeakUasmMB": 383,
+    "peakUasmMB": 383.1,
+    "extraLoadedUasmMB": 271.2,
+    "extraAfterSpeakUasmMB": 379.9,
+    "extraPeakUasmMB": 380,
+    "extraAfterUnloadUasmMB": 1.6,
+    "extraAfterRemoveUasmMB": 1.9
+   }
+  },
+  {
+   "engine": "kokoro",
+   "threadsRequested": 4,
+   "browserVersion": "151.0.7922.34",
+   "env": {
+    "crossOriginIsolated": true,
+    "deviceMemory": 32,
+    "cores": 16,
+    "hasUasm": true,
+    "ua": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.0.0 Safari/537.36"
+   },
+   "snapshots": [
+    {
+     "label": "baseline",
+     "at": "2026-11-03T02:46:54.777Z",
+     "rss": {
+      "renderer": {
+       "count": 2,
+       "rssMB": 228,
+       "hwmMB": 228,
+       "pssMB": 105.7,
+       "threads": 26,
+       "each": [
+        {
+         "type": "renderer",
+         "pid": 3138642,
+         "rssMB": 69.5,
+         "hwmMB": 69.5,
+         "threads": 9,
+         "pssMB": 20.3
+        },
+        {
+         "type": "renderer",
+         "pid": 3138618,
+         "rssMB": 158.5,
+         "hwmMB": 158.5,
+         "threads": 17,
+         "pssMB": 85.4
+        }
+       ]
+      },
+      "allProcesses": {
+       "count": 6,
+       "rssMB": 743.3,
+       "pssMB": 353
+      }
+     },
+     "cdp": {
+      "v8HeapUsedMBAllTargets": 4,
+      "targets": [
+       {
+        "type": "worker",
+        "url": "host.worker.mjs",
+        "usedMB": 0.9,
+        "totalMB": 2.4
+       },
+       {
+        "type": "page",
+        "url": "",
+        "usedMB": 3.1,
+        "totalMB": 6.1,
+        "perf": {
+         "jsHeapUsedMB": 3.1,
+         "jsHeapTotalMB": 6.1,
+         "nodes": 2071,
+         "documents": 8,
+         "jsEventListeners": 223
+        },
+        "domCounters": {
+         "documents": 8,
+         "nodes": 2071,
+         "jsEventListeners": 223
+        }
+       }
+      ]
+     },
+     "uasm": {
+      "totalMB": 3.5,
+      "breakdown": [
+       {
+        "bytesMB": 2.3,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         ":Window"
+        ]
+       }
+      ],
+      "tookMs": 8464
+     }
+    },
+    {
+     "label": "installed",
+     "at": "2026-11-03T02:47:04.745Z",
+     "rss": {
+      "renderer": {
+       "count": 2,
+       "rssMB": 334.9,
+       "hwmMB": 334.9,
+       "pssMB": 211.9,
+       "threads": 32,
+       "each": [
+        {
+         "type": "renderer",
+         "pid": 3138642,
+         "rssMB": 69.2,
+         "hwmMB": 69.2,
+         "threads": 9,
+         "pssMB": 20
+        },
+        {
+         "type": "renderer",
+         "pid": 3138618,
+         "rssMB": 265.7,
+         "hwmMB": 265.7,
+         "threads": 23,
+         "pssMB": 191.9
+        }
+       ]
+      },
+      "allProcesses": {
+       "count": 6,
+       "rssMB": 947.8,
+       "pssMB": 559.8
+      }
+     },
+     "cdp": {
+      "v8HeapUsedMBAllTargets": 4.2,
+      "targets": [
+       {
+        "type": "worker",
+        "url": "host.worker.mjs",
+        "usedMB": 0.9,
+        "totalMB": 2.4
+       },
+       {
+        "type": "page",
+        "url": "",
+        "usedMB": 3.3,
+        "totalMB": 5.3,
+        "perf": {
+         "jsHeapUsedMB": 3.3,
+         "jsHeapTotalMB": 5.3,
+         "nodes": 1666,
+         "documents": 3,
+         "jsEventListeners": 195
+        },
+        "domCounters": {
+         "documents": 3,
+         "nodes": 1666,
+         "jsEventListeners": 195
+        }
+       }
+      ]
+     },
+     "uasm": {
+      "totalMB": 5.1,
+      "breakdown": [
+       {
+        "bytesMB": 1,
+        "types": [
+         "Shared"
+        ],
+        "urls": []
+       },
+       {
+        "bytesMB": 2.6,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         ":Window"
+        ]
+       },
+       {
+        "bytesMB": 1.2,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         "host.worker.mjs:DedicatedWorkerGlobalScope"
+        ]
+       }
+      ],
+      "tookMs": 18005
+     }
+    },
+    {
+     "label": "loaded",
+     "at": "2026-11-03T02:47:25.989Z",
+     "rss": {
+      "renderer": {
+       "count": 2,
+       "rssMB": 629,
+       "hwmMB": 667.3,
+       "pssMB": 505.5,
+       "threads": 36,
+       "each": [
+        {
+         "type": "renderer",
+         "pid": 3138642,
+         "rssMB": 69.2,
+         "hwmMB": 69.2,
+         "threads": 9,
+         "pssMB": 20
+        },
+        {
+         "type": "renderer",
+         "pid": 3138618,
+         "rssMB": 559.8,
+         "hwmMB": 598.1,
+         "threads": 27,
+         "pssMB": 485.5
+        }
+       ]
+      },
+      "allProcesses": {
+       "count": 6,
+       "rssMB": 1246.5,
+       "pssMB": 856.8
+      }
+     },
+     "cdp": {
+      "v8HeapUsedMBAllTargets": 7.4,
+      "targets": [
+       {
+        "type": "worker",
+        "url": "ort thread worker",
+        "skipped": true
+       },
+       {
+        "type": "worker",
+        "url": "ort thread worker",
+        "skipped": true
+       },
+       {
+        "type": "worker",
+        "url": "ort thread worker",
+        "skipped": true
+       },
+       {
+        "type": "worker",
+        "url": "worker-kokoro.js",
+        "usedMB": 3.7,
+        "totalMB": 5.9
+       },
+       {
+        "type": "worker",
+        "url": "host.worker.mjs",
+        "usedMB": 0.7,
+        "totalMB": 1.6
+       },
+       {
+        "type": "page",
+        "url": "",
+        "usedMB": 3,
+        "totalMB": 3.8,
+        "perf": {
+         "jsHeapUsedMB": 3,
+         "jsHeapTotalMB": 3.8,
+         "nodes": 1674,
+         "documents": 3,
+         "jsEventListeners": 197
+        },
+        "domCounters": {
+         "documents": 3,
+         "nodes": 1674,
+         "jsEventListeners": 197
+        }
+       }
+      ]
+     },
+     "uasm": {
+      "totalMB": 275.5,
+      "breakdown": [
+       {
+        "bytesMB": 1.2,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         "host.worker.mjs:DedicatedWorkerGlobalScope"
+        ]
+       },
+       {
+        "bytesMB": 270.5,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         "worker-kokoro.js:DedicatedWorkerGlobalScope"
+        ]
+       },
+       {
+        "bytesMB": 2.7,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         ":Window"
+        ]
+       }
+      ],
+      "tookMs": 60003
+     }
+    },
+    {
+     "label": "after warm-up speak",
+     "at": "2026-11-03T02:48:27.157Z",
+     "rss": {
+      "renderer": {
+       "count": 2,
+       "rssMB": 536.8,
+       "hwmMB": 637.2,
+       "pssMB": 413.1,
+       "threads": 37,
+       "each": [
+        {
+         "type": "renderer",
+         "pid": 3138642,
+         "rssMB": 69.3,
+         "hwmMB": 69.3,
+         "threads": 9,
+         "pssMB": 20
+        },
+        {
+         "type": "renderer",
+         "pid": 3138618,
+         "rssMB": 467.5,
+         "hwmMB": 567.9,
+         "threads": 28,
+         "pssMB": 393.1
+        }
+       ]
+      },
+      "allProcesses": {
+       "count": 6,
+       "rssMB": 1151,
+       "pssMB": 736
+      }
+     },
+     "cdp": {
+      "v8HeapUsedMBAllTargets": 9.2,
+      "targets": [
+       {
+        "type": "worker",
+        "url": "ort thread worker",
+        "skipped": true
+       },
+       {
+        "type": "worker",
+        "url": "ort thread worker",
+        "skipped": true
+       },
+       {
+        "type": "worker",
+        "url": "ort thread worker",
+        "skipped": true
+       },
+       {
+        "type": "worker",
+        "url": "worker-kokoro.js",
+        "usedMB": 5.5,
+        "totalMB": 6.6
+       },
+       {
+        "type": "worker",
+        "url": "host.worker.mjs",
+        "usedMB": 0.7,
+        "totalMB": 1.6
+       },
+       {
+        "type": "page",
+        "url": "",
+        "usedMB": 3,
+        "totalMB": 3.8,
+        "perf": {
+         "jsHeapUsedMB": 3,
+         "jsHeapTotalMB": 3.8,
+         "nodes": 1696,
+         "documents": 3,
+         "jsEventListeners": 197
+        },
+        "domCounters": {
+         "documents": 3,
+         "nodes": 1696,
+         "jsEventListeners": 197
+        }
+       }
+      ]
+     },
+     "uasm": {
+      "totalMB": 277.3,
+      "breakdown": [
+       {
+        "bytesMB": 272.2,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         "worker-kokoro.js:DedicatedWorkerGlobalScope"
+        ]
+       },
+       {
+        "bytesMB": 1.2,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         "host.worker.mjs:DedicatedWorkerGlobalScope"
+        ]
+       },
+       {
+        "bytesMB": 2.6,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         ":Window"
+        ]
+       }
+      ],
+      "tookMs": 60002
+     }
+    },
+    {
+     "label": "after long speak",
+     "at": "2026-11-03T02:50:27.199Z",
+     "rss": {
+      "renderer": {
+       "count": 2,
+       "rssMB": 612.8,
+       "hwmMB": 614.8,
+       "pssMB": 489,
+       "threads": 37,
+       "each": [
+        {
+         "type": "renderer",
+         "pid": 3138642,
+         "rssMB": 69.3,
+         "hwmMB": 69.3,
+         "threads": 9,
+         "pssMB": 20
+        },
+        {
+         "type": "renderer",
+         "pid": 3138618,
+         "rssMB": 543.5,
+         "hwmMB": 545.5,
+         "threads": 28,
+         "pssMB": 469
+        }
+       ]
+      },
+      "allProcesses": {
+       "count": 6,
+       "rssMB": 1227.2,
+       "pssMB": 837.8
+      }
+     },
+     "cdp": {
+      "v8HeapUsedMBAllTargets": 9.7,
+      "targets": [
+       {
+        "type": "worker",
+        "url": "ort thread worker",
+        "skipped": true
+       },
+       {
+        "type": "worker",
+        "url": "ort thread worker",
+        "skipped": true
+       },
+       {
+        "type": "worker",
+        "url": "ort thread worker",
+        "skipped": true
+       },
+       {
+        "type": "worker",
+        "url": "worker-kokoro.js",
+        "usedMB": 6,
+        "totalMB": 6.7
+       },
+       {
+        "type": "worker",
+        "url": "host.worker.mjs",
+        "usedMB": 0.7,
+        "totalMB": 1.6
+       },
+       {
+        "type": "page",
+        "url": "",
+        "usedMB": 3,
+        "totalMB": 3.8,
+        "perf": {
+         "jsHeapUsedMB": 3,
+         "jsHeapTotalMB": 3.8,
+         "nodes": 1695,
+         "documents": 3,
+         "jsEventListeners": 197
+        },
+        "domCounters": {
+         "documents": 3,
+         "nodes": 1695,
+         "jsEventListeners": 197
+        }
+       }
+      ]
+     },
+     "uasm": {
+      "totalMB": 384.9,
+      "breakdown": [
+       {
+        "bytesMB": 1.2,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         "host.worker.mjs:DedicatedWorkerGlobalScope"
+        ]
+       },
+       {
+        "bytesMB": 2.6,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         ":Window"
+        ]
+       },
+       {
+        "bytesMB": 380.1,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         "worker-kokoro.js:DedicatedWorkerGlobalScope"
+        ]
+       }
+      ],
+      "tookMs": 60002
+     }
+    },
+    {
+     "label": "after unload",
+     "at": "2026-11-03T02:51:29.247Z",
+     "rss": {
+      "renderer": {
+       "count": 2,
+       "rssMB": 553,
+       "hwmMB": 612.2,
+       "pssMB": 429.1,
+       "threads": 34,
+       "each": [
+        {
+         "type": "renderer",
+         "pid": 3138642,
+         "rssMB": 69.3,
+         "hwmMB": 69.3,
+         "threads": 9,
+         "pssMB": 20
+        },
+        {
+         "type": "renderer",
+         "pid": 3138618,
+         "rssMB": 483.7,
+         "hwmMB": 542.9,
+         "threads": 25,
+         "pssMB": 409.1
+        }
+       ]
+      },
+      "allProcesses": {
+       "count": 6,
+       "rssMB": 1167.8,
+       "pssMB": 778
+      }
+     },
+     "cdp": {
+      "v8HeapUsedMBAllTargets": 3.5,
+      "targets": [
+       {
+        "type": "worker",
+        "url": "host.worker.mjs",
+        "usedMB": 0.7,
+        "totalMB": 1.6
+       },
+       {
+        "type": "page",
+        "url": "",
+        "usedMB": 2.8,
+        "totalMB": 3.8,
+        "perf": {
+         "jsHeapUsedMB": 2.8,
+         "jsHeapTotalMB": 3.8,
+         "nodes": 1695,
+         "documents": 3,
+         "jsEventListeners": 197
+        },
+        "domCounters": {
+         "documents": 3,
+         "nodes": 1695,
+         "jsEventListeners": 197
+        }
+       }
+      ]
+     },
+     "uasm": {
+      "totalMB": 4.4,
+      "breakdown": [
+       {
+        "bytesMB": 2.6,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         ":Window"
+        ]
+       },
+       {
+        "bytesMB": 1.2,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         "host.worker.mjs:DedicatedWorkerGlobalScope"
+        ]
+       }
+      ],
+      "tookMs": 15015
+     }
+    },
+    {
+     "label": "after remove",
+     "at": "2026-11-03T02:51:46.351Z",
+     "rss": {
+      "renderer": {
+       "count": 2,
+       "rssMB": 242.2,
+       "hwmMB": 612.2,
+       "pssMB": 118.2,
+       "threads": 33,
+       "each": [
+        {
+         "type": "renderer",
+         "pid": 3138642,
+         "rssMB": 69.3,
+         "hwmMB": 69.3,
+         "threads": 9,
+         "pssMB": 20
+        },
+        {
+         "type": "renderer",
+         "pid": 3138618,
+         "rssMB": 172.9,
+         "hwmMB": 542.9,
+         "threads": 24,
+         "pssMB": 98.2
+        }
+       ]
+      },
+      "allProcesses": {
+       "count": 6,
+       "rssMB": 767.2,
+       "pssMB": 377.4
+      }
+     },
+     "cdp": {
+      "v8HeapUsedMBAllTargets": 3.5,
+      "targets": [
+       {
+        "type": "worker",
+        "url": "host.worker.mjs",
+        "usedMB": 0.7,
+        "totalMB": 1.6
+       },
+       {
+        "type": "page",
+        "url": "",
+        "usedMB": 2.8,
+        "totalMB": 3.8,
+        "perf": {
+         "jsHeapUsedMB": 2.8,
+         "jsHeapTotalMB": 3.8,
+         "nodes": 1667,
+         "documents": 3,
+         "jsEventListeners": 195
+        },
+        "domCounters": {
+         "documents": 3,
+         "nodes": 1667,
+         "jsEventListeners": 195
+        }
+       }
+      ]
+     },
+     "uasm": {
+      "totalMB": 4.5,
+      "breakdown": [
+       {
+        "bytesMB": 2.4,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         ":Window"
+        ]
+       },
+       {
+        "bytesMB": 1.2,
+        "types": [
+         "JavaScript"
+        ],
+        "urls": [
+         "host.worker.mjs:DedicatedWorkerGlobalScope"
+        ]
+       }
+      ],
+      "tookMs": 19003
+     }
+    }
+   ],
+   "errors": [],
+   "load": {
+    "loadMs": 1694,
+    "voices": 8
+   },
+   "pagePid": 3138618,
+   "speak": {
+    "audioSeconds": 50,
+    "wallSeconds": 23,
+    "realTimeFactor": 2.18,
+    "chunks": 9,
+    "textChars": 823,
+    "rssSamples": 17,
+    "peakPageRendererRssMB": 547.7,
+    "peakPageRendererPssMB": 473.2,
+    "peakAllProcessesRssMB": 1231.4,
+    "uasmSamplesMB": [
+     385.1,
+     385.1,
+     385.1,
+     385.1,
+     385.1,
+     385.1,
+     385.1,
+     385.1,
+     385.1,
+     385.1,
+     385.1,
+     385.1
+    ],
+    "peakUasmMB": 385.1,
+    "peakV8HeapUsedMB": 10.2,
+    "note": "UASM calls (each forces a GC) were started every 2 s during synthesis, so the audio/wall time is a little longer than a quiet run"
+   },
+   "summary": {
+    "pagePid": 3138618,
+    "baselineRssMB": 158.5,
+    "loadedRssMB": 559.8,
+    "peakRssMB": 547.7,
+    "extraAtLoadRssMB": 401.3,
+    "extraPeakRssMB": 389.2,
+    "extraPeakPssMB": 387.8,
+    "extraHwmMB": 387,
+    "extraAfterUnloadRssMB": 325.2,
+    "extraAfterRemoveRssMB": 14.4,
+    "baselineUasmMB": 3.5,
+    "loadedUasmMB": 275.5,
+    "afterSpeakUasmMB": 384.9,
+    "peakUasmMB": 385.1,
+    "extraLoadedUasmMB": 272,
+    "extraAfterSpeakUasmMB": 381.4,
+    "extraPeakUasmMB": 381.6,
+    "extraAfterUnloadUasmMB": 0.9,
+    "extraAfterRemoveUasmMB": 1
+   }
+  }
+ ]
+}

@@ -1,0 +1,154 @@
+{
+ "date": "2026-11-02",
+ "model": "Kitten TTS nano 0.8 int8 ONNX, voice expr-voice-5-m, speed 0.8, 24 kHz, onnxruntime-web WASM in headless Chromium (playwright), spike pipeline unchanged apart from returning samples",
+ "asr": {
+  "primary": "faster-whisper 1.2.0 tiny.en int8 CPU, beam 5",
+  "cross_check": "faster-whisper base.en int8 CPU"
+ },
+ "wer_normalisation": "lowercase, punctuation and hyphens removed, word-level Levenshtein; digits in transcripts are NOT converted to words",
+ "mean_wer": {
+  "tiny_en": 0.999,
+  "base_en": 1.259
+ },
+ "verdict": "not intelligible as configured",
+ "sentences": [
+  {
+   "id": 1,
+   "text": "The capital of France is Paris.",
+   "phonemes": "\u00f0\u0259 k\u02c8\u00e6p\u026a\u027e\u0259l \u028cv f\u0279\u02c8\u00e6ns \u026az p\u02c8\u00e6\u0279\u026as",
+   "chunked_sentences": null,
+   "whole_text_failed": null,
+   "duration_s": 2.69,
+   "peak": 0.628,
+   "clipped_samples": 0,
+   "longest_silence_s": 0.56,
+   "tiny_en": {
+    "transcript": "The Kiap, it all love, friends.",
+    "wer": 0.833
+   },
+   "base_en": {
+    "transcript": "The cap it all love, friends. // // // // // // // // // // // // // //",
+    "wer": 0.833
+   }
+  },
+  {
+   "id": 2,
+   "text": "Water boils at one hundred degrees Celsius at sea level, and it freezes at zero degrees.",
+   "phonemes": "w\u02c8\u0254\u02d0\u027e\u025a b\u02c8\u0254\u026alz \u00e6t w\u02c8\u028cn h\u02c8\u028cnd\u0279\u026ad d\u1d7b\u0261\u0279\u02c8i\u02d0z s\u02c8\u025bls\u026a\u0259s \u00e6t s\u02c8i\u02d0 l\u02c8\u025bv\u0259l \u00e6nd \u026at f\u0279\u02c8i\u02d0z\u1d7bz \u00e6t z\u02c8i\u0259\u0279o\u028a d\u1d7b\u0261\u0279\u02c8i\u02d0z",
+   "chunked_sentences": null,
+   "whole_text_failed": null,
+   "duration_s": 16.94,
+   "peak": 0.39,
+   "clipped_samples": 0,
+   "longest_silence_s": 0.44,
+   "tiny_en": {
+    "transcript": "Waterboggles, a twan-hotened, a de-degrees, all's E.S.S.S.E.L.I.V. and fear is, is, is, is, is, is, is, is, is, is, is, is,",
+    "wer": 1.812
+   },
+   "base_en": {
+    "transcript": "Water bubbles, a twan-hut-and-id-id-ig-grazes, ols-i-a-s-a-l-a-v-a-v-a-v-a-v-a-v-a-v-a-v-a-v-a-v-a-v-a-v-a-v-a-v-a-v-a-v-a-v-a-v.",
+    "wer": 3.062
+   }
+  },
+  {
+   "id": 3,
+   "text": "There are twenty four hours in a day and three hundred sixty five days in a year.",
+   "phonemes": "\u00f0\u025b\u0279\u02cc\u0251\u02d0\u0279 tw\u02c8\u025bnti f\u02c8o\u02d0\u0279 \u02c8a\u028a\u025az \u026an \u0250 d\u02c8e\u026a \u00e6nd \u03b8\u0279\u02c8i\u02d0 h\u02c8\u028cnd\u0279\u026ad s\u02c8\u026aksti f\u02c8a\u026av d\u02c8e\u026az \u026an \u0250 j\u02c8\u026a\u0279",
+   "chunked_sentences": null,
+   "whole_text_failed": null,
+   "duration_s": 6.94,
+   "peak": 0.672,
+   "clipped_samples": 0,
+   "longest_silence_s": 0.48,
+   "tiny_en": {
+    "transcript": "They're still over too indie, for Sinead E.N. 365.",
+    "wer": 1.0
+   },
+   "base_en": {
+    "transcript": "There are still over two indy, four zined e-n three hundredths, d-f-i-ived.",
+    "wer": 0.882
+   }
+  },
+  {
+   "id": 4,
+   "text": "What is the tallest mountain in the world, and how high is it?",
+   "phonemes": "w\u02cc\u028ct \u026az \u00f0\u0259 t\u02c8\u0254\u02d0l\u026ast m\u02c8a\u028ant\u026an \u026an\u00f0\u0259 w\u02c8\u025c\u02d0ld \u00e6nd h\u02cca\u028a h\u02c8a\u026a \u026az \u026at",
+   "chunked_sentences": null,
+   "whole_text_failed": null,
+   "duration_s": 7.84,
+   "peak": 0.633,
+   "clipped_samples": 0,
+   "longest_silence_s": 0.68,
+   "tiny_en": {
+    "transcript": "What is that our list, our ninty in in? Lord and Yahroh, high is.",
+    "wer": 0.692
+   },
+   "base_en": {
+    "transcript": "What is the thought list of nitty-in-in, old and yellow hires?",
+    "wer": 0.769
+   }
+  },
+  {
+   "id": 5,
+   "text": "Photosynthesis is the process by which green plants use sunlight to turn water and carbon dioxide into sugar and oxygen. The sugar feeds the plant, while the oxygen is released into the air, where animals and people breathe it in. Without this process, almost all life on Earth would not exist, because plants form the base of nearly every food chain that we know.",
+   "phonemes": "f\u02cco\u028a\u027eo\u028as\u02c8\u026an\u03b8\u0259s\u02cc\u026as \u026az \u00f0\u0259 p\u0279\u02c8\u0251\u02d0s\u025bs ba\u026a w\u02cc\u026at\u0283 \u0261\u0279\u02c8i\u02d0n pl\u02c8\u00e6nts j\u02c8u\u02d0s s\u02c8\u028cnla\u026at t\u0259 t\u02c8\u025c\u02d0n w\u02c8\u0254\u02d0\u027e\u025a \u00e6nd k\u02c8\u0251\u02d0\u0279b\u0259n da\u026a\u02c8\u0251\u02d0ksa\u026ad \u02cc\u026ant\u028a \u0283\u02c8\u028a\u0261\u025a \u00e6nd \u02c8\u0251\u02d0ks\u026ad\u0292\u0259n | \u00f0\u0259 \u0283\u02c8\u028a\u0261\u025a f\u02c8i\u02d0dz \u00f0\u0259 pl\u02c8\u00e6nt w\u02cca\u026al \u00f0\u026a \u02c8\u0251\u02d0ks\u026ad\u0292\u0259n \u026az \u0279\u1d7bl\u02c8i\u02d0st \u02cc\u026ant\u028a \u00f0\u026a \u02c8\u025b\u0279 w\u02cc\u025b\u0279 \u02c8\u00e6n\u026am\u0259lz \u00e6nd p\u02c8i\u02d0p\u0259l b\u0279\u02c8i\u02d0\u00f0 \u026a\u027e \u02c8\u026an | w\u026a\u00f0\u02cca\u028at \u00f0\u026as p\u0279\u02c8\u0251\u02d0s\u025bs \u02c8\u0254\u02d0lmo\u028ast \u02c8\u0254\u02d0l l\u02c8a\u026af \u02cc\u0254n \u02c8\u025c\u02d0\u03b8 w\u028ad n\u02cc\u0251\u02d0t \u025b\u0261z\u02c8\u026ast b\u026ak\u02c8\u028cz pl\u02c8\u00e6nts f\u02c8\u0254\u02d0\u0279m \u00f0\u0259 b\u02c8e\u026as \u028cv n\u02cc\u026a\u0279li \u02c8\u025bv\u0279i f\u02c8u\u02d0d t\u0283\u02c8e\u026an \u00f0\u00e6t wi\u02d0 n\u02c8o\u028a",
+   "chunked_sentences": 3,
+   "whole_text_failed": "failed to call OrtRun(). ERROR_CODE: 2, ERROR_MESSAGE: Non-zero status code returned while running Expand node. Name:'/b",
+   "duration_s": 37.35,
+   "peak": 0.536,
+   "clipped_samples": 0,
+   "longest_silence_s": 0.74,
+   "tiny_en": {
+    "transcript": "Photosynthesis is the bah, which gear in full ants, you sunlight it, ran into a giant into a georand, oxenys, the sugar, it is the pole, and oxenysier, is in the air, moles, and peopole beer. That would this almost a life on earth, wouldn't it? Yes, because pole ants form the base of nearly every food we eat.",
+    "wer": 0.656
+   },
+   "base_en": {
+    "transcript": "For those in the sis, the spa, which gear in will hence use some light, and dai, exa, int, chogir, and ex, indige, the chogir, egees, thou pull, and with ex, genizir, yes, int, the air, and moles, and pay you pull, beer, int, thou, to this most, all life on earth would never take, yes, because pull, hence, form the base of nearly every food we",
+    "wer": 0.75
+   }
+  }
+ ],
+ "findings": [
+  "Mean WER about 1.0 (tiny.en) and 1.26 (base.en); ~0.65-0.75 even on the best sentences; only isolated words (Photosynthesis, oxygen, sugar, air, people, because, base, nearly every food) survive.",
+  "Sentence 5 (64 words) fails in a single ORT call (Expand node: invalid expand shape, input too long for the model); it only works when split per sentence and concatenated, so the app must chunk by sentence.",
+  "Sentence 2 (16 words) produced 17 s of audio and ASR loops: duration is far longer than expected, suggesting the duration predictor misbehaves on some inputs.",
+  "Numbers: twenty four/three hundred sixty five came out as digits \"365\" at best, \"twenty four\" not recognised. Not reliable.",
+  "Diagnostic at speed 1.0 gave the same unintelligible result (WER 0.67-1.06 on the sentences checked), so speed 0.8 is not the cause.",
+  "No clipping (0 samples at full scale, peaks 0.39-0.67) and no long silences (longest 0.44-0.74 s); the audio is non-silent speech-like but not intelligible."
+ ],
+ "limitations": [
+  "ASR is a proxy for a human ear; tiny/base Whisper are weak on unusual voices and could under-rate somewhat-intelligible synthetic speech, but base.en agreeing with tiny.en and the severity of the errors (word salad, loops) point to a real quality problem.",
+  "Possible pipeline fault not excluded: phonemisation is via phonemizer (espeak WASM) with the spike token/style handling (style row chosen by text length), which may differ from the reference Kitten implementation. Phoneme strings looked plausible for sentences 1,3,4 (IPA with stress marks).",
+  "No espeak-ng/other-TTS control was available locally to prove the ASR path on clean speech; one listener-free check only.",
+  "Single voice, single run, 5 sentences; no human listening was done."
+ ],
+ "files": "work/voice-check/s1..s5.wav (git-ignored scratch), sp10/ for speed 1.0 diagnostic",
+ "correction_2026_11_02": {
+  "summary": "The first check (mean WER about 1.0) exposed a bug in the spike, not in the model. Kitten's own Python reference on the same files is intelligible, and the browser pipeline is intelligible once fixed.",
+  "bugs": [
+   "JavaScript \\w is ASCII only, so the tokenizer split every IPA symbol and inserted a space token between sounds; fixed with a Unicode-aware pattern /[\\p{L}\\p{N}_]+|[^\\p{L}\\p{N}_\\s]/gu",
+   "the npm phonemizer drops punctuation while the reference keeps it (preserve_punctuation=True); fixed by phonemizing the pieces between punctuation and re-inserting it",
+   "the reference synthesises one punctuated chunk at a time and picks the style row from the chunk length; whole-text inference of long input fails with an ORT Expand error"
+  ],
+  "python_reference": {
+   "tool": "Kitten onnx_model.py logic, phonemizer + espeakng-loader, onnxruntime CPU",
+   "mean_wer_first4": 0.12
+  },
+  "fixed_browser_pipeline": {
+   "asr": "faster-whisper tiny.en int8",
+   "mean_wer": 0.1,
+   "per_sentence_wer": [
+    0.0,
+    0.12,
+    0.35,
+    0.0,
+    0.0
+   ],
+   "note": "sentence 3 scores 0.35 only because Whisper writes numerals (\"24\", \"365\") for spelled-out numbers; the speech is correct",
+   "token_ids_identical_to_reference": "6 of 7 chunks; the 7th differs in one phoneme (four: o instead of open-o) because the browser espeak-ng build is older",
+   "real_time_factor_centroid_4_threads": "2.4 to 3.0"
+  },
+  "fixture": "tests/fixtures/kitten-golden-ids.json (reference token ids per chunk)",
+  "remeasure": "Real-time factors from the first spikes (including 0.26 on the Galaxy S8+) used the buggy tokenizer, which produced about 1.5 times as many tokens; re-measure with the corrected pipeline."
+ }
+}

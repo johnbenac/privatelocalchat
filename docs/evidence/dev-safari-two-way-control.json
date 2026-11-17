@@ -1,0 +1,43 @@
+{
+  "build": "997bf350bbd26efc9bb4d83953a2eba6c3e3788c",
+  "environment": "Physical Mac, normal Safari window, live Cloudflare receiver, real model and Metal GPU",
+  "dateUtc": "2026-10-30",
+  "wasmSha256": "dbaf064fbeefcae1ab86322a9e52b2fc0de2e52e1f9e00cf72a787ed1f1142fc",
+  "gpuLayerSelection": {
+    "explicit": null,
+    "adapterDefault": -1
+  },
+  "allCapturedObjectsComplete": true,
+  "capturedObjects": 550,
+  "replies": [
+    {
+      "nativeCompletionTokens": 7,
+      "nativeStreamObjects": 8,
+      "exactTextMatch": true,
+      "requestMessagesMatch": true,
+      "savedChatMatch": true,
+      "timing": {
+        "decodeMs": 252.76,
+        "firstTokenMs": 1069.041,
+        "prefillMs": 1069.041
+      }
+    },
+    {
+      "nativeCompletionTokens": 512,
+      "nativeStreamObjects": 514,
+      "exactTextMatch": true,
+      "requestMessagesMatch": true,
+      "savedChatMatch": true,
+      "timing": {
+        "decodeMs": 20393.58,
+        "firstTokenMs": 1053.059,
+        "prefillMs": 1053.059
+      }
+    }
+  ],
+  "limits": [
+    "This is macOS Safari, not iPhone qualification.",
+    "No process-footprint margin was measured.",
+    "The 512-token reply ended at the unchanged output limit."
+  ]
+}

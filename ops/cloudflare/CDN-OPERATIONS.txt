@@ -1,0 +1,49 @@
+Private Local Chat model CDN
+
+Public origin: https://assets.privatelocal.chat
+R2 bucket: privatelocalchat-assets
+Model catalogue: https://assets.privatelocal.chat/models/catalog.json
+
+The catalogue contains the exact pinned Qwen3.5-9B WebLLM q4f16_1
+and q4f32_1 artifacts (including their matching WASM model libraries), plus
+the Qwen3.5-2B text-only Q4_0 GGUF build (13 shards). These are two model
+sizes, with two GPU variants of the 9B model. No model conversion is done.
+Model downloads total 11,319,524,538 bytes across 275 objects; the largest
+object is 508,559,360 bytes, below the standard CDN cache object ceiling.
+
+provision-cdn.py provisions the R2 bucket, public custom domain, GET/HEAD
+CORS with byte-range response headers, the host-specific cache rule, and a
+response-header transform preventing duplicate browser HTTP weight storage.
+It does not change application hosting, apex DNS or redirect configuration.
+
+publish-models.py reads the project token from its private local file,
+derives S3 credentials in memory, and sends them to the trusted Europe
+host over SSH stdin. Credentials are never written to deployment output.
+The host uses installed Python 3/boto3, and the existing europe-ssh helper.
+It copies pinned model objects server-side from a private operator-specified bucket, then reads
+every destination byte and verifies all SHA-256 values. Source objects are
+read only. Different existing immutable destination content is refused.
+The final log includes a VERIFICATION_JSON record with the full proof.
+A recorded verification checkpoint can resume checks already completed
+against these exact immutable object keys and the pinned manifest.
+
+verify-cdn.py verifies public config/WASM hashes, WASM MIME types, CORS from
+https://privatelocal.chat, HTTP 206 ranges for large BIN/GGUF shards, and a
+Cloudflare CDN cache HIT, including weight responses carrying no-store.
+Its output is public-cdn-verification.json.
+
+Model paths carry pinned source revisions with one-year immutable edge
+caching. A late response-header transform sets Cache-Control: no-store on
+.gguf and .bin weights without changing edge caching. The application keeps
+the intentional offline copy in OPFS or explicit CacheStorage; no-store
+prevents an additional ordinary HTTP cache copy. Config and WASM responses
+retain public, max-age=31536000, immutable. Publish a new revision to change
+a model. models/catalog.json is a discovery index with a one-hour TTL.
+Previously cached browser copies are not retroactively removed by this rule.
+
+Base-model Apache-2.0 LICENSE files accompany all model directories.
+models/README.txt and pinned-model-catalog.json record model provenance.
+Matching model libraries originate in mlc-ai/binary-mlc-llm-libs (Apache-2.0).
+Application inference engines are a separate app deployment concern.
+Public model delivery permits any CORS origin, including production and dev;
+no credentials or conversation content are needed to fetch these assets.

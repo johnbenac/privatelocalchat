@@ -1,0 +1,45 @@
+{
+  "reportFile": "JetsamEvent-2026-10-29-150503.ips",
+  "sha256": "888fe98c403adb1c49499c15ae90d0b01dfefd8daead41654e8a83620bfb7b54",
+  "reportedTime": "2026-10-29T15:05:03-04:00",
+  "utcTime": "2026-10-29T19:05:03Z",
+  "pageSizeBytes": 16384,
+  "terminatedProcesses": [
+    {
+      "name": "com.apple.WebKit.WebContent",
+      "pid": 12669,
+      "reason": "per-process-limit",
+      "coalition": 3529,
+      "reportedPages": 131171,
+      "reportedBytes": 2149105664,
+      "reportedMiB": 2049.546875,
+      "states": [
+        "active"
+      ]
+    },
+    {
+      "name": "com.apple.WebKit.WebContent",
+      "pid": 12675,
+      "reason": "per-process-limit",
+      "coalition": 3529,
+      "reportedPages": 131393,
+      "reportedBytes": 2152742912,
+      "reportedMiB": 2053.015625,
+      "states": [
+        "active",
+        "frontmost"
+      ]
+    }
+  ],
+  "browserAssociation": "Both terminated WebContent processes share coalition 3529 with DuckDuckGo.",
+  "historicalTrace": {
+    "commit": "567e28b028a54ff329c8f002f3894b0d8c0f0fd8",
+    "loadStartedAt": "2026-10-29T19:04:58.107Z",
+    "nextPageStartedAt": "2026-10-29T19:05:10.464Z",
+    "correlation": "OS report timestamp falls inside this interrupted load interval; site telemetry does not expose the OS PID, so this is temporal/browser association."
+  },
+  "latestGenerationCorrelation": "Not established: this report predates the 2026-10-30T01:59:07.174Z restart by almost seven hours.",
+  "interpretation": "This report establishes per-process memory-limit terminations in DuckDuckGo WebContent around 2 GiB for an earlier test interval. It does not establish a universal browser limit or prove the latest generation failure has the same cause.",
+  "rawHandling": "Raw report retained only in ignored private work evidence; unrelated processes and device identifiers omitted from this summary.",
+  "reference": "https://developer.apple.com/documentation/xcode/identifying-high-memory-use-with-jetsam-event-reports"
+}

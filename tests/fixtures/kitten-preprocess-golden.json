@@ -1,0 +1,2070 @@
+[
+{
+"input": "The capital of France is Paris.",
+"expected": "the capital of france is paris"
+},
+{
+"input": "Hello, world!",
+"expected": "hello world"
+},
+{
+"input": "It costs $5.50 on Jan 3rd, and there are 365 days.",
+"expected": "it costs five dollars and fifty cents on jan third and there are three hundred sixty five days"
+},
+{
+"input": "What? Really... I can't believe it!",
+"expected": "what really i cannot believe it"
+},
+{
+"input": "She said, \"Come here.\" Then she left.",
+"expected": "she said come here then she left"
+},
+{
+"input": "One sentence. Two sentences. Three sentences!",
+"expected": "one sentence two sentences three sentences"
+},
+{
+"input": "A line\nwith a newline\r\nand a tab\there.",
+"expected": "a line with a newline and a tab here"
+},
+{
+"input": "   leading and trailing spaces   ",
+"expected": "leading and trailing spaces"
+},
+{
+"input": "multiple     spaces    inside",
+"expected": "multiple spaces inside"
+},
+{
+"input": "Semi-colons; colons: dashes - and underscores_in_words.",
+"expected": "semi colons colons dashes and underscores_in_words"
+},
+{
+"input": "(Parentheses) [brackets] {braces} and <angle> things.",
+"expected": "parentheses brackets braces and things"
+},
+{
+"input": "Tom & Jerry went to the O'Brien's pub.",
+"expected": "tom jerry went to the o brien s pub"
+},
+{
+"input": "He said it's fine; they're not sure; we've seen it; you'll see; I'd go; I'm here.",
+"expected": "he said it is fine they are not sure we have seen it you will see i would go i am here"
+},
+{
+"input": "Don't, won't, can't, shan't, ain't, let's, isn't, wouldn't, couldn't.",
+"expected": "do not will not cannot shall not is not let us is not would not could not"
+},
+{
+"input": "IT'S, DON'T, CAN'T in capitals.",
+"expected": "it is do not cannot in capitals"
+},
+{
+"input": "There are 1200 students and 42 teachers.",
+"expected": "there are twelve hundred students and forty two teachers"
+},
+{
+"input": "0",
+"expected": "zero"
+},
+{
+"input": "7",
+"expected": "seven"
+},
+{
+"input": "10",
+"expected": "ten"
+},
+{
+"input": "11",
+"expected": "eleven"
+},
+{
+"input": "12",
+"expected": "twelve"
+},
+{
+"input": "13",
+"expected": "thirteen"
+},
+{
+"input": "19",
+"expected": "nineteen"
+},
+{
+"input": "20",
+"expected": "twenty"
+},
+{
+"input": "21",
+"expected": "twenty one"
+},
+{
+"input": "99",
+"expected": "ninety nine"
+},
+{
+"input": "100",
+"expected": "one hundred"
+},
+{
+"input": "101",
+"expected": "one hundred one"
+},
+{
+"input": "110",
+"expected": "one hundred ten"
+},
+{
+"input": "115",
+"expected": "one hundred fifteen"
+},
+{
+"input": "199",
+"expected": "one hundred ninety nine"
+},
+{
+"input": "200",
+"expected": "two hundred"
+},
+{
+"input": "999",
+"expected": "nine hundred ninety nine"
+},
+{
+"input": "1000",
+"expected": "one thousand"
+},
+{
+"input": "1001",
+"expected": "one thousand one"
+},
+{
+"input": "1100",
+"expected": "eleven hundred"
+},
+{
+"input": "1200",
+"expected": "twelve hundred"
+},
+{
+"input": "1999",
+"expected": "one thousand nine hundred ninety nine"
+},
+{
+"input": "2000",
+"expected": "two thousand"
+},
+{
+"input": "2024",
+"expected": "two thousand twenty four"
+},
+{
+"input": "2100",
+"expected": "two thousand one hundred"
+},
+{
+"input": "2500",
+"expected": "two thousand five hundred"
+},
+{
+"input": "9900",
+"expected": "nine thousand nine hundred"
+},
+{
+"input": "9999",
+"expected": "nine thousand nine hundred ninety nine"
+},
+{
+"input": "10000",
+"expected": "ten thousand"
+},
+{
+"input": "10001",
+"expected": "ten thousand one"
+},
+{
+"input": "12345",
+"expected": "twelve thousand three hundred forty five"
+},
+{
+"input": "100000",
+"expected": "one hundred thousand"
+},
+{
+"input": "123456",
+"expected": "one hundred twenty three thousand four hundred fifty six"
+},
+{
+"input": "999999",
+"expected": "nine hundred ninety nine thousand nine hundred ninety nine"
+},
+{
+"input": "1000000",
+"expected": "one million"
+},
+{
+"input": "1234567",
+"expected": "one million two hundred thirty four thousand five hundred sixty seven"
+},
+{
+"input": "12345678",
+"expected": "twelve million three hundred forty five thousand six hundred seventy eight"
+},
+{
+"input": "123456789",
+"expected": "one hundred twenty three million four hundred fifty six thousand seven hundred eighty nine"
+},
+{
+"input": "1000000000",
+"expected": "one billion"
+},
+{
+"input": "1000000000000",
+"expected": "one trillion"
+},
+{
+"input": "999999999999999",
+"expected": "nine hundred ninety nine trillion nine hundred ninety nine billion nine hundred ninety nine million nine hundred ninety nine thousand nine hundred ninety nine"
+},
+{
+"input": "1000000000000000",
+"expected": ""
+},
+{
+"input": "123456789012345678901234567890",
+"expected": "six hundred seventy seven trillion eight hundred seventy seven billion seven hundred nineteen million five hundred ninety seven thousand fifty six"
+},
+{
+"input": "Numbers 1 2 3 4 5 6 7 8 9 10 in a row.",
+"expected": "numbers one two three four five six seven eight nine ten in a row"
+},
+{
+"input": "Room 404 is on floor 12.",
+"expected": "room four hundred four is on floor twelve"
+},
+{
+"input": "007 is a spy, 0042 is a number.",
+"expected": "seven is a spy forty two is a number"
+},
+{
+"input": "Temperature dropped to -5 degrees overnight.",
+"expected": "temperature dropped to negative five degrees overnight"
+},
+{
+"input": "The balance is -1,200 today.",
+"expected": "the balance is negative twelve hundred today"
+},
+{
+"input": "-0",
+"expected": "zero"
+},
+{
+"input": "On a scale of -10 to 10, she rated it 8.",
+"expected": "on a scale of negative ten to ten she rated it eight"
+},
+{
+"input": "x = -3",
+"expected": "x negative three"
+},
+{
+"input": "gpt-3 is pretty sick.",
+"expected": "gpt three is pretty sick"
+},
+{
+"input": "-1",
+"expected": "negative one"
+},
+{
+"input": "a -2 b",
+"expected": "a negative two b"
+},
+{
+"input": "--5",
+"expected": "negative five"
+},
+{
+"input": "5-",
+"expected": "five"
+},
+{
+"input": "- 5",
+"expected": "five"
+},
+{
+"input": "Pi is approximately 3.14159.",
+"expected": "pi is approximately three point one four one five nine"
+},
+{
+"input": "The voltage is 1.50 volts.",
+"expected": "the voltage is one point five zero volts"
+},
+{
+"input": "Add .5 teaspoons of salt and .25 cup of milk.",
+"expected": "add zero point five teaspoons of salt and zero point two five cup of milk"
+},
+{
+"input": "A -.05 correction was applied.",
+"expected": "a negative zero point zero five correction was applied"
+},
+{
+"input": "There were 0 errors and 0.0 warnings.",
+"expected": "there were zero errors and zero point zero warnings"
+},
+{
+"input": "0.001",
+"expected": "zero point zero zero one"
+},
+{
+"input": "10.10",
+"expected": "ten point one zero"
+},
+{
+"input": "3.0",
+"expected": "three point zero"
+},
+{
+"input": "100.",
+"expected": "one hundred"
+},
+{
+"input": "1.2.3",
+"expected": "one point two three"
+},
+{
+"input": "12.345.678",
+"expected": "twelve point three four five six hundred seventy eight"
+},
+{
+"input": "version 1.2",
+"expected": "version one point two"
+},
+{
+"input": "1,5",
+"expected": "fifteen"
+},
+{
+"input": "0.5.",
+"expected": "zero point five"
+},
+{
+"input": "1.007",
+"expected": "one point zero zero seven"
+},
+{
+"input": "7.000000",
+"expected": "seven point zero zero zero zero zero zero"
+},
+{
+"input": "123456.789",
+"expected": "one hundred twenty three thousand four hundred fifty six point seven eight nine"
+},
+{
+"input": "The population is 7,900,000,000.",
+"expected": "the population is seven billion nine hundred million"
+},
+{
+"input": "1,234",
+"expected": "one thousand two hundred thirty four"
+},
+{
+"input": "1,234,567.89",
+"expected": "one million two hundred thirty four thousand five hundred sixty seven point eight nine"
+},
+{
+"input": "12,34",
+"expected": "one thousand two hundred thirty four"
+},
+{
+"input": ",5",
+"expected": "five"
+},
+{
+"input": "5,",
+"expected": "five"
+},
+{
+"input": "1,,2",
+"expected": "twelve"
+},
+{
+"input": "1, 2, 3",
+"expected": "one two three"
+},
+{
+"input": "price,100",
+"expected": "price one hundred"
+},
+{
+"input": "Inflation rose by 3.5% last quarter.",
+"expected": "inflation rose by three point five percent last quarter"
+},
+{
+"input": "Stocks fell -2% today.",
+"expected": "stocks fell negative two percent today"
+},
+{
+"input": "50% off",
+"expected": "fifty percent off"
+},
+{
+"input": "100 %",
+"expected": "one hundred percent"
+},
+{
+"input": "0.25%",
+"expected": "zero point two five percent"
+},
+{
+"input": "12.50%",
+"expected": "twelve point five percent"
+},
+{
+"input": "99.9%",
+"expected": "ninety nine point nine percent"
+},
+{
+"input": "1,000%",
+"expected": "one thousand percent"
+},
+{
+"input": "50.0%",
+"expected": "fifty point zero percent"
+},
+{
+"input": "3% of 4% of 5%",
+"expected": "three percent of four percent of five percent"
+},
+{
+"input": "%",
+"expected": ""
+},
+{
+"input": "5%%",
+"expected": "five percent"
+},
+{
+"input": "-0.5%",
+"expected": "negative zero point five percent"
+},
+{
+"input": "100.123456%",
+"expected": "one hundred point one two three four five six percent"
+},
+{
+"input": "A coffee costs $4.99 here.",
+"expected": "a coffee costs four dollars and ninety nine cents here"
+},
+{
+"input": "Rent is €1,200 per month.",
+"expected": "rent is twelve hundred euros per month"
+},
+{
+"input": "The book is £9.99.",
+"expected": "the book is nine pounds and ninety nine cents"
+},
+{
+"input": "It costs ¥10000.",
+"expected": "it costs ten thousand yens"
+},
+{
+"input": "₹500 only",
+"expected": "five hundred rupees only"
+},
+{
+"input": "₩1500 won",
+"expected": "fifteen hundred wons won"
+},
+{
+"input": "₿0.5 held",
+"expected": "zero bitcoins and fifty cents held"
+},
+{
+"input": "$1",
+"expected": "one dollar"
+},
+{
+"input": "$0",
+"expected": "zero dollars"
+},
+{
+"input": "$0.01",
+"expected": "zero dollars and one cent"
+},
+{
+"input": "$0.10",
+"expected": "zero dollars and ten cents"
+},
+{
+"input": "$1.00",
+"expected": "one dollars"
+},
+{
+"input": "$100",
+"expected": "one hundred dollars"
+},
+{
+"input": "$1,000,000",
+"expected": "one million dollars"
+},
+{
+"input": "$ 25",
+"expected": "twenty five dollars"
+},
+{
+"input": "$25.5",
+"expected": "twenty five dollars and fifty cents"
+},
+{
+"input": "$25.555",
+"expected": "twenty five dollars and fifty five cents"
+},
+{
+"input": "$85K per year",
+"expected": "eighty five thousand dollars per year"
+},
+{
+"input": "$2.5M raised",
+"expected": "two point five million dollars raised"
+},
+{
+"input": "$3B deal",
+"expected": "three billion dollars deal"
+},
+{
+"input": "$1.2T economy",
+"expected": "one point two trillion dollars economy"
+},
+{
+"input": "$100K budget",
+"expected": "one hundred thousand dollars budget"
+},
+{
+"input": "$5 and €6 and £7",
+"expected": "five dollars and six euros and seven pounds"
+},
+{
+"input": "$5abc",
+"expected": "fiveabc"
+},
+{
+"input": "$5k",
+"expected": "fivek"
+},
+{
+"input": "£1",
+"expected": "one pound"
+},
+{
+"input": "£1.50",
+"expected": "one pounds and fifty cents"
+},
+{
+"input": "€2.99",
+"expected": "two euros and ninety nine cents"
+},
+{
+"input": "¥2",
+"expected": "two yens"
+},
+{
+"input": "Cost: $12,345.67!",
+"expected": "cost twelve thousand three hundred forty five dollars and sixty seven cents"
+},
+{
+"input": "$.50",
+"expected": "zero dollars and fifty cents"
+},
+{
+"input": "US$20",
+"expected": "ustwenty dollars"
+},
+{
+"input": "$20.",
+"expected": "twenty dollars"
+},
+{
+"input": "$1,000.99.",
+"expected": "one thousand dollars and ninety nine cents"
+},
+{
+"input": "$$5",
+"expected": "five dollars"
+},
+{
+"input": "On January 3rd, 2024, we met.",
+"expected": "on january third two thousand twenty four we met"
+},
+{
+"input": "The date is 2024-01-15.",
+"expected": "the date is two thousand twenty four to one fifteen"
+},
+{
+"input": "Born 03/04/1990.",
+"expected": "born three quarters one thousand nine hundred ninety"
+},
+{
+"input": "Due 12/25/2023 at noon.",
+"expected": "due twelve twenty fifths two thousand twenty three at noon"
+},
+{
+"input": "Jan 3rd",
+"expected": "jan third"
+},
+{
+"input": "March 21st 2020",
+"expected": "march twenty first two thousand twenty"
+},
+{
+"input": "1st 2nd 3rd 4th 5th",
+"expected": "first second third fourth fifth"
+},
+{
+"input": "11th 12th 13th 21st 22nd 23rd 101st 111th",
+"expected": "eleventh twelfth thirteenth twenty first twenty second twenty third one hundred first one hundred eleventh"
+},
+{
+"input": "1990s",
+"expected": "nineteen nineties"
+},
+{
+"input": "the 80s",
+"expected": "the eighties"
+},
+{
+"input": "'90s music",
+"expected": "nineties music"
+},
+{
+"input": "2020s",
+"expected": "twenty twenties"
+},
+{
+"input": "2000s",
+"expected": "twenty hundreds"
+},
+{
+"input": "1900s",
+"expected": "nineteen hundreds"
+},
+{
+"input": "10s",
+"expected": "tens"
+},
+{
+"input": "In the 1960s and 1970s.",
+"expected": "in the nineteen sixties and nineteen seventies"
+},
+{
+"input": "Feb. 14, 2025",
+"expected": "feb fourteen two thousand twenty five"
+},
+{
+"input": "Friday the 13th",
+"expected": "friday the thirteenth"
+},
+{
+"input": "5/6/2021",
+"expected": "five sixths two thousand twenty one"
+},
+{
+"input": "3 May 2022",
+"expected": "three may two thousand twenty two"
+},
+{
+"input": "The meeting starts at 3:30pm.",
+"expected": "the meeting starts at three thirty pm"
+},
+{
+"input": "Departure at 14:00.",
+"expected": "departure at fourteen hundred"
+},
+{
+"input": "Alarm set for 9:05 AM.",
+"expected": "alarm set for nine oh five am"
+},
+{
+"input": "The server restarts at 0:00.",
+"expected": "the server restarts at zero hundred"
+},
+{
+"input": "12:00pm",
+"expected": "twelve pm"
+},
+{
+"input": "12:00 PM sharp",
+"expected": "twelve pm sharp"
+},
+{
+"input": "The final score was 3:0.",
+"expected": "the final score was three zero"
+},
+{
+"input": "The display is 16:9.",
+"expected": "the display is sixteen nine"
+},
+{
+"input": "10:30:45 pm",
+"expected": "ten thirty pm"
+},
+{
+"input": "23:59:59",
+"expected": "twenty three fifty nine"
+},
+{
+"input": "7:5",
+"expected": "seven five"
+},
+{
+"input": "1:07 am",
+"expected": "one oh seven am"
+},
+{
+"input": "Lunch at 12:30, dinner at 7:45 PM.",
+"expected": "lunch at twelve thirty dinner at seven forty five pm"
+},
+{
+"input": "3:30 x",
+"expected": "three thirtyx"
+},
+{
+"input": "3:30 pm.",
+"expected": "three thirty pm"
+},
+{
+"input": "3:30pmx",
+"expected": "three thirtypmx"
+},
+{
+"input": "ratio 1:2:3",
+"expected": "ratio one two three"
+},
+{
+"input": "She finished 1st, he came 2nd, I was 3rd.",
+"expected": "she finished first he came second i was third"
+},
+{
+"input": "It's the 21st century and the 100th anniversary.",
+"expected": "it is the twenty first century and the one hundredth anniversary"
+},
+{
+"input": "He ran his 42nd marathon.",
+"expected": "he ran his forty second marathon"
+},
+{
+"input": "On the 33rd floor.",
+"expected": "on the thirty third floor"
+},
+{
+"input": "0th",
+"expected": "zeroth"
+},
+{
+"input": "20th",
+"expected": "twentyth"
+},
+{
+"input": "30th",
+"expected": "thirtyth"
+},
+{
+"input": "40th",
+"expected": "fortyth"
+},
+{
+"input": "90th",
+"expected": "ninetyth"
+},
+{
+"input": "1000th",
+"expected": "one thousandth"
+},
+{
+"input": "1001st",
+"expected": "one thousand first"
+},
+{
+"input": "5th avenue",
+"expected": "fifth avenue"
+},
+{
+"input": "8th",
+"expected": "eighth"
+},
+{
+"input": "9th",
+"expected": "ninth"
+},
+{
+"input": "12th",
+"expected": "twelfth"
+},
+{
+"input": "1th",
+"expected": "first"
+},
+{
+"input": "2th",
+"expected": "second"
+},
+{
+"input": "10th",
+"expected": "tenth"
+},
+{
+"input": "11th",
+"expected": "eleventh"
+},
+{
+"input": "80th",
+"expected": "eightyth"
+},
+{
+"input": "100th",
+"expected": "one hundredth"
+},
+{
+"input": "Call us at 555-1234 or 1-800-555-0199.",
+"expected": "call us at five five five one two three four or one eight zero zero five five five zero one nine nine"
+},
+{
+"input": "Dial 555-123-4567 now",
+"expected": "dial five five five one two three four five six seven now"
+},
+{
+"input": "Phone: (555) 123-4567",
+"expected": "phone five hundred fifty five one two three four five six seven"
+},
+{
+"input": "+1 555 123 4567",
+"expected": "one five hundred fifty five one hundred twenty three four thousand five hundred sixty seven"
+},
+{
+"input": "555-12345",
+"expected": "five hundred fifty five to twelve thousand three hundred forty five"
+},
+{
+"input": "1555-1234",
+"expected": "one thousand five hundred fifty five to one thousand two hundred thirty four"
+},
+{
+"input": "Connect to server at 192.168.1.1 on port 8080.",
+"expected": "connect to server at one nine two dot one six eight dot one dot one on port eight thousand eighty"
+},
+{
+"input": "10.0.0.1",
+"expected": "one zero dot zero dot zero dot one"
+},
+{
+"input": "255.255.255.255",
+"expected": "two five five dot two five five dot two five five dot two five five"
+},
+{
+"input": "999.999.999.999",
+"expected": "nine nine nine dot nine nine nine dot nine nine nine dot nine nine nine"
+},
+{
+"input": "1.2.3.4.5",
+"expected": "one dot two dot three dot four0 five"
+},
+{
+"input": "ip 8.8.8.8.",
+"expected": "ip eight dot eight dot eight dot eight"
+},
+{
+"input": "In 1999 and 2005 and 2024.",
+"expected": "in one thousand nine hundred ninety nine and two thousand five and two thousand twenty four"
+},
+{
+"input": "year 1850",
+"expected": "year one thousand eight hundred fifty"
+},
+{
+"input": "The war lasted from 2020-2024.",
+"expected": "the war lasted from two thousand twenty to two thousand twenty four"
+},
+{
+"input": "Read pages 10-20 for homework.",
+"expected": "read pages ten to twenty for homework"
+},
+{
+"input": "Store between 5-10 degrees.",
+"expected": "store between five to ten degrees"
+},
+{
+"input": "pages 100-200",
+"expected": "pages one hundred to two hundred"
+},
+{
+"input": "1-2-3",
+"expected": "one to two three"
+},
+{
+"input": "10-20-30",
+"expected": "ten to twenty thirty"
+},
+{
+"input": "a10-20b",
+"expected": "a1zero twentyb"
+},
+{
+"input": "-10-20",
+"expected": "ten to twenty"
+},
+{
+"input": "9-5 job",
+"expected": "nine to five job"
+},
+{
+"input": "5 - 10",
+"expected": "five ten"
+},
+{
+"input": "10–20",
+"expected": "ten twenty"
+},
+{
+"input": "100-",
+"expected": "one hundred"
+},
+{
+"input": "-100",
+"expected": "negative one hundred"
+},
+{
+"input": "Cut the recipe in 1/2.",
+"expected": "cut the recipe in one half"
+},
+{
+"input": "Add 3/4 cup of sugar and 1/4 teaspoon of salt.",
+"expected": "add three quarters cup of sugar and one quarter teaspoon of salt"
+},
+{
+"input": "The team completed 2/3 of the project.",
+"expected": "the team completed two thirds of the project"
+},
+{
+"input": "The pipe is 5/8 inch in diameter.",
+"expected": "the pipe is five eighths inch in diameter"
+},
+{
+"input": "1/3",
+"expected": "one third"
+},
+{
+"input": "2/5",
+"expected": "two fifths"
+},
+{
+"input": "7/10",
+"expected": "seven tenths"
+},
+{
+"input": "1/100",
+"expected": "one one hundredth"
+},
+{
+"input": "3/0",
+"expected": "three zero"
+},
+{
+"input": "0/5",
+"expected": "zero fifths"
+},
+{
+"input": "10 / 20",
+"expected": "ten twentyths"
+},
+{
+"input": "and/or",
+"expected": "and or"
+},
+{
+"input": "24/7",
+"expected": "twenty four sevenths"
+},
+{
+"input": "1/2/3",
+"expected": "one half three"
+},
+{
+"input": "a1/2",
+"expected": "a1 two"
+},
+{
+"input": "1 /2",
+"expected": "one half"
+},
+{
+"input": "The trail is 42km long.",
+"expected": "the trail is forty two kilometers long"
+},
+{
+"input": "Each package weighs 500kg.",
+"expected": "each package weighs five hundred kilograms"
+},
+{
+"input": "Water boils at 100°C.",
+"expected": "water boils at one hundred degrees celsius"
+},
+{
+"input": "Download the 2.5GB model file.",
+"expected": "download the two point five gigabytes model file"
+},
+{
+"input": "The CPU runs at 3.6GHz.",
+"expected": "the cpu runs at three point six gigahertz"
+},
+{
+"input": "Average latency is 12ms.",
+"expected": "average latency is twelve milliseconds"
+},
+{
+"input": "5 km",
+"expected": "five kilometers"
+},
+{
+"input": "5 KM",
+"expected": "five kilometers"
+},
+{
+"input": "10 mph",
+"expected": "ten miles per hour"
+},
+{
+"input": "60kph",
+"expected": "sixty kilometers per hour"
+},
+{
+"input": "3mg",
+"expected": "three milligrams"
+},
+{
+"input": "250ml",
+"expected": "two hundred fifty milliliters"
+},
+{
+"input": "500MB",
+"expected": "five hundred megabytes"
+},
+{
+"input": "1TB",
+"expected": "one terabytes"
+},
+{
+"input": "8GB RAM",
+"expected": "eight gigabytes ram"
+},
+{
+"input": "44.1kHz",
+"expected": "forty four point one kilohertz"
+},
+{
+"input": "100MHz",
+"expected": "one hundred megahertz"
+},
+{
+"input": "5ns",
+"expected": "five nanoseconds"
+},
+{
+"input": "5µs",
+"expected": "five microseconds"
+},
+{
+"input": "5μs",
+"expected": "five μs"
+},
+{
+"input": "98.6°F",
+"expected": "ninety eight point six degrees fahrenheit"
+},
+{
+"input": "37C°",
+"expected": "thirty sevenc"
+},
+{
+"input": "5kmh",
+"expected": "fivekmh"
+},
+{
+"input": "5 kms",
+"expected": "five kms"
+},
+{
+"input": "2.50GB",
+"expected": "two point five gigabytes"
+},
+{
+"input": "0.5kg",
+"expected": "zero point five kilograms"
+},
+{
+"input": "1.0km",
+"expected": "one point zero kilometers"
+},
+{
+"input": "We trained a 7B parameter model and a 13B variant.",
+"expected": "we trained a seven billion parameter model and a thirteen billion variant"
+},
+{
+"input": "The 340M model beat the 7B on MMLU.",
+"expected": "the three hundred forty million model beat the seven billion on mmlu"
+},
+{
+"input": "1.5K salary",
+"expected": "one point five thousand salary"
+},
+{
+"input": "2T tokens",
+"expected": "two trillion tokens"
+},
+{
+"input": "5k",
+"expected": "fivek"
+},
+{
+"input": "5m",
+"expected": "fivem"
+},
+{
+"input": "3B",
+"expected": "three billion"
+},
+{
+"input": "10K runs",
+"expected": "ten thousand runs"
+},
+{
+"input": "1M users",
+"expected": "one million users"
+},
+{
+"input": "Learning rate is 1e-4, weight decay 1e-5.",
+"expected": "learning rate is one times ten to the negative four weight decay one times ten to the negative five"
+},
+{
+"input": "Avogadro's number is 6.022E23.",
+"expected": "avogadro s number is six point zero two two times ten to the twenty three"
+},
+{
+"input": "The signal is 2.5e10 Hz.",
+"expected": "the signal is two point five times ten to the ten hz"
+},
+{
+"input": "1e5",
+"expected": "one times ten to the five"
+},
+{
+"input": "2e+3",
+"expected": "two times ten to the three"
+},
+{
+"input": "-3e-2",
+"expected": "negative three times ten to the negative two"
+},
+{
+"input": "1e0",
+"expected": "one times ten to the zero"
+},
+{
+"input": "a1e5",
+"expected": "a1e5"
+},
+{
+"input": "1e5x",
+"expected": "onee5x"
+},
+{
+"input": "3.14e0",
+"expected": "three point one four times ten to the zero"
+},
+{
+"input": "They upgraded to GPT-3.5 last month.",
+"expected": "they upgraded to gpt three point five last month"
+},
+{
+"input": "This project is licensed under GPL-3.",
+"expected": "this project is licensed under gpl three"
+},
+{
+"input": "Requires Python-3.10 or higher.",
+"expected": "requires python three point one zero or higher"
+},
+{
+"input": "Both CUDA-11 and CUDA-12 are supported.",
+"expected": "both cuda eleven and cuda twelve are supported"
+},
+{
+"input": "GPT-4 scored 90% on the benchmark — 15% better than GPT-3.5.",
+"expected": "gpt four scored ninety percent on the benchmark fifteen percent better than gpt three point five"
+},
+{
+"input": "v2.0",
+"expected": "v2 zero"
+},
+{
+"input": "IPv6",
+"expected": "ipv6"
+},
+{
+"input": "x86-64",
+"expected": "x8six sixty four"
+},
+{
+"input": "Llama-2-7B",
+"expected": "llama two seven billion"
+},
+{
+"input": "A-1",
+"expected": "a one"
+},
+{
+"input": "ab-12-cd",
+"expected": "ab twelve cd"
+},
+{
+"input": "wi-fi 6",
+"expected": "wi fi six"
+},
+{
+"input": "covid-19",
+"expected": "covid nineteen"
+},
+{
+"input": "Dr. Smith lives on Main St. near Mr. Jones.",
+"expected": "dr smith lives on main st near mr jones"
+},
+{
+"input": "e.g. this, i.e. that, etc.",
+"expected": "e g this i e that etc"
+},
+{
+"input": "Prof. A. B. Cooper, Ph.D.",
+"expected": "prof a b cooper ph d"
+},
+{
+"input": "Mrs. Brown and Ms. Green",
+"expected": "mrs brown and ms green"
+},
+{
+"input": "St. Louis vs. Chicago",
+"expected": "st louis vs chicago"
+},
+{
+"input": "U.S.A. and U.K.",
+"expected": "u s a and u k"
+},
+{
+"input": "approx. 5 min.",
+"expected": "approx five min"
+},
+{
+"input": "No. 5",
+"expected": "no five"
+},
+{
+"input": "Inc. and Corp. and Ltd.",
+"expected": "inc and corp and ltd"
+},
+{
+"input": "a.m. and p.m.",
+"expected": "a m and p m"
+},
+{
+"input": "Visit https://example.com or email hello@example.com.",
+"expected": "visit or email"
+},
+{
+"input": "http://a.b/c?d=1&e=2#f is a link",
+"expected": "is a link"
+},
+{
+"input": "see www.example.org/page now",
+"expected": "see now"
+},
+{
+"input": "mail john.doe+tag@sub.example.co.uk please",
+"expected": "mail co uk please"
+},
+{
+"input": "user@host",
+"expected": "user host"
+},
+{
+"input": "@user great post!",
+"expected": "user great post"
+},
+{
+"input": "#NLP is fun #AI",
+"expected": "nlp is fun ai"
+},
+{
+"input": "email me @ noon",
+"expected": "email me noon"
+},
+{
+"input": "https://x.y",
+"expected": ""
+},
+{
+"input": "<b>Hello</b> World! It's a great day.",
+"expected": "hello world it is a great day"
+},
+{
+"input": "<p>one</p><p>two</p>",
+"expected": "one two"
+},
+{
+"input": "1 < 2 and 3 > 2",
+"expected": "one two"
+},
+{
+"input": "<a href=\"http://x.com\">link</a>",
+"expected": "link"
+},
+{
+"input": "a<b",
+"expected": "a b"
+},
+{
+"input": "NASA and the FBI and NATO",
+"expected": "nasa and the fbi and nato"
+},
+{
+"input": "THIS IS LOUD",
+"expected": "this is loud"
+},
+{
+"input": "World War II ended in 1945.",
+"expected": "world war ii ended in one thousand nine hundred forty five"
+},
+{
+"input": "Chapter IV begins here.",
+"expected": "chapter iv begins here"
+},
+{
+"input": "Louis XIV was king.",
+"expected": "louis xiv was king"
+},
+{
+"input": "mix I with V",
+"expected": "mix i with v"
+},
+{
+"input": "McDonald's and iPhone and eBay",
+"expected": "mcdonald s and iphone and ebay"
+},
+{
+"input": "CamelCaseWord and snake_case_word",
+"expected": "camelcaseword and snake_case_word"
+},
+{
+"input": "I love it 😀 so much ❤️",
+"expected": "i love it so much"
+},
+{
+"input": "👍👍👍",
+"expected": ""
+},
+{
+"input": "Café crème brûlée",
+"expected": "café crème brûlée"
+},
+{
+"input": "naïve façade",
+"expected": "naïve façade"
+},
+{
+"input": "Straße München",
+"expected": "straße münchen"
+},
+{
+"input": "Café with combining accent",
+"expected": "café with combining accent"
+},
+{
+"input": "Ñoño español ¿qué?",
+"expected": "ñoño español qué"
+},
+{
+"input": "Привет, мир!",
+"expected": "привет мир"
+},
+{
+"input": "你好，世界。",
+"expected": "你好 世界"
+},
+{
+"input": "こんにちは世界",
+"expected": "こんにちは世界"
+},
+{
+"input": "مرحبا بالعالم",
+"expected": "مرحبا بالعالم"
+},
+{
+"input": "नमस्ते दुनिया",
+"expected": "नमस त द न य"
+},
+{
+"input": "Ελληνικά ΟΔΣ",
+"expected": "ελληνικά οδς"
+},
+{
+"input": "Mixed English русский 中文 and 123",
+"expected": "mixed english русский 中文 and one hundred twenty three"
+},
+{
+"input": "½ cup and ² squared",
+"expected": "½ cup and ² squared"
+},
+{
+"input": "٣٤ and ١٢٣",
+"expected": "thirty four and one hundred twenty three"
+},
+{
+"input": "１２３ fullwidth",
+"expected": "one hundred twenty three fullwidth"
+},
+{
+"input": "① circled",
+"expected": "① circled"
+},
+{
+"input": "Ŋİ dotted I",
+"expected": "ŋi̇ dotted i"
+},
+{
+"input": " nbsp inside ",
+"expected": "nbsp inside"
+},
+{
+"input": "zero​width",
+"expected": "zero width"
+},
+{
+"input": "— em dash – en dash … ellipsis",
+"expected": "em dash en dash ellipsis"
+},
+{
+"input": "“Smart quotes” and ‘single’",
+"expected": "smart quotes and single"
+},
+{
+"input": "It’s curly, don’t you think",
+"expected": "it s curly don t you think"
+},
+{
+"input": "100°",
+"expected": "one hundred"
+},
+{
+"input": "5℃",
+"expected": "five"
+},
+{
+"input": "# Heading\n\nSome **bold** and *italic* text.",
+"expected": "heading some bold and italic text"
+},
+{
+"input": "- item one\n- item two\n- item three",
+"expected": "item one item two item three"
+},
+{
+"input": "1. First\n2. Second\n3. Third",
+"expected": "one first two second three third"
+},
+{
+"input": "`code` and ```block``` here",
+"expected": "code and block here"
+},
+{
+"input": "> quoted text",
+"expected": "quoted text"
+},
+{
+"input": "[link text](https://example.com) after",
+"expected": "link text after"
+},
+{
+"input": "| a | b |\n|---|---|\n| 1 | 2 |",
+"expected": "a b one two"
+},
+{
+"input": "~~strike~~ and __under__",
+"expected": "strike and __under__"
+},
+{
+"input": "![image](pic.png)",
+"expected": "image pic png"
+},
+{
+"input": "Use `npm install` then run `node app.js`.",
+"expected": "use npm install then run node app js"
+},
+{
+"input": "Fed raises rates by 0.25%, S&P 500 drops 1.2%.",
+"expected": "fed raises rates by zero point two five percent s p five hundred drops one point two percent"
+},
+{
+"input": "We raised $2.5M in seed funding and are growing 20% month-over-month.",
+"expected": "we raised two point five million dollars in seed funding and are growing twenty percent month over month"
+},
+{
+"input": "The M3 chip runs at 4.05GHz with a 40M transistor GPU and 8GB RAM.",
+"expected": "the m3 chip runs at four point zero five gigahertz with a forty million transistor gpu and eight gigabytes ram"
+},
+{
+"input": "We trained a 7B parameter model for 100 epochs at 1e-4 learning rate.",
+"expected": "we trained a seven billion parameter model for one hundred epochs at one times ten to the negative four learning rate"
+},
+{
+"input": "The result — 42 — surprised everyone.",
+"expected": "the result forty two surprised everyone"
+},
+{
+"input": "He paused... then spoke.",
+"expected": "he paused then spoke"
+},
+{
+"input": "Order #1234 shipped on 5/6 for $19.99 (incl. 8.5% tax).",
+"expected": "order one thousand two hundred thirty four shipped on five sixths for nineteen dollars and ninety nine cents incl eight point five percent tax"
+},
+{
+"input": "Meet at 6:30 PM on the 4th floor, room 12B.",
+"expected": "meet at six thirty pm on the fourth floor room twelve billion"
+},
+{
+"input": "Mix 2 1/2 cups flour with 3/4 tsp salt.",
+"expected": "mix two one half cups flour with three quarters tsp salt"
+},
+{
+"input": "Mile 26.2 took 3:45:10.",
+"expected": "mile twenty six point two took three forty five"
+},
+{
+"input": "He is 6'2\" and 180 lbs.",
+"expected": "he is six two and one hundred eighty lbs"
+},
+{
+"input": "",
+"expected": ""
+},
+{
+"input": " ",
+"expected": ""
+},
+{
+"input": "   \n\t  ",
+"expected": ""
+},
+{
+"input": ".",
+"expected": ""
+},
+{
+"input": "...",
+"expected": ""
+},
+{
+"input": "!!!",
+"expected": ""
+},
+{
+"input": "123",
+"expected": "one hundred twenty three"
+},
+{
+"input": "$",
+"expected": ""
+},
+{
+"input": "-",
+"expected": ""
+},
+{
+"input": "_",
+"expected": "_"
+},
+{
+"input": "a",
+"expected": "a"
+},
+{
+"input": "A",
+"expected": "a"
+},
+{
+"input": "'",
+"expected": ""
+},
+{
+"input": "\"",
+"expected": ""
+},
+{
+"input": "5 5 5",
+"expected": "five five five"
+},
+{
+"input": "1.",
+"expected": "one"
+},
+{
+"input": ".1",
+"expected": "zero point one"
+},
+{
+"input": "..5",
+"expected": "zero point five"
+},
+{
+"input": "The quick brown fox jumps over the lazy dog while 3 birds sing at 7:15 AM, costing $12.50 each for the 2nd time in 1999. Dr. Who said it's 50% likely that 1,000 people will visit the 21st-century museum, 12km away, on Mar 4th. The quick brown fox jumps over the lazy dog while 3 birds sing at 7:15 AM, costing $12.50 each for the 2nd time in 1999. Dr. Who said it's 50% likely that 1,000 people will visit the 21st-century museum, 12km away, on Mar 4th. The quick brown fox jumps over the lazy dog while 3 birds sing at 7:15 AM, costing $12.50 each for the 2nd time in 1999. Dr. Who said it's 50% likely that 1,000 people will visit the 21st-century museum, 12km away, on Mar 4th. The quick brown fox jumps over the lazy dog while 3 birds sing at 7:15 AM, costing $12.50 each for the 2nd time in 1999. Dr. Who said it's 50% likely that 1,000 people will visit the 21st-century museum, 12km away, on Mar 4th. The quick brown fox jumps over the lazy dog while 3 birds sing at 7:15 AM, costing $12.50 each for the 2nd time in 1999. Dr. Who said it's 50% likely that 1,000 people will visit the 21st-century museum, 12km away, on Mar 4th. The quick brown fox jumps over the lazy dog while 3 birds sing at 7:15 AM, costing $12.50 each for the 2nd time in 1999. Dr. Who said it's 50% likely that 1,000 people will visit the 21st-century museum, 12km away, on Mar 4th. The quick brown fox jumps over the lazy dog while 3 birds sing at 7:15 AM, costing $12.50 each for the 2nd time in 1999. Dr. Who said it's 50% likely that 1,000 people will visit the 21st-century museum, 12km away, on Mar 4th. The quick brown fox jumps over the lazy dog while 3 birds sing at 7:15 AM, costing $12.50 each for the 2nd time in 1999. Dr. Who said it's 50% likely that 1,000 people will visit the 21st-century museum, 12km away, on Mar 4th. The quick brown fox jumps over the lazy dog while 3 birds sing at 7:15 AM, costing $12.50 each for the 2nd time in 1999. Dr. Who said it's 50% likely that 1,000 people will visit the 2",
+"expected": "the quick brown fox jumps over the lazy dog while three birds sing at seven fifteen am costing twelve dollars and fifty cents each for the second time in one thousand nine hundred ninety nine dr who said it is fifty percent likely that one thousand people will visit the twenty first century museum twelve kilometers away on mar fourth the quick brown fox jumps over the lazy dog while three birds sing at seven fifteen am costing twelve dollars and fifty cents each for the second time in one thousand nine hundred ninety nine dr who said it is fifty percent likely that one thousand people will visit the twenty first century museum twelve kilometers away on mar fourth the quick brown fox jumps over the lazy dog while three birds sing at seven fifteen am costing twelve dollars and fifty cents each for the second time in one thousand nine hundred ninety nine dr who said it is fifty percent likely that one thousand people will visit the twenty first century museum twelve kilometers away on mar fourth the quick brown fox jumps over the lazy dog while three birds sing at seven fifteen am costing twelve dollars and fifty cents each for the second time in one thousand nine hundred ninety nine dr who said it is fifty percent likely that one thousand people will visit the twenty first century museum twelve kilometers away on mar fourth the quick brown fox jumps over the lazy dog while three birds sing at seven fifteen am costing twelve dollars and fifty cents each for the second time in one thousand nine hundred ninety nine dr who said it is fifty percent likely that one thousand people will visit the twenty first century museum twelve kilometers away on mar fourth the quick brown fox jumps over the lazy dog while three birds sing at seven fifteen am costing twelve dollars and fifty cents each for the second time in one thousand nine hundred ninety nine dr who said it is fifty percent likely that one thousand people will visit the twenty first century museum twelve kilometers away on mar fourth the quick brown fox jumps over the lazy dog while three birds sing at seven fifteen am costing twelve dollars and fifty cents each for the second time in one thousand nine hundred ninety nine dr who said it is fifty percent likely that one thousand people will visit the twenty first century museum twelve kilometers away on mar fourth the quick brown fox jumps over the lazy dog while three birds sing at seven fifteen am costing twelve dollars and fifty cents each for the second time in one thousand nine hundred ninety nine dr who said it is fifty percent likely that one thousand people will visit the twenty first century museum twelve kilometers away on mar fourth the quick brown fox jumps over the lazy dog while three birds sing at seven fifteen am costing twelve dollars and fifty cents each for the second time in one thousand nine hundred ninety nine dr who said it is fifty percent likely that one thousand people will visit the two"
+},
+{
+"input": "word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word",
+"expected": "word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word"
+},
+{
+"input": "1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 ",
+"expected": "one billion two hundred thirty four million five hundred sixty seven thousand eight hundred ninety one billion two hundred thirty four million five hundred sixty seven thousand eight hundred ninety one billion two hundred thirty four million five hundred sixty seven thousand eight hundred ninety one billion two hundred thirty four million five hundred sixty seven thousand eight hundred ninety one billion two hundred thirty four million five hundred sixty seven thousand eight hundred ninety one billion two hundred thirty four million five hundred sixty seven thousand eight hundred ninety one billion two hundred thirty four million five hundred sixty seven thousand eight hundred ninety one billion two hundred thirty four million five hundred sixty seven thousand eight hundred ninety one billion two hundred thirty four million five hundred sixty seven thousand eight hundred ninety one billion two hundred thirty four million five hundred sixty seven thousand eight hundred ninety one billion two hundred thirty four million five hundred sixty seven thousand eight hundred ninety one billion two hundred thirty four million five hundred sixty seven thousand eight hundred ninety one billion two hundred thirty four million five hundred sixty seven thousand eight hundred ninety one billion two hundred thirty four million five hundred sixty seven thousand eight hundred ninety one billion two hundred thirty four million five hundred sixty seven thousand eight hundred ninety one billion two hundred thirty four million five hundred sixty seven thousand eight hundred ninety one billion two hundred thirty four million five hundred sixty seven thousand eight hundred ninety one billion two hundred thirty four million five hundred sixty seven thousand eight hundred ninety one billion two hundred thirty four million five hundred sixty seven thousand eight hundred ninety one billion two hundred thirty four million five hundred sixty seven thousand eight hundred ninety one billion two hundred thirty four million five hundred sixty seven thousand eight hundred ninety one billion two hundred thirty four million five hundred sixty seven thousand eight hundred ninety one billion two hundred thirty four million five hundred sixty seven thousand eight hundred ninety one billion two hundred thirty four million five hundred sixty seven thousand eight hundred ninety one billion two hundred thirty four million five hundred sixty seven thousand eight hundred ninety one billion two hundred thirty four million five hundred sixty seven thousand eight hundred ninety one billion two hundred thirty four million five hundred sixty seven thousand eight hundred ninety one billion two hundred thirty four million five hundred sixty seven thousand eight hundred ninety one billion two hundred thirty four million five hundred sixty seven thousand eight hundred ninety one billion two hundred thirty four million five hundred sixty seven thousand eight hundred ninety one billion two hundred thirty four million five hundred sixty seven thousand eight hundred ninety one billion two hundred thirty four million five hundred sixty seven thousand eight hundred ninety one billion two hundred thirty four million five hundred sixty seven thousand eight hundred ninety one billion two hundred thirty four million five hundred sixty seven thousand eight hundred ninety one billion two hundred thirty four million five hundred sixty seven thousand eight hundred ninety one billion two hundred thirty four million five hundred sixty seven thousand eight hundred ninety one billion two hundred thirty four million five hundred sixty seven thousand eight hundred ninety one billion two hundred thirty four million five hundred sixty seven thousand eight hundred ninety one billion two hundred thirty four million five hundred sixty seven thousand eight hundred ninety one billion two hundred thirty four million five hundred sixty seven thousand eight hundred ninety"
+},
+{
+"input": "Sentence number one is here. Sentence number one is here. Sentence number one is here. Sentence number one is here. Sentence number one is here. Sentence number one is here. Sentence number one is here. Sentence number one is here. Sentence number one is here. Sentence number one is here. Sentence number one is here. Sentence number one is here. Sentence number one is here. Sentence number one is here. Sentence number one is here. Sentence number one is here. Sentence number one is here. Sentence number one is here. Sentence number one is here. Sentence number one is here. Sentence number one is here. Sentence number one is here. Sentence number one is here. Sentence number one is here. Sentence number one is here. Sentence number one is here. Sentence number one is here. Sentence number one is here. Sentence number one is here. Sentence number one is here. ",
+"expected": "sentence number one is here sentence number one is here sentence number one is here sentence number one is here sentence number one is here sentence number one is here sentence number one is here sentence number one is here sentence number one is here sentence number one is here sentence number one is here sentence number one is here sentence number one is here sentence number one is here sentence number one is here sentence number one is here sentence number one is here sentence number one is here sentence number one is here sentence number one is here sentence number one is here sentence number one is here sentence number one is here sentence number one is here sentence number one is here sentence number one is here sentence number one is here sentence number one is here sentence number one is here sentence number one is here"
+},
+{
+"input": "item 0 done",
+"expected": "item zero done"
+},
+{
+"input": "item 1 done",
+"expected": "item one done"
+},
+{
+"input": "item 2 done",
+"expected": "item two done"
+},
+{
+"input": "item 3 done",
+"expected": "item three done"
+},
+{
+"input": "item 4 done",
+"expected": "item four done"
+},
+{
+"input": "item 5 done",
+"expected": "item five done"
+},
+{
+"input": "item 6 done",
+"expected": "item six done"
+},
+{
+"input": "item 7 done",
+"expected": "item seven done"
+},
+{
+"input": "item 8 done",
+"expected": "item eight done"
+},
+{
+"input": "item 9 done",
+"expected": "item nine done"
+},
+{
+"input": "item 10 done",
+"expected": "item ten done"
+},
+{
+"input": "item 11 done",
+"expected": "item eleven done"
+},
+{
+"input": "item 12 done",
+"expected": "item twelve done"
+},
+{
+"input": "item 13 done",
+"expected": "item thirteen done"
+},
+{
+"input": "item 14 done",
+"expected": "item fourteen done"
+},
+{
+"input": "item 15 done",
+"expected": "item fifteen done"
+},
+{
+"input": "item 16 done",
+"expected": "item sixteen done"
+},
+{
+"input": "item 17 done",
+"expected": "item seventeen done"
+},
+{
+"input": "item 18 done",
+"expected": "item eighteen done"
+},
+{
+"input": "item 19 done",
+"expected": "item nineteen done"
+},
+{
+"input": "item 20 done",
+"expected": "item twenty done"
+},
+{
+"input": "item 21 done",
+"expected": "item twenty one done"
+},
+{
+"input": "item 22 done",
+"expected": "item twenty two done"
+},
+{
+"input": "item 23 done",
+"expected": "item twenty three done"
+},
+{
+"input": "item 24 done",
+"expected": "item twenty four done"
+},
+{
+"input": "item 25 done",
+"expected": "item twenty five done"
+},
+{
+"input": "item 26 done",
+"expected": "item twenty six done"
+},
+{
+"input": "item 27 done",
+"expected": "item twenty seven done"
+},
+{
+"input": "item 28 done",
+"expected": "item twenty eight done"
+},
+{
+"input": "item 29 done",
+"expected": "item twenty nine done"
+},
+{
+"input": "item 30 done",
+"expected": "item thirty done"
+},
+{
+"input": "item 31 done",
+"expected": "item thirty one done"
+},
+{
+"input": "item 32 done",
+"expected": "item thirty two done"
+},
+{
+"input": "item 33 done",
+"expected": "item thirty three done"
+},
+{
+"input": "item 34 done",
+"expected": "item thirty four done"
+},
+{
+"input": "item 35 done",
+"expected": "item thirty five done"
+},
+{
+"input": "item 36 done",
+"expected": "item thirty six done"
+},
+{
+"input": "item 37 done",
+"expected": "item thirty seven done"
+},
+{
+"input": "item 38 done",
+"expected": "item thirty eight done"
+},
+{
+"input": "item 39 done",
+"expected": "item thirty nine done"
+},
+{
+"input": "item 40 done",
+"expected": "item forty done"
+},
+{
+"input": "item 50 done",
+"expected": "item fifty done"
+},
+{
+"input": "item 60 done",
+"expected": "item sixty done"
+},
+{
+"input": "item 70 done",
+"expected": "item seventy done"
+},
+{
+"input": "item 80 done",
+"expected": "item eighty done"
+},
+{
+"input": "item 90 done",
+"expected": "item ninety done"
+},
+{
+"input": "item 95 done",
+"expected": "item ninety five done"
+},
+{
+"input": "item 99 done",
+"expected": "item ninety nine done"
+},
+{
+"input": "item 100 done",
+"expected": "item one hundred done"
+},
+{
+"input": "item 150 done",
+"expected": "item one hundred fifty done"
+},
+{
+"input": "item 199 done",
+"expected": "item one hundred ninety nine done"
+},
+{
+"input": "item 250 done",
+"expected": "item two hundred fifty done"
+},
+{
+"input": "item 999 done",
+"expected": "item nine hundred ninety nine done"
+},
+{
+"input": "item 1050 done",
+"expected": "item one thousand fifty done"
+},
+{
+"input": "item 1500 done",
+"expected": "item fifteen hundred done"
+},
+{
+"input": "item 3000 done",
+"expected": "item three thousand done"
+},
+{
+"input": "item 4040 done",
+"expected": "item four thousand forty done"
+},
+{
+"input": "item 10500 done",
+"expected": "item ten thousand five hundred done"
+},
+{
+"input": "item 99999 done",
+"expected": "item ninety nine thousand nine hundred ninety nine done"
+},
+{
+"input": "item 250000 done",
+"expected": "item two hundred fifty thousand done"
+},
+{
+"input": "item 1500000 done",
+"expected": "item one million five hundred thousand done"
+},
+{
+"input": "the 1st one",
+"expected": "the first one"
+},
+{
+"input": "the 2nd one",
+"expected": "the second one"
+},
+{
+"input": "the 3rd one",
+"expected": "the third one"
+},
+{
+"input": "the 4th one",
+"expected": "the fourth one"
+},
+{
+"input": "the 5th one",
+"expected": "the fifth one"
+},
+{
+"input": "the 6th one",
+"expected": "the sixth one"
+},
+{
+"input": "the 7th one",
+"expected": "the seventh one"
+},
+{
+"input": "the 8th one",
+"expected": "the eighth one"
+},
+{
+"input": "the 9th one",
+"expected": "the ninth one"
+},
+{
+"input": "the 10th one",
+"expected": "the tenth one"
+},
+{
+"input": "the 11th one",
+"expected": "the eleventh one"
+},
+{
+"input": "the 12th one",
+"expected": "the twelfth one"
+},
+{
+"input": "the 13th one",
+"expected": "the thirteenth one"
+},
+{
+"input": "the 14th one",
+"expected": "the fourteenth one"
+},
+{
+"input": "the 15th one",
+"expected": "the fifteenth one"
+},
+{
+"input": "the 16th one",
+"expected": "the sixteenth one"
+},
+{
+"input": "the 17th one",
+"expected": "the seventeenth one"
+},
+{
+"input": "the 18th one",
+"expected": "the eighteenth one"
+},
+{
+"input": "the 19th one",
+"expected": "the nineteenth one"
+},
+{
+"input": "the 20th one",
+"expected": "the twentyth one"
+},
+{
+"input": "the 21st one",
+"expected": "the twenty first one"
+},
+{
+"input": "the 22nd one",
+"expected": "the twenty second one"
+},
+{
+"input": "the 23rd one",
+"expected": "the twenty third one"
+},
+{
+"input": "the 24th one",
+"expected": "the twenty fourth one"
+},
+{
+"input": "the 25th one",
+"expected": "the twenty fifth one"
+},
+{
+"input": "the 26th one",
+"expected": "the twenty sixth one"
+},
+{
+"input": "the 27th one",
+"expected": "the twenty seventh one"
+},
+{
+"input": "the 28th one",
+"expected": "the twenty eighth one"
+},
+{
+"input": "the 29th one",
+"expected": "the twenty ninth one"
+},
+{
+"input": "the 30th one",
+"expected": "the thirtyth one"
+},
+{
+"input": "the 31st one",
+"expected": "the thirty first one"
+},
+{
+"input": "the 40th one",
+"expected": "the fortyth one"
+},
+{
+"input": "the 50th one",
+"expected": "the fiftyth one"
+},
+{
+"input": "the 60th one",
+"expected": "the sixtyth one"
+},
+{
+"input": "the 70th one",
+"expected": "the seventyth one"
+},
+{
+"input": "the 80th one",
+"expected": "the eightyth one"
+},
+{
+"input": "the 90th one",
+"expected": "the ninetyth one"
+},
+{
+"input": "the 100th one",
+"expected": "the one hundredth one"
+},
+{
+"input": "the 101st one",
+"expected": "the one hundred first one"
+},
+{
+"input": "the 102nd one",
+"expected": "the one hundred second one"
+},
+{
+"input": "the 103rd one",
+"expected": "the one hundred third one"
+},
+{
+"input": "the 112th one",
+"expected": "the one hundred twelfth one"
+},
+{
+"input": "the 120th one",
+"expected": "the one hundred twentyth one"
+},
+{
+"input": "the 121st one",
+"expected": "the one hundred twenty first one"
+},
+{
+"input": "the 200th one",
+"expected": "the two hundredth one"
+},
+{
+"input": "the 1000th one",
+"expected": "the one thousandth one"
+},
+{
+"input": "the 1002nd one",
+"expected": "the one thousand second one"
+}
+]

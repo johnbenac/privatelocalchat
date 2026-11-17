@@ -1,0 +1,6 @@
+{
+ "format": "plc-app-config/1",
+ "modelSources": [
+  { "id": "project-cdn", "label": "Private Local Chat project CDN", "base": "https://assets.privatelocal.chat/models/" }
+ ]
+}

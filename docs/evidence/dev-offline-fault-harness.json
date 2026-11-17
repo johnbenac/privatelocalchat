@@ -1,0 +1,15 @@
+{
+  "browser": "151.0.7922.34",
+  "cacheMissSameOriginDenied": true,
+  "cdnMissDenied": true,
+  "diagnosticPostDenied": true,
+  "noDeniedRequestsReachedServer": true,
+  "serviceWorkerRestartAndCachedNavigationPassed": true,
+  "restorationPassed": true,
+  "radioSettingsChanged": false,
+  "scope": "Application fetches controlled by the dev service worker; browser-internal update checks and navigator.onLine are not emulated.",
+  "module": "dev-tools/offline-fault-sw.js",
+  "productionBuildExclusionVerified": true,
+  "repositoryTestsPassed": 59,
+  "physicalDeviceTestPending": true
+}

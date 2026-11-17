@@ -1,0 +1,40 @@
+{
+  "dateUtc": "2026-10-30",
+  "experiment": "E03",
+  "qualification": "Local real Chromium/Vulkan, real cached 2B model, actual client protocol, fixture R2 storage",
+  "runtimeWasmSha256": "dbaf064fbeefcae1ab86322a9e52b2fc0de2e52e1f9e00cf72a787ed1f1142fc",
+  "checks": {
+    "unitTestsPassed": 45,
+    "nativeCompletionTokens": 512,
+    "nativeStreamObjects": 514,
+    "allObjectsComplete": true,
+    "streamEqualsTerminalResponse": true,
+    "streamEqualsDisplayedChat": true,
+    "providerAndNativeMessagesMatch": true,
+    "nativeMaxTokens": 512,
+    "effectiveNativeTemperature": 0,
+    "remoteActions": [
+      "state",
+      "new-chat",
+      "profile",
+      "load",
+      "prompt",
+      "stop",
+      "unload"
+    ],
+    "stopDuringGeneration": true,
+    "indexedDbProtectsContentBeforeMetadata": true,
+    "contentOverflowReported": true,
+    "clearReceiverRevokesControl": true,
+    "pageErrors": [],
+    "productionExclusionTests": true
+  },
+  "limits": [
+    "Local receiver storage was an in-memory R2 fixture; deployment still requires live service validation.",
+    "Desktop GPU execution does not establish iPhone reliability or memory margin.",
+    "Full-content capture changes observation work; hold this policy fixed for subsequent placement comparisons.",
+    "Native chunks are not one-to-one tokens.",
+    "Previously uncaptured phone chunks cannot be recovered retroactively."
+  ],
+  "privateReceiptSha256": "9d53869a5b5afa6790fcf8f552bab8261ac68681af28e3f2f9275ac74db737bc"
+}

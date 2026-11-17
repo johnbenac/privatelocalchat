@@ -1,0 +1,200 @@
+{
+ "date": "2026-11-02",
+ "what": "Both voices on the deployed dev build b7c3fc0: the real controller decides, then install from the CDN, speak, measure, remove.",
+ "results": {
+  "centroid-chromium": {
+   "build": "b7c3fc0",
+   "engineUsed": "kokoro",
+   "decision": {
+    "offer": true,
+    "candidate": "kokoro",
+    "reason": "offer",
+    "stage": 2,
+    "ms": null,
+    "downloadBytes": 96542690
+   },
+   "installMs": 19826,
+   "speak": {
+    "audioSeconds": 5.025,
+    "synthSeconds": 2.17125,
+    "realTimeFactor": 2.31433506044905,
+    "firstAudioMs": 1097,
+    "chunks": 2,
+    "samples": null
+   },
+   "verdict": {
+    "fastEnough": true,
+    "startDelayMs": 1097
+   },
+   "storageBefore": {
+    "usageMB": 1.1,
+    "quotaMB": 10739
+   },
+   "storageAfter": {
+    "usageMB": 40.5,
+    "quotaMB": 10778
+   },
+   "afterRemove": {
+    "id": "kokoro-82m-v1.0-q8",
+    "installed": false,
+    "bytes": 0,
+    "totalBytes": 96542690,
+    "loaded": false,
+    "loading": false,
+    "installing": false
+   }
+  },
+  "boiler-chromium-gpu-flags": {
+   "build": "b7c3fc0",
+   "engineUsed": "kokoro",
+   "decision": {
+    "offer": true,
+    "candidate": "kokoro",
+    "reason": "offer",
+    "stage": 2,
+    "ms": null,
+    "downloadBytes": 96542690
+   },
+   "installMs": 14329,
+   "speak": {
+    "audioSeconds": 5.025,
+    "synthSeconds": 2.510880000114441,
+    "realTimeFactor": 2.001290384156539,
+    "firstAudioMs": 1283,
+    "chunks": 2,
+    "samples": null
+   },
+   "verdict": {
+    "fastEnough": true,
+    "startDelayMs": 1283
+   },
+   "storageBefore": {
+    "usageMB": 0.8,
+    "quotaMB": 10738
+   },
+   "storageAfter": {
+    "usageMB": 40.3,
+    "quotaMB": 10778
+   },
+   "afterRemove": {
+    "id": "kokoro-82m-v1.0-q8",
+    "installed": false,
+    "bytes": 0,
+    "totalBytes": 96542690,
+    "loaded": false,
+    "loading": false,
+    "installing": false
+   }
+  },
+  "brutus-firefox-n100": {
+   "build": "b7c3fc0",
+   "engineUsed": "kitten",
+   "decision": {
+    "offer": true,
+    "candidate": "kitten",
+    "reason": "offer",
+    "stage": 2,
+    "ms": null,
+    "downloadBytes": 27648873
+   },
+   "installMs": 10362,
+   "speak": {
+    "audioSeconds": 7.908333333333333,
+    "synthSeconds": 2.4850600000000003,
+    "realTimeFactor": 3.1823510632875394,
+    "firstAudioMs": 1152,
+    "chunks": 2,
+    "samples": null
+   },
+   "verdict": {
+    "fastEnough": true,
+    "startDelayMs": 1152
+   },
+   "storageBefore": {
+    "usageMB": 3.6,
+    "quotaMB": 10737
+   },
+   "storageAfter": {
+    "usageMB": 17.4,
+    "quotaMB": 10737
+   },
+   "afterRemove": {
+    "id": "kitten-tts-nano-0.8-int8",
+    "installed": false,
+    "bytes": 0,
+    "totalBytes": 27649561,
+    "loaded": false,
+    "loading": false,
+    "installing": false
+   }
+  },
+  "galaxy-s8plus-chrome": {
+   "build": "b7c3fc0",
+   "decision": {
+    "offer": false,
+    "candidate": null,
+    "reason": "probe-too-slow",
+    "stage": 2,
+    "ms": 1997.5,
+    "downloadBytes": null
+   },
+   "storageBefore": {
+    "usageMB": 11.6,
+    "quotaMB": 34335
+   }
+  },
+  "iphone-11-pro-safari": {
+   "build": "b7c3fc0",
+   "decision": {
+    "offer": false,
+    "reason": "ios-system-voice-only"
+   },
+   "voiceRequests": [
+    "chat/voice-upgrade.mjs (loaded by the test script itself)"
+   ]
+  },
+  "mac-safari": {
+   "build": "b7c3fc0",
+   "engineUsed": "kokoro",
+   "decision": {
+    "offer": true,
+    "candidate": "kokoro",
+    "reason": "offer",
+    "stage": 2,
+    "ms": null,
+    "downloadBytes": 96542690
+   },
+   "installMs": 251026,
+   "speak": {
+    "audioSeconds": 5.025,
+    "synthSeconds": 2.1804800000000033,
+    "realTimeFactor": 2.304538450249483,
+    "firstAudioMs": 1026,
+    "chunks": 2,
+    "samples": null
+   },
+   "verdict": {
+    "fastEnough": true,
+    "startDelayMs": 1026
+   },
+   "storageBefore": {
+    "usageMB": 4102.5,
+    "quotaMB": 82463
+   },
+   "storageAfter": {
+    "usageMB": 74366.8,
+    "quotaMB": 164927
+   },
+   "afterRemove": {
+    "id": "kokoro-82m-v1.0-q8",
+    "installed": false,
+    "bytes": 0,
+    "totalBytes": 96542690,
+    "loaded": false,
+    "loading": false,
+    "installing": false
+   },
+   "note": "install took 251 s because of this Mac's slow network path to the asset host; the other machines installed the same 96.5 MB in 12 to 20 s"
+  }
+ }
+}

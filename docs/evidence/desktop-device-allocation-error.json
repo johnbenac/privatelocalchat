@@ -1,0 +1,38 @@
+{
+  "recordedAt": "2026-10-30",
+  "surface": "Centroid Chromium/Vulkan, test-only native error forwarding",
+  "capturedDeviceErrors": [
+    "QA_GPU_UNCAPTURED_ERROR undefined: vkAllocateMemory failed with VK_ERROR_OUT_OF_DEVICE_MEMORY\n - While calling [Device].CreateBuffer([BufferDescriptor \"\"tensor_buf0\"\"]).\n    at CheckVkOOMThenSuccessImpl (../../third_party/dawn/src/dawn/native/vulkan/VulkanError.cpp:119)\n",
+    "QA_GPU_ERROR vkAllocateMemory failed with VK_ERROR_OUT_OF_DEVICE_MEMORY\n - While calling [Device].CreateBuffer([BufferDescriptor \"\"tensor_buf0\"\"]).\n    at CheckVkOOMThenSuccessImpl (../../third_party/dawn/src/dawn/native/vulkan/VulkanError.cpp:119)\n",
+    "QA_GPU_UNCAPTURED_ERROR undefined: [Invalid Buffer \"tensor_buf0\"] is invalid due to a previous error.\n - While calling [Queue].WriteBuffer([Invalid Buffer \"tensor_buf0\"], (0 bytes), data, (4194304 bytes))\n",
+    "QA_GPU_ERROR [Invalid Buffer \"tensor_buf0\"] is invalid due to a previous error.\n - While calling [Queue].WriteBuffer([Invalid Buffer \"tensor_buf0\"], (0 bytes), data, (4194304 bytes))\n"
+  ],
+  "baselineWasmSha256": "1bf7ed18c5cf0071d5ce2651c952778103c65d75f658b8b9638f2988912ab1b8",
+  "matchedBuildSymbols": {
+    "188": "ggml_abort",
+    "656": "__wrap_abort",
+    "7373": "create_webgpu_device uncaptured-error callback"
+  },
+  "otherGpuWorkloadsModified": false,
+  "initialFreshPreviewFailure": {
+    "preservedLoadState": "faulted",
+    "error": "RuntimeError: Aborted()",
+    "exactCauseEstablished": false
+  },
+  "laterInstrumentedFreshPreviewTrial": {
+    "nativeTokens": [
+      7,
+      512
+    ],
+    "autoLoadReady": true,
+    "modelRemoved": true,
+    "temporaryProfileRemoved": true,
+    "abortedWeightObservations": 12
+  },
+  "limits": [
+    "The captured baseline control proves Vulkan device allocation exhaustion for that attempt; it does not establish the cause of the earlier fresh preview failures.",
+    "This desktop GPU allocation failure is distinct from the iPhone kernel process-limit evidence.",
+    "The runtime embedded historical symbol list differed from the matching build symbol file. Preserve raw indices and resolve only against the attested artifact."
+  ],
+  "observedAfterFailureFreeGpuMiB": 1127
+}

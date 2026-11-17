@@ -1,0 +1,28 @@
+name: Feature request
+description: Suggest an improvement to Private Local Chat.
+title: "[Feature]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Submissions are public and require a GitHub account. Do not include API keys,
+        private conversations, or other sensitive information.
+  - type: textarea
+    id: goal
+    attributes:
+      label: What are you trying to accomplish?
+      description: Describe the task or problem behind your request.
+    validations:
+      required: true
+  - type: textarea
+    id: improvement
+    attributes:
+      label: What would help?
+      description: Describe the improvement and how it would help you.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives or workarounds
+      description: Optional. Tell us what you have tried.

@@ -1,0 +1,37 @@
+{
+  "verifiedAt": "2026-10-30T11:45:06.645Z",
+  "url": "https://cb3639ba.privatelocalchat.pages.dev",
+  "alias": "https://qualify-native-cleanup.privatelocalchat.pages.dev",
+  "commit": "e3f952086dcd92a396710f5c89f9bad3267baa13",
+  "environment": "production",
+  "developmentRuntimeMetadataAbsent": true,
+  "diagnosticEndpoints404": true,
+  "diagnosticUiAndHooksAbsent": true,
+  "networkFaultHarnessAbsent": true,
+  "nativePins": [
+    {
+      "name": "compat.wasm",
+      "bytes": 20661291,
+      "sha256": "ea9d24143b3c1ba6a0c73213be7dbc7fc57c0472b8e55d6cf7206807ad1fe0fd"
+    },
+    {
+      "name": "compat-worker.js",
+      "bytes": 170426,
+      "sha256": "928e8b1647bc320ca7e3c65e73205e4f113c292caa17d1eb51e2b913e2646970"
+    },
+    {
+      "name": "wllama.js",
+      "bytes": 414526,
+      "sha256": "4221d59dcc1dd190433898922af7093cba53596bc43261cf99abd63b6665d99c"
+    }
+  ],
+  "canonicalProductionCommit": "4d74acdc856b02212cd2a3afa18aa245bcaae189",
+  "physicalQualificationPending": true,
+  "cloudflareDeploymentPointers": {
+    "productionBranch": "main",
+    "productionCommit": "4d74acdc856b02212cd2a3afa18aa245bcaae189",
+    "productionEnvironment": "production",
+    "latestDeploymentEnvironment": "preview",
+    "latestDeploymentCommit": "e3f952086dcd92a396710f5c89f9bad3267baa13"
+  }
+}

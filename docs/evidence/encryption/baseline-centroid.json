@@ -1,0 +1,140 @@
+{
+  "label": "centroid",
+  "measuredAt": "2026-11-04T07:57:41.688Z",
+  "node": {
+    "userAgent": "node v20.19.6",
+    "cores": null,
+    "kdf": [
+      {
+        "iterations": 100000,
+        "ms": [
+          34,
+          33,
+          78,
+          34,
+          34
+        ],
+        "median": 34
+      },
+      {
+        "iterations": 300000,
+        "ms": [
+          98,
+          114,
+          95,
+          115,
+          105
+        ],
+        "median": 105
+      },
+      {
+        "iterations": 600000,
+        "ms": [
+          199,
+          199,
+          212,
+          196,
+          234
+        ],
+        "median": 199
+      },
+      {
+        "iterations": 1000000,
+        "ms": [
+          353,
+          384,
+          360,
+          386,
+          316
+        ],
+        "median": 360
+      }
+    ],
+    "aes": {
+      "1KB": {
+        "encryptMs": 0.214,
+        "decryptMs": 0.098
+      },
+      "100KB": {
+        "encryptMs": 0.233,
+        "decryptMs": 0.308
+      },
+      "1MB": {
+        "encryptMs": 1.487,
+        "decryptMs": 2.545
+      }
+    }
+  },
+  "chromium": {
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+    "cores": 16,
+    "kdf": [
+      {
+        "iterations": 100000,
+        "ms": [
+          23,
+          16,
+          16,
+          19,
+          16
+        ],
+        "median": 16
+      },
+      {
+        "iterations": 300000,
+        "ms": [
+          52,
+          52,
+          100,
+          51,
+          45
+        ],
+        "median": 52
+      },
+      {
+        "iterations": 600000,
+        "ms": [
+          100,
+          111,
+          92,
+          100,
+          108
+        ],
+        "median": 100
+      },
+      {
+        "iterations": 1000000,
+        "ms": [
+          144,
+          145,
+          149,
+          146,
+          165
+        ],
+        "median": 146
+      }
+    ],
+    "aes": {
+      "1KB": {
+        "encryptMs": 0.02,
+        "decryptMs": 0.01
+      },
+      "100KB": {
+        "encryptMs": 0.13,
+        "decryptMs": 0.11
+      },
+      "1MB": {
+        "encryptMs": 2.72,
+        "decryptMs": 2.67
+      }
+    }
+  },
+  "size": {
+    "chats": 500,
+    "messages": 10000,
+    "jsonBytes": 6366081,
+    "utf16Bytes": 12732162,
+    "stringifyMs": 26,
+    "localStorageLimitBytes": "~5 MB per origin (10 MB in UTF-16 units in most browsers)"
+  }
+}

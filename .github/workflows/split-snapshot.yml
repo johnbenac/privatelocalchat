@@ -1,0 +1,23 @@
+name: Split snapshot
+on:
+  push:
+    branches: ['split/**']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: split-snapshot-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  snapshot:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: The site build against the baseline (changes a stage did not intend fail here)
+        run: npm run snapshot:check
+      - name: The network inventory
+        run: npm run inventory:check

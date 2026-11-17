@@ -1,0 +1,8 @@
+{
+  "format": "plc-settings-transfer/2",
+  "settings": {
+    "endpoint": "http://127.0.0.1:37261/v1",
+    "model": "fake-model",
+    "theme": "light"
+  }
+}

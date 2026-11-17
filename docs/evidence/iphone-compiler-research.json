@@ -1,0 +1,419 @@
+{
+  "recordedDateUtc": "2026-10-30",
+  "status": "Browser compiler allocation demonstrated locally; latest iPhone failure mechanism remains unproven.",
+  "plan": "../IPHONE-INVESTIGATION.md",
+  "surface": {
+    "memoryTests": "Linux WPE WebKit 26.4 x86_64; external WebProcess RSS sampling; non-computing GPU substitute with verified model shards",
+    "limitations": [
+      "No real GPU-weight allocation or meaningful inference output in memory-isolation controls.",
+      "RSS is not iOS physical footprint; host and browser versions differ.",
+      "Numbers after generation are phase-specific peaks, not overall construction peaks.",
+      "Phone causality and survival are unqualified."
+    ]
+  },
+  "baseline": {
+    "buildId": "privatelocalchat-queue-20261029-v2",
+    "compatWasmSha256": "a772105af5a7a0872e7461f0e33ce36b4dc979d893f651100d85cbbd80d0e6bb",
+    "definedFunctions": 7786
+  },
+  "candidate": {
+    "compatWasmSha256": "dbaf064fbeefcae1ab86322a9e52b2fc0de2e52e1f9e00cf72a787ed1f1142fc",
+    "bytes": 20671361,
+    "paddedBodies": 51,
+    "selection": "Original body size greater than 20000 and at most 100000 bytes; skipped padding extends selected bodies to 160000 bytes.",
+    "identityWarning": "Laboratory variant retains baseline native build string; identify by exact SHA-256.",
+    "deploymentStatus": "Not deployed or phone-qualified; padding is a diagnostic intervention."
+  },
+  "controls": [
+    {
+      "workingReceipt": "webkit-native-mockgpu-comparison.json",
+      "sha256": "f4465943b1154087eb94d0d6359895f376b9dff162edc04184d0ac73266dbf96",
+      "results": [
+        {
+          "arm": "original",
+          "readyMs": 12837,
+          "inferenceStartedMs": 12837,
+          "doneMs": 16367,
+          "constructionPeak": {
+            "ms": 6612,
+            "rssMiB": 1629.129
+          },
+          "readyIdlePeak": null,
+          "generationPeak": {
+            "ms": 16347,
+            "rssMiB": 1161.02
+          },
+          "afterGenerationPeak": {
+            "ms": 21596,
+            "rssMiB": 1531.266
+          },
+          "finalNativeMemory": {
+            "wasm_capacity_bytes": 274464768,
+            "malloc_arena_bytes": 246982720,
+            "malloc_live_bytes": 245300176,
+            "malloc_free_bytes": 1682544,
+            "malloc_keepcost_bytes": 994168,
+            "sbrk_bytes": 254771200
+          },
+          "completionTokens": 256
+        },
+        {
+          "arm": "omg-disabled",
+          "readyMs": 11015,
+          "inferenceStartedMs": 11015,
+          "doneMs": 14208,
+          "constructionPeak": {
+            "ms": 10081,
+            "rssMiB": 1406.359
+          },
+          "readyIdlePeak": null,
+          "generationPeak": {
+            "ms": 11410,
+            "rssMiB": 815.113
+          },
+          "afterGenerationPeak": {
+            "ms": 14264,
+            "rssMiB": 729.438
+          },
+          "finalNativeMemory": {
+            "wasm_capacity_bytes": 274464768,
+            "malloc_arena_bytes": 246982720,
+            "malloc_live_bytes": 245300176,
+            "malloc_free_bytes": 1682544,
+            "malloc_keepcost_bytes": 994168,
+            "sbrk_bytes": 254771200
+          },
+          "completionTokens": 256
+        }
+      ]
+    },
+    {
+      "workingReceipt": "webkit-native-mockgpu-reverse-comparison.json",
+      "sha256": "3295f870cd4fe7160ed8aca3eb141255d65719f1abca7c76c98d90d1e25a35c2",
+      "results": [
+        {
+          "arm": "omg-disabled",
+          "readyMs": 11105,
+          "inferenceStartedMs": 11105,
+          "doneMs": 14260,
+          "constructionPeak": {
+            "ms": 5129,
+            "rssMiB": 1446.102
+          },
+          "readyIdlePeak": null,
+          "generationPeak": {
+            "ms": 11158,
+            "rssMiB": 935.062
+          },
+          "afterGenerationPeak": {
+            "ms": 14318,
+            "rssMiB": 731.91
+          },
+          "finalNativeMemory": {
+            "wasm_capacity_bytes": 274464768,
+            "malloc_arena_bytes": 246982720,
+            "malloc_live_bytes": 245300176,
+            "malloc_free_bytes": 1682544,
+            "malloc_keepcost_bytes": 994168,
+            "sbrk_bytes": 254771200
+          },
+          "completionTokens": 256
+        },
+        {
+          "arm": "padded",
+          "readyMs": 10477,
+          "inferenceStartedMs": 10477,
+          "doneMs": 13556,
+          "constructionPeak": {
+            "ms": 9458,
+            "rssMiB": 1416.812
+          },
+          "readyIdlePeak": null,
+          "generationPeak": {
+            "ms": 11125,
+            "rssMiB": 1058.574
+          },
+          "afterGenerationPeak": {
+            "ms": 15428,
+            "rssMiB": 1089.707
+          },
+          "finalNativeMemory": {
+            "wasm_capacity_bytes": 274464768,
+            "malloc_arena_bytes": 246982720,
+            "malloc_live_bytes": 245300176,
+            "malloc_free_bytes": 1682544,
+            "malloc_keepcost_bytes": 994168,
+            "sbrk_bytes": 254771200
+          },
+          "completionTokens": 256
+        },
+        {
+          "arm": "original",
+          "readyMs": 9575,
+          "inferenceStartedMs": 9575,
+          "doneMs": 12992,
+          "constructionPeak": {
+            "ms": 4187,
+            "rssMiB": 1634.465
+          },
+          "readyIdlePeak": null,
+          "generationPeak": {
+            "ms": 12945,
+            "rssMiB": 1227.008
+          },
+          "afterGenerationPeak": {
+            "ms": 17025,
+            "rssMiB": 1541.492
+          },
+          "finalNativeMemory": {
+            "wasm_capacity_bytes": 274464768,
+            "malloc_arena_bytes": 246982720,
+            "malloc_live_bytes": 245300176,
+            "malloc_free_bytes": 1682544,
+            "malloc_keepcost_bytes": 994168,
+            "sbrk_bytes": 254771200
+          },
+          "completionTokens": 256
+        }
+      ]
+    },
+    {
+      "workingReceipt": "webkit-native-mockgpu-cost-controls.json",
+      "sha256": "b604943ead214831b9170e4181a38400400512d912f6c1d915bee5e448946247",
+      "results": [
+        {
+          "arm": "cost20000",
+          "readyMs": 9831,
+          "inferenceStartedMs": 9831,
+          "doneMs": 12582,
+          "constructionPeak": {
+            "ms": 4289,
+            "rssMiB": 1467.852
+          },
+          "readyIdlePeak": null,
+          "generationPeak": {
+            "ms": 9996,
+            "rssMiB": 922.078
+          },
+          "afterGenerationPeak": {
+            "ms": 12647,
+            "rssMiB": 807.746
+          },
+          "finalNativeMemory": {
+            "wasm_capacity_bytes": 274464768,
+            "malloc_arena_bytes": 246982720,
+            "malloc_live_bytes": 245300176,
+            "malloc_free_bytes": 1682544,
+            "malloc_keepcost_bytes": 994168,
+            "sbrk_bytes": 254771200
+          },
+          "completionTokens": 256
+        },
+        {
+          "arm": "cost10000",
+          "readyMs": 9866,
+          "inferenceStartedMs": 9866,
+          "doneMs": 12593,
+          "constructionPeak": {
+            "ms": 4089,
+            "rssMiB": 1450.316
+          },
+          "readyIdlePeak": null,
+          "generationPeak": {
+            "ms": 10439,
+            "rssMiB": 908.496
+          },
+          "afterGenerationPeak": {
+            "ms": 12687,
+            "rssMiB": 798.672
+          },
+          "finalNativeMemory": {
+            "wasm_capacity_bytes": 274464768,
+            "malloc_arena_bytes": 246982720,
+            "malloc_live_bytes": 245300176,
+            "malloc_free_bytes": 1682544,
+            "malloc_keepcost_bytes": 994168,
+            "sbrk_bytes": 254771200
+          },
+          "completionTokens": 256
+        }
+      ]
+    },
+    {
+      "workingReceipt": "webkit-native-shader-compiler-control.json",
+      "sha256": "3b1532dd8ba060947eb28ba303683f2c302a1aab31c97a5618aa5e8d6d896293",
+      "results": [
+        {
+          "arm": "padded",
+          "readyMs": 10800,
+          "inferenceStartedMs": 10800,
+          "doneMs": 14806,
+          "constructionPeak": {
+            "ms": 4668,
+            "rssMiB": 1644.91
+          },
+          "readyIdlePeak": null,
+          "generationPeak": {
+            "ms": 14742,
+            "rssMiB": 1105.164
+          },
+          "afterGenerationPeak": {
+            "ms": 19138,
+            "rssMiB": 1562.359
+          },
+          "finalNativeMemory": {
+            "wasm_capacity_bytes": 274464768,
+            "malloc_arena_bytes": 246982720,
+            "malloc_live_bytes": 245300176,
+            "malloc_free_bytes": 1682544,
+            "malloc_keepcost_bytes": 994168,
+            "sbrk_bytes": 254771200
+          },
+          "completionTokens": 256
+        }
+      ]
+    },
+    {
+      "workingReceipt": "webkit-native-mask-20k-compiler-controls.json",
+      "sha256": "7ebeb519f8fd0358d1ac6a3faa22faf7d66ae9f745866314910897524d20d2c4",
+      "results": [
+        {
+          "arm": "mask",
+          "readyMs": 10460,
+          "inferenceStartedMs": 10460,
+          "doneMs": 13855,
+          "constructionPeak": {
+            "ms": 4422,
+            "rssMiB": 1634.66
+          },
+          "readyIdlePeak": null,
+          "generationPeak": {
+            "ms": 13833,
+            "rssMiB": 1144.746
+          },
+          "afterGenerationPeak": {
+            "ms": 20363,
+            "rssMiB": 1449.988
+          },
+          "finalNativeMemory": {
+            "wasm_capacity_bytes": 274464768,
+            "malloc_arena_bytes": 246982720,
+            "malloc_live_bytes": 245300176,
+            "malloc_free_bytes": 1682544,
+            "malloc_keepcost_bytes": 994168,
+            "sbrk_bytes": 254771200
+          },
+          "completionTokens": 256
+        },
+        {
+          "arm": "20k",
+          "readyMs": 10538,
+          "inferenceStartedMs": 10538,
+          "doneMs": 13926,
+          "constructionPeak": {
+            "ms": 4315,
+            "rssMiB": 1416.41
+          },
+          "readyIdlePeak": null,
+          "generationPeak": {
+            "ms": 11728,
+            "rssMiB": 988.914
+          },
+          "afterGenerationPeak": {
+            "ms": 13989,
+            "rssMiB": 818.105
+          },
+          "finalNativeMemory": {
+            "wasm_capacity_bytes": 274464768,
+            "malloc_arena_bytes": 246982720,
+            "malloc_live_bytes": 245300176,
+            "malloc_free_bytes": 1682544,
+            "malloc_keepcost_bytes": 994168,
+            "sbrk_bytes": 254771200
+          },
+          "completionTokens": 256
+        }
+      ]
+    },
+    {
+      "workingReceipt": "webkit-native-compiler-separated-phases.json",
+      "sha256": "d303533812444be1e7765c53b9a324b595f55c329edb60f89b876a2f9b960b9d",
+      "results": [
+        {
+          "arm": "original",
+          "readyMs": 10809,
+          "inferenceStartedMs": 35808,
+          "doneMs": 38889,
+          "constructionPeak": {
+            "ms": 4821,
+            "rssMiB": 1648.152
+          },
+          "readyIdlePeak": {
+            "ms": 15339,
+            "rssMiB": 1037.77
+          },
+          "generationPeak": {
+            "ms": 38865,
+            "rssMiB": 1080.793
+          },
+          "afterGenerationPeak": {
+            "ms": 42650,
+            "rssMiB": 1467.633
+          },
+          "finalNativeMemory": {
+            "wasm_capacity_bytes": 274464768,
+            "malloc_arena_bytes": 246982720,
+            "malloc_live_bytes": 245300176,
+            "malloc_free_bytes": 1682544,
+            "malloc_keepcost_bytes": 994168,
+            "sbrk_bytes": 254771200
+          },
+          "completionTokens": 256
+        }
+      ]
+    }
+  ],
+  "realGpuCorrectness": {
+    "surface": "Chromium 151.0.7922.34 Linux Vulkan NVIDIA RTX 5060",
+    "retainedTurns": 3,
+    "nativeCompletionTokens": [
+      7,
+      28,
+      512
+    ],
+    "textMatchesBaseline": true,
+    "errors": 0,
+    "limitations": "Three deterministic cases are not general parity or physical iPhone qualification.",
+    "baselineReceiptSha256": "2a7601a4cbf83f0d45531156c94b87980ce2c84a456865a97cea9f5597c90021",
+    "candidateReceiptSha256": "3e5eafb9d96decb60b8f7b4ce2d6dbc4f24b06ea390121d0aea5d2f1630cfd9f"
+  },
+  "negativeControls": [
+    "Fully CPU app construction peaks were not removed by fifteen-body padding or valid OMG-off setting.",
+    "Three shader builders alone did not remove the GPU-path delayed surge.",
+    "Attention-mask wrapper alone did not remove the delayed surge.",
+    "The invalid JSC_useWasmOMGJIT run is excluded; JSC_useOMGJIT is the accepted setting."
+  ],
+  "separatedPhaseControl": {
+    "source": "work/evidence/webkit-native-compiler-separated-phases.json",
+    "policy": "Normal unmodified native binary; wait 25 seconds after READY before starting inference, then observe for another 25 seconds after inference.",
+    "readyMs": 10809,
+    "inferenceStartedMs": 35808,
+    "generationFinishedMs": 38889,
+    "readyIdlePeakMiB": 1037.76953125,
+    "afterGenerationPeakMiB": 1467.6328125,
+    "afterGenerationPeakMs": 42650,
+    "interpretation": "The inference-associated delayed surge persists after a 25-second ready hold. Construction and inference can each be followed by browser allocation; back-to-back timing alone does not explain the second surge."
+  },
+  "provenance": {
+    "detailedLocalSynthesis": "work/evidence/iphone-memory-research.json",
+    "synthesisSha256": "aa2b39233af9e34f682863f146ace3e627201bf88e51cad8643397269b76b2df",
+    "rawHandling": "Working receipts, harnesses, device reports and telemetry remain ignored; this snapshot contains measurements and hashes only.",
+    "upstreamReproRevision": "16fb14700468a866bee731666060af274eb91d85"
+  },
+  "references": [
+    "https://bugs.webkit.org/show_bug.cgi?id=304810",
+    "https://github.com/frankhinek/webkit-wasm-compiler-memory-repro",
+    "https://github.com/WebKit/WebKit/blob/main/Source/JavaScriptCore/runtime/OptionsList.h",
+    "https://github.com/apple-oss-distributions/xnu/blob/main/doc/vm/memorystatus.md"
+  ]
+}

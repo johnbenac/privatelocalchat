@@ -1,0 +1,16 @@
+{
+  "records": [
+    {
+      "step": "saved active conversation restored"
+    },
+    {
+      "step": "real model reply with legacy error notice preserved",
+      "transcript": "Say hello.Error: Previous simulated failure.Hello!Reply with one word: hello.Hello"
+    },
+    {
+      "step": "newly selected conversation survived reload",
+      "selected": "mvtvo3al-17489808"
+    }
+  ],
+  "errors": []
+}

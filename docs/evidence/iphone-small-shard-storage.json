@@ -1,0 +1,119 @@
+{
+  "recordedAt": "2026-10-30",
+  "release": "9f4805b80b1a74c86df4dc196fee9efd5ae4e1c0",
+  "device": "iPhone 15 Pro",
+  "scope": "One 21,250,464-byte GGUF shard through published storage API, without app startup or native inference",
+  "result": {
+    "probe": {
+      "stage": "complete",
+      "startedAt": "2026-10-30T12:37:43.272Z",
+      "progress": [],
+      "lastProgress": {
+        "phase": "install",
+        "bytesDone": 21250464,
+        "bytesKept": 0,
+        "bytesTotal": 21250464,
+        "filesDone": 1,
+        "filesTotal": 1,
+        "active": [],
+        "bytesPerSecond": 3605518.123358266,
+        "etaSeconds": 0
+      },
+      "install": {
+        "state": "complete",
+        "ok": true,
+        "files": 1,
+        "okFiles": 1,
+        "missing": [],
+        "bad": [],
+        "extra": [],
+        "bytesPresent": 21250464,
+        "bytesTotal": 21250464,
+        "partialNoMetadata": [],
+        "ms": 4,
+        "engine": "wllama",
+        "where": "OPFS (wllama cache)",
+        "fetchedBytes": 21250464,
+        "keptBytes": 0,
+        "replaced": [],
+        "filesFetched": 1
+      },
+      "verify": {
+        "state": "complete",
+        "ok": true,
+        "files": 1,
+        "okFiles": 1,
+        "missing": [],
+        "bad": [],
+        "extra": [],
+        "bytesPresent": 21250464,
+        "bytesTotal": 21250464,
+        "partialNoMetadata": [],
+        "ms": 3,
+        "engine": "wllama",
+        "where": "OPFS (wllama cache)",
+        "deep": true,
+        "hashMismatch": []
+      },
+      "remove": {
+        "removed": 1,
+        "requested": 1
+      },
+      "inspect": {
+        "state": "absent",
+        "ok": false,
+        "files": 1,
+        "okFiles": 0,
+        "missing": [
+          "qwen3.5-2b-text-q4_0-no-mtp-dd4623a74-00013-of-00013.gguf"
+        ],
+        "bad": [],
+        "extra": [],
+        "bytesPresent": 0,
+        "bytesTotal": 21250464,
+        "partialNoMetadata": [],
+        "ms": 0,
+        "engine": "wllama",
+        "where": "OPFS (wllama cache)"
+      },
+      "endedAt": "2026-10-30T12:37:51.470Z"
+    },
+    "appStarted": false,
+    "serviceWorkerControlled": false
+  },
+  "cleanup": {
+    "cachesRemaining": 0,
+    "registrationsRemaining": 0,
+    "modelBytes": 0
+  },
+  "diskAfter": {
+    "AmountDataAvailable": 956436480,
+    "TotalDataAvailable": 78618660864,
+    "TotalDiskCapacity": 128000000000
+  },
+  "memory": {
+    "pid": 16258,
+    "correlation": "Kernel file-extension messages name this WebContent PID and the downloaded GGUF in the owned SafariAutomation namespace.",
+    "samples": 72,
+    "minimumFootprintBytes": 25068512,
+    "maximumFootprintBytes": 40944704,
+    "lastSample": {
+      "receivedAt": "2026-10-30T12:38:38.988396+00:00",
+      "footprintBytes": 26035288
+    },
+    "collectorCompleted": true,
+    "intervalMs": 1000
+  },
+  "limits": [
+    "Small-shard storage success does not qualify full-model construction, generation, reload, or offline recovery.",
+    "Immediately available disk space remains below the full 1,202,488,640-byte model. No full model copy was attempted.",
+    "The older closed automation namespace remains a separate unresolved reclamation issue.",
+    "No shared Safari restart or changes to other browser contexts were made."
+  ],
+  "filesystemCrossCheck": {
+    "afcFreeBytes": 1167400960,
+    "lockdownAvailableBytes": 957689856,
+    "lockdownReservedBytes": 209715200,
+    "conclusion": "Both available-space reports are below the full model size; TotalDataAvailable is not supported as immediately writable headroom."
+  }
+}

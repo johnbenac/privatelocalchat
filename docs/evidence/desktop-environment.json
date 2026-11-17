@@ -1,0 +1,9 @@
+{
+  "machine": "Centroid",
+  "browser": "Chrome for Testing 151.0.7922.34, headless",
+  "gpu": "NVIDIA GeForce RTX 5060 Ti, 16 GB",
+  "selectionEnvironment": {"MESA_VK_DEVICE_SELECT": "10de:2d04!"},
+  "launchFlags": ["--enable-unsafe-webgpu", "--ignore-gpu-blocklist", "--enable-features=Vulkan", "--use-angle=vulkan", "--disable-vulkan-surface"],
+  "twoBAdditionalFlag": "--enable-dawn-features=vulkan_enable_f16_on_nvidia",
+  "limitation": "This Linux browser does not expose shader-f16 on NVIDIA by default. The 2B runtime is unavailable without that feature; the app now refuses it explicitly. The 9B f32 variant is tested without that additional flag."
+}

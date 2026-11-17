@@ -1,0 +1,26 @@
+{
+  "recordedAt": "2026-10-30",
+  "scope": "Owned iPhone Safari automation namespace only",
+  "observations": {
+    "previousSessionClosed": true,
+    "previousSessionModelFilesStillListed": 13,
+    "lastVerifiedModelBytes": 1202488640,
+    "newSessionModelBytes": 0,
+    "immediatelyAvailableBytesBeforeNewSession": 964079616,
+    "immediatelyAvailableBytesAfterNewShell": 884539392
+  },
+  "remoteFilesystemCleanup": {
+    "instrumentsDirectoryListingAvailable": true,
+    "coreDeviceFileServiceAvailable": false,
+    "houseArrestContainerAvailable": false
+  },
+  "safeguards": {
+    "newModelDownloadNotStarted": true,
+    "normalBrowserDataNotDeleted": true,
+    "sharedSafariRestartRequiresPermission": true
+  },
+  "limits": [
+    "File-name persistence and prior verification establish retained model entries; the current file sizes could not be obtained through the available listing API.",
+    "Restarting Safari is a proposed cleanup attempt, not a verified reclamation result."
+  ]
+}

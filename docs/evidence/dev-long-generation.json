@@ -1,0 +1,154 @@
+{
+  "testedAdapterSha256": "6f9627709e02e4afb9be59a1649943d78bd3c009a1480d3c7b1e8796949ad9f1",
+  "environment": "desktop-environment.json",
+  "testSurface": "Dev build served on the exact development origin from the built artifact, with real cached model and live diagnostic receiver",
+  "model": "Qwen3.5-2B Q4_0",
+  "turns": [
+    {
+      "turn": 1,
+      "durationMs": 1495,
+      "characters": 72,
+      "wasmCapacityBytes": 134217728,
+      "nativeDiagnostics": {
+        "checkpointClearPolicy": "replace-on-reset-and-terminate",
+        "checkpointCount": 1,
+        "checkpointCreated": 1,
+        "checkpointCurrentBytes": 20201932,
+        "checkpointEveryNTokens": 64,
+        "checkpointFreed": 0,
+        "checkpointHighWaterBytes": 20201932,
+        "checkpointReplaced": 0,
+        "checkpointRestored": 0,
+        "ctxCheckpointLimit": 1,
+        "event": "speechtest_native_generation_diagnostics",
+        "mallocArenaBytes": 96201328,
+        "mallocFreeBytes": 1306216,
+        "mallocLiveBytes": 94895112,
+        "receiptSequence": 1,
+        "recurrentStateRestoredBytes": 0,
+        "recurrentStateSerializedBytes": 20201932,
+        "sbrkBytes": 103981056,
+        "schemaVersion": 1,
+        "timing": {
+          "decodeMs": 1025.925,
+          "firstTokenMs": 280.815,
+          "prefillMs": 280.815
+        },
+        "usage": {
+          "commonPrefixTokens": 0,
+          "completionTokens": 32,
+          "evaluatedTokens": 33,
+          "promptTokens": 33,
+          "reusedTokens": 0,
+          "totalTokens": 65
+        },
+        "wasmCapacityBytes": 134217728
+      }
+    },
+    {
+      "turn": 2,
+      "durationMs": 9772,
+      "characters": 554,
+      "wasmCapacityBytes": 134217728,
+      "nativeDiagnostics": {
+        "checkpointClearPolicy": "replace-on-reset-and-terminate",
+        "checkpointCount": 1,
+        "checkpointCreated": 1,
+        "checkpointCurrentBytes": 20201932,
+        "checkpointEveryNTokens": 64,
+        "checkpointFreed": 0,
+        "checkpointHighWaterBytes": 20201932,
+        "checkpointReplaced": 0,
+        "checkpointRestored": 1,
+        "ctxCheckpointLimit": 1,
+        "event": "speechtest_native_generation_diagnostics",
+        "mallocArenaBytes": 96201328,
+        "mallocFreeBytes": 1252464,
+        "mallocLiveBytes": 94948864,
+        "receiptSequence": 2,
+        "recurrentStateRestoredBytes": 20201932,
+        "recurrentStateSerializedBytes": 20201932,
+        "sbrkBytes": 103981056,
+        "schemaVersion": 1,
+        "timing": {
+          "decodeMs": 9453.046,
+          "firstTokenMs": 227.91,
+          "prefillMs": 227.91
+        },
+        "usage": {
+          "commonPrefixTokens": 29,
+          "completionTokens": 512,
+          "evaluatedTokens": 54,
+          "promptTokens": 83,
+          "reusedTokens": 29,
+          "totalTokens": 595
+        },
+        "wasmCapacityBytes": 134217728
+      }
+    },
+    {
+      "turn": 3,
+      "durationMs": 10697,
+      "characters": 554,
+      "wasmCapacityBytes": 134217728,
+      "nativeDiagnostics": {
+        "checkpointClearPolicy": "replace-on-reset-and-terminate",
+        "checkpointCount": 1,
+        "checkpointCreated": 3,
+        "checkpointCurrentBytes": 20201932,
+        "checkpointEveryNTokens": 64,
+        "checkpointFreed": 2,
+        "checkpointHighWaterBytes": 20201932,
+        "checkpointReplaced": 2,
+        "checkpointRestored": 2,
+        "ctxCheckpointLimit": 1,
+        "event": "speechtest_native_generation_diagnostics",
+        "mallocArenaBytes": 96201328,
+        "mallocFreeBytes": 1199312,
+        "mallocLiveBytes": 95002016,
+        "receiptSequence": 3,
+        "recurrentStateRestoredBytes": 40403864,
+        "recurrentStateSerializedBytes": 60605796,
+        "sbrkBytes": 103981056,
+        "schemaVersion": 1,
+        "timing": {
+          "decodeMs": 9332.031,
+          "firstTokenMs": 1282.499,
+          "prefillMs": 1282.499
+        },
+        "usage": {
+          "commonPrefixTokens": 79,
+          "completionTokens": 512,
+          "evaluatedTokens": 584,
+          "promptTokens": 613,
+          "reusedTokens": 29,
+          "totalTokens": 1125
+        },
+        "wasmCapacityBytes": 134217728
+      }
+    }
+  ],
+  "cancellation": {
+    "aborted": true,
+    "partialCharacters": 4,
+    "nextReply": "Hello",
+    "modelReloadRequired": false
+  },
+  "nativeGenerationFences": {
+    "receiverVerified": true,
+    "milestonesObserved": [
+      1,
+      16,
+      64,
+      128,
+      256,
+      512
+    ],
+    "completionAndAbortObserved": true
+  },
+  "pageErrors": [],
+  "limitations": [
+    "Desktop verification does not close the unresolved iPhone reliability gate.",
+    "Wasm capacity is not RSS; zero GPU creation counters do not rule out allocations outside instrumented sites."
+  ]
+}
