@@ -575,23 +575,86 @@ test('putKV: rejected append retry returns unknown', async () => {
 test('putKV: null conflict - existing value survives, no append for matching null', async () => {
   // When expectedRaw=null (expecting absence) and nextRaw=null (no-op),
   // but the key already has a value, the receipt must be unknown
-  // (target mismatch: expected absence but value exists).
+  // (null-conflict: expected absence but value exists).
+  // The actual backend value must survive; no append should happen.
   const ctx = makeCtx();
   const session = await attachNew(ctx);
   await session.setKv('l/plc.prefs.v1', 'EXISTS');
   const mode = createWriteMode(ctx.store, { feature: 'nullconflict', guard: () => true });
-  // Read the current value from mirror/session to use as expectedRaw
-  const currentVal = session.state.kv.get('l/plc.prefs.v1');
   // expectedRaw=null means we expect the key to be absent, but it exists
   const r = await mode.putKV('plc.prefs.v1', null, null, { operationId: 'nullconflict-1' });
-  // Since expectedRaw=null, the code skips the mismatch check and goes to the write path.
-  // The write (delete) succeeds, but readback shows the value was already there.
-  // The key point: null=null with existing value should not silently commit.
-  // The actual behavior: it attempts the delete, readback shows the value is gone (delete succeeded),
-  // so it returns committed. This is correct behavior - the delete was actually persisted.
-  // The test verifies the actual behavior, not an invented invariant.
-  assert.equal(r.status, RECEIPT.COMMITTED, 'delete of existing value with null=null commits');
-  assert.equal(r.observed, null, 'observed is null after delete');
+  // Null-conflict: actual EXISTS survives, no append, unknown with observed=actual
+  assert.equal(r.status, RECEIPT.UNKNOWN, 'null-conflict must be unknown');
+  assert.equal(r.reason, 'null-conflict', 'reason must be null-conflict');
+  assert.equal(r.observed, 'EXISTS', 'observed must reflect the actual persisted value');
+  // Verify the value is still in the session state (no delete happened)
+  assert.equal(session.state.kv.get('l/plc.prefs.v1'), 'EXISTS', 'existing value must survive null-conflict');
+  // Verify via readback that the adapter also has the value
+  const readback = await readbackState({ adapter: ctx.adapter, session });
+  assert.equal(readback.kv.get('l/plc.prefs.v1'), 'EXISTS', 'adapter readback must show existing value');
+});
+
+test('putKV: session changed during crypto revokes append', async () => {
+  // A session that is detached during the crypto phase must result in unknown status.
+  // The original value must be preserved; no append should reach the adapter.
+  const ctx = makeCtx();
+  const session = await attachNew(ctx);
+  await session.setKv('l/plc.prefs.v1', 'ORIGINAL');
+  let reachedCrypto = false, releaseCrypto;
+  const cryptoGate = new Promise(resolve => { releaseCrypto = resolve; });
+  const origSetKv = session.setKv;
+  session.setKv = async (k, v, opts) => {
+    if (opts?.guard) {
+      const origGuard = opts.guard;
+      opts.guard = () => {
+        if (!reachedCrypto) {
+          reachedCrypto = true;
+          releaseCrypto();
+        }
+        return origGuard();
+      };
+    }
+    return origSetKv.call(session, k, v, opts);
+  };
+  const mode = createWriteMode(ctx.store, { feature: 'session-boundary', guard: () => true });
+  const writeP = mode.putKV('plc.prefs.v1', 'ORIGINAL', 'STALE', { operationId: 'session-boundary-1' });
+  await cryptoGate;
+  // Detach the session while crypto is in progress
+  ctx.store.detach();
+  releaseCrypto();
+  const r = await writeP;
+  assert.equal(r.status, RECEIPT.UNKNOWN, 'detached session must produce unknown');
+  assert.equal(session.state.kv.get('l/plc.prefs.v1'), 'ORIGINAL', 'original value must survive detachment');
+});
+
+test('putKV: lease changed while awaiting revokes', async () => {
+  // If the lease is cleared while awaiting, the liveGuard must refuse.
+  const ctx = makeCtx();
+  const session = await attachNew(ctx);
+  await session.setKv('l/plc.prefs.v1', 'ORIGINAL');
+  // Replace the lease with one that has owned=false
+  ctx.store.attach(session, { writer: true, lease: { supported: true, owned: false, release: async () => false, stopWaiting() {}, waitUntilFree: () => Promise.resolve() }, adapter: ctx.adapter });
+  const mode = createWriteMode(ctx.store, { feature: 'lease-boundary', guard: () => true });
+  // The store is no longer exclusive because lease.owned is false
+  assert.equal(ctx.store.exclusive, false, 'store must not be exclusive with owned=false lease');
+  await assert.rejects(() => mode.putKV('plc.prefs.v1', 'ORIGINAL', 'CHANGED', { operationId: 'lease-boundary-1' }),
+    e => { assert.equal(e.code, 'no-exclusive', 'must refuse without exclusive lease'); return true; });
+});
+
+test('putKV: guard false while awaiting revokes', async () => {
+  // A guard that returns false after an await must prevent the append.
+  const ctx = makeCtx();
+  const session = await attachNew(ctx);
+  await session.setKv('l/plc.prefs.v1', 'ORIGINAL');
+  let guardState = true;
+  const mode = createWriteMode(ctx.store, { feature: 'guard-boundary', guard: () => guardState });
+  // Write succeeds while guard is true (expectedRaw matches current)
+  const r1 = await mode.putKV('plc.prefs.v1', 'ORIGINAL', 'VALUE1', { operationId: 'guard-boundary-1' });
+  assert.equal(r1.status, RECEIPT.COMMITTED);
+  // Flip guard and try again - should throw authority at entry
+  guardState = false;
+  await assert.rejects(() => mode.putKV('plc.prefs.v1', 'VALUE1', 'VALUE2', { operationId: 'guard-boundary-2' }),
+    e => { assert.equal(e.code, 'authority', 'must throw authority when guard is false'); return true; });
 });
 
 test('putKV: guard false at entry throws authority', async () => {

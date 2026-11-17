@@ -699,6 +699,9 @@ export function createWriteMode(store, { feature, guard } = {}) {
     checkSession();
     if (!checkGuard()) throw new VaultError("authority", "Guard rejected: not authorized to read durable state.");
     const state = await readbackState({ adapter: store._adapter, session });
+    // Recheck session/guard after the await
+    checkSession();
+    if (!checkGuard()) throw new VaultError("authority", "Guard rejected: not authorized to read durable state.");
     const result = {};
     for (const key of (Array.isArray(keys) ? keys : [keys])) {
       const k = String(key);
@@ -734,25 +737,38 @@ export function createWriteMode(store, { feature, guard } = {}) {
     // Check if the key is vaulted
     if (!isVaulted(key)) throw new VaultError("not-vaulted", "Key is not vaulted: " + key);
 
+    const nsKey = ns("local", key);
+
+    // Fresh same-bound-adapter read BEFORE any append: determine actual current/target/observed.
+    // expectedRaw:null means persisted ABSENCE, never wildcard/delete.
+    let actualCurrent = null;
+    let readbackFailed = false;
+    try {
+      const state = await readbackState({ adapter: store._adapter, session });
+      actualCurrent = state.kv.has(nsKey) ? state.kv.get(nsKey) : null;
+    } catch {
+      readbackFailed = true;
+    }
+
+    // Null-conflict: expectedRaw=null (expecting absence) but actual value exists.
+    // Do NOT delete; return unknown with observed=actual.
+    if (expectedRaw === null && actualCurrent !== null) {
+      return { status: RECEIPT.UNKNOWN, key, operationId, seq: 0, observed: actualCurrent, reason: "null-conflict" };
+    }
+
     // Check if expectedRaw matches (known-not-written check)
-    // Read from mirror first (what the facade serves), then from session state (what's actually stored)
+    // Use actual persisted value from same-bound-adapter read, not mirror/volatile state.
     if (expectedRaw !== null) {
-      const mirrorVal = store.local.getItem(key);
-      const nsKey = ns("local", key);
-      const sessionVal = session.state.kv.get(nsKey);
-      const current = mirrorVal !== null ? mirrorVal : sessionVal ?? null;
-      if (current !== expectedRaw) {
+      if (actualCurrent !== expectedRaw) {
         // Target differs: conflict
-        return { status: RECEIPT.UNKNOWN, key, operationId, seq: 0, observed: current, reason: "target-mismatch" };
+        return { status: RECEIPT.UNKNOWN, key, operationId, seq: 0, observed: actualCurrent, reason: "target-mismatch" };
       }
     }
 
     // Check if unchanged (same value)
     if (expectedRaw === nextRaw && expectedRaw !== null) {
       // Unchanged: verify persistence, don't noop
-      const nsKey = ns("local", key);
-      const currentVault = session.state.kv.get(nsKey);
-      if (currentVault === nextRaw) {
+      if (actualCurrent === nextRaw) {
         // Already persisted with same value: verify
         try {
           const state = await readbackState({ adapter: store._adapter, session });
@@ -765,14 +781,21 @@ export function createWriteMode(store, { feature, guard } = {}) {
       }
     }
 
+    // Composed live guard: user guard AND session is current.
+    // This ensures a stale action (detached session, changed epoch) refuses at the actual append.
+    const liveGuard = () => {
+      if (!isCurrent()) throw new VaultError("session-changed", "The vault session changed while this write was active.");
+      if (!checkGuard()) throw new VaultError("authority", "Guard rejected: not authorized to write.");
+      return true;
+    };
+
     // Perform the write
-    const nsKey = ns("local", key);
     let seq;
     try {
       if (nextRaw === null) {
-        seq = await session.delKv(nsKey, { guard: captured.guard });
+        seq = await session.delKv(nsKey, { guard: liveGuard });
       } else {
-        seq = await session.setKv(nsKey, nextRaw, { guard: captured.guard });
+        seq = await session.setKv(nsKey, nextRaw, { guard: liveGuard });
       }
     } catch (error) {
       if (error?.code === "session-changed") {
