@@ -126,11 +126,11 @@ export function createLedgerStore({ storage, key = 'plc.encounters.v1', locks = 
         if (timer) clearTimeout(timer);
         const coord = activeCoord();
         let pending = null;
-        if (coord) { const a = await coord.acquire(); if (!a.ok) { if (a.code === 'coordination-unavailable') { try { const rec = await coord.backend.get(); if (rec && rec.state === 'open') { const op = rec.op; return { ok: false, code: 'unknown-outcome', cause: a.code, message: 'The result could not be confirmed. Look at the chat before trying again, so nothing is sent twice.', unknown: { op } }; } } catch { /* backend unavailable, fall through */ } } return a; } pending = a.pending || null; }
+        if (coord) { const a = await coord.acquire(); if (!a.ok) { return a; } pending = a.pending || null; }
         const tx = makeTx(coord, pending);
         const out = await fn(tx);
         const op = coord ? coord.openOp() : null;
-        if (!op) { if (pending && out?.code === 'coordination-unavailable') { const rec = pending.record; return { ok: false, code: 'unknown-outcome', cause: 'coordination-unavailable', message: 'The result could not be confirmed. Look at the chat before trying again, so nothing is sent twice.', unknown: { op: rec.op } }; } return out; }
+        if (!op) { return out; }
         // RESULT CONTRACT. success = the stable ACK only. A failure is DEFINITE (original code, no `unknown`) only when nothing can have changed: this hold never armed a raw write, or the
         // rolled-back ACK proved the start/rollback pair. Anything else is UNCERTAIN: code 'unknown-outcome' (the code the screen's outcomeOf recognises) with the cause kept beside it.
         const uncertain = (cause, extra = {}) => ({ ...extra, ok: false, code: 'unknown-outcome', cause, message: 'The result could not be confirmed. Look at the chat before trying again, so nothing is sent twice.', unknown: { op } });
