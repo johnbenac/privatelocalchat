@@ -100,16 +100,19 @@ export function createHistoryIo(host) {
     wrap.append(mergeRow, replaceRow, backupRow, ...(hasExtras ? [extrasRow] : []), summary); update();
     openAppDialog({ title: 'Import ' + incoming.length + ' conversation' + (incoming.length === 1 ? '' : 's'), content: wrap, actions: [
       { label: 'Cancel' },
-      { label: 'Import', primary: true, run: () => {
+      { label: 'Import', primary: true, run: async () => {   // syntax repair only (c used await in a plain function): honouring the save RESULT here is the later async UI pass
         const replace = replaceRadio.checked;
         if (replace && backup.checked) exportHistory();
+        const existingIds = new Set(host.threads().map(t => t.id));
         const result = host.M().model.mergeThreads(host.threads().filter(t => !t.temporary), incoming, { replace });
+        // imported messages are legacy: they carry no attribution of their own, and nothing in the file (names, roles, ids) grants any (chat/encounters/)
+        host.encounters?.markImported(result.threads.filter(t => replace || !existingIds.has(t.id)).map(t => t.id));
         host.setThreads(result.threads);
-        saveThreads();
+        await saveThreads();
         const skip = heldExtras(), held = hasExtras && extrasBox.checked ? [...skip].filter(k => extras[k] !== undefined) : [];
         if (hasExtras && extrasBox.checked) restoreExtras(extras, { skip }).then(n => { if (n) showToast('Restored ' + n + ' more item' + (n === 1 ? '' : 's') + ' from the backup.'); });
         if (held.length) showToast('Not restored: ' + held.join(', ') + '. A newer version of the app saved those here, so this version leaves them as they are.', 8000);
-        const ensuredId = ensureThreadExists();
+        const ensuredId = await ensureThreadExists();
         const target = (replace ? host.M().model.listThreads(host.threads())[0] : getThread(host.currentThreadId())) || host.M().model.listThreads(host.threads())[0];
         renderThreadList();
         if (target) selectThread(target.id); else if (ensuredId) selectThread(ensuredId);
@@ -131,14 +134,22 @@ export function createHistoryIo(host) {
     if (!confirmed) {
       return;
     }
-    host.setThreads([]);
-    host.clearCurrentThread();
-    try {
-      appLocal.removeItem(THREAD_KEY);
-      appLocal.removeItem(ACTIVE_THREAD_KEY);
-    } catch (err) {
-      console.warn('Unable to remove chat history from storage:', err);
-      saveThreads();
+    if (host.encounters) {
+      // one fenced step in the same lock as every conversation save: the records are cleared with the chats and no other tab can write the old history back
+      const cleared = await host.encounters.clearAll();
+      if (!cleared.ok) { showToast('Chat history was not cleared: ' + cleared.message, 9000); return; }
+      host.setThreads([]);
+      host.clearCurrentThread();
+    } else {
+      host.setThreads([]);
+      host.clearCurrentThread();
+      try {
+        appLocal.removeItem(THREAD_KEY);
+        appLocal.removeItem(ACTIVE_THREAD_KEY);
+      } catch (err) {
+        console.warn('Unable to remove chat history from storage:', err);
+        await saveThreads();
+      }
     }
     threadTitleInput.value = '';
     systemPromptInput.value = '';

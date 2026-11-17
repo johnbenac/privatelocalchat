@@ -14,8 +14,8 @@ export function createSender(host) {
     deriveChatCompletionsUrl, showToast, el, copyText, downloadText, messageActionHandlers, offline } = host;
   const g = host.g;
   let saveTimer = null;
-  const scheduleSave = () => { if (saveTimer) return; saveTimer = window.setTimeout(() => { saveTimer = null; saveThreads(); }, 800); };
-  const flushSave = () => { if (saveTimer) { window.clearTimeout(saveTimer); saveTimer = null; } saveThreads(); };
+  const scheduleSave = () => { if (saveTimer) return; saveTimer = window.setTimeout(async () => { saveTimer = null; try { await saveThreads(); } catch { /* save failure is reported via onResult */ } }, 800); };
+  const flushSave = async () => { if (saveTimer) { window.clearTimeout(saveTimer); saveTimer = null; } try { await saveThreads(); } catch { /* save failure is reported via onResult */ } };
 
   function setGenerating(on) {
     g.busy = on;
@@ -51,7 +51,7 @@ export function createSender(host) {
     generationStatus.textContent = needsPrep ? 'Getting on-device chat ready…' : window.localModels?.mode === 'local' ? messagesView.generatingLabel() : 'Waiting for ' + providerName() + '…';
     setGenerating(true);
     host.M().model.touch(thread);
-    saveThreads();
+    try { await saveThreads(); } catch { /* save failure is reported via onResult */ }
     if (threadId === host.currentThreadId()) messagesView.renderMessages(thread, { keepScroll: false });
     events.emit('reply:start', thread, msg);
     const index = thread.messages.indexOf(msg);
@@ -137,7 +137,7 @@ export function createSender(host) {
       g.gen = null; g.controller = null;
       host.M().model.touch(thread);
       if (saveTimer) { window.clearTimeout(saveTimer); saveTimer = null; }
-      saveThreads();
+      try { await saveThreads(); } catch { /* save failure is reported via onResult */ }
       if (threadId === host.currentThreadId()) messagesView.renderMessages(thread, { keepScroll: true });
       setGenerating(false);
       renderThreadList();
@@ -194,7 +194,8 @@ export function createSender(host) {
     growComposer();
     persistDraftNow(thread.id);
     host.M().model.touch(thread);
-    saveThreads();
+    const saved = await saveThreads();
+    if (!saved) { messageInput.value = text; growComposer(); showToast('The message was not saved (storage may be full or blocked). Your text is restored.', 9000); return; }
     renderThreadList();
     messagesView.renderMessages(thread);
     await runReply(thread.id);

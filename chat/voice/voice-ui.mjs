@@ -49,7 +49,7 @@ export function createVoiceUi(host) {
     messageActionHandlers['voice-note'] = async (thread, msg) => {
       await loadNoteModules();
       msg.voiceNote = !msg.voiceNote;
-      saveThreads(); host.renderMessages(thread, { keepScroll: true });
+      await saveThreads(); host.renderMessages(thread, { keepScroll: true });
       if (msg.voiceNote) host.nodeFor(msg.id)?.querySelector('.vn-play')?.click(); // turning a reply into a note plays it
     };
     messageActionHandlers['speak'] = async (thread, msg, btn) => {

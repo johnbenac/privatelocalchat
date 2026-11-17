@@ -24,14 +24,18 @@ export function createThreadState(host) {
     return query ? `${baseHref}?${query}` : baseHref;
   }
 
-  function loadThreads() {
+  async function loadThreads() {
+    if (host.encounters?.prepare) await host.encounters.prepare();   // finish an interrupted earlier commit under the lock BEFORE the screen reads the stored chats (a refusal still shows what is stored)
     const storedThreads = readJson(appLocal, THREAD_KEY, []);
     const list = Array.isArray(storedThreads) ? storedThreads : [];
     s.threads = host.M().model.purgeExpired(list.map(t => host.M().model.normalizeThread(t)).filter(Boolean));
+    if (host.encounters) await host.encounters.init();   // what storage held right now is what this tab's later saves are patched against
   }
 
-  // Temporary chats are never written down.
-  function saveThreads() {
+  // Temporary chats are never written down. Every save is one commit under the Web Lock "plc-encounters" (chat/encounters/thread-commit.mjs): this tab's changes are applied as a patch to
+  // the freshly stored chats, together with their conversation records, never as a whole-list overwrite. The result is reported (a conflict or a refusal is told, never silent).
+  async function saveThreads() {
+    if (host.encounters) { const r = await host.encounters.saveThreads(); return r.ok; }
     return writeJson(appLocal, THREAD_KEY, s.threads.filter(t => !t.temporary));
   }
 
@@ -39,7 +43,7 @@ export function createThreadState(host) {
     return `${Date.now().toString(36)}-${Math.random().toString(16).slice(2, 10)}`;
   }
 
-  function createThread({ title = 'New chat', systemPrompt = '', messages = [], temporary = false } = {}) {
+  async function createThread({ title = 'New chat', systemPrompt = '', messages = [], temporary = false } = {}) {
     const id = generateThreadId();
     const normalizedTitle = typeof title === 'string' ? title : 'New chat';
     const normalizedSystemPrompt = typeof systemPrompt === 'string' ? systemPrompt : '';
@@ -54,11 +58,11 @@ export function createThreadState(host) {
     };
     if (temporary) thread.temporary = true;
     s.threads.push(thread);
-    saveThreads();
+    await saveThreads();
     return id;
   }
 
-  function ensureThreadExists() {
+  async function ensureThreadExists() {
     const hasValidThread = s.threads.some(thread => thread && typeof thread.id === 'string' && thread.id);
     if (hasValidThread) {
       return null;
@@ -68,11 +72,11 @@ export function createThreadState(host) {
 
   const getThread = id => s.threads.find(t => t.id === id);
   const currentThread = () => getThread(s.currentThreadId);
-  const updateThread = mutator => {
+  const updateThread = async mutator => {
     const thread = currentThread();
     if (!thread) return null;
     mutator(thread);
-    saveThreads();
+    await saveThreads();
     return thread;
   };
 
@@ -242,7 +246,7 @@ export function createThreadState(host) {
     const newName = await promptDialog('Rename chat', 'Title', currentName);
     if (newName === null) return;
     thread.title = newName.trim() || 'Untitled';
-    saveThreads();
+    await saveThreads();
     renderThreadList();
     if (threadId === s.currentThreadId) {
       threadTitleInput.value = thread.title;

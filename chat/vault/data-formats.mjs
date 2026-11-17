@@ -78,7 +78,7 @@ export function stampedRegistry({ current = null, blocked = [], app = null } = {
 
 /** A short, plain name for a store, for the message the person reads. */
 const LABELS = {
-  chatThreads: "chats", memory: "memory", folders: "projects", presets: "prompt presets", drafts: "unsent drafts", prefs: "preferences", models: "model choices",
+  chatThreads: "chats", encounters: "conversation records", memory: "memory", folders: "projects", presets: "prompt presets", drafts: "unsent drafts", prefs: "preferences", models: "model choices",
   voice: "voice settings", activeThread: "the open chat", "shell.pins": "pinned items", inferenceMode: "the chat mode", modelMemory: "model memory settings",
   chatConfig: "provider settings", chatModels: "provider settings", chatEndpointTokens: "API keys"
 };

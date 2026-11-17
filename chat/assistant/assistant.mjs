@@ -73,7 +73,7 @@ export function createAssistant(host) {
     const preset = { id: 'preset-' + generateThreadId(), name: name.trim(), prompt };
     const saved = await presetStore.mutate(list => ({ list: [...list, preset] }));
     if (!saved.ok) { presetFailure(saved); return; }
-    adoptPresets(saved.list); thread.presetId = preset.id; saveThreads(); renderPresetOptions(thread); showToast('Preset saved');
+    adoptPresets(saved.list); thread.presetId = preset.id; await saveThreads(); renderPresetOptions(thread); showToast('Preset saved');
   });
 
   // import: a file or a preset link is reviewed first; only the review box's "Add" makes a new preset (chat/assistant/preset-import.mjs)
@@ -226,7 +226,7 @@ export function createAssistant(host) {
     if (!reply) return false;
     thread.messages.push(host.model().makeMessage('user', text), host.model().makeMessage('assistant', reply.text, { local: true }));
     if (thread.messages.length === 2 && host.model().hasDefaultTitle(thread)) { thread.title = host.model().deriveTitle(text) || thread.title; threadTitleInput.value = thread.title; }
-    messageInput.value = ''; growComposer(); persistDraftNow(thread.id); host.model().touch(thread); saveThreads(); renderThreadList(); renderMessages(thread);
+    messageInput.value = ''; growComposer(); persistDraftNow(thread.id); host.model().touch(thread); await saveThreads(); renderThreadList(); renderMessages(thread);
     const status = document.getElementById('generationStatus'); status.hidden = false; status.textContent = 'Answered on this device.';
     return true;
   });

@@ -60,6 +60,7 @@ chat/                   features, one folder each (below); the files left at the
 chat/voice/             speech, the voice engines (Kitten, Kokoro), voice choice, voice notes and recorder, playback, text preparation, voice-session logic
 chat/call/              the voice call screen and its sounds
 chat/assistant/         preferences (prefs-store.mjs is the one writer of plc.prefs.v1), presets, memory and the exact-answer tools; importing a reviewed preset file or link (preset-candidate.mjs reads and admits, preset-import.mjs is the review box, preset-store.mjs is the locked write all preset changes use, backup restore included: docs/PRESET-IMPORT.md)
+chat/encounters/        who said what in each conversation (docs/ENCOUNTERS.md): the ledger records and rules (records.mjs), the patch of one tab's changes onto the stored chats (thread-patch.mjs), the events a change makes (thread-events.mjs), the one locked writer of chatThreads and plc.encounters.v1 together (thread-commit.mjs, ledger-store.mjs), the feature and the app-internal facade a later receiver calls (encounters.mjs, read as window.plcApp.encounters)
 chat/roberta/           the phone-menu robot: menu engine, content, intent router and its vectors, on-screen front desk
 chat/embedding/         the small matching model (used by Roberta and by search): embedder, config, model description
 chat/documents/         attachments: reading, storing (IndexedDB), PDF text, retrieval, images

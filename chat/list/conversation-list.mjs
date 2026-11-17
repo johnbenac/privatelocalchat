@@ -89,7 +89,7 @@ export function createConversationList(host) {
     menuItem(menu, '🗑️', 'Delete project (keeps its chats)', async () => {
       if (!await confirmDialog('Delete project?', 'The chats inside stay in your list; only the grouping and its instructions are removed.', 'Delete project', { danger: true })) return;
       folders = folders.filter(x => x.id !== folderId); host.threads().forEach(t => { if (t.folderId === folderId) delete t.folderId; });
-      saveFolders(); saveThreads(); renderThreadList();
+      saveFolders(); await saveThreads(); renderThreadList();
     }, 'delete');
     placeMenu(menu, anchor);
   }
@@ -119,38 +119,40 @@ export function createConversationList(host) {
     return f?.instructions?.trim() ? 'Instructions for the "' + f.name + '" project:\n' + f.instructions.trim() : '';
   }
 
-  function newThread({ temporary = false } = {}) {
-    const id = createThread({ temporary });
+  async function newThread({ temporary = false } = {}) {
+    const id = await createThread({ temporary });
     if (threadView !== 'active') threadView = 'active';
     renderThreadList();
     selectThread(id);
     messageInput.focus();
   }
 
-  function trashThread(threadId) {
+  async function trashThread(threadId) {
     const thread = getThread(threadId); if (!thread) return;
     if (host.generation() && host.generation().threadId === threadId) host.generation().controller.abort();
     if (thread.temporary) { host.threads().splice(host.threads().indexOf(thread), 1); }
     else { thread.deletedAt = Date.now(); delete thread.pinned; }
-    saveThreads();
+    await saveThreads();
     if (threadId === host.currentThreadId()) {
       const next = host.M().model.listThreads(host.threads())[0];
       host.clearCurrentThread();
-      if (next) selectThread(next.id); else { const id = createThread(); renderThreadList(); selectThread(id); }
+      if (next) selectThread(next.id); else { const id = await createThread(); renderThreadList(); selectThread(id); }
     } else renderThreadList();
     renderThreadList();
-    if (!thread.temporary) showToast('Moved to Trash', 8000, { label: 'Undo', run: () => { delete thread.deletedAt; saveThreads(); renderThreadList(); } });
+    if (!thread.temporary) showToast('Moved to Trash', 8000, { label: 'Undo', run: async () => { delete thread.deletedAt; await saveThreads(); renderThreadList(); } });
   }
   async function deleteForever(threadId) {
     const thread = getThread(threadId); if (!thread) return;
     if (!await confirmDialog('Delete permanently?', 'This chat will be erased and cannot be recovered.', 'Delete permanently', { danger: true })) return;
-    host.threads().splice(host.threads().indexOf(thread), 1); saveThreads(); renderThreadList();
+    host.threads().splice(host.threads().indexOf(thread), 1); await saveThreads(); renderThreadList();
   }
 
-  function duplicateThread(threadId, upToIndex) {
+  async function duplicateThread(threadId, upToIndex) {
     const thread = getThread(threadId); if (!thread) return;
     const copy = host.M().model.branchThread(thread, upToIndex ?? thread.messages.length - 1);
-    host.threads().push(copy); saveThreads(); renderThreadList(); selectThread(copy.id);
+    // the copy's messages are new ids copied from this chat: they keep the attribution of what they were copied from (chat/encounters/)
+    host.encounters?.markBranch(copy.id, thread.id, Object.fromEntries(copy.messages.map((m, i) => [m.id, thread.messages[i]?.id]).filter(([, src]) => src)));
+    host.threads().push(copy); await saveThreads(); renderThreadList(); selectThread(copy.id);
     showToast(upToIndex == null ? 'Chat duplicated' : 'Branched into a new chat');
   }
 
@@ -160,13 +162,13 @@ export function createConversationList(host) {
     closeThreadMenu();
     const menu = el('div', 'thread-menu'); menu.setAttribute('role', 'menu');
     if (thread.deletedAt != null) {
-      menuItem(menu, '♻️', 'Restore', () => { delete thread.deletedAt; saveThreads(); renderThreadList(); });
+      menuItem(menu, '♻️', 'Restore', async () => { delete thread.deletedAt; await saveThreads(); renderThreadList(); });
       menuItem(menu, '🗑️', 'Delete permanently', () => deleteForever(threadId), 'delete');
       placeMenu(menu, anchor); return;
     }
     menuItem(menu, '✏️', 'Rename', () => renameThread(threadId));
-    menuItem(menu, thread.pinned ? '📍' : '📌', thread.pinned ? 'Unpin' : 'Pin to top', () => { if (thread.pinned) delete thread.pinned; else thread.pinned = true; saveThreads(); renderThreadList(); });
-    menuItem(menu, '🗄️', thread.archived ? 'Unarchive' : 'Archive', () => { if (thread.archived) delete thread.archived; else thread.archived = true; saveThreads(); renderThreadList(); showToast(thread.archived ? 'Archived' : 'Moved back to your chats'); });
+    menuItem(menu, thread.pinned ? '📍' : '📌', thread.pinned ? 'Unpin' : 'Pin to top', async () => { if (thread.pinned) delete thread.pinned; else thread.pinned = true; await saveThreads(); renderThreadList(); });
+    menuItem(menu, '🗄️', thread.archived ? 'Unarchive' : 'Archive', async () => { if (thread.archived) delete thread.archived; else thread.archived = true; await saveThreads(); renderThreadList(); showToast(thread.archived ? 'Archived' : 'Moved back to your chats'); });
     menuItem(menu, '📁', 'Move to project…', () => moveToFolder(threadId));
     menuItem(menu, '🧬', 'Duplicate', () => duplicateThread(threadId));
     menuItem(menu, '📤', 'Export (.md)', () => exportThreadMarkdown(threadId));

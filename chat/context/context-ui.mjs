@@ -44,7 +44,7 @@ export function createContextUi(host) {
         if (!summary) throw new Error('The model returned an empty summary.');
       }
       thread.summary = { text: summary, upTo: plan.upTo };
-      host.M().model.touch(thread); saveThreads();
+      host.M().model.touch(thread); await saveThreads();
       status.textContent = 'Earlier messages summarized.';
       showToast('The model now sees a summary of the earlier messages. Your full conversation is unchanged.', 6000);
     } catch (err) {
@@ -63,7 +63,7 @@ export function createContextUi(host) {
       const text = await promptDialog('Summary the model sees', 'Edit it, or clear it to show the model the full conversation again.', thread.summary.text, { multiline: true });
       if (text === null) return;
       if (text.trim()) thread.summary.text = text.trim(); else delete thread.summary;
-      host.M().model.touch(thread); saveThreads(); renderMessages(thread, { keepScroll: true });
+      host.M().model.touch(thread); await saveThreads(); renderMessages(thread, { keepScroll: true });
     });
     d.appendChild(view); return d;
   }

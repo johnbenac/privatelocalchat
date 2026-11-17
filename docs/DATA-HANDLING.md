@@ -70,7 +70,7 @@ Browsers offer to clear the site data of an address. In current browsers that re
 | `user` | what the person wrote or chose to keep (chats, drafts, memory, documents, API keys): goes into the vault |
 | `vault` | the encrypted store itself: nothing in it is readable without the passphrase |
 
-**Keys in local and session storage (31)**
+**Keys in local and session storage (32)**
 
 | Key | Where | Class | What it holds | Format | First release |
 | --- | --- | --- | --- | --- | --- |
@@ -82,6 +82,7 @@ Browsers offer to clear the site data of an address. In current browsers that re
 | `plc.downloadIntent.v1` | local storage | `plain` | a model download that should resume; about the device, not the person | 1 | v0.6.0 |
 | `plc.draft` | session storage | `transient` | composer text kept across the page reload that applies an update | 1 | v0.6.0 |
 | `plc.drafts.v1` | local storage | `user` | unsent composer text per chat | 1 | v0.8.0 |
+| `plc.encounters.v1` | local storage | `user` | who said what in each conversation: encounters, participants and events (speaker, source, audience, modality, order, corrections, original text), written only under the Web Lock plc-encounters together with every conversation save; chatThreads keeps its format | 1 | v0.66.0 |
 | `plc.folders.v1` | local storage | `user` | folder names and which chats are in them | 1 | v0.8.0 |
 | `plc.formats.v1` | local storage | `plain` | the highest format of each store any version has written here, so an older version leaves newer data alone | 1 | v0.57.0 |
 | `plc.inferenceMode.v1` | local storage | `setting` | on this device or a connected provider | 1 | v0.6.0 |
@@ -121,7 +122,7 @@ Browsers offer to clear the site data of an address. In current browsers that re
 | OPFS model and voice files | `device` | runtime/providers/, chat/voice/voice-engine.mjs |
 | throw-away IndexedDB probe databases | `plain` | chat/connection/connection-glue.mjs, chat/connection/private-mode.mjs |
 
-35 source files read or write browser storage; the list is in `files.list` of docs/evidence/encryption/storage-inventory.json.
+36 source files read or write browser storage; the list is in `files.list` of docs/evidence/encryption/storage-inventory.json.
 <!-- data-handling:storage:end -->
 
 ## 2. What the app sends over the network
