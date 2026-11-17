@@ -127,6 +127,36 @@ export function createLock({ el, createEmoji, readJson, writeJson, openAppDialog
 
   const ENCRYPT_NOTE = 'Your chats, documents, memory and settings are sealed with this passphrase and stored as you go, so closing the tab loses nothing. Without the passphrase they cannot be read, and if you forget it they cannot be recovered: keep an encrypted backup. It does not protect against someone who controls the website you load, or against a device that is already unlocked and being watched.';
 
+  // Only copies that the stored vault verifiably holds are removed; anything else stays, and the message says so (never "removed" for a value that was kept).
+  const keptText = kept => kept.length + (kept.length === 1 ? ' unencrypted item was' : ' unencrypted items were') + ' kept because ' + (kept.length === 1 ? 'it is' : 'they are') + ' not identical to the encrypted copy (' + [...new Set(kept.map(k => k.reason))].join('; ') + ').';
+  async function removeUnencrypted(options) {
+    try {
+      const r = await vault.removePlaintext(options);
+      if (r.discarded?.length) showToast('Permanently deleted ' + r.discarded.length + ' unencrypted item(s) that were different from, or the only copy of, what is encrypted. ' + (r.kept.length ? keptText(r.kept) : ''), 12000);
+      else if (!r.kept.length) showToast('The unencrypted copy is removed.');
+      else showToast((r.removed.length ? 'Removed ' + r.removed.length + ' verified unencrypted copies. ' : 'Nothing was removed. ') + keptText(r.kept) + ' Open Settings > Security to see what to do.', 12000);
+      return r;
+    } catch (error) { showToast('Nothing was removed. ' + (error?.message || 'The encrypted copy could not be checked.'), 9000); return null; }
+  }
+  const HELD_WHY = {
+    'history-unproven': 'the encrypted history cannot show whether this was ever encrypted and deleted, so it is not copied back',
+    'no-exclusive-writer': 'this browser cannot guarantee that only this tab changes the vault',
+    'read-only': 'this app is open in another tab',
+    'vault-damaged': 'part of the encrypted vault is unreadable',
+    'readback-failed': 'the encrypted vault could not be read back',
+    'readback-mismatch': 'the encrypted copy did not read back correctly',
+    'write-failed': 'saving it failed', 'newer-format': 'it was written by a newer version'
+  };
+  const recoveryText = rec => {
+    if (!rec) return '';
+    const parts = [];
+    if (rec.recovered.length) parts.push(rec.recovered.length + ' saved item(s) found unencrypted were copied into your encrypted vault and checked (the unencrypted copy was left in place).');
+    if (rec.held.length) parts.push(rec.held.length + ' saved item(s) are still only stored unencrypted (' + [...new Set(rec.held.map(h => HELD_WHY[h.reason] || h.reason))].join('; ') + '). They are shown as they are, nothing was copied or deleted, and they cannot be changed here until they are saved safely.');
+    if (rec.conflicts.length) parts.push(rec.conflicts.length + ' unencrypted item(s) differ from the encrypted copy; both are kept and the encrypted one is used.');
+    if (rec.unreadable.length) parts.push(rec.unreadable.length + ' unencrypted item(s) could not be checked and are kept.');
+    return parts.join(' ');
+  };
+
   /** Encrypt what is saved, check it by reading it back, then offer to remove the unencrypted copy. */
   async function enableVault(d, button, passphrase, autoMinutes, msg) {
     button.setAttribute('aria-busy', 'true'); msg.textContent = 'Encrypting everything and checking it…';
@@ -136,7 +166,7 @@ export function createLock({ el, createEmoji, readJson, writeJson, openAppDialog
       showToast('Your chats, documents, memory and settings are now encrypted with your passphrase.');
       if (result.remaining.length) {
         const sure = await confirmDialog('Remove the unencrypted copy?', 'Your data is encrypted now, but the old unencrypted copy is still stored in this browser, readable by anyone with the device. Remove it now? An encrypted backup first is a good idea (Settings > Storage).', 'Remove it', { danger: true });
-        if (sure) { await vault.removePlaintext(); showToast('The unencrypted copy is removed.'); }
+        if (sure) await removeUnencrypted();
         else showToast('The unencrypted copy is still on this device. Remove it in Settings > Security.', 9000);
       }
     } catch (error) {
@@ -156,7 +186,8 @@ export function createLock({ el, createEmoji, readJson, writeJson, openAppDialog
     const [nw, pn] = passField('New passphrase (only to change it)', 'lockNewPass'); pn.autocomplete = 'new-password';
     const faceCard = el('div', 'set-card face-box');
     root.append(el('p', 'sec-lead', 'Your chats, documents, memory and settings on this device are encrypted with your passphrase. Locking forgets the key and asks for it again.'));
-    if (leftover.length) root.append(note('The old unencrypted copy of your data is still stored in this browser. Remove it so only the encrypted copy remains.', 'danger'));
+    if (leftover.length) root.append(note('The old unencrypted copy of your data is still stored in this browser. Remove it so only the encrypted copy remains. Only copies that match the encrypted data are removed; anything that differs, or is not in the encrypted copy, is kept and listed.', 'danger'));
+    const found = recoveryText(vault.recovery); if (found) root.append(note(found, 'danger'));
     root.append(
       sub('Locking'),
       card(rowOf('Lock automatically', null, auto), rowOf('Lock as soon as I leave this tab or app', 'The page reloads and asks again.', hideBox, 'label')),
@@ -203,11 +234,32 @@ export function createLock({ el, createEmoji, readJson, writeJson, openAppDialog
         if (!pc.value) { msg.textContent = 'Type the current passphrase to turn encryption off.'; return; }
         const sure = await confirmDialog('Turn encryption off?', 'Your chats, documents, memory and settings will be stored in this browser without encryption, readable by anyone with the device.', 'Turn it off', { danger: true });
         if (!sure) return;
-        try { msg.textContent = 'Turning off…'; await vault.disable(pc.value); lockCfg = null; syncLockUi(); d.close(); showToast('Encryption is off.'); }
-        catch (error) { msg.textContent = error?.code === 'bad-passphrase' ? 'That is not the current passphrase.' : (error?.message || 'Could not turn it off.'); }
+        const off = async (options) => { await vault.disable(pc.value, options); lockCfg = null; syncLockUi(); d.close(); showToast('Encryption is off.'); };
+        try { msg.textContent = 'Turning off…'; await off(); }
+        catch (error) {
+          if (error?.code === 'conflict' && error.keys?.length) {
+            // Nothing was changed. Replacing differing unencrypted items is a SEPARATE, explicit and permanent choice; items that cannot be replaced (newer version, cannot be checked, changed meanwhile) stay and refuse again.
+            msg.textContent = 'Nothing was changed. ' + error.keys.length + ' unencrypted item(s) here differ from your encrypted data (' + error.keys.join(', ') + '), so encryption was not turned off.';
+            const replace = await confirmDialog('Replace the unencrypted items that differ?', 'These items are stored without encryption in this browser and are NOT the same as your encrypted data. Turning encryption off now would replace each of them with the encrypted version, and what they say now would be gone for good. Nothing has been changed so far. Items written by a newer version, items that cannot be checked and items that change while this runs are never replaced and will stop it again.', 'Replace them and turn it off', { danger: true });
+            if (!replace) return;
+            try { msg.textContent = 'Turning off…'; await off({ replaceDiffering: true }); } catch (again) { msg.textContent = again?.code === 'bad-passphrase' ? 'That is not the current passphrase.' : (again?.message || 'Could not turn it off.'); }
+            return;
+          }
+          msg.textContent = error?.code === 'bad-passphrase' ? 'That is not the current passphrase.' : (error?.message || 'Could not turn it off.');
+        }
       } }
     ];
-    if (leftover.length) actions.unshift({ label: 'Remove the unencrypted copy', danger: true, close: false, run: async d => { await vault.removePlaintext(); d.close(); showToast('The unencrypted copy is removed.'); } });
+    if (leftover.length) actions.unshift(
+      { label: 'Remove the unencrypted copy', danger: true, close: false, run: async d => { const r = await removeUnencrypted(); if (r) d.close(); } },
+      { label: 'Permanently delete differing items…', danger: true, close: false, run: async d => {
+        const sure = await confirmDialog('Permanently delete unencrypted items that differ?', 'This is not removing a duplicate. These unencrypted items are NOT identical to what is encrypted: either the encrypted version is different (you changed it after turning encryption on), or the item was deleted from the encrypted vault and this unencrypted item is the only copy left. Deleting them is permanent and cannot be undone: the different or only-remaining unencrypted item is gone for good. Items the encrypted vault never held, items that cannot be checked and items from a newer version are never deleted.', 'Delete them permanently', { danger: true });
+        if (!sure) return;
+        const r = await removeUnencrypted({ discardDiffering: true }); if (r) d.close();
+      } });
+    if (vault.recovery?.held?.length && !vault.readOnly) actions.unshift({ label: 'Try saving unencrypted items again', close: false, run: async () => {
+      try { const rec = await vault.retryRecovery(); msg.textContent = rec.held.length ? 'Still not saved: ' + rec.held.map(h => h.key).join(', ') : ''; if (!rec.held.length) showToast('Saved into your encrypted vault.'); }
+      catch (error) { msg.textContent = error?.message || 'Could not save them.'; }
+    } });
     openAppDialog({ title: 'Encryption and lock', content: root, actions });
   }
 
@@ -277,7 +329,10 @@ export function createLock({ el, createEmoji, readJson, writeJson, openAppDialog
     sync: syncLockUi,
     /** Call once at start-up: locked, or the reminder, or straight into the app. */
     start() {
-      if (vault?.active) { document.documentElement.classList.remove('locked', 'splashing'); syncLockUi(); armIdle(); } // unlocked at start-up by chat/vault/unlock-screen.mjs
+      if (vault?.active) {
+        document.documentElement.classList.remove('locked', 'splashing'); syncLockUi(); armIdle(); // unlocked at start-up by chat/vault/unlock-screen.mjs
+        const found = recoveryText(vault.recovery); if (found) showToast(found + ' Open Settings > Security for details.', 15000); // what the start-up check found, in words
+      }
       else if (lockCfg) { setLockedUi(true); syncLockUi(); }
       else if (reminderOn()) showLockSplash();
       else document.documentElement.classList.remove('splashing');
