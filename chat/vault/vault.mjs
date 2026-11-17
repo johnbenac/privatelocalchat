@@ -135,7 +135,7 @@ export function createVault({ adapter, crypto = globalThis.crypto, now = () => D
   async function requireSupportedFormat(supplied) {
     if (supplied?.format !== VAULT_FORMAT) throw newerFormat();
     const actual = await adapter.readHeader();
-    if (actual && actual.format !== VAULT_FORMAT) throw newerFormat();
+    if (actual?.format !== VAULT_FORMAT) throw newerFormat();
   }
 
   /** Unlock with the passphrase. Returns a session, with `damaged` listing records that could not be read. */

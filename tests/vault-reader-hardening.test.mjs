@@ -59,6 +59,17 @@ test('known-key unlock rejects, and keeps every byte, when the header cannot be 
   assert.equal(raw(adapter), before);
 });
 
+test('known-key unlock refuses a missing persisted header with a cached supported header', async () => {
+  const {adapter, header, dek} = await seeded();
+  const cachedHeader = structuredClone(header), cachedKey = new Uint8Array(dek);
+  await adapter.clear();
+  assert.equal(await adapter.readHeader(), null);
+  const before = raw(adapter);
+  await assert.rejects(() => createVault({adapter}).unlockWithKey(cachedHeader, cachedKey), rejectsWith('format'));
+  assert.equal(await adapter.readHeader(), null);
+  assert.equal(raw(adapter), before);
+});
+
 // ---- 2. boot ---------------------------------------------------------------------------------------------------------------------------
 const bootWith = async (adapter, local, ui) => { const store = await freshStore(); return {store, run: () => store.bootVault({adapter, realLocal: local, ui})}; };
 
