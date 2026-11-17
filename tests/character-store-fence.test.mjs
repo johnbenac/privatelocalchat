@@ -8,6 +8,7 @@ import { readFileSync } from 'node:fs';
 import { webcrypto } from 'node:crypto';
 import { createCharacterStore, createMemoryStorage, createMemoryLocks, CHARACTER_LOCK_NAME } from '../chat/characters/character-store.mjs';
 
+import { plainWriteScope } from './helpers/character-write-scope.mjs'; // contract-only provided scope for the persistent store (this file tests other contracts)
 const fx = new URL('./fixtures/characters/', import.meta.url);
 const bundle = (n) => readFileSync(new URL(`examples/${n}.bundle.json`, fx), 'utf8');
 const KEY = 'plc.characters.v1';
@@ -17,7 +18,7 @@ function newStore() {
   const storage = createMemoryStorage(); const inner = createMemoryLocks();
   const stat = { requests: 0 };
   const locks = { request: (...a) => { stat.requests += 1; return inner.request(...a); } };
-  const store = createCharacterStore({ storage, key: KEY, locks, crypto: webcrypto, now: (() => { let t = 1000; return () => ++t; })() });
+  const store = createCharacterStore({ storage, key: KEY, locks, crypto: webcrypto, runWriteScope: plainWriteScope(storage), now: (() => { let t = 1000; return () => ++t; })() });
   /** Hold the lock; resolves once it is really held. */
   const holdLock = async () => {
     let release; let entered = false;

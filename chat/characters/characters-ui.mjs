@@ -5,6 +5,8 @@
 // createCharactersUi(host) returns { chooseFile, openFromAddress, addressConflict, openLibrary, closePrivateViews }.
 //
 // host: el, openAppDialog, showToast, events (the page's event list), storage (the page's vault-aware local storage), key? (defaults to CHARACTERS_KEY), vault ({ active, readOnly }), location (read only),
+//       runWriteScope? (the durable write capability, passed to the PERSISTENT store only: without it saving is unavailable and says so, while importing, previewing, cancelling and reading the
+//       library still work; a temporary chat never uses it),
 //       currentThread() (the open conversation, to know whether it is a temporary chat), alert(title, message), confirm(title, message, label, { danger }), crypto?
 //
 // Lifetimes: a temporary chat has its own memory-only store, made when it first needs one and ended when that chat is left (a new temporary chat gets a new, empty one).
@@ -31,7 +33,7 @@ export function createCharactersUi(host) {
   // ---- which store, and its lifetime ----
   let epoch = 0; // moves whenever the vault is locked, unlocked or turned off: work prepared before is stale after
   let vaultWasOn = Boolean(vault?.active);
-  const persistent = createCharacterStore({ storage, key, crypto, isReadOnly: () => Boolean(vault?.readOnly), isLocked: () => vaultWasOn && !vault?.active, scope: { current: () => epoch } });
+  const persistent = createCharacterStore({ storage, key, crypto, runWriteScope: host.runWriteScope, isReadOnly: () => Boolean(vault?.readOnly), isLocked: () => vaultWasOn && !vault?.active, scope: { current: () => epoch } });
   let temp = null; // { threadId, store } for the open temporary chat only
   // A temporary store belongs to one temporary chat AT ONE lifecycle epoch: locking, unlocking or turning the vault off moves the epoch and ends it, even though the chat id is unchanged.
   const tempScope = () => { const t = host.currentThread?.(); return t?.temporary ? t.id + ':' + epoch : null; };
@@ -54,6 +56,10 @@ export function createCharactersUi(host) {
     }
     return { store: persistent, temporary: false, threadId: null };
   }
+  // A save whose outcome is not confirmed keeps its ORIGINAL preparation (and so its admission identity): trying again reconciles that same save, never a second one.
+  const UNCONFIRMED = 'This could not be confirmed: the character may or may not have been saved. Check your characters, or try the same save again; it will not be saved twice.';
+  const isUnconfirmed = (outcome) => Boolean(outcome && !outcome.ok && (outcome.unconfirmed || outcome.code === 'unconfirmed'));
+  const pendingCopies = new Map(); // 'individualId@version' -> { preparation, born }: a copy whose outcome is unconfirmed
   const where = (temporary) => (temporary ? 'Only for this temporary chat: it is forgotten when the chat is closed or the page is reloaded.' : 'Saved on this device only.');
 
   // ---- open views, previews and their cleanup ----
@@ -70,8 +76,8 @@ export function createCharactersUi(host) {
   const pickers = new Set(); // file choosers this module opened and has not heard back from: removed with the views, and an answer that arrives later is ignored
   function dropPickers() { for (const input of [...pickers]) { pickers.delete(input); try { input.remove(); } catch { /* gone */ } } }
   function closePrivateViews() { closingAll = true; try { for (const v of [...views]) { try { v.handle.close(); } catch { /* already gone */ } } dropPickers(); } finally { closingAll = false; } }
-  events?.on('vault:locked', (info) => { epoch += 1; if (info?.off) vaultWasOn = false; closePrivateViews(); dropTemporary(); });
-  events?.on('vault:unlocked', () => { epoch += 1; vaultWasOn = true; closePrivateViews(); dropTemporary(); });
+  events?.on('vault:locked', (info) => { epoch += 1; if (info?.off) vaultWasOn = false; closePrivateViews(); dropTemporary(); pendingCopies.clear(); });
+  events?.on('vault:unlocked', () => { epoch += 1; vaultWasOn = true; closePrivateViews(); dropTemporary(); pendingCopies.clear(); });
   events?.on('thread:selected', (thread) => {
     noteSession(thread);
     if (temp && !(thread?.temporary && thread.id === temp.threadId)) { for (const v of [...views]) if (v.temporary) v.handle.close(); dropPickers(); dropTemporary(); }
@@ -241,6 +247,7 @@ export function createCharactersUi(host) {
     root.append(status, note(BACKUP_LIMIT));
 
     // The target is what the person chose, with the version they were looking at; listing again never moves it to a newer version (that is what the stale check is for).
+    let held = null; // { preparation, purpose, target }: the original preparation of a save whose outcome was not confirmed
     let saving = false; let chosen = target ? { individualId: target.individualId, recordVersion: target.recordVersion } : null;
     function refreshTargets() {
       const listed = store.list();
@@ -253,6 +260,7 @@ export function createCharactersUi(host) {
     }
     const refresh = () => {
       const ready = store.ready(); const listed = refreshTargets();
+      fieldset.disabled = Boolean(held); // the proposal is fixed while an unconfirmed save is pending: its identity is not silently replaced by another purpose or target
       pick.disabled = !upd.checked || !listed.ok;
       const primary = handle.root.querySelector('.dialog-actions .primary');
       const needTarget = upd.checked && !chosen;
@@ -261,10 +269,10 @@ export function createCharactersUi(host) {
       else if (needTarget) status.textContent = 'Choose which saved character to update.';
       else if (newer) status.textContent = 'That character has changed since you chose it (now version ' + newer.dataset.version + '). Saving will be refused; choose it again to update the newer version.';
       if (primary) {
-        primary.textContent = upd.checked ? 'Update this character' : 'Save as new character';
+        primary.textContent = held ? 'Try the same save again' : upd.checked ? 'Update this character' : 'Save as new character';
         primary.disabled = !ready.ok || needTarget || saving;
       }
-      if (ready.ok && !needTarget && !newer && !saving) status.textContent = '';
+      if (ready.ok && !needTarget && !newer && !saving && !held) status.textContent = '';
     };
     const handle = openAppDialog({
       title: 'Review character', content: root, wide: true,
@@ -274,18 +282,25 @@ export function createCharactersUi(host) {
           if (saving) return; // a double click or Enter pressed twice saves one character
           if (stale(born)) { h.close(); return; }
           const ready = store.ready(); if (!ready.ok) { refresh(); return; }
-          const purpose = upd.checked ? 'update' : 'fresh';
-          let targetRef; if (purpose === 'update') { if (!chosen) { refresh(); return; } targetRef = { ...chosen }; }
+          const purpose = held ? held.purpose : upd.checked ? 'update' : 'fresh';
+          let targetRef; if (held) targetRef = held.target; else if (purpose === 'update') { if (!chosen) { refresh(); return; } targetRef = { ...chosen }; }
           saving = true; button.disabled = true; button.setAttribute('aria-busy', 'true'); status.textContent = 'Saving…';
-          let outcome;
+          let outcome; let preparation = held ? held.preparation : null;
           try {
-            const input = { purpose, ...(proposal.route === 'file' ? { text: proposal.text } : { hash: proposal.hash }), ...(targetRef ? { target: targetRef } : {}), ...(proposal.adapters || {}) };
-            const prepared = await store.prepare(input);
-            outcome = prepared.ok ? await store.commit(prepared.preparation, { fence: () => stale(born) }) : prepared;
-          } catch { outcome = { ok: false, code: 'error', message: 'The character could not be saved. Nothing was changed.' }; }
+            if (!preparation) {
+              const input = { purpose, ...(proposal.route === 'file' ? { text: proposal.text } : { hash: proposal.hash }), ...(targetRef ? { target: targetRef } : {}), ...(proposal.adapters || {}) };
+              const prepared = await store.prepare(input);
+              if (prepared.ok) preparation = prepared.preparation; else outcome = prepared;
+            }
+            if (preparation) outcome = await store.commit(preparation, { fence: () => stale(born) });
+          } catch {
+            // Before a preparation exists nothing could have been written; once one is being committed it may have been.
+            outcome = preparation ? { ok: false, code: 'unconfirmed', unconfirmed: true, message: UNCONFIRMED } : { ok: false, code: 'error', message: 'The character could not be saved. Nothing was changed.' };
+          }
           finally { saving = false; button.removeAttribute('aria-busy'); }
+          if (preparation && isUnconfirmed(outcome)) held = { preparation, purpose, target: targetRef }; else held = null;
           if (stale(born)) { if (!h.closed) h.close(); return; } // the vault or the session changed meanwhile: no toast, no follow-up, nothing drawn (the store already refused or finished by its own checks)
-          if (!outcome.ok) { refresh(); status.textContent = outcome.message; return; } // the proposal stays open for another try
+          if (!outcome.ok) { refresh(); status.textContent = outcome.message; return; } // the proposal stays open for another try (an unconfirmed one retries the SAME save)
           h.close();
           showToast(outcome.status === 'updated' || outcome.status === 'already-applied' ? '“' + candidate.preview.name + '” updated.' : '“' + candidate.preview.name + '” saved. It is not used in any chat yet.');
           after?.();
@@ -379,8 +394,17 @@ export function createCharactersUi(host) {
     const say = (text) => { const s = root.querySelector('.char-status'); if (s) s.textContent = text; else showToast(text); };
     async function copy(r) {
       if (stale(born)) return;
-      const prepared = await store.prepare({ purpose: 'copy', source: { individualId: r.individualId, recordVersion: r.recordVersion } });
-      const out = prepared.ok ? await store.commit(prepared.preparation, { fence: () => stale(born) }) : prepared;
+      const copyKey = r.individualId + '@' + r.recordVersion;
+      let again = pendingCopies.get(copyKey); if (again && stale(again.born)) { pendingCopies.delete(copyKey); again = null; }
+      let preparation = again ? again.preparation : null; let out;
+      try {
+        if (!preparation) {
+          const prepared = await store.prepare({ purpose: 'copy', source: { individualId: r.individualId, recordVersion: r.recordVersion } });
+          if (prepared.ok) preparation = prepared.preparation; else out = prepared;
+        }
+        if (preparation) out = await store.commit(preparation, { fence: () => stale(born) });
+      } catch { out = preparation ? { ok: false, code: 'unconfirmed', unconfirmed: true, message: UNCONFIRMED } : { ok: false, code: 'error', message: 'The copy could not be made. Nothing was changed.' }; }
+      if (preparation && isUnconfirmed(out)) pendingCopies.set(copyKey, { preparation, born }); else pendingCopies.delete(copyKey);
       if (stale(born) || handle.closed) return; // locked or changed session meanwhile: draw nothing
       render();
       if (!out.ok) { say(out.message); return; }

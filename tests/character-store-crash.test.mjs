@@ -37,6 +37,7 @@ import { fileURLToPath } from 'node:url';
 import { webcrypto } from 'node:crypto';
 import { startBroker } from './helpers/preset-crash-broker.mjs';
 import { createCharacterStore, createMemoryStorage, createMemoryLocks, checkStoredRecord } from '../chat/characters/character-store.mjs';
+import { plainWriteScope } from './helpers/character-write-scope.mjs'; // contract-only provided scope for the persistent store (this file tests other contracts)
 
 const ACTOR = fileURLToPath(new URL('./helpers/character-crash-actor.mjs', import.meta.url));
 const REPEATS = Number(process.env.PLC_CRASH_REPEATS || 20);
@@ -54,7 +55,7 @@ const fixture = (name) => fs.readFileSync(new URL(`./fixtures/characters/example
 // ---- the seed: three real, valid records made by the real store ----
 const seed = await (async () => {
   const storage = createMemoryStorage();
-  const store = createCharacterStore({ storage, key: CHARACTER_STORE_KEY, locks: createMemoryLocks(), crypto: webcrypto });
+  const store = createCharacterStore({ storage, key: CHARACTER_STORE_KEY, locks: createMemoryLocks(), crypto: webcrypto, runWriteScope: plainWriteScope(storage) });
   const ids = {};
   for (const [role, pkg] of [['edit', 'neri'], ['keep', 'bex'], ['remove', 'minimal']]) {
     const p = await store.prepare({ text: fixture(pkg) });

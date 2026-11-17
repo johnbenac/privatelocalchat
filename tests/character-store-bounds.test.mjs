@@ -5,6 +5,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { webcrypto } from 'node:crypto';
 import { createCharacterStore, createTemporaryCharacterStore, createMemoryStorage, createMemoryLocks, CHARACTER_STORE_LIMITS } from '../chat/characters/character-store.mjs';
+import { plainWriteScope } from './helpers/character-write-scope.mjs'; // contract-only provided scope for the persistent store (this file tests other contracts)
 import { reopenCharacterSource, bundleTextFromSource, checkSourceBounds } from '../chat/characters/character-package.mjs';
 
 const fx = new URL('./fixtures/characters/', import.meta.url);
@@ -12,7 +13,7 @@ const bundle = (n) => readFileSync(new URL(`examples/${n}.bundle.json`, fx), 'ut
 const KEY = 'plc.characters.v1';
 const persistent = (extra = {}) => {
   const storage = createMemoryStorage();
-  const store = createCharacterStore({ storage, key: KEY, locks: createMemoryLocks(), crypto: webcrypto, ...extra });
+  const store = createCharacterStore({ storage, key: KEY, locks: createMemoryLocks(), crypto: webcrypto, runWriteScope: plainWriteScope(storage), ...extra });
   return { storage, store };
 };
 const admit = async (store, name = 'minimal') => {
@@ -88,7 +89,7 @@ test('the lock is rechecked inside the shared write lock, after the work was que
   const holder = store.constructor === Object ? null : null; void holder;
   // take the same lock first so the commit queues behind it
   const locks = createMemoryLocks();
-  const s2 = createCharacterStore({ storage, key: KEY, locks, crypto: webcrypto, isLocked: () => locked });
+  const s2 = createCharacterStore({ storage, key: KEY, locks, crypto: webcrypto, runWriteScope: plainWriteScope(storage), isLocked: () => locked });
   const p2 = await s2.prepare({ text: bundle('neri') });
   const hold = locks.request('plc-characters', {}, () => gate);
   const queued = s2.commit(p2.preparation);

@@ -6,6 +6,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createHash, webcrypto } from 'node:crypto';
 import { createCharacterStore, createTemporaryCharacterStore, createMemoryStorage, createMemoryLocks, checkStoredRecord, CHARACTER_STORE_LIMITS, CHARACTER_LOCK_NAME } from '../chat/characters/character-store.mjs';
+import { plainWriteScope } from './helpers/character-write-scope.mjs'; // contract-only provided scope for the persistent store (this file tests other contracts)
 import { encodeCharacterFragment } from '../chat/characters/character-package.mjs';
 import { openAuthored, exportAuthored } from '../chat/characters/vendor/t415/contracts/authored-profiles/authored.mjs';
 
@@ -17,7 +18,7 @@ const KEY = 'plc.characters.v1'; // the key the following wiring phase will own 
 function newStore(options = {}) {
   const storage = options.storage || createMemoryStorage();
   const locks = options.locks === undefined ? createMemoryLocks() : options.locks;
-  const store = createCharacterStore({ storage, key: KEY, locks, crypto: webcrypto, now: (() => { let t = 1000; return () => ++t; })(), ...options.extra });
+  const store = createCharacterStore({ storage, key: KEY, locks, crypto: webcrypto, runWriteScope: plainWriteScope(storage), now: (() => { let t = 1000; return () => ++t; })(), ...options.extra });
   return { storage, locks, store };
 }
 async function admit(store, text, extra = {}) {
@@ -99,7 +100,8 @@ test('fresh and copy identity: a new opaque reference each time, from the inject
   for (const claim of [rec.design.designId, rec.subject.id, rec.source.root, rec.preview.name, rec.design.sourceCandidateId]) assert.ok(claim && !a.includes(claim), 'reference does not contain ' + claim);
   // a crypto that returns known values: the reference is exactly that, so nothing from the package can be part of it
   let n = 0; const fake = { ...webcrypto, subtle: webcrypto.subtle, randomUUID: () => 'fixed-' + String(++n).padStart(4, '0') + '-aaaaaaaa' };
-  const seeded = createCharacterStore({ storage: createMemoryStorage(), key: KEY, locks: createMemoryLocks(), crypto: fake });
+  const seededStorage = createMemoryStorage();
+  const seeded = createCharacterStore({ storage: seededStorage, key: KEY, locks: createMemoryLocks(), crypto: fake, runWriteScope: plainWriteScope(seededStorage) });
   const p = await seeded.prepare({ text: bundle('bex') });
   const c = await seeded.commit(p.preparation);
   assert.match(c.individualId, /^individual:fixed-\d{4}-aaaaaaaa$/);

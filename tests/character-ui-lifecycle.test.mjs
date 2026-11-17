@@ -9,6 +9,7 @@ import { createHash, webcrypto } from 'node:crypto';
 import { createEvents } from '../chat/events.mjs';
 import { createMemoryLocks } from '../chat/characters/character-store.mjs';
 import { createCharactersUi } from '../chat/characters/characters-ui.mjs';
+import { plainWriteScope, realKvBackend } from './helpers/character-write-scope.mjs'; // contract-only provided scope; the encrypted real-KV cases are in character-durable-receipts.test.mjs
 import { openAuthored, exportAuthored } from '../chat/characters/vendor/t415/contracts/authored-profiles/authored.mjs';
 
 const fx = new URL('./fixtures/characters/', import.meta.url);
@@ -57,7 +58,7 @@ const until = async (condition, what, ms = 10000) => { const end = Date.now() + 
 const yieldTurns = async (n = 3) => { for (let i = 0; i < n; i++) await new Promise((r) => setImmediate(r)); };
 const el = (tag, cls, text) => { const n = new Node_(tag); if (cls) n.className = cls; if (text !== undefined) n._text = String(text); return n; };
 
-function build({ vaultActive = true, temporary = false, threadId = 't1' } = {}) {
+function build({ vaultActive = true, temporary = false, threadId = 't1', backend = null } = {}) {
   const page = installPage();
   const events = createEvents(); const vault = { active: vaultActive, readOnly: false };
   const thread = { id: threadId, temporary };
@@ -78,8 +79,11 @@ function build({ vaultActive = true, temporary = false, threadId = 't1' } = {}) 
     try { return await webcrypto.subtle.digest(...a); } finally { held.running--; }
   } };
   const crypto = { subtle, getRandomValues: (a) => webcrypto.getRandomValues(a), randomUUID: () => webcrypto.randomUUID() };
-  const backing = new Map(); const storage = { getItem: (k) => (backing.has(k) ? backing.get(k) : null), setItem: (k, v) => { backing.set(k, String(v)); }, removeItem: (k) => { backing.delete(k); } };
-  const ui = createCharactersUi({ el, openAppDialog, showToast: (t) => toasts.push(t), events, storage, vault, crypto, currentThread: () => thread, alert: async (t, m) => { alerts.push({ t, m }); }, confirm: async () => true, location: { hash: '' } });
+  const backing = new Map(); const storage = backend
+    // the real encrypted KV case: display reads come from the live session state (the supplied display contract); writes only ever go through the injected write scope
+    ? { getItem: (k) => backend.app.local.getItem(k) ?? backend.mirrorStorage.getItem(k), setItem() { throw new Error('the controller must not write through the mirror'); }, removeItem() { throw new Error('the controller must not remove through the mirror'); } }
+    : { getItem: (k) => (backing.has(k) ? backing.get(k) : null), setItem: (k, v) => { backing.set(k, String(v)); }, removeItem: (k) => { backing.delete(k); } };
+  const ui = createCharactersUi({ el, openAppDialog, showToast: (t) => toasts.push(t), events, storage, runWriteScope: backend ? backend.runWriteScope : plainWriteScope(storage), vault, crypto, currentThread: () => thread, alert: async (t, m) => { alerts.push({ t, m }); }, confirm: async () => true, location: { hash: '' } });
   const lock = (info) => { vault.active = false; events.emit('vault:locked', info); };
   const unlock = () => { vault.active = true; events.emit('vault:unlocked', {}); };
   const pick = async (text, size = text.length) => { const input = page.body.all((n) => n.tag === 'input' && n.attrs['aria-label'] === 'Character package file').at(-1); input.files = [{ size, text: async () => text }]; await input.fire('change'); return input; };
@@ -333,4 +337,59 @@ test('the exact reported order: Review, Save prepare held on the real digest, te
     assert.equal(c.stored(), null, 'no persistent character data');
     assert.equal(c.alerts.length, 0); assert.equal(c.toasts.length, 0);
   } finally { c.page.restore(); }
+});
+
+// ---- durable receipts through the actual controller (DOM stand-in, actual encrypted KV backend; no host or browser claim) ----
+test('Review Save whose reply is lost: nothing is called saved, and Try again reconciles the SAME admission (one character)', async () => {
+  const backend = await realKvBackend(); const c = build({ backend });
+  try {
+    c.ui.chooseFile(); await c.pick(bundle('minimal')); await c.settle();
+    const review = c.open()[0]; const status = () => review.root.querySelector('.char-status').textContent;
+    backend.control.dropNext = 1;
+    await review.pressPrimary(); await c.settle();
+    assert.equal(review.closed, false, 'the proposal stays open'); assert.equal(c.toasts.length, 0, 'no saved toast');
+    assert.match(status(), /could not be confirmed/); assert.doesNotMatch(status(), /Nothing was changed/);
+    const once = JSON.parse(await backend.replay()); assert.equal(once.records.length, 1, 'the append really became durable');
+    const button = review.root.all((n) => n.tag === 'button' && n.action?.primary)[0]; assert.equal(button.textContent, 'Try the same save again');
+    await backend.reload(); // the session that lost the reply is re-opened (cold)
+    await review.pressPrimary(); await c.settle();
+    assert.equal(review.closed, true); assert.equal(c.toasts.length, 1); assert.match(c.toasts[0], /saved/);
+    const after = JSON.parse(await backend.replay());
+    assert.equal(after.records.length, 1, 'still ONE character: the retry did not prepare a new admission'); assert.deepEqual(after.records[0].admissions, once.records[0].admissions); assert.equal(after.revision, 1);
+    assert.equal(after.records[0].individualId, once.records[0].individualId);
+  } finally { c.page.restore(); }
+});
+
+test('Make a copy whose reply is lost: the second click reconciles the SAME copy (one added character)', async () => {
+  const backend = await realKvBackend(); const c = build({ backend });
+  try {
+    c.ui.chooseFile(); await c.pick(bundle('minimal')); await c.settle(); await c.open()[0].pressPrimary(); await c.settle();
+    assert.equal(JSON.parse(await backend.replay()).records.length, 1);
+    c.ui.openLibrary(); const list = c.open().at(-1); const copyButton = () => list.root.all((n) => n.tag === 'button' && n.textContent === 'Make a copy')[0];
+    backend.control.dropNext = 1;
+    await copyButton().listeners.click[0](); await c.settle();
+    const say = () => list.root.querySelector('.char-status')?.textContent ?? '';
+    assert.match(say(), /could not be confirmed/); assert.doesNotMatch(say(), /Copied/);
+    assert.equal(JSON.parse(await backend.replay()).records.length, 2, 'the copy became durable');
+    await backend.reload();
+    await copyButton().listeners.click[0](); await c.settle();
+    assert.match(say(), /Copied/);
+    const after = JSON.parse(await backend.replay()); assert.equal(after.records.length, 2, 'the retry added nothing: same copy identity'); assert.equal(new Set(after.records.map((r) => r.individualId)).size, 2);
+  } finally { c.page.restore(); }
+});
+
+test('without the durable capability the controller says saving is unavailable, writes nothing, and import preview still works', async () => {
+  const page = installPage(); // the page stand-in with NO host.runWriteScope
+  try {
+    const events = createEvents(); const dialogs = []; const toasts = []; const backing = new Map();
+    const storage = { getItem: (k) => (backing.has(k) ? backing.get(k) : null), setItem: (k, v) => { backing.set(k, String(v)); }, removeItem: (k) => { backing.delete(k); } };
+    const openAppDialog = ({ title, content, actions = [] }) => { const root = el('div', 'app-dialog'); const bar = el('div', 'dialog-actions'); root.append(content, bar); const handle = { root, title, closed: false, close() { if (handle.closed) return; handle.closed = true; handle.onClose?.(); } }; for (const a of actions) { const b = el('button', a.primary ? 'primary' : '', a.label); b.action = a; bar.append(b); } handle.pressPrimary = async () => { const b = bar.children.find((x) => x.action.primary); await b.action.run?.(handle, b); }; dialogs.push(handle); return handle; };
+    const ui = createCharactersUi({ el, openAppDialog, showToast: (t) => toasts.push(t), events, storage, vault: { active: true, readOnly: false }, crypto: webcrypto, currentThread: () => ({ id: 't1', temporary: false }), alert: async () => {}, confirm: async () => true, location: { hash: '' } });
+    ui.chooseFile();
+    const input = page.body.all((n) => n.tag === 'input' && n.attrs['aria-label'] === 'Character package file').at(-1); input.files = [{ size: bundle('minimal').length, text: async () => bundle('minimal') }]; await input.fire('change'); await yieldTurns(10);
+    const review = dialogs.at(-1); assert.equal(review.title, 'Review character', 'preview still opens');
+    assert.match(review.root.querySelector('.char-status').textContent, /not available here yet/);
+    await review.pressPrimary(); await yieldTurns(5);
+    assert.equal(backing.size, 0, 'nothing written'); assert.equal(toasts.length, 0);
+  } finally { page.restore(); }
 });

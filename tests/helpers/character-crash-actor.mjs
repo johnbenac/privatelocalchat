@@ -16,6 +16,7 @@ import fs from 'node:fs';
 import readline from 'node:readline';
 import { webcrypto } from 'node:crypto';
 import { createCharacterStore } from '../../chat/characters/character-store.mjs';
+import { plainWriteScope } from './character-write-scope.mjs'; // contract-only provided scope over the file storage; no compare-and-set, so the no-lock controls still lose updates
 
 const cfg = JSON.parse(process.argv[2]);
 const CHARACTER_STORE_KEY = 'plc.characters.v1'; // the key the following wiring phase will own and classify
@@ -83,7 +84,7 @@ function brokerLocks(socketPath) {
 }
 const noLocks = { request: async (name, options, callback) => { held = true; readsInLock = 0; try { return await callback(); } finally { held = false; } } };
 
-const store = createCharacterStore({ storage: fileStorage, key: CHARACTER_STORE_KEY, locks: cfg.locks === 'none' ? noLocks : brokerLocks(cfg.socket), crypto: webcrypto, waitMs: cfg.waitMs ?? 60000 });
+const store = createCharacterStore({ storage: fileStorage, key: CHARACTER_STORE_KEY, runWriteScope: plainWriteScope(fileStorage, { cas: false }), locks: cfg.locks === 'none' ? noLocks : brokerLocks(cfg.socket), crypto: webcrypto, waitMs: cfg.waitMs ?? 60000 });
 const op = cfg.op;
 let prepared = null;
 
