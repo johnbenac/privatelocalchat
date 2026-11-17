@@ -109,7 +109,8 @@ plc:
 [[what-this-project-is]] — Private Local Chat's Cosmoshot role, browser implementation, self-hosted app and separate site-layer boundary.
 [[encrypted-derived-record-deletion]] — Preserve per-chat cryptographic deletion for derived encounter text and recovery journals; private T418 finding and evidence.
 [[preset-import-and-standalone-qualification]] — Checked T465/T34/T519 delivery, evidence limits, and unfinished bounded T222/T418 orchestration.
-[3/3 entries shown; cosmo-mem read plc _index.md]
+[[plc-refactor-winddown-20261117]] — User-requested wind-down: split objectives, accepted private component, incomplete core checkpoint and exact continuation gates.
+[4/4 entries shown; cosmo-mem read plc _index.md]
 
 program:
 [[what-this-project-is]] — What Cosmoshot is and the near-term objectives for it.
@@ -120,8 +121,7 @@ program:
 [[sonalon-phase-evidence-location]] — The host directory for Sonalon browser-study evidence and the phase-five record pointers.
 [[any-one-lane-is-enough]] — The standing bar that any one of Claude Code, Codex or opencode on the local router must be able to run Cosmoshot, and the routing-policy mechanism that chooses lanes.
 [[development-infrastructure-scope]] — Scope and ownership of the shared developer foundation; read before expanding infrastructure into application or commercial design.
-[[homelab-compute-autonomy]] — Use authorized homelab capacity without invented cash budgets, low core caps or repeat owner approvals.
-[9/17 entries shown; cosmo-mem read program _index.md]
+[8/18 entries shown; cosmo-mem read program _index.md]
 ```
 
 
