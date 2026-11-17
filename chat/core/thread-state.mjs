@@ -6,7 +6,7 @@
 //
 // host: s (threads, currentThreadId, generationBusy, gen as get / set), M(), drafts(), and the page capabilities named in the destructure below
 import { appLocal } from "../vault/vault-store.mjs";
-import { outcomeOf, sentence } from "../encounters/save-outcome.mjs";
+import { outcomeOf, sentence, warningSentence } from "../encounters/save-outcome.mjs";
 
 export function createThreadState(host) {
   const { threadTitleInput, systemPromptInput, messageInput, readJson, writeJson, showToast, THREAD_KEY, ACTIVE_THREAD_KEY, provider, sendBtn, chatNotice, updateModeBadge, messageForm, closeThreadMenu, persistDraftNow, growComposer, events, closeSidebar, promptDialog, messagesView, renderThreadList } = host;
@@ -48,6 +48,7 @@ export function createThreadState(host) {
     else { const ok = writeJson(appLocal, THREAD_KEY, s.threads.filter(t => !t.temporary)); result = ok ? { ok: true, conflicts: [] } : { ok: false, code: 'threads-write-failed', message: 'This browser could not save your chats.' }; }
     const outcome = outcomeOf(result, ids);
     if (!outcome.saved) tellNotSaved(sentence(outcome, what));
+    else { const partial = warningSentence(outcome); if (partial) tellNotSaved(partial); }   // stored, but its records are incomplete: said plainly, the text is never restored or resent
     return outcome;
   }
   async function saveThreads(ids = null) { return (await persist(ids)).saved; }

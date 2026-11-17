@@ -115,12 +115,12 @@ export function createThreadCommit({ storage, store, key = 'chatThreads', active
         const thread = tabThreads.find((t) => t.id === p.thread);
         if (!thread || !thread.messages.some((m) => m.id === mid)) { hints.planned.delete(mid); continue; }
         const drop = () => { thread.messages.splice(thread.messages.findIndex((m) => m.id === mid), 1); hints.planned.delete(mid); };
-        if (!scratch) { result.refused.push({ message: mid, thread: p.thread, code: 'attribution-unavailable', detail: 'The saved conversation records were made by a newer version of the app, so an attributed message cannot be recorded here.' }); drop(); continue; }
+        if (!scratch) { result.refused.push({ message: mid, thread: p.thread, code: 'attribution-unavailable', dropped: true, detail: 'The saved conversation records were made by a newer version of the app, so an attributed message cannot be recorded here.' }); drop(); continue; }
         const e = ensureEncounter(scratch, p.thread, now());
         p.eventId = p.eventId || 'ev:' + newUuid();     // the same id in this check and in the real record below, so a same-commit replay can name the original
         const r = e.ok ? recordEvent(scratch, { id: p.eventId, thread: p.thread, speaker: p.spec.speaker, expression: p.spec.expression, modality: p.spec.modality, standing: p.spec.standing || 'reported', text: p.spec.text, occurrence: p.spec.occurrence,
           audience: p.spec.audience, outcome: p.spec.outcome || 'received', derivedFrom: p.spec.derivedFrom, corrects: p.spec.corrects, clock: p.spec.clock, message: mid }, now()) : e;
-        if (!r.ok) { result.refused.push({ message: mid, thread: p.thread, code: r.code, detail: r.message }); drop(); }
+        if (!r.ok) { result.refused.push({ message: mid, thread: p.thread, code: r.code, dropped: true, detail: r.message }); drop(); }
         else if (r.duplicate) { result.duplicates.push({ message: mid, thread: p.thread, event: clone(r.event) }); drop(); }
       }
     }

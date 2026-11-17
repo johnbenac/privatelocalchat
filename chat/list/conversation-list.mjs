@@ -88,8 +88,26 @@ export function createConversationList(host) {
     menuItem(menu, '📝', 'Project instructions', async () => { const f = folders.find(x => x.id === folderId); const n = await promptDialog('Project instructions', 'Added to the instructions of every chat in this project', f.instructions || '', { multiline: true }); if (n !== null) { f.instructions = n.trim(); saveFolders(); showToast('Project instructions saved'); } });
     menuItem(menu, '🗑️', 'Delete project (keeps its chats)', async () => {
       if (!await confirmDialog('Delete project?', 'The chats inside stay in your list; only the grouping and its instructions are removed.', 'Delete project', { danger: true })) return;
-      folders = folders.filter(x => x.id !== folderId); host.threads().forEach(t => { if (t.folderId === folderId) delete t.folderId; });
-      saveFolders(); const o = await saveThreads(); if (!o) { folders.push({ id: folderId, name: '', instructions: '' }); host.threads().forEach(t => { if (t.folderId === folderId) t.folderId = folderId; }); } renderThreadList();
+      const folder = folders.find(x => x.id === folderId); if (!folder) return;
+      // Two stores, no shared transaction: the chats' references are saved first (through the one commit) and the folder is removed only after they are durable. The folder object is never
+      // rebuilt or written before that, so a refusal leaves its real name, instructions and unknown fields exactly as they were; the chats' exact folderId values are the before-images.
+      const members = host.threads().filter(t => t.folderId === folderId);
+      const before = new Map(members.map(t => [t.id, keepFields(t, ['folderId'])]));
+      members.forEach(t => { delete t.folderId; });
+      let o = { saved: true, ok: true, conflicts: [] };
+      if (members.length) { try { o = await persist(members.map(t => t.id), 'The project was not deleted'); } catch { o = { saved: false, ok: false, conflicts: [] }; } }
+      // a chat whose own change was not stored goes back in this tab (only its folderId); a chat that was stored stays out of the project
+      const refused = members.filter(t => !o.ok || (o.conflicts || []).some(c => c.thread === t.id));
+      refused.forEach(t => { if (t.folderId === undefined) before.get(t.id)(); });
+      if (refused.length) {
+        if (refused.length < members.length) showToast((members.length - refused.length) + ' chat(s) left the project; ' + refused.length + ' could not be changed (changed in another tab), so the project was kept.', 9000);
+        renderThreadList(); return;
+      }
+      const at = folders.indexOf(folder);
+      folders = folders.filter(x => x !== folder);
+      let wrote = false; try { wrote = saveFolders() !== false; } catch { wrote = false; }
+      if (!wrote) { folders.splice(Math.min(at, folders.length), 0, folder); showToast('The chats were taken out of the project, but the project itself could not be removed (storage). It is still listed, now empty; its name and instructions are unchanged.', 9000); }
+      renderThreadList();
     }, 'delete');
     placeMenu(menu, anchor);
   }
@@ -105,7 +123,14 @@ export function createConversationList(host) {
     folders.forEach(f => sel.appendChild(new Option(f.name, f.id))); sel.value = thread.folderId || '';
     const label = el('label', null, 'Project'); label.htmlFor = 'folderPick';
     const wrap = el('div'); wrap.append(label, sel);
-    openAppDialog({ title: 'Move chat to a project', content: wrap, actions: [{ label: 'Cancel' }, { label: 'Move', primary: true, run: async () => { if (sel.value) thread.folderId = sel.value; else delete thread.folderId; const o = await persist(threadId, 'The move was not saved'); if (!o.saved) { const back = keepFields(thread, ['folderId']); back(); } renderThreadList(); } }] });
+    openAppDialog({ title: 'Move chat to a project', content: wrap, actions: [{ label: 'Cancel' }, { label: 'Move', primary: true, run: async () => {
+      // the exact before-image is taken BEFORE the change; a refused move puts back only this field, and only if nothing else moved it meanwhile
+      const back = keepFields(thread, ['folderId']), target = sel.value;
+      if (target) thread.folderId = target; else delete thread.folderId;
+      let o; try { o = await persist(threadId, 'The move was not saved'); } catch { o = { saved: false }; }
+      if (!o.saved && (thread.folderId || '') === target) back();
+      renderThreadList();
+    } }] });
   }
 
   events.on('context:collect', async thread => ({ preamble: [selectedFolderInstructions(thread)] }));

@@ -228,10 +228,10 @@ export function createSender(host) {
         messageInput.focus();
         return;
       }
-      // stored: now (and only now) the composer lets go of the words that were sent. Typing added meanwhile stays; if the person replaced the text, theirs stays whole.
+      // stored: now (and only now) the composer lets go of the words that were sent, and only if it is still exactly what was sent. A composer that changed while the save was awaited
+      // (appended to, or Select All and replaced) is the person's newer text: it stays WHOLE. An equal prefix is not proof of what the person did, so nothing is sliced off it.
       if (thread.id === host.currentThreadId()) {            // (the person may have opened another chat meanwhile: that chat's composer is not ours to touch)
         if (messageInput.value === typed) messageInput.value = '';
-        else if (messageInput.value.startsWith(typed)) messageInput.value = messageInput.value.slice(typed.length);
         growComposer();
         persistDraftNow(thread.id);
       }
@@ -328,6 +328,7 @@ export function createSender(host) {
     });
   }
 
+  const changing = new Set();     // messages whose version / context change is being stored
   async function handleMessageAction(action, id, btn, node) {
     const thread = currentThread();
     if (!thread) return;
@@ -348,12 +349,28 @@ export function createSender(host) {
       case 'retry': if (!g.gen) runReply(thread.id, { mode: 'retry', message: msg }); break;
       case 'continue': if (!g.gen) runReply(thread.id, { mode: 'continue', message: msg }); break;
       case 'prev-version': case 'next-version':
-        if (host.M().model.selectVersion(msg, msg.versionIndex + (action === 'next-version' ? 1 : -1))) { messagesView.renderMessages(thread, { keepScroll: true }); const o = await persist(thread.id, 'The chosen version was not saved'); if (!o.saved) messagesView.renderMessages(thread, { keepScroll: true }); }
+        if (changing.has(msg.id)) break;                               // one change per message at a time: a second press while the first is being stored does nothing
+        { const was = JSON.parse(JSON.stringify(msg));                 // the exact before-image of the message, taken before the selection
+          if (host.M().model.selectVersion(msg, msg.versionIndex + (action === 'next-version' ? 1 : -1))) {
+            changing.add(msg.id); const chosen = msg.versionIndex;
+            messagesView.renderMessages(thread, { keepScroll: true });
+            let o; try { o = await persist(thread.id, 'The chosen version was not saved'); } catch { o = { saved: false }; } finally { changing.delete(msg.id); }
+            // a refused selection is taken back in this tab (never written); only if the message is still on the version this press chose (otherwise newer work is not overwritten)
+            if (!o.saved && msg.versionIndex === chosen && !g.gen) { for (const k of Object.keys(msg)) delete msg[k]; Object.assign(msg, was); }
+            if (!o.saved) messagesView.renderMessages(thread, { keepScroll: true });
+          } }
         break;
-      case 'toggle-context':
-        msg.excluded = !msg.excluded; if (!msg.excluded) delete msg.excluded;
-        messagesView.renderMessages(thread, { keepScroll: true }); const o2 = await persist(thread.id, 'The change was not saved'); if (!o2.saved) { msg.excluded = !msg.excluded; if (!msg.excluded) delete msg.excluded; messagesView.renderMessages(thread, { keepScroll: true }); }
+      case 'toggle-context': {
+        if (changing.has(msg.id)) break;
+        const wasExcluded = Boolean(msg.excluded);
+        if (wasExcluded) delete msg.excluded; else msg.excluded = true;
+        const toggled = Boolean(msg.excluded);
+        changing.add(msg.id);
+        messagesView.renderMessages(thread, { keepScroll: true });
+        let o2; try { o2 = await persist(thread.id, 'The change was not saved'); } catch { o2 = { saved: false }; } finally { changing.delete(msg.id); }
+        if (!o2.saved) { if (Boolean(msg.excluded) === toggled) { if (wasExcluded) msg.excluded = true; else delete msg.excluded; } messagesView.renderMessages(thread, { keepScroll: true }); }
         break;
+      }
       default: if (messageActionHandlers[action]) await messageActionHandlers[action](thread, msg, btn, node);
     }
   }
