@@ -268,6 +268,9 @@
   "jackpordi.com": [
    "runtime/providers/vendor/webllm/web-llm-0.2.86.js"
   ],
+  "json-schema.org": [
+   "chat/characters/vendor/t415/site/src/core/content-schema.mjs"
+  ],
   "localhost": [
    "runtime/providers/vendor/wllama/v1q/wllama.js"
   ],

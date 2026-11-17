@@ -8,7 +8,7 @@
   "SOURCE_DATE_EPOCH": "0",
   "SITE_DIR": ""
  },
- "fileCount": 204,
+ "fileCount": 214,
  "files": {
   "404.html": {
    "bytes": 101,
@@ -129,6 +129,46 @@
   "releases/0000000000000000000000000000000000000000/chat/call/call.mjs": {
    "bytes": 29066,
    "sha256": "99d214271430536a391bd77af8827f58ddd6b269188b2de21964a6d4bc9f9805"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/characters/character-package.mjs": {
+   "bytes": 17599,
+   "sha256": "bfaffc276ecde3b9797c8918365ad1ae1d0b5637e8c88f57a908d5d914992524"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/characters/vendor/t415/SOURCE.json": {
+   "bytes": 4469,
+   "sha256": "e3fb481d86b1e7ad7286cf29c191143a70c1fa0c687a27f68d94614aadc9b2e6"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/characters/vendor/t415/contracts/authored-profiles/authored.mjs": {
+   "bytes": 20688,
+   "sha256": "f3a77912d94b9ab5ce5e9b4924ceeae44c8ba8ef453f57f092901b62d35d9d98"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/characters/vendor/t415/contracts/authored-profiles/definitions.mjs": {
+   "bytes": 18542,
+   "sha256": "be5323bae64f7b10b6fd555781b08379cb0741b8bc4b86cf1555ec23c0691596"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/characters/vendor/t415/contracts/authored-profiles/receiving-definitions.mjs": {
+   "bytes": 7305,
+   "sha256": "620675c69ce4695faa3f73208629d189a7da1620ec933816e9b987d1f57627fd"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/characters/vendor/t415/site/src/core/bundles.mjs": {
+   "bytes": 28510,
+   "sha256": "37657e9715eee022f9adf4e7ccccdea5540676512e2ec77111ffa99d9c4c04fd"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/characters/vendor/t415/site/src/core/consumer-projections.mjs": {
+   "bytes": 16246,
+   "sha256": "3badd9da413d1baceeca2a629f414504fe6241581a1eeb57715f191e19a3dba8"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/characters/vendor/t415/site/src/core/content-schema.mjs": {
+   "bytes": 8941,
+   "sha256": "8139ead9c6b0dac49bfa1c8ba53f8d215ed8dc3034e351f45fe5a0bb75018ddd"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/characters/vendor/t415/site/src/core/content.mjs": {
+   "bytes": 34994,
+   "sha256": "9a6e1aeb1d579204394d29d0a4dc5631ab212838384a69cb6596c6205ffa8090"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/characters/vendor/t415/site/src/core/providers.mjs": {
+   "bytes": 17447,
+   "sha256": "da2e5349e563530ac7fe334b4563449ca719de7c2e52262202fd8663b6049f59"
   },
   "releases/0000000000000000000000000000000000000000/chat/chat.css": {
    "bytes": 16177,
@@ -615,8 +655,8 @@
    "sha256": "c5772e879f6bc50dadfcfbd55a1044748652fb18da69ca50978546dcb0c67b63"
   },
   "releases/0000000000000000000000000000000000000000/release.json": {
-   "bytes": 27067,
-   "sha256": "a15c9fbea8368cd92c5b0c91e21c5d42db694c33d8ac35327b47e8428ab950a1"
+   "bytes": 28877,
+   "sha256": "0a7e4c5ea1b8d83a36e073f240c8340b95acbbcb54951e71ba33f1a7f215868d"
   },
   "releases/0000000000000000000000000000000000000000/runtime/auto-load.mjs": {
    "bytes": 565,
@@ -819,8 +859,8 @@
    "sha256": "802e46c9e6bf5a295ed08ff9debdd12d3d5c3b6f16d898ffac0ed6a7b40b06f4"
   },
   "sw.js": {
-   "bytes": 20428,
-   "sha256": "dcd9bf0a01c194b0b3d6ec14ddc5a558d2e18282e09b03fc39908a59d3b27071"
+   "bytes": 21551,
+   "sha256": "d0cdd8af814cfa6866fca87ced415d2cf4f8ae2a85d31831e7b6a1ee7bf783aa"
   },
   "version.json": {
    "bytes": 170,

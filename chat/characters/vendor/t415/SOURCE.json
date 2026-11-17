@@ -1,0 +1,113 @@
+{
+ "source": "t415 checkout",
+ "sourceCommit": "de5e9231730cc2b0d3a6725d006a5d3d48878fd0",
+ "license": "No licence file in source repository; fixture resources CC0-1.0 per resources/NOTICE.md; vendored modules are unmodified first-party Cosmogenitor code copied byte-exact under the programme owner.",
+ "vendored": {
+  "contracts/authored-profiles/authored.mjs": {
+   "sha256": "f3a77912d94b9ab5ce5e9b4924ceeae44c8ba8ef453f57f092901b62d35d9d98",
+   "bytes": 20688
+  },
+  "contracts/authored-profiles/definitions.mjs": {
+   "sha256": "be5323bae64f7b10b6fd555781b08379cb0741b8bc4b86cf1555ec23c0691596",
+   "bytes": 18542
+  },
+  "contracts/authored-profiles/receiving-definitions.mjs": {
+   "sha256": "620675c69ce4695faa3f73208629d189a7da1620ec933816e9b987d1f57627fd",
+   "bytes": 7305
+  },
+  "site/src/core/bundles.mjs": {
+   "sha256": "37657e9715eee022f9adf4e7ccccdea5540676512e2ec77111ffa99d9c4c04fd",
+   "bytes": 28510
+  },
+  "site/src/core/consumer-projections.mjs": {
+   "sha256": "3badd9da413d1baceeca2a629f414504fe6241581a1eeb57715f191e19a3dba8",
+   "bytes": 16246
+  },
+  "site/src/core/content-schema.mjs": {
+   "sha256": "8139ead9c6b0dac49bfa1c8ba53f8d215ed8dc3034e351f45fe5a0bb75018ddd",
+   "bytes": 8941
+  },
+  "site/src/core/content.mjs": {
+   "sha256": "9a6e1aeb1d579204394d29d0a4dc5631ab212838384a69cb6596c6205ffa8090",
+   "bytes": 34994
+  },
+  "site/src/core/providers.mjs": {
+   "sha256": "da2e5349e563530ac7fe334b4563449ca719de7c2e52262202fd8663b6049f59",
+   "bytes": 17447
+  }
+ },
+ "fixtures": {
+  "contracts/authored-profiles/examples/minimal.bundle.json": {
+   "sha256": "0769c719f6ef185a65e5841e3f7bb3f8531d7fc6a8c2924810fc54605e779c0c",
+   "bytes": 30180
+  },
+  "contracts/authored-profiles/examples/minimal.content.json": {
+   "sha256": "779c3ddf3a98dfccd275fd6da1a17e3e12062e1a943c0dbd5f60948dafb26bac",
+   "bytes": 179
+  },
+  "contracts/authored-profiles/examples/neri.bundle.json": {
+   "sha256": "df37908b51fe998ea9be4bd58bdee453248e2cb6d73a12deb33a795010f63576",
+   "bytes": 63449
+  },
+  "contracts/authored-profiles/examples/neri.content.json": {
+   "sha256": "d1342399050d0ff523dc6c97534c26c3669190773af2b01f1c6f0475f082aa47",
+   "bytes": 8727
+  },
+  "contracts/authored-profiles/examples/bex.bundle.json": {
+   "sha256": "96090b1ae3ba3fb717fed5de4529d4726ee6ad09e7c4f92a062b0777228a31c4",
+   "bytes": 61373
+  },
+  "contracts/authored-profiles/examples/bex.content.json": {
+   "sha256": "4453c574382d52d7447bd137457c9a85bb3e54aa2a61b375068e4e7f4bdb8580",
+   "bytes": 7844
+  },
+  "contracts/authored-profiles/examples/festival.definitions.json": {
+   "sha256": "006f111421ed614be46ecb0348a75166d6d7830840d7e6f60d357c3488233ec2",
+   "bytes": 848
+  },
+  "contracts/authored-profiles/resources/chart.png": {
+   "sha256": "dbb67ebcf4b72c96c7d6e9d93cabae41d201381cad8cd1bf9e31037dbf4b837f",
+   "bytes": 76
+  },
+  "contracts/authored-profiles/resources/cue.wav": {
+   "sha256": "f7236308298644cf4a743afa71bd2019f62aca4b87a7f8343d0d534a9af7c266",
+   "bytes": 1644
+  },
+  "contracts/authored-profiles/resources/tide-card.txt": {
+   "sha256": "f79174c821407054158207ddc95c0143dedc6a95cb9bded7b2090cac99914b6f",
+   "bytes": 86
+  },
+  "contracts/authored-profiles/resources/manifest.json": {
+   "sha256": "8bcebd0e548849ee77f7460f5c668e1bd6fd799ae6e71f14d71e13e42e732202",
+   "bytes": 758
+  },
+  "contracts/authored-profiles/resources/NOTICE.md": {
+   "sha256": "03caa63a59fbc3588c3c4da9f8d37132cd61346ffe3ca0b41d81f1752a042737",
+   "bytes": 752
+  },
+  "contracts/authored-profiles/definitions.v1.json": {
+   "sha256": "205c4146875f095b77b4d49cbe13c7129f75aa01069bf69231027b6ec12b9944",
+   "bytes": 18433
+  },
+  "contracts/authored-profiles/fixtures/negative-cases.json": {
+   "sha256": "b5dbf4d58fef20d8deda3bab988c1fc84fa9bc8e6ad4e7e7aeb0feadc0bea6b0",
+   "bytes": 3411
+  },
+  "contracts/authored-profiles/fixtures/receiving-cases.json": {
+   "sha256": "f0b912c701100c532885cf17594e834bb167c53eddfd47789c8dd65e4c0d7ab1",
+   "bytes": 3025
+  },
+  "contracts/authored-profiles/fixtures/minimal.receiving.json": {
+   "sha256": "ab8db3ffacbe1d96d1db9f75d16a600e23e07ff5c61cd833910965306fde339d",
+   "bytes": 2647
+  },
+  "contracts/authored-profiles/fixtures/neri.receiving.json": {
+   "sha256": "3bbeb1a962ea354c300cb9d1025a53e5dfddc951351a8a58c794f0d0841ae575",
+   "bytes": 10021
+  },
+  "contracts/authored-profiles/fixtures/bex.receiving.json": {
+   "sha256": "2bbba63fd017e4c7195aece6cc14cb5bb24fddc70eec0477595dd2c4c7dce18c",
+   "bytes": 9025
+  }
+ }
+}

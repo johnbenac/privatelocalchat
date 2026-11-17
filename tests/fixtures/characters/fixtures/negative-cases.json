@@ -1,0 +1,192 @@
+[
+  {
+    "name": "state-target",
+    "example": "bex",
+    "aspect": "authored:prepared-v1",
+    "path": [
+      "states",
+      0,
+      "variants",
+      0,
+      "next"
+    ],
+    "value": "state:absent",
+    "code": "dangling-reference"
+  },
+  {
+    "name": "undeclared-condition",
+    "example": "bex",
+    "aspect": "authored:prepared-v1",
+    "path": [
+      "states",
+      0,
+      "when",
+      0,
+      "key"
+    ],
+    "value": "unknown",
+    "code": "condition"
+  },
+  {
+    "name": "condition-value",
+    "example": "bex",
+    "aspect": "authored:prepared-v1",
+    "path": [
+      "states",
+      0,
+      "when",
+      0,
+      "equals"
+    ],
+    "value": "forced",
+    "code": "condition"
+  },
+  {
+    "name": "firsthand-claim",
+    "example": "bex",
+    "aspect": "authored:evidence-v1",
+    "path": [
+      "entries",
+      0,
+      "standing"
+    ],
+    "value": "firsthand",
+    "code": "schema"
+  },
+  {
+    "name": "authenticated-identity",
+    "example": "neri",
+    "aspect": "authored:identity-v1",
+    "path": [
+      "authenticated"
+    ],
+    "value": true,
+    "code": "schema"
+  },
+  {
+    "name": "runtime-authority",
+    "example": "neri",
+    "aspect": "authored:identity-v1",
+    "path": [
+      "authority"
+    ],
+    "value": "continue-existing",
+    "code": "schema"
+  },
+  {
+    "name": "false-seed-individual",
+    "example": "neri",
+    "aspect": "authored:evidence-v1",
+    "path": [
+      "entries",
+      0,
+      "individual"
+    ],
+    "value": "individual:invented",
+    "code": "standing"
+  },
+  {
+    "name": "missing-source",
+    "example": "bex",
+    "aspect": "authored:evidence-v1",
+    "path": [
+      "entries",
+      0,
+      "source"
+    ],
+    "delete": true,
+    "code": "provenance"
+  },
+  {
+    "name": "false-design",
+    "example": "bex",
+    "aspect": "authored:evidence-v1",
+    "path": [
+      "entries",
+      0,
+      "design"
+    ],
+    "value": "subject:absent",
+    "code": "dangling-reference"
+  },
+  {
+    "name": "widened-audience",
+    "example": "bex",
+    "aspect": "authored:evidence-v1",
+    "path": [
+      "entries",
+      1,
+      "audience"
+    ],
+    "value": [
+      "public"
+    ],
+    "code": "audience"
+  },
+  {
+    "name": "derivation-cycle",
+    "example": "bex",
+    "aspect": "authored:evidence-v1",
+    "path": [
+      "entries",
+      1,
+      "derivedFrom"
+    ],
+    "value": [
+      "report:summary"
+    ],
+    "code": "provenance"
+  },
+  {
+    "name": "missing-derivation",
+    "example": "bex",
+    "aspect": "authored:evidence-v1",
+    "path": [
+      "entries",
+      1,
+      "derivedFrom"
+    ],
+    "delete": true,
+    "code": "provenance"
+  },
+  {
+    "name": "version",
+    "example": "bex",
+    "aspect": "authored:guidance-v1",
+    "path": [
+      "version"
+    ],
+    "value": "2.0.0",
+    "code": "schema"
+  },
+  {
+    "name": "remote-adapter",
+    "example": "bex",
+    "aspect": "authored:guidance-v1",
+    "path": [
+      "adapter"
+    ],
+    "value": "https://invalid.example/adapter.js",
+    "code": "schema"
+  },
+  {
+    "name": "active-presentation",
+    "example": "bex",
+    "aspect": "authored:presentation-v1",
+    "path": [
+      "html"
+    ],
+    "value": "<script>throw 1</script>",
+    "code": "schema"
+  },
+  {
+    "name": "excess-budget",
+    "example": "neri",
+    "aspect": "authored:lore-v1",
+    "path": [
+      "budgetChars"
+    ],
+    "value": 4097,
+    "code": "schema"
+  }
+]

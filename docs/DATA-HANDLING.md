@@ -300,7 +300,7 @@ A host named in the source is not a host the app contacts: the provider list and
 | `www.w3.org` | `brand/favicon.svg`, `brand/mark-dark.svg`, `brand/mark-light.svg`, `brand/wordmark-dark.svg`, `brand/wordmark-light.svg`, `chat/call/call.mjs`, `chat/icons.mjs`, `chat/lock/lock.mjs`, `chat/lock/padlock.mjs`, `index.html` |
 | `z.ai` | `chat/provider/endpoint-options.mjs` |
 
-**Hosts named only inside vendored libraries (22)**
+**Hosts named only inside vendored libraries (23)**
 
 | Host | Files that name it |
 | --- | --- |
@@ -314,6 +314,7 @@ A host named in the source is not a host the app contacts: the provider list and
 | `github.com` | `chat/vendor/embedding/worker.js`, `chat/vendor/voice/worker-kokoro.js`, `chat/vendor/voice/worker.js`, `runtime/providers/vendor/noble-hashes/2.4.0/provenance.json`, `runtime/providers/vendor/webllm/web-llm-0.2.86.js`, `runtime/providers/vendor/wllama/v1q/wllama.js` |
 | `huggingface.co` | `chat/vendor/embedding/worker.js`, `runtime/providers/vendor/webllm/web-llm-0.2.86.js`, `runtime/providers/vendor/wllama/v1q/wllama.js` |
 | `jackpordi.com` | `runtime/providers/vendor/webllm/web-llm-0.2.86.js` |
+| `json-schema.org` | `chat/characters/vendor/t415/site/src/core/content-schema.mjs` |
 | `localhost` | `runtime/providers/vendor/wllama/v1q/wllama.js` |
 | `ns.adobe.com` | `chat/vendor/pdfjs/pdf.worker.min.mjs` |
 | `nvlpubs.nist.gov` | `runtime/providers/vendor/noble-hashes/2.4.0/sha2.js` |
