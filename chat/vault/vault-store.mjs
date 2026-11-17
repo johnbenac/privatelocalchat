@@ -635,6 +635,7 @@ export async function eraseEverything({ realLocal = safeStorage("localStorage"),
 //   "not-written" – the phase was known not to be needed (unchanged target, blocked/readonly/held)
 //   "unknown"    – partial effects may exist but cannot be verified (session changed, failure mid-stream, readback mismatch)
 
+const VAULT_LOST = new Set(["session-changed", "adapter-changed", "lease-changed", "no-exclusive", "read-only", "blocked", "held", "authority"]);
 const RECEIPT = Object.freeze({ COMMITTED: "committed", NOT_WRITTEN: "not-written", UNKNOWN: "unknown" });
 export { RECEIPT };
 
@@ -662,9 +663,14 @@ export function createWriteMode(store, { feature, guard } = {}) {
     session,
     epoch: store.epoch,
     lease: store.lease,
+    adapter: store._adapter,   // the bound adapter, captured ONCE: never re-read from the store after an await, never a default-database fallback
+    exclusive: store.exclusive,
     guard,
     feature,
   };
+  if (!captured.adapter) {
+    throw new VaultError("no-adapter", "Write mode requires the adapter bound to the attached session.");
+  }
 
   // ---- queue targets for selected receipt keys ----
   // Each key gets a per-key queue that serializes writes and prevents coalescing/overtaking by legacy jobs.
@@ -692,16 +698,46 @@ export function createWriteMode(store, { feature, guard } = {}) {
   }
 
   /**
+   * The composed live authority, asked after EVERY await and at the actual engine/adapter append: the same attached session and epoch, the same bound adapter, the SAME lease
+   * identity (still supported, owned and exclusive when it was at capture, always for a write), the tab not read-only, the key not format-blocked or held (writes), and the caller's guard.
+   * -> null when authorized, else the code of the first thing that was lost.
+   */
+  function lostAuthority(key, write) {
+    if (!isCurrent()) return "session-changed";
+    if (store._adapter !== captured.adapter) return "adapter-changed";
+    if (store.lease !== captured.lease) return "lease-changed";
+    if (write || captured.exclusive) {
+      const lease = captured.lease;
+      if (!lease || lease.owned !== true || lease.supported !== true || !store.exclusive) return "no-exclusive";
+    }
+    if (write) {
+      if (store.readOnly) return "read-only";
+      if (store.blocked && store.blocked.includes(key)) return "blocked";
+      if (store.held && store.held.some((h) => h.key === key)) return "held";
+    }
+    if (!checkGuard()) return "authority";
+    return null;
+  }
+  function assertAuthority(key, write) {
+    let lost; try { lost = lostAuthority(key, write); } catch { lost = "authority"; }
+    if (lost) throw new VaultError(lost, "Write authority was lost (" + lost + ") while this was running.");
+  }
+  /** A fresh read of the STORED vault through the captured adapter, fenced before and after. */
+  async function fresh(key, write) {
+    assertAuthority(key, write);
+    const state = await readbackState({ adapter: captured.adapter, session });
+    assertAuthority(key, write);
+    return state;
+  }
+
+  /**
    * Fresh persisted readback using the same adapter as the attached session.
    * Returns a map of key -> value for the requested keys, read from the actual stored vault.
    */
   async function readDurable(keys) {
     checkSession();
     if (!checkGuard()) throw new VaultError("authority", "Guard rejected: not authorized to read durable state.");
-    const state = await readbackState({ adapter: store._adapter, session });
-    // Recheck session/guard after the await
-    checkSession();
-    if (!checkGuard()) throw new VaultError("authority", "Guard rejected: not authorized to read durable state.");
+    const state = await fresh(null, false);
     const result = {};
     for (const key of (Array.isArray(keys) ? keys : [keys])) {
       const k = String(key);
@@ -741,13 +777,14 @@ export function createWriteMode(store, { feature, guard } = {}) {
 
     // Fresh same-bound-adapter read BEFORE any append: determine actual current/target/observed.
     // expectedRaw:null means persisted ABSENCE, never wildcard/delete.
+    // A FAILED initial replay is UNKNOWN: never absence, never authorization. Refuse before any append.
     let actualCurrent = null;
-    let readbackFailed = false;
     try {
-      const state = await readbackState({ adapter: store._adapter, session });
+      const state = await fresh(key, true);
       actualCurrent = state.kv.has(nsKey) ? state.kv.get(nsKey) : null;
-    } catch {
-      readbackFailed = true;
+    } catch (error) {
+      if (VAULT_LOST.has(error?.code)) throw error;
+      return { status: RECEIPT.UNKNOWN, key, operationId, seq: 0, observed: null, reason: "readback-failed: initial read failed, nothing written" };
     }
 
     // Null-conflict: expectedRaw=null (expecting absence) but actual value exists.
@@ -771,23 +808,19 @@ export function createWriteMode(store, { feature, guard } = {}) {
       if (actualCurrent === nextRaw) {
         // Already persisted with same value: verify
         try {
-          const state = await readbackState({ adapter: store._adapter, session });
+          const state = await fresh(key, true);
           const readback = state.kv.get(nsKey);
           if (readback === nextRaw) {
             return { status: RECEIPT.COMMITTED, key, operationId, seq: session.lastSeq, observed: nextRaw };
           }
-        } catch { /* fall through to unknown */ }
+        } catch (error) { if (VAULT_LOST.has(error?.code)) throw error; /* fall through to unknown */ }
         return { status: RECEIPT.UNKNOWN, key, operationId, seq: 0, observed: null, reason: "readback-failed" };
       }
     }
 
     // Composed live guard: user guard AND session is current.
     // This ensures a stale action (detached session, changed epoch) refuses at the actual append.
-    const liveGuard = () => {
-      if (!isCurrent()) throw new VaultError("session-changed", "The vault session changed while this write was active.");
-      if (!checkGuard()) throw new VaultError("authority", "Guard rejected: not authorized to write.");
-      return true;
-    };
+    const liveGuard = () => { try { return lostAuthority(key, true) === null; } catch { return false; } };
 
     // Perform the write
     let seq;
@@ -804,10 +837,18 @@ export function createWriteMode(store, { feature, guard } = {}) {
       return { status: RECEIPT.UNKNOWN, key, operationId, seq: 0, observed: null, reason: error?.message || String(error) };
     }
 
-    // Verify: fresh readback using same adapter
+    // The append is durable from here. Authority lost now is an explicit UNKNOWN (no rollback, no retry, no stale commit); the engine did not apply it to the obsolete session's memory.
+    const afterLoss = (observed) => {
+      let lost; try { lost = lostAuthority(key, true); } catch { lost = "authority"; }
+      return lost ? { status: RECEIPT.UNKNOWN, key, operationId, seq, observed, reason: "authority-lost-after-durable: " + lost } : null;
+    };
+    { const gone = afterLoss(null); if (gone) return gone; }
+
+    // Verify: fresh readback using the captured adapter
     try {
-      const state = await readbackState({ adapter: store._adapter, session });
+      const state = await readbackState({ adapter: captured.adapter, session });
       const readback = state.kv.has(nsKey) ? state.kv.get(nsKey) : null;
+      const gone = afterLoss(readback); if (gone) return gone;
       if (readback === nextRaw) {
         return { status: RECEIPT.COMMITTED, key, operationId, seq, observed: readback };
       }
