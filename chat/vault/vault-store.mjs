@@ -320,7 +320,8 @@ async function bootInner({ adapter, ui, realLocal }) {
   if (!marker) return { vault: false };
   const store = adapter || createIndexedDbAdapter();
   const vault = createVault({ adapter: store });
-  const header = await vault.readHeader().catch(() => null);
+  // A header that could not be READ (VersionError or any failure) is not a missing vault: reject, keep the marker and everything stored, never fall back to plain mode.
+  const header = await vault.readHeader().catch((cause) => { throw new VaultError("header-unreadable", "The encrypted vault could not be opened to check it, so nothing was changed. Reload and try again.", { cause }); });
   if (!header) { try { realLocal.removeItem(VAULT_MARKER); } catch { /* ignore */ } tell("plc:vault-missing"); return { vault: false, markerWithoutVault: true }; }
   const screen = ui || (await import("./unlock-screen.mjs")).unlockScreen;
   const session = await screen.unlock({ vault, header, marker: parseMarker(marker) });
