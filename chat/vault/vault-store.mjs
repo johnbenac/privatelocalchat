@@ -570,14 +570,18 @@ export async function createAndMigrate({ passphrase, adapter, realLocal, realSes
     if (!sameJson(threads.filter((t) => t?.id != null).map((t) => [String(t.id), t]), threads.filter((t) => t?.id != null).map((t) => [String(t.id), check.state.threads.get(String(t.id))]))) throw new VaultError("verify", "The encrypted chats do not match.");
     for (const d of documents) if (!d.temporary && !sameJson(d, check.state.docs.get(d.id))) throw new VaultError("verify", "A document does not match.");
     check.lock();
-    if (!okNow()) throw new VaultError("session-changed", "The vault was locked or replaced while this was running, so it was stopped before it changed anything more.");
+    if (!okNow()) throw new VaultError("session-changed", "The vault enable was interrupted; some setup data may already be saved; the original unencrypted data was kept.");
   } catch (error) {
     session.lock();
     // A failed creator removes its own half-made vault, but only while it is still the rightful creator: a stale one (lifecycle changed, lease gone) leaves what is stored alone.
     if (okNow()) await adapter.clear(options).catch(() => {});
+    // vault.create() already committed the header before this block, so a session-changed from a later guarded write is an interruption AFTER durable setup data: say so (the original unencrypted data was never touched).
+    if (error?.code === "session-changed") {
+      throw new VaultError("session-changed", "The vault enable was interrupted; some setup data may already be saved; the original unencrypted data was kept.");
+    }
     throw error;
   }
-  if (!okNow()) { session.lock(); throw new VaultError("session-changed", "The vault was locked or replaced while this was running, so it was stopped before it changed anything more."); }
+  if (!okNow()) { session.lock(); throw new VaultError("session-changed", "The vault enable was interrupted; some setup data may already be saved; the original unencrypted data was kept."); }
   try { realLocal.setItem(VAULT_MARKER, JSON.stringify({ autoMinutes, createdAt: Date.now() })); } catch { /* the marker is an optimisation */ }
   return { session, plaintext: plain, documents };
 }

@@ -6,6 +6,7 @@ import { VAULT_MARKER, parseMarker, createAndMigrate, removeVerifiedPlaintext, i
 import { REGISTRY_KEY, parseRegistry, findNewer } from "./data-formats.mjs";
 
 const changed = () => new VaultError("session-changed", "The vault was locked or replaced while this was running, so it was stopped before it changed anything more. Nothing was lost; try again.");
+const honestPartial = () => new VaultError("session-changed", "The vault enable was interrupted; some setup data may already be saved; the original unencrypted data was kept.");
 /** Multi-step migration, cleanup and turning off need a writer that nobody else can be: a real Web Lock held by this tab. A read-only tab, or no Web Locks at all, refuses before touching anything. */
 const needExclusive = (app, what) => {
   if (app.readOnly) throw new VaultError("read-only", "This app is open in another tab, so " + what + " is not done here.");
@@ -51,6 +52,7 @@ export function createVaultControl({ app, adapter = null, realLocal = globalThis
         // The real writer claim comes BEFORE any vault is created: another tab that owns it makes this refuse with nothing written, and no Web Locks means no new multi-step migration here.
         let claim = await claimOnce();
         let kept = false;
+        let result = null, attached = null;
         try {
           if (!claim.writer) throw new VaultError("read-only", "This app is open in another tab, so turning encryption on is not done here.");
           if (!claim.supported) throw new VaultError("no-exclusive", "This browser cannot guarantee that only this tab is changing the encrypted vault (no Web Locks), so turning encryption on is not done here. Your saved data is untouched.");
@@ -59,13 +61,21 @@ export function createVaultControl({ app, adapter = null, realLocal = globalThis
           if (!same()) throw changed();
           // The guard is the LIVE lease plus the inactive lifecycle captured at the start: it is asked where each record (header, every append, the marker) is actually written, so a stale enable stores nothing more.
           const guard = () => same() && claim.owned === true;
-          const result = await createAndMigrate({ passphrase, adapter: store(), realLocal, realSession, documents, iterations, autoMinutes, guard });
-          if (!same()) { try { result.session.lock(); } catch { /* the replacement owns the vault now: nothing of it is touched */ } throw changed(); }
+          result = await createAndMigrate({ passphrase, adapter: store(), realLocal, realSession, documents, iterations, autoMinutes, guard });
+          if (!same()) { try { result.session.lock(); } catch { /* the replacement owns the vault now: nothing of it is touched */ } throw honestPartial(); }
           app.attach(result.session, { writer: true, lease: claim }); kept = true;
+          attached = app.fence(); // the ATTACHED session + epoch, taken right after our own attach (no await in between)
         } finally { if (!kept) await claim.release(); } // only THIS action's own handle; a refused or unsupported claim releases nothing
+        // After the encrypted copy is durable, the advisory storage.persist() is asked. If the session was locked, detached, replaced or the lease lost while it awaited,
+        // do not publish success or vault:unlocked: the attached session is no longer valid for this page.
         try { await globalThis.navigator?.storage?.persist?.(); } catch { /* the browser decides; asking makes it less likely to clear the vault under storage pressure */ }
-        emit("vault:unlocked", { fresh: true });
-        return { remaining: api.plaintextRemaining() };
+        // Still the attached session at the attached epoch, unlocked, with this page's own live writer lease: only then is success real. Nothing is locked, detached or rolled back otherwise:
+        // a replacement (or the same object attached again, which changes the epoch) belongs to whoever attached it, and what was durably stored stays.
+        if (app.isCurrent(attached) && app.lease === claim && claim.owned === true && claim.supported === true) {
+          emit("vault:unlocked", { fresh: true });
+          return { remaining: api.plaintextRemaining() };
+        }
+        throw honestPartial();
       });
     },
     /** What start-up found: { recovered, verified, conflicts, stale, held, blocked, unreadable, failed } (chat/vault/vault-store.mjs reconcileRaw), or null with the vault off. */
