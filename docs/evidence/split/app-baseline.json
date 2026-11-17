@@ -8,7 +8,7 @@
   "SOURCE_DATE_EPOCH": "0",
   "SITE_DIR": ""
  },
- "fileCount": 214,
+ "fileCount": 215,
  "files": {
   "404.html": {
    "bytes": 101,
@@ -131,8 +131,12 @@
    "sha256": "99d214271430536a391bd77af8827f58ddd6b269188b2de21964a6d4bc9f9805"
   },
   "releases/0000000000000000000000000000000000000000/chat/characters/character-package.mjs": {
-   "bytes": 17599,
-   "sha256": "bfaffc276ecde3b9797c8918365ad1ae1d0b5637e8c88f57a908d5d914992524"
+   "bytes": 23767,
+   "sha256": "c1de7c7c34207103423d7ea3811710cba08f0a134fdd8f8ecfdde58fa2e6bd2a"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/characters/character-store.mjs": {
+   "bytes": 26865,
+   "sha256": "a0828fb632712350314d497a4194136f2e903ad0f51a5109a36c780f97d0a57a"
   },
   "releases/0000000000000000000000000000000000000000/chat/characters/vendor/t415/SOURCE.json": {
    "bytes": 4469,
@@ -655,8 +659,8 @@
    "sha256": "c5772e879f6bc50dadfcfbd55a1044748652fb18da69ca50978546dcb0c67b63"
   },
   "releases/0000000000000000000000000000000000000000/release.json": {
-   "bytes": 28877,
-   "sha256": "0a7e4c5ea1b8d83a36e073f240c8340b95acbbcb54951e71ba33f1a7f215868d"
+   "bytes": 29035,
+   "sha256": "222cbb0edc24e6b6f6fd4fc33373746bc5a945acc8285f011503a8432170a3f2"
   },
   "releases/0000000000000000000000000000000000000000/runtime/auto-load.mjs": {
    "bytes": 565,
@@ -859,8 +863,8 @@
    "sha256": "802e46c9e6bf5a295ed08ff9debdd12d3d5c3b6f16d898ffac0ed6a7b40b06f4"
   },
   "sw.js": {
-   "bytes": 21551,
-   "sha256": "d0cdd8af814cfa6866fca87ced415d2cf4f8ae2a85d31831e7b6a1ee7bf783aa"
+   "bytes": 21640,
+   "sha256": "7e748e803dc17fc4c0a8465070b3bbf93bf916d41cee420ee37b11f090c4fbb6"
   },
   "version.json": {
    "bytes": 170,

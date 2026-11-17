@@ -1,8 +1,8 @@
 # Rich character packages (review, phase A)
 
 Board task T222, phase A: the pure, bounded reader and structured preview for a producer package (Cosmogenitor T415 authored profile bundle,
-`cosmogenitor/bundle/0`). **Nothing here writes, admits, shows a UI or claims a runtime.** Phase B (the local writer `plc.characters.v1` under the
-`plc-characters` Web Lock, the review UI, browser proof, concurrency tests) is still to do. The simple `{id,name,prompt}` preset (`#preset=`,
+`cosmogenitor/bundle/0`). **Nothing here writes, admits, shows a UI or claims a runtime.** The local writer is phase B, `docs/CHARACTER-STORE.md` (store, lock, concurrency and
+crash tests); the review UI and browser, vault and temporary-chat proof are still to do. The simple `{id,name,prompt}` preset (`#preset=`,
 `docs/PRESET-IMPORT.md`) is a different, unchanged route; a package is never reduced to it.
 
 ## API (`chat/characters/character-package.mjs`)
@@ -27,6 +27,8 @@ subject), `crypto` (Web Crypto; the global by default), and the trusted local ad
   somebody else's and is left alone), then the value (65,536 base64url characters = 48 KiB decoded). A fragment carries **metadata only**: any asset that is not
   `missing`, or that carries data, refuses. A name-only package (Pip, about 15 KB) fits; Neri and Bex, whose bytes are inline, do not. Bytes never travel in an address.
 * No URL is ever fetched. External bytes are read only through the caller's `openExternal` and hashed through the caller's `hasherFactory`; without them refuses `external-bytes`.
+  The stream is read once: while the producer verifies it, bounded copies of exactly those chunks are kept (a source that reuses its buffer cannot change them) and the second
+  producer pass reads the kept bytes. A resource is `verified-external` only when `resourceBytes(hash)` returns them (`retained: true`).
 
 ## What is verified (by the vendored producer code, not by advertised versions or hashes)
 
@@ -47,6 +49,8 @@ value versions, authored semantics (audiences, derivations, conditions, undeclar
   `resourceBytes(hash)` returns a copy of verified bytes,
 * `unverifiedSourceClaims`: evidence entries with their individual/run/participant assertions, always `verified: false`, `authority: 'none'`,
 * `package`: the verified content (dependency subjects included), definitions, receipts and support report,
+* `source`: the complete verified original transport as plain JSON (`{ format, root, envelope, bytes }`: the bundle envelope with its record and asset manifests, minus inline data, and every retained
+  resource's exact bytes in base64); `reopenCharacterSource(source, { subjectId })` verifies it again through the producer validators and `bundleTextFromSource` rebuilds the bundle text,
 * `individual`: `individualId: null`. A local id is made by the local store at admission; no source id, name, design id, preset id or hash selects a life.
 
 ## Refusals (all before any partial result)

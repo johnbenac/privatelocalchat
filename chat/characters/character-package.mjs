@@ -126,6 +126,95 @@ function previewOf(asset, bytes) {
   return { kind: type.startsWith('image/') ? 'image' : type.startsWith('audio/') ? 'audio' : 'binary', mediaType: type, size: bytes.byteLength, signatureMatches: matches };
 }
 
+// ---- exact bytes, serialisable source -------------------------------------------------------------------------------------------
+// The producer verifies external bytes by streaming them through a hasher and keeps nothing. A receiver that says "verified" must still
+// HOLD those bytes (a stored character cannot depend on a stream that is gone), so the stream the producer reads is tee'd here, bounded,
+// while it is actually being verified: the retained bytes ARE the bytes the producer hashed (copies made as each chunk arrives), and the
+// second verification pass (the receiving projection reopens the package) reads the retained copy, never the caller again. No address in
+// the package is ever fetched; the caller's own opener is the only source.
+const toError = (code, path, message) => Object.assign(new Error(message), { errors: [{ code, path, message }] });
+const concatBytes = (chunks, size) => { const out = new Uint8Array(size); let at = 0; for (const c of chunks) { out.set(c, at); at += c.byteLength; } return out; };
+
+function captureExternal(openExternal) {
+  const captured = new Map();
+  let total = 0;
+  const open = typeof openExternal !== 'function' ? openExternal : async (hash) => {
+    const stream = await openExternal(hash);
+    if (!stream || typeof stream[Symbol.asyncIterator] !== 'function') return stream; // the producer refuses this itself
+    return (async function* () {
+      const chunks = []; let size = 0;
+      for await (const chunk of stream) {
+        if (!(chunk instanceof Uint8Array)) throw toError('bytes', hash, 'External chunks must be Uint8Array values.');
+        size += chunk.byteLength;
+        if (size > PRODUCER_LIMITS.maxExternalAssetBytes || total + size > PRODUCER_LIMITS.maxExternalTotalBytes) throw toError('external-limit', hash, 'External bytes exceed the bound.');
+        const own = new Uint8Array(chunk); // a copy now: a source that reuses its buffer cannot change what was kept
+        chunks.push(own);
+        yield new Uint8Array(own);
+      }
+      total += size;
+      captured.set(hash, concatBytes(chunks, size));
+    })();
+  };
+  return { open, captured };
+}
+
+/** A hasher that holds the (bounded) bytes and digests them once with Web Crypto: an implementation independent of the caller's hasher. */
+function bufferingHasher(crypto) {
+  return () => {
+    const chunks = []; let size = 0;
+    return {
+      update(chunk) { size += chunk.byteLength; chunks.push(new Uint8Array(chunk)); },
+      digest: async () => new Uint8Array(await crypto.subtle.digest('SHA-256', concatBytes(chunks, size))),
+    };
+  };
+}
+const retainedOpener = (bytesByHash) => async (hash) => {
+  const bytes = bytesByHash.get(hash);
+  if (!bytes) throw toError('external-bytes', hash, 'No retained bytes for this resource.');
+  return (async function* () { yield new Uint8Array(bytes); })();
+};
+
+const toBase64 = (bytes) => { let s = ''; for (let i = 0; i < bytes.length; i += 16384) s += String.fromCharCode(...bytes.subarray(i, i + 16384)); return btoa(s); };
+const fromBase64 = (text) => Uint8Array.from(atob(text), (c) => c.charCodeAt(0));
+export const encodeBytes = toBase64;
+export const decodeBytes = fromBase64;
+
+/**
+ * The complete verified original transport, serialisable: the bundle envelope exactly as received (format, selection, visibility, audience,
+ * content, definitions, receipts, record manifest, asset byte manifest with each descriptor's status, root) without inline `data`, and the exact
+ * verified bytes of every retained asset, base64. `bundleTextFromSource` rebuilds a bundle the producer validators open again, whatever the
+ * route the bytes first arrived by.
+ */
+function serialSource(envelope, bytesByHash) {
+  const meta = JSON.parse(JSON.stringify(envelope));
+  for (const entry of meta.assets) delete entry.data;
+  return { format: meta.format, root: meta.root, envelope: meta, bytes: [...bytesByHash].sort(([a], [b]) => (a < b ? -1 : 1)).map(([hash, bytes]) => ({ hash, size: bytes.byteLength, data: toBase64(bytes) })) };
+}
+
+export function bundleTextFromSource(source) {
+  if (!source || typeof source !== 'object' || !source.envelope || !Array.isArray(source.envelope.assets) || !Array.isArray(source.bytes)) throw toError('source', '', 'This stored package is not complete.');
+  const byHash = new Map(source.bytes.map((b) => [b.hash, b]));
+  const bundle = JSON.parse(JSON.stringify(source.envelope));
+  for (const entry of bundle.assets) {
+    if (entry.status === 'inline') {
+      const held = byHash.get(entry.hash);
+      if (!held) throw toError('source', entry.hash, 'Stored bytes are missing.');
+      entry.data = held.data;
+    }
+  }
+  return JSON.stringify(bundle);
+}
+
+/** Open a stored source again through the same producer validators: root, bytes, definitions, closure, semantics. Never fetches. */
+export async function reopenCharacterSource(source, { subjectId, crypto = globalThis.crypto, purpose = 'fresh' } = {}) {
+  let text, bytes;
+  try {
+    text = bundleTextFromSource(source);
+    bytes = new Map(source.bytes.map((b) => [b.hash, fromBase64(b.data)]));
+  } catch (error) { return reviewFailure(error); }
+  return review(text, { purpose, subjectId, crypto, openExternal: retainedOpener(bytes), hasherFactory: bufferingHasher(crypto), route: 'stored' });
+}
+
 function reviewFailure(error) {
   const errors = error?.errors;
   if (Array.isArray(errors) && errors.length) return refuse(String(errors[0].code || 'invalid'), 'The package was refused: ' + String(errors[0].message || 'it is not valid') + ' Nothing was added.', errors.map((e) => ({ code: e.code, path: e.path, message: e.message })));
@@ -142,9 +231,20 @@ async function review(text, { purpose = 'fresh', subjectId, targetIndividualId, 
   if (!sizeCheck.ok) return sizeCheck;
 
   // 2. The producer's own validation: safe JSON, root, bytes, definitions, closure, authored semantics.
-  const adapters = { crypto, openExternal, hasherFactory };
+  const tee = captureExternal(openExternal);
   let opened;
-  try { opened = await openAuthored(text, adapters); } catch (error) { return reviewFailure(error); }
+  try { opened = await openAuthored(text, { crypto, openExternal: tee.open, hasherFactory }); } catch (error) { return reviewFailure(error); }
+
+  // 2b. Every byte object the producer called verified is held: inline from the file, external from the stream it just hashed.
+  // The second pass below reads these held copies (hashed again with an independent digest), so the caller's stream is read once.
+  const bytesByHash = new Map();
+  for (const [hash, bytes] of opened.inlineBytes) bytesByHash.set(hash, new Uint8Array(bytes));
+  for (const hash of opened.verifiedExternal) {
+    const held = tee.captured.get(hash);
+    if (!held) return refuse('external-bytes', 'A resource was verified but its bytes could not be kept. Nothing was added.');
+    bytesByHash.set(hash, held);
+  }
+  const adapters = tee.captured.size ? { crypto, openExternal: retainedOpener(bytesByHash), hasherFactory: bufferingHasher(crypto) } : { crypto, openExternal, hasherFactory };
 
   // 3. Subject selection. A package may carry several subjects (dependencies); exactly one is the character.
   const selected = opened.selection?.kind === 'subject' ? opened.selection.ids : [];
@@ -190,18 +290,18 @@ async function review(text, { purpose = 'fresh', subjectId, targetIndividualId, 
   }
 
   const assetRecords = (opened.document.assets || []).map((asset) => {
-    const bytes = opened.inlineBytes.get(asset.sha256);
-    const verified = Boolean(bytes) || opened.verifiedExternal.includes(asset.sha256);
-    return { id: asset.id, mediaType: asset.mediaType, sha256: asset.sha256, size: asset.size, status: bytes ? 'verified-inline' : verified ? 'verified-external' : 'missing', preview: previewOf(asset, bytes) };
+    const bytes = bytesByHash.get(asset.sha256); // a resource is "verified" only when its exact bytes are held
+    const status = !bytes ? 'missing' : opened.inlineBytes.has(asset.sha256) ? 'verified-inline' : 'verified-external';
+    return { id: asset.id, mediaType: asset.mediaType, sha256: asset.sha256, size: asset.size, status, retained: Boolean(bytes), preview: previewOf(asset, bytes) };
   });
-  const bytesByHash = new Map([...opened.inlineBytes].map(([hash, bytes]) => [hash, new Uint8Array(bytes)]));
+  const sourceEnvelope = JSON.parse(text);
 
   const candidate = {
     kind: 'rich-character-package',
     route: route || 'file',
     purpose,
     individual: { assigned: false, individualId: null, mode: PURPOSES[purpose].individual, ...(purpose === 'update' ? { targetIndividualId } : {}), note: 'A local individual id is made by the local store when a person admits this; nothing in the package selects, matches or continues one.' },
-    transport: deepFreeze({ format: 'cosmogenitor/bundle/0', root: JSON.parse(text).root, visibility: opened.visibility, audience: [...opened.audience], selection: JSON.parse(JSON.stringify(opened.selection)), bytes: byteLength(text) }),
+    transport: deepFreeze({ format: 'cosmogenitor/bundle/0', root: sourceEnvelope.root, visibility: opened.visibility, audience: [...opened.audience], selection: JSON.parse(JSON.stringify(opened.selection)), bytes: byteLength(text) }),
     subject: deepFreeze({ id: subject.id, label: subject.label, summary: subject.summary ?? null, profiles: [...(subject.profiles || [])], requires: [...(subject.requires || [])] }),
     design: deepFreeze({ designId: designAspect?.value.designId ?? null, revision: designAspect?.value.revision ?? null, author: designAspect?.value.author ?? null, standing: designAspect?.value.standing ?? null, sourceCandidateId: received.value.id, note: 'Source design metadata and the source candidate id are unverified source claims, not local identity.' }),
     preview: deepFreeze({ name: plain.candidate.name, instructions: plain.candidate.prompt }),
@@ -212,6 +312,7 @@ async function review(text, { purpose = 'fresh', subjectId, targetIndividualId, 
     unverifiedSourceClaims: clone(claims),
     structured,
     package: { content: clone(opened.document), definitions: clone({ profiles: opened.registry.profiles, aspectDefinitions: opened.registry.aspectDefinitions }), receipts: clone(opened.receipts), supportReport: clone(opened.support ?? null) },
+    source: deepFreeze(serialSource(sourceEnvelope, bytesByHash)),
     resourceBytes: (hash) => { const b = bytesByHash.get(hash); return b ? new Uint8Array(b) : null; },
     admissionReady: false, // always: admission is the local store's transaction, after a person reviews this
     runtimeReady: false,

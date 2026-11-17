@@ -60,7 +60,7 @@ chat/                   features, one folder each (below); the files left at the
 chat/voice/             speech, the voice engines (Kitten, Kokoro), voice choice, voice notes and recorder, playback, text preparation, voice-session logic
 chat/call/              the voice call screen and its sounds
 chat/assistant/         preferences (prefs-store.mjs is the one writer of plc.prefs.v1), presets, memory and the exact-answer tools; importing a reviewed preset file or link (preset-candidate.mjs reads and admits, preset-import.mjs is the review box, preset-store.mjs is the locked write all preset changes use, backup restore included: docs/PRESET-IMPORT.md)
-chat/characters/        rich character packages: the pure bounded package reader and structured preview (character-package.mjs) and the byte-exact producer validators it runs (vendor/t415, see SOURCE.json); no writer or UI yet (T222 phase A, docs/CHARACTER-PACKAGE.md)
+chat/characters/        rich character packages: the pure bounded package reader and structured preview (character-package.mjs), the byte-exact producer validators it runs (vendor/t415, see SOURCE.json) and the conflict-safe store (character-store.mjs: injected storage and Web Locks, not yet wired to a page, key or UI; T222 phases A and B, docs/CHARACTER-PACKAGE.md, docs/CHARACTER-STORE.md)
 chat/roberta/           the phone-menu robot: menu engine, content, intent router and its vectors, on-screen front desk
 chat/embedding/         the small matching model (used by Roberta and by search): embedder, config, model description
 chat/documents/         attachments: reading, storing (IndexedDB), PDF text, retrieval, images

@@ -2,7 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { createHash, webcrypto } from 'node:crypto';
-import { reviewCharacterPackageFile, reviewCharacterPackageFragment, readCharacterFragment, encodeCharacterFragment, checkPackageFileSize, CHARACTER_PACKAGE_LIMITS, PURPOSES } from '../chat/characters/character-package.mjs';
+import { reviewCharacterPackageFile, reviewCharacterPackageFragment, readCharacterFragment, encodeCharacterFragment, checkPackageFileSize, CHARACTER_PACKAGE_LIMITS, PURPOSES, reopenCharacterSource, bundleTextFromSource } from '../chat/characters/character-package.mjs';
+import { openAuthored, exportAuthored } from '../chat/characters/vendor/t415/contracts/authored-profiles/authored.mjs';
 import { readPresetFragment, parsePresetCandidate, encodePresetFragment } from '../chat/assistant/preset-candidate.mjs';
 
 const fx = new URL('./fixtures/characters/', import.meta.url);
@@ -359,7 +360,8 @@ test('reviewing touches no network, storage, timer or eval', async () => {
   } finally { globalThis.fetch = originals.fetch; }
   const dirs = ['../chat/characters'];
   const files = [];
-  const walk = (dir) => { for (const n of readdirSync(new URL(dir + '/', import.meta.url))) { const p = dir + '/' + n; statSync(new URL(p, import.meta.url)).isDirectory() ? walk(p) : /\.mjs$/.test(n) && files.push(p); } };
+  // character-store.mjs is the one module of this folder that owns timers, Web Locks and a clock; it has its own source test (character-store.test.mjs).
+  const walk = (dir) => { for (const n of readdirSync(new URL(dir + '/', import.meta.url))) { const p = dir + '/' + n; statSync(new URL(p, import.meta.url)).isDirectory() ? walk(p) : /\.mjs$/.test(n) && n !== 'character-store.mjs' && files.push(p); } };
   dirs.forEach(walk);
   assert.ok(files.length >= 9);
   for (const f of files) {
