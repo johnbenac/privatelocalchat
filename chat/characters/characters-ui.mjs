@@ -33,8 +33,18 @@ export function createCharactersUi(host) {
   let vaultWasOn = Boolean(vault?.active);
   const persistent = createCharacterStore({ storage, key, crypto, isReadOnly: () => Boolean(vault?.readOnly), isLocked: () => vaultWasOn && !vault?.active, scope: { current: () => epoch } });
   let temp = null; // { threadId, store } for the open temporary chat only
-  const tempScope = () => { const t = host.currentThread?.(); return t?.temporary ? t.id : null; };
-  function dropTemporary() { if (temp) { temp.store.read(); temp = null; } } // reading an ended store clears its memory
+  // A temporary store belongs to one temporary chat AT ONE lifecycle epoch: locking, unlocking or turning the vault off moves the epoch and ends it, even though the chat id is unchanged.
+  const tempScope = () => { const t = host.currentThread?.(); return t?.temporary ? t.id + ':' + epoch : null; };
+  function dropTemporary() { if (temp) { temp.store.read(); temp = null; } } // reading an ended store clears its memory (its scope has moved)
+
+  // The scope an action starts in: the lifecycle epoch and the session (this temporary chat, or the normal one). Taken BEFORE any asynchronous work, rechecked after every await and
+  // before anything private is drawn, said, called back or committed: work that began in another epoch or session is dropped silently, never shown, never resumed after an unlock.
+  const sessionOf = (t) => (t?.temporary ? 'temp:' + t.id : 'normal');
+  const liveSession = () => { try { return sessionOf(host.currentThread?.()); } catch { return 'normal'; } };
+  let sessionSeq = 0; let lastSession = liveSession(); // sessionSeq moves on every change of session, so leaving and coming back is still another session
+  const noteSession = (thread) => { const k = sessionOf(thread); if (k !== lastSession) { lastSession = k; sessionSeq += 1; } };
+  const beginScope = () => ({ epoch, seq: sessionSeq, session: liveSession() });
+  const stale = (scope) => scope.epoch !== epoch || scope.seq !== sessionSeq || scope.session !== liveSession() || (vaultWasOn && !vault?.active);
   function currentStore() {
     const thread = host.currentThread?.();
     if (thread?.temporary) {
@@ -57,12 +67,22 @@ export function createCharactersUi(host) {
     return record;
   }
   let closingAll = false; // while every view is being closed (the vault locked), nothing is reopened or resumed behind it
-  function closePrivateViews() { closingAll = true; try { for (const v of [...views]) { try { v.handle.close(); } catch { /* already gone */ } } } finally { closingAll = false; } }
+  const pickers = new Set(); // file choosers this module opened and has not heard back from: removed with the views, and an answer that arrives later is ignored
+  function dropPickers() { for (const input of [...pickers]) { pickers.delete(input); try { input.remove(); } catch { /* gone */ } } }
+  function closePrivateViews() { closingAll = true; try { for (const v of [...views]) { try { v.handle.close(); } catch { /* already gone */ } } dropPickers(); } finally { closingAll = false; } }
   events?.on('vault:locked', (info) => { epoch += 1; if (info?.off) vaultWasOn = false; closePrivateViews(); dropTemporary(); });
-  events?.on('vault:unlocked', () => { epoch += 1; vaultWasOn = true; closePrivateViews(); });
+  events?.on('vault:unlocked', () => { epoch += 1; vaultWasOn = true; closePrivateViews(); dropTemporary(); });
   events?.on('thread:selected', (thread) => {
-    if (temp && !(thread?.temporary && thread.id === temp.threadId)) { for (const v of [...views]) if (v.temporary) v.handle.close(); dropTemporary(); }
+    noteSession(thread);
+    if (temp && !(thread?.temporary && thread.id === temp.threadId)) { for (const v of [...views]) if (v.temporary) v.handle.close(); dropPickers(); dropTemporary(); }
   });
+  /** A file chooser for this module: remembered until it answers, so an answer after the scope ended can be recognised and dropped. */
+  function newPicker({ accept = null, multiple = false, label }) {
+    const input = el('input'); input.type = 'file'; if (accept) input.accept = accept; input.multiple = multiple; input.style.display = 'none'; input.setAttribute('aria-label', label);
+    document.body.appendChild(input); pickers.add(input);
+    return input;
+  }
+  const settlePicker = (input) => { const wasKnown = pickers.delete(input); input.remove(); return wasKnown; }; // false: it was dropped (the scope ended) before it answered
 
   // ---- drawing helpers (everything from a package is text, never markup) ----
   const section = (title) => el('h3', 'char-heading', title);
@@ -125,60 +145,71 @@ export function createCharactersUi(host) {
   };
 
   /** proposal: { route: 'file', text, adapters? } or { route: 'link', hash }; target: a chosen saved character to update, when the person started from one. */
-  async function startReview(proposal, { target = null, after: afterRaw = null } = {}) {
-    const after = afterRaw && (() => { if (!closingAll) afterRaw(); });
+  async function startReview(proposal, { target = null, after: afterRaw = null, born = beginScope() } = {}) {
+    const after = afterRaw && (() => { if (!closingAll && !stale(born)) afterRaw(); });
     if (reviewing && !reviewing.closed) { showToast('Finish or cancel the character you are reviewing first.'); return false; }
     const here = currentStore();
     const options = { crypto, ...(proposal.adapters || {}) };
     const reviewed = proposal.route === 'file' ? await reviewCharacterPackageFile(proposal.text, options) : await reviewCharacterPackageFragment(proposal.hash, options);
+    if (stale(born)) return false; // the vault or the session changed while the package was being validated: nothing is drawn, said or resumed
     if (reviewed === null) return false;
     if (!reviewed.ok) {
       if (proposal.route === 'file' && reviewed.code === 'external-bytes' && !proposal.adapters) {
         const declared = externalResourcesOf(proposal.text);
-        if (declared.length) return chooseResources(proposal, declared, { target, after });
+        if (declared.length) return chooseResources(proposal, declared, { target, after, born });
       }
       await tell('Character not added', reviewed.message + (proposal.route === 'file' ? hint(proposal.text) : ''));
       after?.();
       return false;
     }
-    showReview(proposal, reviewed.candidate, here, { target, after });
+    showReview(proposal, reviewed.candidate, here, { target, after, born });
     return true;
   }
 
   /** The package keeps some resources outside itself: the person chooses those files. They are measured before they are read and matched by their own SHA-256. */
-  function chooseResources(proposal, declared, { target, after }) {
+  function chooseResources(proposal, declared, { target, after, born }) {
+    const { temporary, threadId } = currentStore();
     const root = el('div', 'char-resource-step');
     root.append(note('This package keeps ' + declared.length + ' of its files outside itself. Nothing is downloaded: choose the file' + (declared.length === 1 ? '' : 's') + ' you were given with it, from this device.'));
     const list = el('ul'); for (const d of declared) list.append(el('li', null, d.hash.slice(0, 23) + '… · ' + d.size + ' bytes')); root.append(list);
     const status = el('p', 'char-status'); status.setAttribute('role', 'status'); status.setAttribute('aria-live', 'polite'); root.append(status);
     let busy = false;
+    let myPicker = null;
     const handle = openAppDialog({ title: 'Choose the package’s files', content: root, actions: [
       { label: 'Cancel', run: () => after?.() },
       { label: 'Choose files…', primary: true, close: false, run: (h, button) => {
-        if (busy) return;
-        const input = el('input'); input.type = 'file'; input.multiple = true; input.style.display = 'none'; input.setAttribute('aria-label', 'Resource files'); document.body.appendChild(input);
+        if (busy || stale(born) || h.closed) return;
+        const input = newPicker({ multiple: true, label: 'Resource files' }); myPicker = input;
+        // An answer only counts while this dialog is open and the scope it started in is the current one: a late answer after Cancel, a lock or a session change is dropped unread.
+        const live = () => !h.closed && !stale(born) && pickers.has(input);
         input.addEventListener('change', async () => {
-          const files = [...(input.files || [])]; input.remove();
+          const files = [...(input.files || [])]; const wasLive = live(); settlePicker(input); if (myPicker === input) myPicker = null;
+          if (!wasLive) return;
           const ok = checkResourceFiles(files.map((f) => ({ name: f.name, size: f.size })), declared);
           if (!ok.ok) { status.textContent = ok.message; return; }
           busy = true; button.disabled = true;
           try {
             const entries = []; for (const f of files) entries.push({ name: f.name, bytes: new Uint8Array(await f.arrayBuffer()) });
+            if (h.closed || stale(born)) return;
             const matched = await matchResourceFiles(entries, declared, crypto);
+            if (h.closed || stale(born)) return;
             if (!matched.ok) { status.textContent = 'These files are not the ones this package describes: ' + matched.unmatched.map((u) => '“' + String(u.name).slice(0, 60) + '” (' + (u.reason === 'duplicate' ? 'chosen twice' : 'not declared') + ')').join(', ') + '. Nothing was added.'; return; }
             h.close();
-            await startReview({ ...proposal, adapters: matched.adapters }, { target, after });
-          } catch { status.textContent = 'The files could not be read. Nothing was added.'; } finally { busy = false; button.disabled = false; }
+            await startReview({ ...proposal, adapters: matched.adapters }, { target, after, born });
+          } catch { if (!h.closed) status.textContent = 'The files could not be read. Nothing was added.'; } finally { busy = false; if (!h.closed) button.disabled = false; }
         });
-        input.addEventListener('cancel', () => input.remove());
+        input.addEventListener('cancel', () => { settlePicker(input); if (myPicker === input) myPicker = null; });
         input.click();
       } },
     ] });
-    handle.onClose = () => {};
+    track(handle, { temporary, threadId }); // a view like any other: a lock or a session change closes it
+    const closing = handle.onClose;
+    handle.onClose = () => { if (myPicker) { settlePicker(myPicker); myPicker = null; } closing?.(); };
     return true;
   }
 
-  function showReview(proposal, candidate, here, { target, after }) {
+  function showReview(proposal, candidate, here, { target, after, born }) {
+    if (stale(born)) return;
     const { store, temporary, threadId } = here;
     const root = el('div', 'char-review');
     root.append(note('Nothing has been saved yet. ' + KEEP_PRIVATE + ' ' + where(temporary)));
@@ -241,6 +272,7 @@ export function createCharactersUi(host) {
         { label: 'Cancel' },
         { label: 'Save as new character', primary: true, close: false, run: async (h, button) => {
           if (saving) return; // a double click or Enter pressed twice saves one character
+          if (stale(born)) { h.close(); return; }
           const ready = store.ready(); if (!ready.ok) { refresh(); return; }
           const purpose = upd.checked ? 'update' : 'fresh';
           let targetRef; if (purpose === 'update') { if (!chosen) { refresh(); return; } targetRef = { ...chosen }; }
@@ -249,9 +281,10 @@ export function createCharactersUi(host) {
           try {
             const input = { purpose, ...(proposal.route === 'file' ? { text: proposal.text } : { hash: proposal.hash }), ...(targetRef ? { target: targetRef } : {}), ...(proposal.adapters || {}) };
             const prepared = await store.prepare(input);
-            outcome = prepared.ok ? await store.commit(prepared.preparation) : prepared;
+            outcome = prepared.ok ? await store.commit(prepared.preparation, { fence: () => stale(born) }) : prepared;
           } catch { outcome = { ok: false, code: 'error', message: 'The character could not be saved. Nothing was changed.' }; }
           finally { saving = false; button.removeAttribute('aria-busy'); }
+          if (stale(born)) { if (!h.closed) h.close(); return; } // the vault or the session changed meanwhile: no toast, no follow-up, nothing drawn (the store already refused or finished by its own checks)
           if (!outcome.ok) { refresh(); status.textContent = outcome.message; return; } // the proposal stays open for another try
           h.close();
           showToast(outcome.status === 'updated' || outcome.status === 'already-applied' ? '“' + candidate.preview.name + '” updated.' : '“' + candidate.preview.name + '” saved. It is not used in any chat yet.');
@@ -272,18 +305,20 @@ export function createCharactersUi(host) {
 
   // ---- entry points ----
   function chooseFile({ target = null, after: afterRaw = null } = {}) {
-    const after = afterRaw && (() => { if (!closingAll) afterRaw(); });
-    const input = el('input'); input.type = 'file'; input.accept = '.json,application/json'; input.style.display = 'none'; input.setAttribute('aria-label', 'Character package file');
-    document.body.appendChild(input);
+    const born = beginScope();
+    const after = afterRaw && (() => { if (!closingAll && !stale(born)) afterRaw(); });
+    const input = newPicker({ accept: '.json,application/json', label: 'Character package file' });
     input.addEventListener('change', async () => {
-      const file = input.files && input.files[0]; input.remove();
+      const file = input.files && input.files[0]; const wasLive = settlePicker(input) && !stale(born);
+      if (!wasLive) return; // the answer came after the vault or the session changed: the file is not read and nothing is said
       if (!file) { after?.(); return; }
       const size = checkPackageFileSize(file.size);
       if (!size.ok) { await tell('Character not added', size.message); after?.(); return; }
-      let text; try { text = await file.text(); } catch { await tell('Character not added', 'The file could not be read. Nothing was added.'); after?.(); return; }
-      await startReview({ route: 'file', text }, { target, after });
+      let text; try { text = await file.text(); } catch { if (!stale(born)) await tell('Character not added', 'The file could not be read. Nothing was added.'); after?.(); return; }
+      if (stale(born)) return;
+      await startReview({ route: 'file', text }, { target, after, born });
     });
-    input.addEventListener('cancel', () => { input.remove(); after?.(); });
+    input.addEventListener('cancel', () => { const wasLive = settlePicker(input) && !stale(born); if (wasLive) after?.(); });
     input.click();
   }
 
@@ -291,13 +326,13 @@ export function createCharactersUi(host) {
   /** True when an address names both a preset and a character: neither is opened, so two review flows never stack on one link. */
   function addressConflict(hash = locationOf().hash) { return hasKey(hash, PRESET_FRAGMENT_KEY) && hasKey(hash, CHARACTER_FRAGMENT_KEY); }
   async function openFromAddress() {
-    const hash = locationOf().hash;
+    const hash = locationOf().hash; const born = beginScope();
     if (!hasKey(hash, CHARACTER_FRAGMENT_KEY)) return false;
     if (addressConflict(hash)) { await tell('Nothing was added', 'This link carries both a preset and a character. Open one at a time. Nothing was added.'); return true; }
     const read = readCharacterFragment(hash);
     if (read === null) return false;
     if (!read.ok) { await tell('Character not added', read.message); return true; }
-    await startReview({ route: 'link', hash });
+    await startReview({ route: 'link', hash }, { born });
     return true;
   }
 
@@ -306,6 +341,7 @@ export function createCharactersUi(host) {
   let libraryHandle = null;
   function openLibrary() {
     if (libraryHandle && !libraryHandle.closed) return;
+    const born = beginScope();
     const here = currentStore();
     const { store, temporary, threadId } = here;
     const root = el('div', 'char-library');
@@ -314,7 +350,7 @@ export function createCharactersUi(host) {
       { label: 'Done', primary: true },
     ] });
     libraryHandle = handle; track(handle, { temporary, threadId });
-    const reopen = () => { if (!closingAll && (!libraryHandle || libraryHandle.closed)) openLibrary(); };
+    const reopen = () => { if (!closingAll && !stale(born) && (!libraryHandle || libraryHandle.closed)) openLibrary(); };
     const button = (label, run, cls = 'secondary') => { const b = el('button', cls, label); b.type = 'button'; b.addEventListener('click', run); return b; };
     function render() {
       root.textContent = '';
@@ -342,16 +378,19 @@ export function createCharactersUi(host) {
     }
     const say = (text) => { const s = root.querySelector('.char-status'); if (s) s.textContent = text; else showToast(text); };
     async function copy(r) {
+      if (stale(born)) return;
       const prepared = await store.prepare({ purpose: 'copy', source: { individualId: r.individualId, recordVersion: r.recordVersion } });
-      const out = prepared.ok ? await store.commit(prepared.preparation) : prepared;
+      const out = prepared.ok ? await store.commit(prepared.preparation, { fence: () => stale(born) }) : prepared;
+      if (stale(born) || handle.closed) return; // locked or changed session meanwhile: draw nothing
       render();
       if (!out.ok) { say(out.message); return; }
       say('Copied “' + r.name + '” as a new character. It has its own reference and no shared history.');
     }
     async function remove(r) {
       const sure = await ask('Remove saved character', 'Remove “' + r.name + '” from this ' + (temporary ? 'temporary chat' : 'device') + '? Its saved files go with it. Chats that already happened are not changed.', 'Remove', { danger: true });
-      if (!sure) return;
-      const out = await store.remove({ individualId: r.individualId, recordVersion: r.recordVersion });
+      if (!sure || stale(born)) return;
+      const out = await store.remove({ individualId: r.individualId, recordVersion: r.recordVersion }, { fence: () => stale(born) });
+      if (stale(born) || handle.closed) return;
       render();
       say(out.ok ? (out.status === 'already-absent' ? 'It was already gone.' : 'Removed “' + r.name + '”.') : out.message);
     }
@@ -359,8 +398,10 @@ export function createCharactersUi(host) {
   }
 
   async function openDetails(individualId) {
+    const born = beginScope();
     const here = currentStore(); const { store, temporary, threadId } = here;
     const opened = await store.open(individualId);
+    if (stale(born)) return; // locked, unlocked or another session while the saved character was being reopened: nothing private is drawn
     if (!opened.ok) { await tell('Saved character', opened.message); return; }
     const { candidate, record } = opened;
     const root = el('div', 'char-details');

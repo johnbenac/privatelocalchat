@@ -28,6 +28,9 @@
 //
 // createCharacterStore({ storage, key, locks?, isReadOnly?, crypto?, now?, scope?, lockName?, waitMs? })
 //   -> { read, ready, list, get, open, prepare, commit, remove }
+//   commit(preparation, { fence? }) and remove(target, { fence? }): `fence()` returns true when the caller's own session (UI lifecycle epoch, normal or temporary session, vault state)
+//   is no longer the one the action began in. It is asked before the work, after the asynchronous validation AND INSIDE the lock, in the same synchronous step as the stored-state
+//   check, so an action that waited for the lock across a lock/unlock or a session change refuses with `scope-changed` and writes nothing. It throws or returns true => refused.
 //   outcome: { ok: true, ... } | { ok: false, code, message }
 //   code: unsupported | read-only | busy | unreadable | malformed | newer | too-large | write-failed | write-refused | changed | stale | gone | scope-changed |
 //         unknown-preparation | verification-failed | crypto-unavailable | id-collision | purpose | target | no-package
@@ -53,6 +56,7 @@ const MESSAGES = {
   exhausted: 'The saved characters have used up their change counter, so nothing was changed. Export what you need and start a fresh store.',
   locked: 'The app is locked, so nothing was changed. Unlock it and try again.',
   'scope-ended': 'This chat session has ended, so its characters are gone and nothing was changed.',
+  'fence-moved': 'The vault or the chat session changed before this was saved, so nothing was changed.',
   changed: 'The saved characters changed while this was being saved, so the result could not be confirmed. Check your characters and try again.',
 };
 const HASH = /^sha256:[a-f0-9]{64}$/;
@@ -60,6 +64,9 @@ const ID = /^individual:[A-Za-z0-9._-]{1,120}$/;
 const OPAQUE = /^[A-Za-z0-9:._-]{1,200}$/;
 const isObject = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 const json = (v) => JSON.parse(JSON.stringify(v));
+// A caller's fence fails closed: absent means no extra check, a fence that throws or answers anything but exactly false counts as moved.
+const fenced = (fence) => { if (fence === undefined || fence === null) return false; try { return fence() !== false; } catch { return true; } };
+const fenceOk = (fence) => fence === undefined || fence === null || typeof fence === 'function';
 const isVersion = (v) => Number.isSafeInteger(v) && v >= 1;
 
 // ---- memory-only backing for temporary chats --------------------------------------------------------------------------------
@@ -176,8 +183,9 @@ export function createCharacterStore({ storage, locks = globalThis.navigator?.lo
   const ready = () => writeBlock() || (() => { const r = read(); return r.ok ? { ok: true } : r; })();
 
   /** One synchronous step, inside the lock. `change(state)` mutates the fresh state and returns { write, result } or { failure }. */
-  function step(change) {
+  function step(change, fence) {
     const blocked = writeBlock(); if (blocked) return blocked;
+    if (fenced(fence)) return fail('scope-changed', MESSAGES['fence-moved']);
     const current = read(); if (!current.ok) return current;
     const made = change(current.state);
     if (made.failure) return made.failure;
@@ -199,12 +207,13 @@ export function createCharacterStore({ storage, locks = globalThis.navigator?.lo
     return { ok: true, ...made.result };
   }
 
-  async function mutate(change) {
+  async function mutate(change, fence) {
     const blocked = writeBlock(); if (blocked) return blocked;
+    if (fenced(fence)) return fail('scope-changed', MESSAGES['fence-moved']);
     const controller = typeof AbortController === 'function' ? new AbortController() : null;
     const timer = controller ? setTimeout(() => controller.abort(), waitMs) : null;
     try {
-      return await locks.request(lockName, controller ? { signal: controller.signal } : {}, async () => { if (timer) clearTimeout(timer); return step(change); });
+      return await locks.request(lockName, controller ? { signal: controller.signal } : {}, async () => { if (timer) clearTimeout(timer); return step(change, fence); });
     } catch (error) {
       if (error?.name === 'AbortError') return fail('busy', MESSAGES.busy);
       return fail('write-failed', MESSAGES['write-failed']);
@@ -275,9 +284,11 @@ export function createCharacterStore({ storage, locks = globalThis.navigator?.lo
 
   // ---- committing ----
   /** Commit a preparation made by this store. Safe to call again with the same preparation: the second call writes nothing. */
-  async function commit(preparation) {
+  async function commit(preparation, { fence } = {}) {
     const held = isObject(preparation) ? PREPARED.get(preparation) : undefined;
     if (ended()) return sessionEnded();
+    if (!fenceOk(fence)) return fail('target', 'The session check for this change is not valid. Nothing was changed.');
+    if (fenced(fence)) return fail('scope-changed', MESSAGES['fence-moved']);
     if (!held || held.owner !== self) return fail('unknown-preparation', 'This admission was not prepared here (or is no longer valid). Nothing was changed.');
     if (scopeMoved(held.token)) return fail('scope-changed', 'This chat session ended before the character was saved. Nothing was changed.');
     const blocked = writeBlock(); if (blocked) return blocked;
@@ -285,7 +296,7 @@ export function createCharacterStore({ storage, locks = globalThis.navigator?.lo
     // serialisable source, and must still mean exactly what was prepared. What is stored is what passed THIS, not a caller's object.
     const again = await reopenCharacterSource(held.body.source, { subjectId: held.body.subject.id, crypto });
     if (!again.ok || meaningText(bodyOf(again.candidate)) !== meaningText(held.body)) return fail('verification-failed', 'The package no longer verifies, so nothing was saved.');
-    if (scopeMoved(held.token)) return fail('scope-changed', 'This chat session ended before the character was saved. Nothing was changed.');
+    if (scopeMoved(held.token) || fenced(fence)) return fail('scope-changed', 'This chat session ended before the character was saved. Nothing was changed.');
 
     return mutate((state) => {
       if (scopeMoved(held.token)) return { failure: fail('scope-changed', 'This chat session ended before the character was saved. Nothing was changed.') };
@@ -310,11 +321,12 @@ export function createCharacterStore({ storage, locks = globalThis.navigator?.lo
       const record = { individualId: held.individualId, recordVersion: 1, origin: { purpose: held.purpose, admissionId: held.admissionId, route: held.route, ...(held.copiedFrom ? { copiedFrom: held.copiedFrom } : {}) }, admissions: [held.admissionId], createdAt: at, updatedAt: at, ...json(held.body) };
       state.records.push(record);
       return { write: true, touched: record, result: { status: held.purpose === 'copy' ? 'copied' : 'admitted', individualId: record.individualId, recordVersion: 1 } };
-    });
+    }, fence);
   }
 
   /** Remove one saved character: it must still be the version the person chose. A record already gone is reported as such and nothing is written. */
-  function remove({ individualId, recordVersion } = {}) {
+  function remove({ individualId, recordVersion } = {}, { fence } = {}) {
+    if (!fenceOk(fence)) return Promise.resolve(fail('target', 'The session check for this change is not valid. Nothing was changed.'));
     if (!OPAQUE.test(String(individualId)) || !isVersion(recordVersion)) return Promise.resolve(fail('target', 'Removing needs one chosen saved character and its version. Nothing was changed.'));
     return mutate((state) => {
       const i = state.records.findIndex((r) => r.individualId === individualId);
@@ -322,7 +334,7 @@ export function createCharacterStore({ storage, locks = globalThis.navigator?.lo
       if (state.records[i].recordVersion !== recordVersion) return { failure: fail('stale', 'That character was changed since you chose it, so it was not removed.', { currentVersion: state.records[i].recordVersion }) };
       state.records.splice(i, 1);
       return { write: true, result: { status: 'removed', individualId } };
-    });
+    }, fence);
   }
 
   return Object.assign(self, { read, ready, list, get, open, prepare, commit, remove, temporary: Boolean(storage?.memoryOnly) });
