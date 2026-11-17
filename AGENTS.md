@@ -121,7 +121,7 @@ program:
 [[any-one-lane-is-enough]] — The standing bar that any one of Claude Code, Codex or opencode on the local router must be able to run Cosmoshot, and the routing-policy mechanism that chooses lanes.
 [[development-infrastructure-scope]] — Scope and ownership of the shared developer foundation; read before expanding infrastructure into application or commercial design.
 [[homelab-compute-autonomy]] — Use authorized homelab capacity without invented cash budgets, low core caps or repeat owner approvals.
-[9/16 entries shown; cosmo-mem read program _index.md]
+[9/17 entries shown; cosmo-mem read program _index.md]
 ```
 
 

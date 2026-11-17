@@ -17,7 +17,7 @@ tasks and `O12` for objectives in pages and briefings only.
 - Send `X-Actor: <your team>` on every write; it is recorded in the history. The names are one
   list, used for who owns a task, who wrote an item or a note, and who made a change: `John`,
   `platform`, `plc`, `memory`, `simulator`, `infra`, `cyberplanetary`, `sonalon`, `brand`,
-  `cosmogenitor`, `concepts`, `business`, `devops`, `planner`. Use the team whose folder you work in
+  `cosmogenitor`, `concepts`, `business`, `devops`, `aiofourown`, `planner`. Use the team whose folder you work in
   (`devops` works in `/cosmoshot/tools`).
   Without the header the actor is `John`. Use the same name as `author` on notes.
 - Read before you act: `GET /api/state` (the whole board) or one briefing, see below.
