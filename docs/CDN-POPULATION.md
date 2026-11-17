@@ -2,6 +2,10 @@
 
 > ## DONE (2026-11-02): the search model is on the project CDN
 >
+> **T587 (2026-11-17):** the two executable files of this set (`runtime/ort-wasm-simd-threaded.wasm` and `.mjs`) are no longer fetched from the CDN: the app serves them itself
+> (`chat/vendor/embedding/ort/`, pinned in `chat/vendor/embedding/VERSIONS.json`), because the shared CDN is data-only. `publish-embedding.py --data-only` publishes the
+> set without them (8 objects, 23,891,541 bytes; dry run verified).
+>
 > `ops/cloudflare/publish-embedding.py` uploaded all 10 objects (36,858,671 bytes) to `models/memory/79cbff1e617b319a/` and verified each over
 > the public URL (bytes, CORS, content type). The app now reads it from `https://assets.privatelocal.chat/models/memory/`; Task 2 below is done
 > and `tests/e2e/ivr-semantic.e2e.mjs` passes against the new host. Task 3 is still open.

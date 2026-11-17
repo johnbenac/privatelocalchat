@@ -3,12 +3,19 @@
 
     python3 ops/cloudflare/publish-embedding.py --dry-run     # download, verify every SHA-256, show the plan; writes nothing
     python3 ops/cloudflare/publish-embedding.py               # upload to R2, then verify every object over its public URL
+    python3 ops/cloudflare/publish-embedding.py --data-only --dry-run   # the set without runtime/ (code), for a data-only CDN
 
 Needs only the operator's Cloudflare token file (default /root/.config/privatelocalchat/cloudflare-api-token) and boto3. R2's S3
 credentials are derived from the token the same way publish-models.py does: access key id = the token's id, secret = SHA-256 of the token.
 Objects are immutable: an existing object with the same bytes is kept, a different one is refused. The same version string and layout as
 the source host are used on purpose (models/memory/<version>/...), so the bytes are provably the ones docs/EMBEDDINGS.md lists.
 After it succeeds, follow docs/CDN-POPULATION.md step 3 (point the app at the new host).
+
+--data-only leaves out the two ONNX Runtime files (runtime/ort-wasm-simd-threaded.wasm and .mjs): they are code, the shared data-only CDN
+(cdn.aiofourown.com) must not hold code, and the app serves them itself (chat/vendor/embedding/ort/). Its manifest.json and LICENSE.txt then
+describe only the data files, so they differ from the ones already in this bucket: use it for a NEW prefix (the shared CDN's models/memory/<version>/),
+never on the existing bucket, where the refusal to replace a different object would stop it. It does not publish anything by itself either: the
+shared CDN is published with devops' tool (T585) from the files this dry run verifies.
 """
 import argparse
 import hashlib
@@ -51,13 +58,19 @@ def fetch(url):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--dry-run', action='store_true')
+    parser.add_argument('--data-only', action='store_true', help='leave out runtime/ (executable files); the app serves those itself')
     parser.add_argument('--source', default=SOURCE, help='where to read the set from (default: the current host)')
     parser.add_argument('--token-file', default='/root/.config/privatelocalchat/cloudflare-api-token')
     args = parser.parse_args()
     source = args.source if args.source.endswith('/') else args.source + '/'
 
+    files = [f for f in FILES if not (args.data_only and f[0].startswith('runtime/'))]
+    license_text = LICENSE_TEXT if not args.data_only else (
+        'Small search model for Private Local Chat (Roberta\'s topic matching). embed/: MongoDB/mdbr-leaf-ir, revision '
+        '4262131b32c3182bd06e67e92ae69d7bd66e0c5c, Apache-2.0, int8 ONNX unchanged. Data only: the ONNX Runtime Web files the app '
+        'also needs are served by the app. Files are immutable; a changed byte is a new version path.\n')
     blobs = {}
-    for path, size, sha, _ in FILES:
+    for path, size, sha, _ in files:
         data = fetch(source + path)
         actual = hashlib.sha256(data).hexdigest()
         if actual != sha or (size is not None and len(data) != size):
@@ -65,10 +78,10 @@ def main():
         blobs[path] = data
         print('verified', path, len(data), 'bytes')
     manifest = {'format': 'memory-models/1', 'version': VERSION, 'note': 'The files the app uses, with SHA-256 values.',
-                'files': [{'path': p, 'bytes': len(blobs[p]), 'sha256': s} for p, _, s, _ in FILES]}
+                'files': [{'path': p, 'bytes': len(blobs[p]), 'sha256': s} for p, _, s, _ in files]}
     blobs['manifest.json'] = (json.dumps(manifest, indent=2) + '\n').encode()
-    blobs['LICENSE.txt'] = LICENSE_TEXT.encode()
-    types = {p: t for p, _, _, t in FILES}
+    blobs['LICENSE.txt'] = license_text.encode()
+    types = {p: t for p, _, _, t in files}
     types['manifest.json'] = 'application/json'
     types['LICENSE.txt'] = 'text/plain; charset=utf-8'
     total = sum(len(b) for b in blobs.values())

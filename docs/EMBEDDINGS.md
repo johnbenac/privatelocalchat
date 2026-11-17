@@ -38,12 +38,15 @@ version is the first 16 hex digits of the SHA-256 of every file's path and hash,
 | `MongoDB/mdbr-leaf-ir` int8 ONNX, revision `4262131b32c3182bd06e67e92ae69d7bd66e0c5c`: `embed/onnx/model_quantized.onnx_data` | Apache-2.0 | 22.95 MB | `e77ea96a124230e23e5bac8e26c3ffe5410154973d8635673fa0220b06c13f8b` |
 | `embed/onnx/model_quantized.onnx` | Apache-2.0 | 0.22 MB | `8c08cb4ecc00bad721b117a85738c537ceb9b85b3eedc52d9c6906fddaa55718` |
 | `embed/tokenizer.json`, `tokenizer_config.json`, `config.json`, `special_tokens_map.json` | Apache-2.0 | 0.71 MB | in `manifest.json` next to them |
-| `runtime/ort-wasm-simd-threaded.wasm` (ONNX Runtime Web, plain CPU SIMD build) | MIT | 12.94 MB | `f4f290847a4df02d0b93cdbf39b4b0e71acefbe80573e7e6b9342a7abd7b290a` |
-| `runtime/ort-wasm-simd-threaded.mjs` | MIT | 24 kB | `5f2cd914554830762579c372d0211614c1e3f40ab3f6c0cfcf0900343229071d` |
+| `ort/ort-wasm-simd-threaded.wasm` (ONNX Runtime Web, plain CPU SIMD build), **served by the app**, in `chat/vendor/embedding/ort/` | MIT | 12.94 MB | `f4f290847a4df02d0b93cdbf39b4b0e71acefbe80573e7e6b9342a7abd7b290a` |
+| `ort/ort-wasm-simd-threaded.mjs`, served by the app | MIT | 24 kB | `5f2cd914554830762579c372d0211614c1e3f40ab3f6c0cfcf0900343229071d` |
 | `@huggingface/transformers` 4.2.0 (bundled in the worker) | Apache-2.0 | worker 561 kB | |
 | `onnxruntime-web` 1.26.0-dev.20260416-b7804b056c (bundled JS) | MIT | | |
 
-About 24 MB of model plus 13 MB of runtime is downloaded once, only when Roberta first needs it, and kept by the browser's Cache API. The
+About 24 MB of model is downloaded from the model source once, only when Roberta first needs it, and kept by the browser's Cache API. The 13 MB runtime
+is the app's own code: it is the two `ort/` files above, loaded from the app's own release folder (not part of the saved shell, fetched on first use and kept
+like the voice runtime). The model source is a data-only host, so it must not hold them; `EMBEDDING_WASM_BASE` in `embedding-config.mjs` says where they are.
+The original set (10 objects) also holds copies under `runtime/`; they are no longer fetched. The
 set on the host also holds a reranker; this repository never fetches it. These hashes were checked against the host on 2026-11-01.
 
 How the model is used: the output is the model's `sentence_embedding` (encoder plus its Dense projection), cut to 256
@@ -64,16 +67,17 @@ The host sees an ordinary file download (IP address, user agent), as with any ot
 
 The task is written up in `docs/CDN-POPULATION.md` and `ops/cloudflare/publish-embedding.py` does the upload and verification. You cannot publish from a coding session (no credentials), but the move is mechanical:
 
-1. Download the files of the set: `embed/` (six files) and `runtime/` (two files) from the URL above, and `manifest.json`. Check each SHA-256
+1. Download the files of the set: `embed/` (six files) from the URL above, and `manifest.json`. (A data-only host gets `embed/` only: `publish-embedding.py --data-only`. The `runtime/` files are the app's own, see above.) Check each SHA-256
    against `manifest.json` and the table above.
 2. Upload them to R2 under a content-addressed prefix on `assets.privatelocal.chat`, for example `models/memory/<version>/embed/...` and
-   `models/memory/<version>/runtime/...`. Easiest and safest: keep the SAME version string and layout (`models/memory/79cbff1e617b319a/`), so the
+   `models/memory/<version>/` (for a data-only host, without `runtime/`). Easiest and safest: keep the SAME version string and layout (`models/memory/79cbff1e617b319a/`), so the
    bytes are provably the ones above. Publish with the immutable header `Cache-Control: public, max-age=31536000, immutable`, never overwrite an
    object (`docs/OPERATIONS.md`), and verify each object over its public URL.
 3. The host must answer `Access-Control-Allow-Origin: *` and `Cross-Origin-Resource-Policy: cross-origin` (the app is cross-origin isolated).
    Content types: `.json` application/json, `.onnx` and `.onnx_data` application/octet-stream, `.wasm` application/wasm, `.mjs` text/javascript.
 4. Change `EMBEDDING_ASSET_HOST` (and `EMBEDDING_ASSET_VERSION` if the set changed) in `chat/embedding/embedding-config.mjs`. Nothing else: the worker
-   gets the base from the page. The files are NOT in the service worker's precache (they are too big and are kept by the Cache API instead).
+   gets the base from the page. The data files are NOT in the service worker's precache (they are too big and are kept by the Cache API instead); the
+   ONNX Runtime files are served by the app and are on demand too (`tests/offline-precache.test.mjs`).
 
 ## Regenerating the example vectors
 

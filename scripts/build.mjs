@@ -143,7 +143,7 @@ await writeFile(path.join(out,'_headers'),toPagesHeaders()); // the rules are in
 }
 const NOT_SHELL_ROOT_FILES=['_headers','_worker.js','_redirects','_routes.json'];
 const shell=[];
-async function walk(dir){for(const ent of await readdir(dir,{withFileTypes:true})){const p=path.join(dir,ent.name);if(ent.isDirectory())await walk(p);else if(!(dir===out&&NOT_SHELL_ROOT_FILES.includes(ent.name))&&!(dir===out&&LICENCE_FILES.includes(ent.name))&&!/\/chat\/vendor\/voice\//.test('/'+path.relative(out,p).split(path.sep).join('/')))shell.push('/'+path.relative(out,p).split(path.sep).join('/'));}}
+async function walk(dir){for(const ent of await readdir(dir,{withFileTypes:true})){const p=path.join(dir,ent.name);if(ent.isDirectory())await walk(p);else if(!(dir===out&&NOT_SHELL_ROOT_FILES.includes(ent.name))&&!(dir===out&&LICENCE_FILES.includes(ent.name))&&!/\/chat\/vendor\/(voice|embedding\/ort)\//.test('/'+path.relative(out,p).split(path.sep).join('/')))shell.push('/'+path.relative(out,p).split(path.sep).join('/'));}}
 await walk(out);
 let template=await readFile('scripts/service-worker.js','utf8');
 if(!targetInfo.devTooling)template=template.replace(/\/\* DEV_DIAGNOSTICS_START \*\/[\s\S]*?\/\* DEV_DIAGNOSTICS_END \*\//g,'');

@@ -10,8 +10,8 @@ import {devSite} from './helpers/dev-site.mjs';
 // against the files that ship and against the imports between them.
 
 const root=process.cwd();
-// Left out on purpose: fetched when first used and saved then (chat/vendor/voice), and files that only the host reads.
-const ON_DEMAND=[/^\/chat\/vendor\/voice\//,/^\/(_headers|_worker\.js|_redirects|_routes\.json|sw\.js)$/,/^\/(LICENSE|THIRD-PARTY-NOTICES\.md)$/,/^\/404\.html$/];
+// Left out on purpose: fetched when first used and saved then (chat/vendor/voice, the ONNX Runtime of the search model), and files that only the host reads.
+const ON_DEMAND=[/^\/chat\/vendor\/voice\//,/^\/chat\/vendor\/embedding\/ort\//,/^\/(_headers|_worker\.js|_redirects|_routes\.json|sw\.js)$/,/^\/(LICENSE|THIRD-PARTY-NOTICES\.md)$/,/^\/404\.html$/];
 async function files(dir,base=dir,list=[]){for(const ent of await readdir(dir,{withFileTypes:true})){const p=path.join(dir,ent.name);if(ent.isDirectory())await files(p,base,list);else list.push('/'+path.relative(base,p).split(path.sep).join('/'));}return list;}
 const left=f=>ON_DEMAND.some(r=>r.test(f.replace(/^\/releases\/[^/]+/,'')));
 const shipped=async(out)=>(await files(out)).filter(f=>!left(f));
