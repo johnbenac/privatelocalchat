@@ -10,6 +10,7 @@ import { createMemoryAdapter } from '../chat/vault/vault-db.mjs';
 import { createVault } from '../chat/vault/vault.mjs';
 import { memoryStorage } from '../chat/vault/vault-store.mjs';
 import { buildModules, loadModules, oldRevAvailable, scratchRoot, NEW_KEYS } from './helpers/vault-transition-rig.mjs';
+import { providedLease } from './helpers/web-locks-fake.mjs';
 
 const FAST = 1000, [CH, EN] = NEW_KEYS;
 const root = scratchRoot();
@@ -20,8 +21,8 @@ const chars = JSON.stringify({ v: 1, records: [{ id: 'c-1', name: 'Synthetic Pip
 const encs = JSON.stringify({ v: 1, encounters: [{ id: 'e-1', note: 'SYNTH-ENC-1' }] });
 const threads = (n, tag = 'x') => Array.from({ length: n }, (_, i) => ({ id: 't' + i, title: 'Chat ' + i + tag, messages: [{ role: 'user', content: 'hi ' + i }] }));
 const noLocks = undefined;
-const lockHeldByOther = { request: (name, options, cb) => (typeof options === 'function' ? new Promise(() => {}) : Promise.resolve(cb(null))) }; // someone else holds it for ever
-const lockFree = { request: (name, options, cb) => { if (typeof options !== 'function') cb({ name }); return new Promise(() => {}); } };
+const lockHeldByOther = { request: (name, options, cb) => (options?.ifAvailable ? Promise.resolve(cb(null)) : new Promise(() => {})) }; // someone else holds it for ever
+const lockFree = { request: (name, options, cb) => (options?.ifAvailable ? Promise.resolve(cb({ name })) : new Promise(() => {})) }; // as the browser: a granted request settles when its callback's promise does (a lease release)
 
 function ctxOf(initialLocal = {}, initialSession = {}) { return { local: memoryStorage(initialLocal), session: memoryStorage(initialSession), adapter: createMemoryAdapter() }; }
 const sha = (file) => createHash('sha256').update(fs.readFileSync(file)).digest('hex');
@@ -57,7 +58,7 @@ test('ordinary enable on the new build migrates the new stores, writes the recon
   const s = await stored(ctx, session);
   assert.equal(s.kv.get('l/' + CH), chars); assert.equal(s.kv.get('l/' + EN), encs);
   assert.deepEqual(JSON.parse(s.kv.get('meta/recoveredKeys')), [CH, EN].sort());
-  mods.store.app.attach(session, { writer: true, exclusive: true });
+  mods.store.app.attach(session, { writer: true, lease: providedLease() });
   const control = mods.control.createVaultControl({ app: mods.store.app, adapter: ctx.adapter, realLocal: ctx.local, realSession: ctx.session, dropDocsDb: async () => {} });
   const r = await control.removePlaintext();
   assert.deepEqual(r.kept, []); assert.ok(r.removed.includes(CH) && r.removed.includes(EN));
@@ -123,7 +124,7 @@ test('a stale retained copy of a deleted store is never copied back, and is kept
   const ctx = ctxOf(oldInitial());
   const mods = await loadModules(built.new, { local: ctx.local, session: ctx.session, locks: lockFree });
   const { session } = await mods.store.createAndMigrate({ passphrase: 'pw', adapter: ctx.adapter, realLocal: ctx.local, realSession: ctx.session, iterations: FAST });
-  mods.store.app.attach(session, { writer: true, exclusive: true });
+  mods.store.app.attach(session, { writer: true, lease: providedLease() });
   mods.store.appLocal.removeItem(CH); await mods.store.app.flush(); session.lock(); // deleted in the vault; the plaintext copy was retained
   const b = await boot(ctx);
   assert.equal(b.get(CH), null, 'not resurrected'); assert.deepEqual(b.res.recovery.recovered, []);
@@ -148,7 +149,7 @@ test('cleanup: a copy that changes while the stored vault is being read back is 
   const ctx = ctxOf(oldInitial());
   const mods = await loadModules(built.new, { local: ctx.local, session: ctx.session, locks: lockFree });
   const { session } = await mods.store.createAndMigrate({ passphrase: 'pw', adapter: ctx.adapter, realLocal: ctx.local, realSession: ctx.session, iterations: FAST });
-  mods.store.app.attach(session, { writer: true, exclusive: true });
+  mods.store.app.attach(session, { writer: true, lease: providedLease() });
   const control = mods.control.createVaultControl({ app: mods.store.app, adapter: ctx.adapter, realLocal: ctx.local, realSession: ctx.session, dropDocsDb: async () => {} });
   const realRead = ctx.adapter.readLog; let armed = true;
   ctx.adapter.readLog = async () => { const log = await realRead.call(ctx.adapter); if (armed) { armed = false; ctx.local.setItem(CH, 'CHANGED-DURING-READBACK'); } return log; };
@@ -159,7 +160,7 @@ test('cleanup: a copy that changes while the stored vault is being read back is 
   const ctx2 = ctxOf({ [EN]: encs });
   const m2 = await loadModules(built.new, { local: ctx2.local, session: ctx2.session, locks: lockFree });
   const mig = await m2.store.createAndMigrate({ passphrase: 'pw', adapter: ctx2.adapter, realLocal: ctx2.local, realSession: ctx2.session, iterations: FAST });
-  m2.store.app.attach(mig.session, { writer: true, exclusive: true });
+  m2.store.app.attach(mig.session, { writer: true, lease: providedLease() });
   ctx2.adapter.tamper((records, set, del) => { del(records.find((r) => r.seq === 1).seq); });
   const c2 = m2.control.createVaultControl({ app: m2.store.app, adapter: ctx2.adapter, realLocal: ctx2.local, realSession: ctx2.session, dropDocsDb: async () => {} });
   assert.equal(m2.store.appLocal.getItem(EN), encs, 'memory still has it');
@@ -236,7 +237,7 @@ test('session keys are never copied; the remember-keys rule decides what counts 
   const ctx = ctxOf({}, { chatConfig: '{"endpoint":"https://x","token":"SYNTH-TOKEN","model":"m"}', chatEndpointTokens: '{"https://x":"SYNTH-TOKEN"}', 'plc.draft': 'unsent' });
   const mods = await loadModules(built.new, { local: ctx.local, session: ctx.session, locks: lockFree });
   const { session } = await mods.store.createAndMigrate({ passphrase: 'pw', adapter: ctx.adapter, realLocal: ctx.local, realSession: ctx.session, iterations: FAST });
-  mods.store.app.attach(session, { writer: true, exclusive: true }); mods.store.app.setRememberKeys(false); await mods.store.app.flush(); session.lock();
+  mods.store.app.attach(session, { writer: true, lease: providedLease() }); mods.store.app.setRememberKeys(false); await mods.store.app.flush(); session.lock();
   ctx.session.setItem('plc.pendingToken.v1', 'only-raw');
   const b = await boot(ctx);
   assert.equal((await storedKv(ctx)).kv.has('s/plc.pendingToken.v1'), false, 'never copied');
@@ -250,7 +251,7 @@ test('chatThreads: raw list compared per thread id; id-less lists are unreadable
   const ctx = ctxOf({ chatThreads: JSON.stringify(threads(2)) });
   const mods = await loadModules(built.new, { local: ctx.local, session: ctx.session, locks: lockFree });
   const { session } = await mods.store.createAndMigrate({ passphrase: 'pw', adapter: ctx.adapter, realLocal: ctx.local, realSession: ctx.session, iterations: FAST });
-  mods.store.app.attach(session, { writer: true, exclusive: true });
+  mods.store.app.attach(session, { writer: true, lease: providedLease() });
   const grown = threads(2); grown.push({ id: 't9', title: 'new', messages: [] });
   mods.store.appLocal.setItem('chatThreads', JSON.stringify(grown)); await mods.store.app.flush(); session.lock();
   const b = await boot(ctx);
@@ -268,7 +269,7 @@ test('turning encryption off keeps a differing raw copy of a newer store; a diff
   const ctx = ctxOf(oldInitial());
   const mods = await loadModules(built.new, { local: ctx.local, session: ctx.session, locks: lockFree });
   const { session } = await mods.store.createAndMigrate({ passphrase: 'pw', adapter: ctx.adapter, realLocal: ctx.local, realSession: ctx.session, iterations: FAST });
-  mods.store.app.attach(session, { writer: true, exclusive: true });
+  mods.store.app.attach(session, { writer: true, lease: providedLease() });
   const control = mods.control.createVaultControl({ app: mods.store.app, adapter: ctx.adapter, realLocal: ctx.local, realSession: ctx.session, docs: { all: async () => [], put: async () => {} }, dropDocsDb: async () => {}, iterations: FAST });
   ctx.local.setItem(CH, 'RAW-DIFFERENT');
   await assert.rejects(() => control.disable('pw'), (e) => e.code === 'conflict');
