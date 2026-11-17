@@ -120,8 +120,8 @@ program:
 [[sign-in-and-accounts-decision]] — How people sign in across the Cosmoshot sites, what an account may and may not do, and why it comes later.
 [[terms-of-service-decisions]] — Where the terms-of-service decisions are listed and decision D1, no likeness of a real person from platform resources.
 [[branding-assets-and-direction]] — Where the ai of our own brand assets are, which bold-colour set is the style to build on, and what the branding work keeps.
-[[archive-upload-parts]] — Upload-sized archive deliveries: numbered parts, verified reassembly, and the shared archive-parts skill.
-[10/12 entries shown; cosmo-mem read program _index.md]
+[[branding-t438-guidance]] — Active T438-only goal: accepted T415 intake, concrete T437 upstream request and separate engineering-owner dependency.
+[10/13 entries shown; cosmo-mem read program _index.md]
 ```
 
 
