@@ -153,7 +153,11 @@ test('W affected: owner unknown creation, peer recovery plus unrelated newer ACK
     b.tabs[2].setItem('chatThreads', JSON.stringify([thread('shared', [msg('s0', 'user', 'seed')])]));
     await sleep(8 + 20);
     let fault = false;
-    const open = b.tabs.map((storage, i) => openTab({ storage, locks, onPhase: i === 0 ? (p) => { if (p === 'finalized' && fault) backend.failing.cas = true; } : undefined, storeOptions: { coordination: coordFor(storage, backend, { freshMs: 3000 }) } }));
+    // every tab reaches the ONE physical record through a thin delegating view that stamps each applied CAS with a common, monotonic ordinal (no simulated result)
+    const names = ['owner', 'peer', 'writer', 'reader']; const casEvents = []; let ordinal = 0;
+    const tapped = (i) => ({ kind: backend.kind, get: () => backend.get(), clear: () => backend.clear(),
+      cas: async (expect, record) => { const ok = await backend.cas(expect, record); if (ok) casEvents.push({ tab: names[i], ordinal: ++ordinal, state: record.state, op: record.state === 'stable' ? record.last?.op : record.op }); return ok; } });
+    const open = b.tabs.map((storage, i) => openTab({ storage, locks, onPhase: i === 0 ? (p) => { if (p === 'finalized' && fault) backend.failing.cas = true; } : undefined, storeOptions: { coordination: coordFor(storage, tapped(i), { freshMs: 3000 }) } }));
     const [owner, peer, writer, reader] = open;
     // the owner's creation/send: the ACK fails, so the outcome is unknown
     fault = true; owner.threads.push(thread('own', [msg('alpha', 'user', 'alpha')]));
@@ -166,11 +170,43 @@ test('W affected: owner unknown creation, peer recovery plus unrelated newer ACK
     owner.thread('own').messages.push(msg('beta', 'user', 'beta'));
     peer.threads.push(thread('peer', [msg('p1', 'user', 'peer words')], { peerOnly: { r } }));
     writer.thread('shared').messages.push(msg('x1', 'user', 'writer words'));
+    // REACHED schedule: the owner's creation is unknown; ONLY THEN the peer's actual save must recover it forward and commit an unrelated NEW stable ACK; ONLY THEN the owner retry, the writer and
+    // the reader's recovery-capable prepare are released (the reader observes, the others wait, from the shared barrier). The peer stays active with real prepares while they overlap.
+    const afterFirst = casEvents.length; const unknownOp = first.unknown.op;
     let go; const barrier = new Promise((res) => { go = res; });
-    const readerRun = (async () => { await barrier; while (!done) { const raw = b.truth('chatThreads'); const list = JSON.parse(raw || '[]'); for (const t of list) assert.equal(new Set(t.messages.map((m) => m.id)).size, t.messages.length, 'torn read'); readerLog.push(list.length); await reader.commit.prepare(); await sleep(3); } })();
-    const running = Promise.all([owner, peer, writer].map(async (tab, i) => { await barrier; return settle(tab, ['owner', 'peer', 'writer'][i]); }));
+    let proved = false, releaseGate; const gate = new Promise((res) => { releaseGate = res; });
+    let peerResult = null, peerAck = null, superseded = false, releaseIndex = -1, readerPrepares = 0, peerPrepares = 0; const worked = new Set();
+    const peerProof = (async () => {
+      await barrier;
+      try {
+        peerResult = await peer.save();
+        assert.equal(peerResult.ok, true, `round ${r}: peer save ok: ` + JSON.stringify(peerResult)); assert.deepEqual(peerResult.conflicts || [], [], `round ${r}: peer no conflicts`);
+        assert.equal(peerResult.recovered, 'forward', `round ${r}: the peer actual save recovered the owner operation forward`);
+        const latest = backend.peek();
+        assert.equal(latest.state, 'stable', `round ${r}: peer left a stable record`); assert.notEqual(latest.last.op, unknownOp, `round ${r}: a newer unrelated ACK superseded the owner receipt`);
+        peerAck = [...casEvents].reverse().find((e) => e.tab === 'peer' && e.state === 'stable' && e.op === latest.last.op);
+        assert.ok(peerAck, `round ${r}: the superseding ACK was committed by the peer itself`);
+        const before = casEvents.slice(afterFirst, casEvents.indexOf(peerAck) + 1);
+        assert.ok(before.length > 0 && before.every((e) => e.tab === 'peer'), `round ${r}: nobody but the peer touched the record before its ACK: ` + JSON.stringify(before));
+        superseded = latest.last.op !== unknownOp; releaseIndex = casEvents.length; proved = true; worked.add('peer');
+      } finally { releaseGate(); }
+    })();
+    const peerRun = peerProof.then(async () => { while (!done) { await peer.commit.prepare(); peerPrepares++; await sleep(3); } });
+    const afterGate = async (tab, label) => { await barrier; await gate; if (!proved) throw new Error(`round ${r}: ${label} released without the peer-forward/new-ACK proof`); const x = await settle(tab, label); worked.add(label); return x; };
+    const readerRun = (async () => {
+      await barrier;
+      while (!done || (proved && readerPrepares === 0)) {
+        const raw = b.truth('chatThreads'); const list = JSON.parse(raw || '[]'); for (const t of list) assert.equal(new Set(t.messages.map((m) => m.id)).size, t.messages.length, 'torn read'); readerLog.push(list.length);
+        if (proved) { await reader.commit.prepare(); readerPrepares++; } else await sleep(1);
+        await sleep(3);
+      }
+    })();
+    const running = Promise.all([peerProof, afterGate(owner, 'owner'), afterGate(writer, 'writer')]);
+    peerRun.catch(() => {}); readerRun.catch(() => {}); running.catch(() => {});
     go();
-    await within(running, 30000, 'affected round ' + r); done = true; await within(readerRun, 10000, 'reader round ' + r);
+    try { await within(running, 30000, 'affected round ' + r); } finally { done = true; releaseGate(); await Promise.allSettled([peerRun, readerRun, running]); }
+    await within(readerRun, 10000, 'reader round ' + r); await within(peerRun, 10000, 'peer round ' + r);
+    if (readerPrepares > 0) worked.add('reader');
     await sleep(40);
     const truth = JSON.parse(b.truth('chatThreads')), ledger = JSON.parse(b.truth('plc.encounters.v1'));
     const ids = (tid) => (truth.find((t) => t.id === tid)?.messages || []).map((m) => m.id);
@@ -183,5 +219,14 @@ test('W affected: owner unknown creation, peer recovery plus unrelated newer ACK
     const fresh = openTab({ storage: b.spawn(), locks, storeOptions: { coordination: coordFor(b.tabs[b.tabs.length - 1], backend, { freshMs: 3000 }) } });
     assert.deepEqual(fresh.stored().map((t) => t.id).sort(), truth.map((t) => t.id).sort()); assert.equal((await fresh.save()).ok, true);
     console.log('W_AFFECTED_ROUND', JSON.stringify({ round: r, actors: 4, stable: true, ownIntent: true, peerIntent: true }));
+    // the reached interleave, from the actual recorded events (not a printed claim)
+    const ownerRetry = casEvents.slice(releaseIndex).find((e) => e.tab === 'owner');
+    assert.ok(ownerRetry, `round ${r}: the owner retry committed after the release`);
+    assert.ok(peerAck.ordinal < ownerRetry.ordinal, `round ${r}: peer ACK ${peerAck.ordinal} precedes owner retry ${ownerRetry.ordinal}`);
+    assert.ok(casEvents.slice(releaseIndex).every((e) => e.ordinal > peerAck.ordinal), `round ${r}: nothing after the release predates the peer ACK`);
+    assert.ok(casEvents.slice(afterFirst, releaseIndex).every((e) => e.tab === 'peer'), `round ${r}: only the peer wrote before the release`);
+    assert.ok(readerLog.length > 0 && readerPrepares > 0, `round ${r}: the reader actually observed and prepared`);
+    assert.deepEqual([...worked].sort(), ['owner', 'peer', 'reader', 'writer'], `round ${r}: all four actors participated`);
+    console.log('W_REACHED_INTERLEAVE', JSON.stringify({ round: r, peerRecovered: peerResult.recovered, priorAckSuperseded: superseded, peerAckOrdinal: peerAck.ordinal, ownerRetryOrdinal: ownerRetry.ordinal, readerSamples: readerLog.length, participants: worked.size }));
   }
 });
