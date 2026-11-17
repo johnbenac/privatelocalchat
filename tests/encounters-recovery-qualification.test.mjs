@@ -5,41 +5,47 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { memStorage, fakeLocks, openTab, thread, msg, coordFor } from './helpers/encounters-env.mjs';
+import { memStorage, fakeLocks, openTab, thread, msg, makeMessage, coordFor } from './helpers/encounters-env.mjs';
+import { browser, lockManager, sleep, within } from './helpers/browser-model.mjs';
 import { memoryBackend, createCoordination, sha256Hex } from '../chat/encounters/coordination.mjs';
 import { createLedgerStore } from '../chat/encounters/ledger-store.mjs';
 import { outcomeOf } from '../chat/encounters/save-outcome.mjs';
 
 // ============================================================================ U physical smoke: four actors, distinct views, one shared backend, one round
 test('U physical smoke: four actors, distinct Storage views, one shared metadata backend, one round', async () => {
-  const backend = memoryBackend();
-  const views = [];
-  for (let i = 0; i < 4; i++) {
-    const storage = memStorage({ chatThreads: JSON.stringify([thread('shared', [msg('s1', 'user', 'seed')])]) });
-    views.push(storage);
-  }
-  const tabs = views.map((storage) => openTab({ storage, locks: fakeLocks(), storeOptions: { coordination: coordFor(storage, backend, { freshMs: 10 }) } }));
+  // Existing store-safety world()/round() pattern at n=4, K=1: ONE browser physical truth with four lagging own views, ONE lock manager, ONE metadata backend.
+  const n = 4;
+  const b = browser(n, { lag: 8 }); const locks = lockManager(); const sameBackend = memoryBackend();
+  b.tabs[0].setItem('chatThreads', JSON.stringify([thread('shared', [msg('s1', 'user', 'seed')])]));
+  await sleep(8 + 20);   // seed delivery before any actor starts
+  const open = b.tabs.map((storage) => openTab({ storage, locks, storeOptions: { coordination: coordFor(storage, sameBackend, { freshMs: 3000 }) } }));
   const acked = [];
-  for (const tab of tabs) {
-    const m = { id: `m-${tab.threads[0].id}`, content: 'smoke', role: 'user', at: 1 };
-    tab.threads[0].messages.push(m);
+  let go; const barrier = new Promise((res) => { go = res; });
+  const running = Promise.all(open.map(async (tab, i) => {
+    await barrier;
+    const m = makeMessage('user', `smoke ${i}`); m.id = `m-${i}`;
+    tab.thread('shared').messages.push(m);
     const r = await tab.save();
-    if (r.ok && !(r.conflicts || []).length) acked.push(m.id);
-  }
-  await new Promise((r) => setTimeout(r, 50));
-  const chat = JSON.parse(views[0].getItem('chatThreads'));
-  const ids = chat.find((t) => t.id === 'shared').messages.map((m) => m.id);
-  const missing = acked.filter((id) => !ids.includes(id));
-  assert.deepEqual(missing, [], 'all acknowledged messages survived');
+    if (r.ok && !(r.conflicts || []).length) acked.push(m.id); else tab.thread('shared').messages.pop();
+  }));
+  go();
+  await within(running, 20000, 'four smoke actors');
+  await sleep(60);
+  const ids = JSON.parse(b.truth('chatThreads')).find((t) => t.id === 'shared').messages.map((m) => m.id);
+  const ledger = JSON.parse(b.truth('plc.encounters.v1'));
+  assert.equal(acked.length, 4, 'ALL4 ACKs');
+  assert.deepEqual([...acked].sort(), ['m-0', 'm-1', 'm-2', 'm-3'], 'unique intended ids acknowledged');
+  assert.deepEqual(acked.filter((id) => !ids.includes(id)), [], 'every ACKed id is in the physical truth');
   assert.equal(new Set(ids).size, ids.length, 'no duplicate message ids');
-  const ledger = JSON.parse(views[0].getItem('plc.encounters.v1'));
+  assert.ok(acked.every((id) => Object.values(ledger.events).some((e) => e.message === id)), 'every ACKed id has its ledger event');
   assert.equal(ledger.intent, undefined, 'no intent left');
-  // Backend identity: all four actors share the same coordination.backend object
-  const backends = tabs.map((t) => t.store.coordination.backend);
-  assert.equal(backends.every((b) => b === backends[0]), true, 'all four actors share the same backend');
-  const storageViews = views.map((v) => v._m);
-  assert.equal(storageViews[0] !== storageViews[1] && storageViews[0] !== storageViews[2] && storageViews[0] !== storageViews[3] && storageViews[1] !== storageViews[2] && storageViews[1] !== storageViews[3] && storageViews[2] !== storageViews[3], true, 'four distinct Storage views');
-  console.log('U_BACKEND_IDENTITY', JSON.stringify({ actors: 4, views: 4, backends: 1 }));
+  // Backend and view identity: four distinct own views, every ACTUAL backend is the one shared object
+  const backends = open.map((t) => t.store.coordination && t.store.coordination.backend);
+  assert.equal(backends.length, 4, 'one actual backend per actor');
+  assert.equal(backends.every((x) => x === sameBackend), true, 'every actual backend is sameBackend');
+  assert.equal(new Set(b.views).size, 4, 'four distinct lagging views');
+  assert.equal(new Set(b.tabs).size, 4, 'four distinct own-view storages');
+  console.log('U_BACKEND_IDENTITY', JSON.stringify({ actors: 4, views: new Set(b.views).size, backends: new Set(backends).size }));
 });
 
 // ============================================================================ U direct settlePending: actual createLedgerStore.critical -> store.settlePending path
@@ -57,16 +63,18 @@ test('U direct settlePending: rollback lands physically, ACK fails, next actor h
   assert.equal((await a.beforeWrite(1)).ok, true);
   physical['plc.encounters.v1'] = L1;
   aView['plc.encounters.v1'] = L1;
-  // Recovery actor: resolve back (rollback) but CAS fails
-  const recovery1 = make({ ...physical });
+  // Recovery actor: resolve back (rollback) but CAS fails; its OWN view v1 is updated with every write (the root input contract)
+  const v1 = { ...physical };
+  const recovery1 = make(v1);
   assert.equal((await recovery1.acquire()).ok, true);
   const first = await recovery1.resolve({
     target: 'back',
     texts: { 'plc.encounters.v1': L0, chatThreads: '[]' },
     order: KEYS,
-    write: (k, v) => { physical[k] = v; backend.failing.cas = true; return true; }
+    write: (k, v) => { physical[k] = v; v1[k] = v; backend.failing.cas = true; return true; }
   });
   assert.equal(first.ok, false);
+  assert.equal(first.code, 'coordination-unavailable', 'the intended ACK CAS fault was reached: ' + JSON.stringify(first));
   backend.failing.cas = false;
   assert.equal(physical['plc.encounters.v1'], L0, 'rollback landed physically');
   assert.equal(backend.peek().state, 'open', 'record still open');

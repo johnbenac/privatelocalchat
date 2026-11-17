@@ -8,7 +8,8 @@
 //   the control      with the barrier off the SAME run loses acknowledged messages, so the check can fail
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { openTab, thread, msg, makeMessage } from './helpers/encounters-env.mjs';
+import { openTab, thread, msg, makeMessage, coordFor } from './helpers/encounters-env.mjs';
+import { memoryBackend } from '../chat/encounters/coordination.mjs';
 
 /** A browser's lock manager: exclusive locks queue per name, shared locks are granted at once, query() lists what is held. */
 function lockManager({ withQuery = true } = {}) {
@@ -37,17 +38,20 @@ function browser(n, { lag = 8 } = {}) {
     removeItem: (k) => { views.forEach((o) => o.delete(k)); },
   }));
   const truth = (k) => { let best = null; for (const v of views) { const x = v.get(k); if (x && (!best || x.s > best.s)) best = x; } return best ? best.v : null; };
-  return { tabs, truth };
+  return { tabs, truth, views };
 }
 const within = (p, ms, what) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error('no deadlock: ' + what + ' did not finish in ' + ms + ' ms')), ms))]);
 
 async function round(n, K, storeOptions) {
-  const { tabs, truth } = browser(n);
+  const { tabs, truth, views } = browser(n);
   const locks = lockManager();
+  // ONE strongly consistent metadata backend per round, shared by every positive actor; each actor reads its OWN storage view.
+  // Only the explicit negative option (storeOptions = { unsafeNoCoordination: true }) bypasses it.
+  const shared = memoryBackend();
   // the stored state every tab starts from
   for (const t of tabs) t.setItem('chatThreads', JSON.stringify([thread('shared', [msg('s1', 'user', 'seed')])]));
   await new Promise((r) => setTimeout(r, 30));
-  const open = tabs.map((storage) => openTab({ storage, locks, storeOptions }));
+  const open = tabs.map((storage) => openTab({ storage, locks, storeOptions: storeOptions || { coordination: coordFor(storage, shared, { freshMs: 3000 }) } }));
   const acked = [];
   await within(Promise.all(open.map(async (tab, i) => {
     for (let k = 0; k < K; k++) {
@@ -61,14 +65,14 @@ async function round(n, K, storeOptions) {
   await new Promise((r) => setTimeout(r, 40));
   const chat = JSON.parse(truth('chatThreads')), ledger = JSON.parse(truth('plc.encounters.v1'));
   const ids = chat.find((t) => t.id === 'shared').messages.map((m) => m.id);
-  const backends = open.map((t) => t.store.coordination && t.store.coordination.backend).filter((b) => b != null);
-  return { acked, ids, ledger, tabs: open, backends };
+  const backends = open.map((t) => t.store.coordination && t.store.coordination.backend);
+  return { acked, ids, ledger, tabs: open, backends, shared, viewCount: new Set(views).size, storageCount: new Set(tabs).size };
 }
 
 for (const n of [4, 8, 16]) {
   test(`${n} tabs with stale cross-process reads: every acknowledged message survives, 20 repeats`, async () => {
     for (let r = 0; r < 20; r++) {
-      const { acked, ids, ledger, backends } = await round(n, 3);
+      const { acked, ids, ledger, backends, shared, viewCount, storageCount } = await round(n, 3);
       const missing = acked.filter((id) => !ids.includes(id));
       assert.deepEqual(missing, [], `repeat ${r}: acknowledged messages missing from storage`);
       assert.equal(new Set(ids).size, ids.length, `repeat ${r}: no duplicate message ids`);
@@ -76,7 +80,9 @@ for (const n of [4, 8, 16]) {
       assert.equal(ledger.intent, undefined, `repeat ${r}: no intent left`);
       assert.ok(acked.every((id) => Object.values(ledger.events).some((e) => e.message === id)), `repeat ${r}: every acknowledged message has its record`);
       // Backend identity: all actors share the same strongly consistent metadata backend
-      assert.ok(backends.every((b) => b === backends[0]), `repeat ${r}: all ${n} actors share the same backend`);
+      assert.equal(backends.length, n, `repeat ${r}: one actual backend per actor`);
+      assert.ok(backends.every((b) => b === shared), `repeat ${r}: every actual backend is the ONE shared round backend`);
+      assert.equal(viewCount, n, `repeat ${r}: ${n} distinct Storage views`); assert.equal(storageCount, n, `repeat ${r}: ${n} distinct own-view storages`);
       console.log('U_SHARED_METADATA', JSON.stringify({ actors: n, round: r, views: n, backends: 1 }));
     }
   });
