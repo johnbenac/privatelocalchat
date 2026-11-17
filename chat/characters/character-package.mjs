@@ -191,8 +191,50 @@ function serialSource(envelope, bytesByHash) {
   return { format: meta.format, root: meta.root, envelope: meta, bytes: [...bytesByHash].sort(([a], [b]) => (a < b ? -1 : 1)).map(([hash, bytes]) => ({ hash, size: bytes.byteLength, data: toBase64(bytes) })) };
 }
 
+const SOURCE_HASH = /^sha256:[a-f0-9]{64}$/;
+const BASE64_TEXT = /^[A-Za-z0-9+/]*={0,2}$/;
+/** The decoded size of base64 text, computed from its length alone (nothing is decoded), or -1 when it is not canonical base64. */
+export function base64DecodedSize(data) {
+  if (typeof data !== 'string' || data.length % 4 || !BASE64_TEXT.test(data)) return -1;
+  const pad = data.endsWith('==') ? 2 : data.endsWith('=') ? 1 : 0;
+  return (data.length / 4) * 3 - pad;
+}
+/**
+ * Structural bounds of a stored or reopened source, checked BEFORE any base64 is decoded, any text is built or any producer validator runs: the
+ * counts, every size against the producer's own bounds, the byte text against its declared size, and that the bytes are exactly those the asset
+ * byte manifest says are retained. Returns null when it holds, else a short reason. Nothing here proves the package; the producer validators do.
+ */
+export function checkSourceBounds(source) {
+  const L = PRODUCER_LIMITS;
+  if (!source || typeof source !== 'object' || Array.isArray(source)) return 'source';
+  if (source.format !== 'cosmogenitor/bundle/0' || typeof source.root !== 'string' || !SOURCE_HASH.test(source.root)) return 'source';
+  const envelope = source.envelope;
+  if (!envelope || typeof envelope !== 'object' || Array.isArray(envelope) || !Array.isArray(envelope.assets) || !Array.isArray(source.bytes)) return 'source';
+  if (envelope.root !== source.root || envelope.format !== source.format) return 'source';
+  if (envelope.assets.length > L.maxEntries || source.bytes.length > L.maxEntries) return 'source-limit';
+  const need = new Map();
+  for (const a of envelope.assets) {
+    if (!a || typeof a !== 'object' || typeof a.hash !== 'string' || !SOURCE_HASH.test(a.hash) || !Number.isSafeInteger(a.size) || a.size < 0 || !['inline', 'external', 'missing'].includes(a.status) || a.data !== undefined) return 'asset manifest';
+    if (a.size > L.maxExternalAssetBytes || (a.status === 'inline' && a.size > L.maxInlineAssetBytes)) return 'source-limit';
+    if (a.status !== 'missing') need.set(a.hash, a.size);
+  }
+  let total = 0;
+  const have = new Set();
+  for (const b of source.bytes) {
+    if (!b || typeof b !== 'object' || typeof b.hash !== 'string' || have.has(b.hash) || need.get(b.hash) !== b.size) return 'resource bytes';
+    total += b.size;
+    if (total > L.maxExternalTotalBytes + L.maxInlineTotalBytes) return 'source-limit';
+    if (typeof b.data !== 'string' || b.data.length > Math.ceil(b.size / 3) * 4) return 'resource bytes';
+    if (base64DecodedSize(b.data) !== b.size) return 'resource bytes';
+    have.add(b.hash);
+  }
+  if (have.size !== need.size) return 'resource bytes';
+  return null;
+}
+
 export function bundleTextFromSource(source) {
-  if (!source || typeof source !== 'object' || !source.envelope || !Array.isArray(source.envelope.assets) || !Array.isArray(source.bytes)) throw toError('source', '', 'This stored package is not complete.');
+  const bad = checkSourceBounds(source);
+  if (bad) throw toError(bad, '', 'This stored package is not complete or is larger than allowed.');
   const byHash = new Map(source.bytes.map((b) => [b.hash, b]));
   const bundle = JSON.parse(JSON.stringify(source.envelope));
   for (const entry of bundle.assets) {

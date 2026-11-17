@@ -354,7 +354,7 @@ test('temporary chats: memory only, separate per session, no browser storage, an
     const prepared = await t3.prepare({ text: bundle('neri') });
     session = 'chat-4';
     assert.equal((await t3.commit(prepared.preparation)).code, 'scope-changed');
-    assert.equal(t3.list().records.length, 0);
+    assert.equal(t3.list().code, 'scope-changed'); // an ended session's store reads nothing (tests/character-store-bounds.test.mjs)
     // a new session's store knows nothing of the old one
     assert.equal(createTemporaryCharacterStore({ scope: { current: () => 'x' }, crypto: webcrypto }).list().records.length, 0);
     assert.throws(() => createTemporaryCharacterStore({}), TypeError);

@@ -32,7 +32,7 @@
 //   code: unsupported | read-only | busy | unreadable | malformed | newer | too-large | write-failed | write-refused | changed | stale | gone | scope-changed |
 //         unknown-preparation | verification-failed | crypto-unavailable | id-collision | purpose | target | no-package
 
-import { reviewCharacterPackageFile, reviewCharacterPackageFragment, reopenCharacterSource, decodeBytes } from './character-package.mjs';
+import { reviewCharacterPackageFile, reviewCharacterPackageFragment, reopenCharacterSource, decodeBytes, checkSourceBounds } from './character-package.mjs';
 
 // The storage key is NOT named here: the page that wires this store owns, classifies and passes it (key-classes, inventory, format snapshot), docs/CHARACTER-STORE.md.
 export const CHARACTER_STORE_FORMAT = 1;
@@ -50,6 +50,9 @@ const MESSAGES = {
   'too-large': 'This does not fit in the space kept for saved characters. Nothing was changed.',
   'write-failed': 'The character could not be saved on this device (its storage may be full). Nothing was changed.',
   'write-refused': 'The storage did not accept the change (it may be read-only or held for a newer version). Nothing was changed.',
+  exhausted: 'The saved characters have used up their change counter, so nothing was changed. Export what you need and start a fresh store.',
+  locked: 'The app is locked, so nothing was changed. Unlock it and try again.',
+  'scope-ended': 'This chat session has ended, so its characters are gone and nothing was changed.',
   changed: 'The saved characters changed while this was being saved, so the result could not be confirmed. Check your characters and try again.',
 };
 const HASH = /^sha256:[a-f0-9]{64}$/;
@@ -63,7 +66,7 @@ const isVersion = (v) => Number.isSafeInteger(v) && v >= 1;
 /** A Storage stand-in that lives only in this object. Nothing reaches any browser storage or the vault. */
 export function createMemoryStorage() {
   const m = new Map();
-  return { memoryOnly: true, getItem: (k) => (m.has(k) ? m.get(k) : null), setItem: (k, v) => { m.set(k, String(v)); }, removeItem: (k) => { m.delete(k); } };
+  return { memoryOnly: true, getItem: (k) => (m.has(k) ? m.get(k) : null), setItem: (k, v) => { m.set(k, String(v)); }, removeItem: (k) => { m.delete(k); }, clear: () => { m.clear(); } };
 }
 /** A first-in first-out Web Locks stand-in for ONE tab's memory-only store (the contract the store uses: request(name, { signal }, callback)). */
 export function createMemoryLocks() {
@@ -87,11 +90,6 @@ export function createMemoryLocks() {
 }
 
 // ---- the stored record ------------------------------------------------------------------------------------------------------
-function decodedLength(data) {
-  if (typeof data !== 'string' || data.length % 4 || !/^[A-Za-z0-9+/]*={0,2}$/.test(data)) return -1;
-  try { return atob(data).length; } catch { return -1; }
-}
-
 /**
  * Synchronous structural check of one stored record (nothing here proves the package: reopen does that through the producer validators).
  * Returns null when whole, else a short reason.
@@ -106,20 +104,7 @@ export function checkStoredRecord(record) {
   if (!isObject(record.subject) || typeof record.subject.id !== 'string') return 'subject';
   for (const field of ['design', 'transport', 'capabilities', 'structured']) if (!isObject(record[field])) return field;
   for (const field of ['omissions', 'resources', 'unverifiedSourceClaims']) if (!Array.isArray(record[field])) return field;
-  const source = record.source;
-  if (!isObject(source) || source.format !== 'cosmogenitor/bundle/0' || !HASH.test(source.root) || !isObject(source.envelope) || !Array.isArray(source.envelope.assets) || !Array.isArray(source.bytes)) return 'source';
-  if (source.envelope.root !== source.root || source.envelope.format !== source.format) return 'source';
-  const need = new Map();
-  for (const a of source.envelope.assets) {
-    if (!isObject(a) || !HASH.test(a.hash) || !Number.isSafeInteger(a.size) || a.size < 0 || !['inline', 'external', 'missing'].includes(a.status) || a.data !== undefined) return 'asset manifest';
-    if (a.status !== 'missing') need.set(a.hash, a.size);
-  }
-  const have = new Set();
-  for (const b of source.bytes) {
-    if (!isObject(b) || have.has(b.hash) || need.get(b.hash) !== b.size || decodedLength(b.data) !== b.size) return 'resource bytes';
-    have.add(b.hash);
-  }
-  if (have.size !== need.size) return 'resource bytes';
+  if (checkSourceBounds(record.source)) return 'source';
   if (record.createdAt !== undefined && !Number.isFinite(record.createdAt)) return 'createdAt';
   return null;
 }
@@ -145,29 +130,46 @@ const summary = (r) => ({
 // Preparations are private: only what this module made, held here, can be committed. A caller's object that merely looks like one is refused.
 const PREPARED = new WeakMap();
 
-export function createCharacterStore({ storage, locks = globalThis.navigator?.locks, isReadOnly = () => false, crypto = globalThis.crypto, now = () => Date.now(), scope = null, key, lockName = CHARACTER_LOCK_NAME, waitMs = 10000 } = {}) {
+export function createCharacterStore({ storage, locks = globalThis.navigator?.locks, isReadOnly = () => false, isLocked = () => false, crypto = globalThis.crypto, now = () => Date.now(), scope = null, bindToSession = false, key, lockName = CHARACTER_LOCK_NAME, waitMs = 10000 } = {}) {
   if (typeof key !== 'string' || !key) throw new TypeError('A character store needs the storage key its owner assigned.');
   const self = {};
   const scopeToken = () => (scope ? scope.current() : null);
   const scopeMoved = (token) => Boolean(scope) && scope.current() !== token;
+  // A store bound to its session (a temporary chat) lives and dies with the scope it was made for. Once that scope moves, every read and every
+  // new operation refuses and what the store held in memory is dropped: nothing is carried into another session.
+  const sessionToken = bindToSession && scope ? scope.current() : null;
+  let sessionOver = false; // sticky: a session that ended never comes back, even if its token value is seen again
+  const ended = () => {
+    if (!bindToSession || !scope) return false;
+    if (!sessionOver && scope.current() === sessionToken) return false;
+    sessionOver = true;
+    if (storage?.memoryOnly) { try { storage.clear?.(); storage.removeItem(key); } catch { /* memory only */ } }
+    return true;
+  };
+  const sessionEnded = () => fail('scope-changed', MESSAGES['scope-ended']);
   const emptyState = () => ({ format: CHARACTER_STORE_FORMAT, revision: 0, records: [] });
 
   /** The stored state, or the reason it cannot be used (and then it is never overwritten). */
   function read() {
+    if (ended()) return sessionEnded();
     let raw;
     try { raw = storage.getItem(key); } catch { return fail('unreadable', MESSAGES.unreadable); }
     if (raw == null || raw === '') return { ok: true, state: emptyState(), raw: null };
+    // Bounds first: text over the declared size is never parsed.
+    if (typeof raw !== 'string' || raw.length > CHARACTER_STORE_LIMITS.storeChars) return fail('malformed', MESSAGES.malformed);
     let state;
     try { state = JSON.parse(raw); } catch { return fail('malformed', MESSAGES.malformed); }
     if (!isObject(state) || !Number.isInteger(state.format) || state.format < 1) return fail('malformed', MESSAGES.malformed);
     if (state.format > CHARACTER_STORE_FORMAT) return fail('newer', MESSAGES.newer);
-    if (!Number.isSafeInteger(state.revision) || state.revision < 0 || !Array.isArray(state.records)) return fail('malformed', MESSAGES.malformed);
+    if (!Number.isSafeInteger(state.revision) || state.revision < 0 || !Array.isArray(state.records) || state.records.length > CHARACTER_STORE_LIMITS.records) return fail('malformed', MESSAGES.malformed);
     const seen = new Set();
     for (const r of state.records) { if (checkStoredRecord(r) || seen.has(r.individualId)) return fail('malformed', MESSAGES.malformed); seen.add(r.individualId); }
     return { ok: true, state, raw };
   }
   const writeBlock = () => {
     if (!locks?.request) return fail('unsupported', MESSAGES.unsupported);
+    if (ended()) return sessionEnded();
+    if (isLocked()) return fail('locked', MESSAGES.locked);
     if (isReadOnly()) return fail('read-only', MESSAGES['read-only']);
     return null;
   };
@@ -181,6 +183,8 @@ export function createCharacterStore({ storage, locks = globalThis.navigator?.lo
     if (made.failure) return made.failure;
     if (!made.write) return { ok: true, ...made.result };
     const state = current.state;
+    // An exhausted counter would write a value this module itself refuses to read: refuse before any write.
+    if (!Number.isSafeInteger(state.revision + 1)) return fail('exhausted', MESSAGES.exhausted);
     state.revision += 1;
     if (state.records.length > CHARACTER_STORE_LIMITS.records) return fail('too-large', MESSAGES['too-large']);
     for (const r of state.records) { const bad = checkStoredRecord(r); if (bad) return fail('verification-failed', 'The character record is not whole (' + bad + '). Nothing was changed.'); }
@@ -223,6 +227,7 @@ export function createCharacterStore({ storage, locks = globalThis.navigator?.lo
   async function open(individualId) {
     const got = get(individualId); if (!got.ok) return got;
     const again = await reopenCharacterSource(got.record.source, { subjectId: got.record.subject.id, crypto });
+    if (ended()) return sessionEnded();
     if (!again.ok) return fail('verification-failed', 'The saved character no longer verifies (' + again.code + '). It was left as it is.', { reason: again });
     if (meaningText(bodyOf(again.candidate)) !== meaningText(got.record)) return fail('verification-failed', 'The saved character does not match its own package. It was left as it is.');
     return { ok: true, candidate: again.candidate, record: got.record };
@@ -244,6 +249,8 @@ export function createCharacterStore({ storage, locks = globalThis.navigator?.lo
    */
   async function prepare(input = {}) {
     const { text, hash, purpose = 'fresh', target, source, subjectId, openExternal, hasherFactory } = input;
+    if (ended()) return sessionEnded();
+    if (isLocked()) return fail('locked', MESSAGES.locked);
     if (!['fresh', 'update', 'copy'].includes(purpose)) return fail('purpose', 'This purpose is not supported: a package makes a new character or updates one you choose, and a copy is a new character. Nothing was changed.');
     const token = scopeToken();
     const id = ids(); if (!id) return fail('crypto-unavailable', 'This browser cannot make a private reference for a new character. Nothing was changed.');
@@ -270,6 +277,7 @@ export function createCharacterStore({ storage, locks = globalThis.navigator?.lo
   /** Commit a preparation made by this store. Safe to call again with the same preparation: the second call writes nothing. */
   async function commit(preparation) {
     const held = isObject(preparation) ? PREPARED.get(preparation) : undefined;
+    if (ended()) return sessionEnded();
     if (!held || held.owner !== self) return fail('unknown-preparation', 'This admission was not prepared here (or is no longer valid). Nothing was changed.');
     if (scopeMoved(held.token)) return fail('scope-changed', 'This chat session ended before the character was saved. Nothing was changed.');
     const blocked = writeBlock(); if (blocked) return blocked;
@@ -326,7 +334,7 @@ export function createCharacterStore({ storage, locks = globalThis.navigator?.lo
  */
 export function createTemporaryCharacterStore({ scope, crypto, now, waitMs } = {}) {
   if (!scope || typeof scope.current !== 'function') throw new TypeError('A temporary character store needs the session scope it belongs to.');
-  return createCharacterStore({ storage: createMemoryStorage(), key: 'temporary-characters', locks: createMemoryLocks(), scope, crypto, now, waitMs });
+  return createCharacterStore({ storage: createMemoryStorage(), key: 'temporary-characters', locks: createMemoryLocks(), scope, bindToSession: true, crypto, now, waitMs });
 }
 
 export { decodeBytes };
