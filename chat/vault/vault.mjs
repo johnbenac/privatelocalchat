@@ -142,7 +142,10 @@ export function createVault({ adapter, crypto = globalThis.crypto, now = () => D
     const log = await adapter.readLog();
     const dek = await importAes(subtle, dekRaw);
     const state = emptyState(), damaged = [];
-    let lastSeq = 0, previous = 0, firstSeq = null, gap = false;
+    // An existing empty log reserves seq 1 so the first later append becomes seq 2, keeping the
+    // beginning unproven (the initial empty state was never observed). A fresh CREATE starts at 0
+    // so its first append is legitimately seq 1.
+    let lastSeq = log.length === 0 ? 1 : 0, previous = 0, firstSeq = null, gap = false;
     const seenKvKeys = new Set();
     const keyOf = async (keyId) => {
       if (keyId === KEY_DEK) return dek;
@@ -232,11 +235,14 @@ export function createVault({ adapter, crypto = globalThis.crypto, now = () => D
       delKv: (k, options) => api.append({ scope: KEY_DEK, event: { t: "kv.del", k } }, options),
       putThread: (id, thread, options) => api.append({ scope: chatKeyId(id), event: { t: "thread.put", id, thread } }, options),
       /** Delete a chat and destroy its key, so its old records are unreadable. */
-      delThread: (id) => enqueue(async () => {
-        if (state.threads.has(String(id))) await write({ keyId: chatKeyId(id), event: { t: "thread.del", id } });
-        if (state.keys.has(chatKeyId(id))) await write({ keyId: KEY_DEK, event: { t: "key.destroy", id: chatKeyId(id) } });
-        cache.delete(chatKeyId(id));
-      }),
+      delThread: (id, options) => {
+        const guard = options?.guard;
+        return enqueue(async () => {
+          if (state.threads.has(String(id))) await write({ keyId: chatKeyId(id), event: { t: "thread.del", id } }, guard);
+          if (state.keys.has(chatKeyId(id))) await write({ keyId: KEY_DEK, event: { t: "key.destroy", id: chatKeyId(id) } }, guard);
+          cache.delete(chatKeyId(id));
+        });
+      },
       putDoc: (id, doc, options) => api.append({ scope: docKeyId(id), event: { t: "doc.put", id, doc } }, options),
       delDoc: (id) => enqueue(async () => {
         if (state.docs.has(String(id))) await write({ keyId: docKeyId(id), event: { t: "doc.del", id } });
