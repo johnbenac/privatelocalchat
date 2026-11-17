@@ -350,13 +350,15 @@ export function createSender(host) {
       case 'continue': if (!g.gen) runReply(thread.id, { mode: 'continue', message: msg }); break;
       case 'prev-version': case 'next-version':
         if (changing.has(msg.id)) break;                               // one change per message at a time: a second press while the first is being stored does nothing
-        { const was = JSON.parse(JSON.stringify(msg));                 // the exact before-image of the message, taken before the selection
+        { const OWN = ['versionIndex', 'content', 'status', 'error', 'errorKind'];   // the only fields a version selection changes: the only ones a refusal puts back
+          const was = OWN.map(k => [k, k in msg, msg[k] === undefined ? undefined : JSON.parse(JSON.stringify(msg[k]))]);   // their exact before-image, taken before the selection
           if (host.M().model.selectVersion(msg, msg.versionIndex + (action === 'next-version' ? 1 : -1))) {
             changing.add(msg.id); const chosen = msg.versionIndex;
             messagesView.renderMessages(thread, { keepScroll: true });
             let o; try { o = await persist(thread.id, 'The chosen version was not saved'); } catch { o = { saved: false }; } finally { changing.delete(msg.id); }
             // a refused selection is taken back in this tab (never written); only if the message is still on the version this press chose (otherwise newer work is not overwritten)
-            if (!o.saved && msg.versionIndex === chosen && !g.gen) { for (const k of Object.keys(msg)) delete msg[k]; Object.assign(msg, was); }
+            // (newer fields of the message that this press did not touch, written meanwhile by anything else, are never erased)
+            if (!o.saved && msg.versionIndex === chosen && !g.gen) { for (const [k, had, v] of was) { if (had) msg[k] = v; else delete msg[k]; } }
             if (!o.saved) messagesView.renderMessages(thread, { keepScroll: true });
           } }
         break;
