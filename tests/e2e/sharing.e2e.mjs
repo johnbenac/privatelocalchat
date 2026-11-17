@@ -4,7 +4,15 @@ import {mkdtempSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {launch,assert} from './harness.mjs';
 // Share, Transfer settings and Transfer chats and backups, end to end. Synthetic conversations, endpoints and tokens only.
-const PRODUCT='https://privatelocal.chat/';
+// The address the app shares is the public address of the site that serves the copy, from its site manifest (docs/SITE-LAYER.md), never one the app names.
+// This suite is built as the dev site with the fixture site (tests/helpers/dev-site.mjs), so the expected address, and the one the page was told, come from the fixture's manifest on disk:
+// the page is compared with the fixture, not with itself. Production's own address is the private site repository's to check; without a site block nothing is offered (site-identity suite).
+process.env.PLC_E2E_BRANCH??='dev';
+const siteDir=process.env.SITE_DIR||(process.env.PLC_E2E_BRANCH==='dev'?'tests/fixtures/site':'');
+const manifestPath=process.env.SITE_JSON_PATH||(siteDir&&join(siteDir,'site.json'));
+if(!manifestPath)throw new Error('E2E setup: this build has no site directory, so the app has no public address to share; run it as the dev site (the runner does)');
+const PRODUCT=JSON.parse(readFileSync(manifestPath,'utf8')).site?.url;
+if(typeof PRODUCT!=='string'||!/^https:\/\/[^/]+\/$/.test(PRODUCT))throw new Error('E2E setup: '+manifestPath+' has no site.url to expect: '+PRODUCT);
 const h=await launch({init:()=>{
  window.__shared=[];window.__shareMode='ok';
  navigator.canShare=()=>true;
@@ -51,6 +59,7 @@ try{
  await closeSettings();
  await page.fill('#messageInput','a private question about my health');await page.click('#sendBtn');
  await page.waitForFunction(()=>/Response complete/.test(document.querySelector('#generationStatus').textContent));
+ assert(await page.evaluate(()=>window.SITE_LINKS?.site?.url)===PRODUCT,'the page was given the fixture site identity: '+PRODUCT);
  await openExplore('Share');
  await page.waitForSelector('.app-dialog');
  assert(await page.locator('.app-dialog h2').innerText()==='Share Private Local Chat','the Share dialog has its own title');
@@ -60,6 +69,7 @@ try{
  await page.click('#productShareBtn');await page.waitForFunction(()=>window.__shared.length===1);
  const shared=await page.evaluate(()=>window.__shared[0]);
  assert(JSON.stringify(shared)===JSON.stringify({url:PRODUCT,title:'Private Local Chat',text:'Free AI chat in your browser. Run a supported model on your device, or choose an outside provider.'}),'the fixed public payload: '+JSON.stringify(shared));
+ assert(!/sk-synthetic|private question|health|127\.0\.0\.1|fake-model/.test(JSON.stringify(shared)),'nothing private in the payload: '+JSON.stringify(shared));
  await page.click('#productCopyBtn');await page.waitForFunction(()=>/Link copied/.test(document.querySelector('.product-share-status').textContent));
  assert(await clip()===PRODUCT,'Copy link copies the public address');
  await page.click('#productQrBtn');await page.waitForSelector('.product-share-qr:not([hidden]) img, .product-share-qr:not([hidden]) canvas');
@@ -87,7 +97,8 @@ try{
  assert(await page.locator('#transferCopyBtn').isVisible()&&await page.locator('#transferQrBtn').isVisible()&&await page.locator('#transferShareBtn').isVisible()&&await page.locator('#transferFileBtn').isVisible(),'the four outputs');
  await page.click('#transferCopyBtn');
  const link1=await clip();
- assert(link1.startsWith('https://privatelocal.chat/#settings='),'link: '+link1.slice(0,60));
+ // a transfer link opens the copy that made it (docs/APP-CONFIG.md, Site identity), not the public site address: the origin the test served, and not the site's
+ assert(link1.startsWith(h.origin+'/#settings=')&&!link1.startsWith(PRODUCT),'link: '+link1.slice(0,60)+' (expected the serving origin '+h.origin+'/)');
  const [file]=await Promise.all([page.waitForEvent('download'),page.click('#transferFileBtn')]);
  const filePath=join(dir,'settings.json');await file.saveAs(filePath);
  const fileJson=JSON.parse(readFileSync(filePath,'utf8'));
