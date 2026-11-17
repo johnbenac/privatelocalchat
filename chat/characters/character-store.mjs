@@ -180,7 +180,8 @@ export function createCharacterStore({ storage, locks = globalThis.navigator?.lo
   }
   /** The stored raw text (however it was read) as a state, or the reason it cannot be used. */
   function parseRaw(raw) {
-    if (raw == null || raw === '') return { ok: true, state: emptyState(), raw: null };
+    if (raw == null) return { ok: true, state: emptyState(), raw: null };
+    if (raw === '') return { ok: true, state: emptyState(), raw: '' };
     // Bounds first: text over the declared size is never parsed.
     if (typeof raw !== 'string' || raw.length > CHARACTER_STORE_LIMITS.storeChars) return fail('malformed', MESSAGES.malformed);
     let state;
