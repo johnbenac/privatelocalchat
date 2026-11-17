@@ -728,6 +728,9 @@ export function createWriteMode(store, { feature, guard } = {}) {
     if (store.blocked && store.blocked.includes(key)) throw new VaultError("blocked", "Key is blocked by format guard: " + key);
     if (store.held && store.held.some(h => h.key === key)) throw new VaultError("held", "Key is held (sole raw copy): " + key);
 
+    // Check exclusive lease: supported+owned Web Lock is required for encrypted writes
+    if (!store.exclusive) throw new VaultError("no-exclusive", "This write requires an exclusive lease (supported+owned Web Lock).");
+
     // Check if the key is vaulted
     if (!isVaulted(key)) throw new VaultError("not-vaulted", "Key is not vaulted: " + key);
 
@@ -804,6 +807,9 @@ export function createWriteMode(store, { feature, guard } = {}) {
     if (!checkGuard()) throw new VaultError("authority", "Guard rejected: not authorized to write threads.");
 
     if (store.readOnly) throw new VaultError("read-only", "Cannot write threads: this tab is read-only.");
+
+    // Check exclusive lease: supported+owned Web Lock is required for encrypted writes
+    if (!store.exclusive) throw new VaultError("no-exclusive", "This write requires an exclusive lease (supported+owned Web Lock).");
 
     let nextList;
     try { nextList = JSON.parse(nextRaw); } catch { throw new VaultError("invalid-threads", "chatThreads must be valid JSON array."); }

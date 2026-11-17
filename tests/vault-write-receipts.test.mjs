@@ -3,7 +3,7 @@
 // held/blocked/readonly denial, unchanged retry, queue coalescing, and concurrency.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createAppStorage, memoryStorage, createAndMigrate, createWriteMode, withWriteMode, RECEIPT, VAULT_MARKER, resetBootForTests } from '../chat/vault/vault-store.mjs';
+import { createAppStorage, memoryStorage, createAndMigrate, createWriteMode, withWriteMode, RECEIPT, VAULT_MARKER, resetBootForTests, readbackState } from '../chat/vault/vault-store.mjs';
 import { createVault } from '../chat/vault/vault.mjs';
 import { createMemoryAdapter } from '../chat/vault/vault-db.mjs';
 import { isVaulted } from '../chat/vault/key-classes.mjs';
@@ -25,7 +25,9 @@ function makeCtx(initial = {}) {
 
 async function attachNew(ctx, { writer = true, lease = null } = {}) {
   const session = await ctx.vault.create('pw', { iterations: FAST });
-  ctx.store.attach(session, { writer, lease, adapter: ctx.adapter });
+  // Provide a mock lease with supported+owned=true unless explicitly overridden
+  const mockLease = lease !== null ? lease : { supported: true, owned: true, release: async () => false, stopWaiting() {}, waitUntilFree: () => Promise.resolve() };
+  ctx.store.attach(session, { writer, lease: mockLease, adapter: ctx.adapter });
   return session;
 }
 
@@ -517,4 +519,86 @@ test('vault-store: existing synchronous surface preserved', async () => {
   // Synchronous surface still works
   ctx.store.local.setItem('plc.prefs.v1', '{"b":2}');
   assert.equal(ctx.store.local.getItem('plc.prefs.v1'), '{"b":2}');
+});
+
+// ---- CAUSAL desired-invariant tests (A1 bounded scope) ----
+
+test('CAUSAL KV delete verifies persisted absence', async () => {
+  // A delete must be verified absent from the actual stored vault before returning committed.
+  // The receipt must NOT say committed if the key still exists in the adapter's stored log.
+  const ctx = makeCtx();
+  const session = await attachNew(ctx);
+  // Pre-populate a value
+  await session.setKv('l/plc.prefs.v1', '{"a":1}');
+  // Verify it's there
+  assert.equal(session.state.kv.get('l/plc.prefs.v1'), '{"a":1}');
+  // Now delete via receipt mode
+  const mode = createWriteMode(ctx.store, { feature: 'causal', guard: () => true });
+  const r = await mode.putKV('plc.prefs.v1', '{"a":1}', null, { operationId: 'causal-del-1' });
+  // The receipt must be committed (delete was actually persisted)
+  assert.equal(r.status, RECEIPT.COMMITTED, 'delete must be committed when adapter succeeds');
+  assert.equal(r.observed, null, 'observed must be null after delete');
+  // Verify the key is actually gone from the stored state
+  assert.equal(session.state.kv.get('l/plc.prefs.v1'), undefined, 'key must be absent from session state');
+  // Verify the key is absent from the adapter's readback too
+  const readback = await readbackState({ adapter: ctx.adapter, session });
+  assert.equal(readback.kv.has('l/plc.prefs.v1'), false, 'key must be absent from adapter readback');
+});
+
+test('CAUSAL P2 reports actual durable prefix', async () => {
+  // When a multi-thread P2 write has a partial failure, the receipt must report unknown
+  // with the actual durable prefix (what was actually persisted), not committed.
+  const ctx = makeCtx();
+  const session = await attachNew(ctx);
+  // Tamper: make the second putThread fail
+  const origPutThread = session.putThread;
+  let callCount = 0;
+  session.putThread = async (id, thread, opts) => {
+    callCount++;
+    if (callCount === 2) throw new Error('synthetic append rejected');
+    return origPutThread.call(session, id, thread, opts);
+  };
+  const threads = JSON.stringify([
+    { id: 't1', title: 'Chat 1', messages: [{ role: 'user', content: 'B1' }] },
+    { id: 't2', title: 'Chat 2', messages: [{ role: 'user', content: 'B2' }] }
+  ]);
+  const mode = createWriteMode(ctx.store, { feature: 'causal', guard: () => true });
+  const r = await mode.putThreads('[]', threads, { operationId: 'causal-p2-1' });
+  // The receipt must be unknown (partial failure)
+  assert.equal(r.status, RECEIPT.UNKNOWN, 'partial P2 must be unknown');
+  assert.equal(r.reason, 'partial-failure', 'reason must be partial-failure');
+  // The first thread was actually persisted (durable prefix)
+  assert.ok(r.committed >= 1, 'at least one thread must be committed');
+  // The actual persisted content must show B1 for t1 and A2 (original) for t2
+  const t1 = session.state.threads.get('t1');
+  assert.equal(t1?.messages[0]?.content, 'B1', 'first thread must have durable content B1');
+  // t2 should NOT have B2 (it failed)
+  const t2 = session.state.threads.get('t2');
+  assert.equal(t2, undefined, 'second thread must not be persisted after failure');
+  // No fabricated dependent writes or finalization
+  assert.equal(r.unknown, 1, 'exactly one unknown');
+  assert.ok(r.failed.length > 0, 'must report failed items');
+});
+
+test('CAUSAL missing exclusive lease writes nothing', async () => {
+  // Without a supported+owned exclusive lease, the write mode must refuse to write.
+  // An unsupported or unowned lease must not mutate any state.
+  const ctx = makeCtx();
+  const session = await ctx.vault.create('pw', { iterations: FAST });
+  // Attach with supported:false, owned:false (no exclusive lease)
+  ctx.store.attach(session, { writer: true, lease: { supported: false, owned: false }, adapter: ctx.adapter });
+  // The store must not be exclusive
+  assert.equal(ctx.store.exclusive, false, 'store must not be exclusive without supported+owned lease');
+  const mode = createWriteMode(ctx.store, { feature: 'causal', guard: () => true });
+  // The write must be refused
+  await assert.rejects(
+    () => mode.putKV('plc.prefs.v1', null, '{"unauthorized":true}', { operationId: 'causal-nolease' }),
+    e => {
+      assert.ok(e.code === 'read-only' || e.code === 'authority' || e.code === 'no-exclusive',
+        'must refuse write without exclusive lease, got code: ' + e.code);
+      return true;
+    }
+  );
+  // Verify nothing was written
+  assert.equal(session.state.kv.get('l/plc.prefs.v1'), undefined, 'no unauthorized write');
 });
