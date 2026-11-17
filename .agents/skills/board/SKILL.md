@@ -35,7 +35,10 @@ tasks and `O12` for objectives in pages and briefings only.
     curl -s -X POST $B/api/tasks/43/notes -H 'X-Actor: Executor' \
       -H 'Content-Type: application/json' -d '{"author":"Executor","text":"[TIME] what I did"}'
 
-Task fields you may PATCH: `title`, `detail`, `who`, `kind`, `status`, `size`. A write that is
+Task fields you may PATCH: `title`, `detail`, `who`, `kind`, `status`, `size`, `high_priority`.
+When you create a task (POST /api/tasks) you must send `high_priority`: `true` if the task must be
+finished before its objective counts as met, `false` if it is optional (the objective can be met
+and move to Done while it is unfinished). The call is refused without it. A write that is
 accepted answers 200 with the whole board plus `change` (the history entry that undoes it).
 Errors are HTTP 400 or 404 with `{"error": "..."}`.
 
