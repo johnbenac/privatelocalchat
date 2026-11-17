@@ -57,6 +57,49 @@ const check = async (label, expect) => {
   return s;
 };
 
+// Per-action proof for the parallel remove/copy phases. Every intended action is identified (tab, kind, record id, version, name) BEFORE it is started; it counts as finished only when
+// that tab SHOWS its own outcome ("Removed “name”." / "Copied “name” as a new character…"), which the app draws after the store's write returned. Then the whole raw storage
+// text is read and checked per id. A timeline sampler in tab 0 (a 1 ms timer reading the raw text, recording each distinct text it sees) is kept as evidence and on failure.
+const snapshot = (p) => p.evaluate((k) => { const raw = localStorage.getItem(k); return { raw, json: JSON.parse(raw || '{"revision":0,"records":[]}') }; }, KEY);
+const startTimeline = (p) => p.evaluate((k) => { window.__tl = []; window.__tlLast = null; const t0 = performance.now(); window.__tlTimer = setInterval(() => { const raw = localStorage.getItem(k); if (raw === window.__tlLast) return; window.__tlLast = raw; let j = null; try { j = JSON.parse(raw); } catch {} window.__tl.push({ ms: Math.round(performance.now() - t0), parses: j !== null, revision: j && j.revision, count: j && j.records.length, ids: j && j.records.map((r) => r.individualId), bytes: raw ? raw.length : 0 }); }, 1); }, KEY);
+const stopTimeline = (p) => p.evaluate(() => { clearInterval(window.__tlTimer); return window.__tl; });
+const describeAction = async (p, kind, id) => { const li = p.locator(`.char-item[data-individual="${id}"]`); return { kind, id, version: Number(await li.getAttribute('data-version')), name: await li.locator('.char-name').innerText() }; };
+const ackText = (a) => (a.kind === 'remove' ? `Removed “${a.name}”.` : `Copied “${a.name}” as a new character. It has its own reference and no shared history.`);
+const waitAck = async (a) => { await a.page.waitForFunction(() => /^(Removed|Copied|It was already gone)/.test(document.querySelector('.char-library .char-status')?.textContent || ''), null, { timeout: 30000 }); a.outcome = await a.page.locator('.char-library .char-status').innerText(); };
+// started: actions already begun; before: snapshot before; expect: exact final numbers
+const finishActions = async (label, actions, before, expect, round) => {
+  let timeline = [];
+  try {
+    await Promise.all(actions.map(waitAck));
+    for (const a of actions) assert(a.outcome === ackText(a), label + ': ' + a.kind + ' of ' + a.id + ' (v' + a.version + ') was acknowledged as "' + ackText(a) + '" but the tab says "' + a.outcome + '"');
+    const after = await snapshot(pages[0]); timeline = await stopTimeline(pages[0]);
+    assert(timeline.every((t, i) => t.parses && (i === 0 || t.revision >= timeline[i - 1].revision)), label + ': the raw timeline always parses and its revision never goes backwards');
+    assert(timeline.length > 0 && timeline[timeline.length - 1].revision === expect.revision, label + ': the last raw state seen carries revision ' + expect.revision);
+    const ids = after.json.records.map((r) => r.individualId); const was = before.json.records.map((r) => r.individualId);
+    for (const a of actions.filter((x) => x.kind === 'remove')) assert(!ids.includes(a.id), label + ': removed ' + a.id + ' is gone');
+    const keptIds = was.filter((i) => !actions.some((a) => a.kind === 'remove' && a.id === i));
+    for (const i of keptIds) assert(JSON.stringify(after.json.records.find((r) => r.individualId === i)) === JSON.stringify(before.json.records.find((r) => r.individualId === i)), label + ': ' + i + ' was not removed and is byte-identical to before');
+    const newIds = ids.filter((i) => !was.includes(i));
+    const copies = actions.filter((x) => x.kind === 'copy');
+    assert(newIds.length === copies.length, label + ': exactly ' + copies.length + ' new characters, found ' + newIds.length);
+    for (const c of copies) {
+      const src = before.json.records.find((r) => r.individualId === c.id); const made = after.json.records.find((r) => newIds.includes(r.individualId));
+      assert(made && made.individualId !== c.id && !was.includes(made.individualId), label + ': the copy has a fresh local identity');
+      assert(made.origin.purpose === 'copy' && made.origin.copiedFrom.individualId === c.id && made.recordVersion === 1, label + ': the copy records its source and starts at version 1');
+      assert(JSON.stringify(made.source.bytes) === JSON.stringify(src.source.bytes) && JSON.stringify(made.structured) === JSON.stringify(src.structured) && made.source.root === src.source.root, label + ': the copy holds the source\'s exact bytes, structured meaning and package fingerprint');
+      assert(made.preview.name === src.preview.name, label + ': the copy keeps the name');
+      assert(after.json.records.find((r) => r.individualId === c.id).recordVersion === c.version, label + ': the copied original is retained at version ' + c.version);
+    }
+    const check2 = await check(label, expect);
+    return { actions: actions.map(({ page: _p, ...rest }) => rest), timeline, revision: check2.revision };
+  } catch (e) {
+    if (!timeline.length) timeline = await stopTimeline(pages[0]).catch(() => []);
+    const now = await snapshot(pages[0]).catch(() => ({ json: {} }));
+    evidence.failures = evidence.failures || []; evidence.failures.push({ label, round, error: String(e.message), actions: actions.map(({ page: _p, ...rest }) => rest), before: { revision: before.json.revision, ids: before.json.records.map((r) => r.individualId) }, nowRevision: now.json.revision, nowIds: (now.json.records || []).map((r) => r.individualId), timeline });
+    throw e;
+  }
+};
+
 const t0 = Date.now();
 try {
   // base: one target character everybody may update or copy
@@ -107,11 +150,16 @@ try {
     if (copier !== pages[0] && !removers.includes(copier)) await openLibrary(copier);
     await Promise.all(removers.map((p, i) => removeStep(p, added[i])));
     const copyLibrary = removers.includes(copier) ? null : copier;
+    const acts = [];
+    for (let i = 0; i < removers.length; i++) acts.push({ page: removers[i], ...await describeAction(removers[i], 'remove', added[i]) });
+    if (copyLibrary) acts.push({ page: copyLibrary, ...await describeAction(copyLibrary, 'copy', target) });
+    const before4 = await snapshot(pages[0]); await startTimeline(pages[0]);
     await Promise.all([...removers.map((p) => confirmRemove(p)), copyLibrary ? copyLibrary.locator(`.char-item[data-individual="${target}"] button:has-text("Make a copy")`).click() : Promise.resolve()]);
-    // Every one of these writes finished when the stored REVISION has counted all of them: the count alone passes through the wanted value in the middle (all removals done, the copy not yet landed).
+    // Every intended action is finished only when ITS tab shows ITS outcome; then each id, the copy and the exact count and revision are checked (no sleep, no count-only wait: the count alone passes through the wanted value in the middle).
     expected = { count: expected.count - N + (copyLibrary ? 1 : 0), revision: expected.revision + N + (copyLibrary ? 1 : 0) };
-    await pages[0].waitForFunction(([k, want]) => JSON.parse(localStorage.getItem(k)).revision === want, [KEY, expected.revision], { timeout: 30000 });
-    s = await check('r' + r + ' remove/copy', expected); round.phases.removeAndCopy = { removed: N, copied: copyLibrary ? 1 : 0 };
+    const proof4 = await finishActions('r' + r + ' remove/copy', acts, before4, expected, r);
+    round.phases.removeAndCopy = { removed: N, copied: copyLibrary ? 1 : 0, ...proof4 };
+    s = await state(pages[0]);
     await Promise.all([...removers, ...(copyLibrary ? [copyLibrary] : [])].map(async (p) => { await p.locator('.app-dialog button:has-text("Done")').click(); await gone(p); }));
 
     // phase 5: tab teardown: a tab holds the lock; a Save waits behind it; the tab is closed; the Save completes once
@@ -133,11 +181,14 @@ try {
     const cleaners = pages.slice(0, extra.length);
     await Promise.all(cleaners.map((p) => openLibrary(p)));
     await Promise.all(cleaners.map((p, i) => removeStep(p, extra[i])));
+    const acts6 = [];
+    for (let i = 0; i < cleaners.length; i++) acts6.push({ page: cleaners[i], ...await describeAction(cleaners[i], 'remove', extra[i]) });
+    const before6 = await snapshot(pages[0]); await startTimeline(pages[0]);
     await Promise.all(cleaners.map((p) => confirmRemove(p)));
     expected = { count: 1, revision: expected.revision + extra.length };
-    await pages[0].waitForFunction(([k, want]) => JSON.parse(localStorage.getItem(k)).revision === want, [KEY, expected.revision], { timeout: 30000 });
+    const proof6 = await finishActions('r' + r + ' clean', acts6, before6, expected, r);
     await Promise.all(cleaners.map(async (p) => { await p.locator('.app-dialog button:has-text("Done")').click(); await gone(p); }));
-    await check('r' + r + ' clean', expected); round.phases.cleanup = { removed: extra.length };
+    round.phases.cleanup = { removed: extra.length, ...proof6 };
     round.ms = Date.now() - started; round.revision = expected.revision; evidence.rounds.push(round);
     console.log('  round ' + r + '/' + REPEATS + ' ok: ' + N + ' actors, revision ' + expected.revision + ', ' + round.ms + ' ms');
   }

@@ -259,11 +259,20 @@ try {
   await chooseFile('neri.external.json', externalNeri);
   await page.waitForSelector('.app-dialog:has-text("Choose the package’s files")');
   const pickFiles = async (files) => { const [chooser] = await Promise.all([page.waitForEvent('filechooser'), page.click('.app-dialog button:has-text("Choose files…")')]); await chooser.setFiles(files); };
+  // the exact stored text is captured BEFORE the wrong files are chosen; the refusals are compared with it byte for byte
+  const rawBeforeWrong = await stored(); const recordsBeforeWrong = (await records()).length;
+  assert(typeof rawBeforeWrong === 'string' && recordsBeforeWrong === 5, 'external: the existing five characters are in storage before the wrong files are chosen');
+  const proposalOpen = async (label) => { assert(await page.locator('.app-dialog:has-text("Choose the package’s files")').count() === 1 && await review().count() === 0, label + ': the file request stays open and no review of the package was offered'); };
   await pickFiles([{ name: 'wrong.txt', mimeType: 'text/plain', buffer: Buffer.from('x'.repeat(86)) }, { name: 'wrong.png', mimeType: 'image/png', buffer: Buffer.from('y'.repeat(76)) }]);
   await page.waitForFunction(() => /not the ones this package describes/.test(document.querySelector('.char-status')?.textContent || ''));
-  assert(await stored() === await stored() && (await records()).length === 5, 'wrong files change nothing');
+  assert(await stored() === rawBeforeWrong, 'wrong files: the saved characters are byte-for-byte what they were before the picker');
+  assert((await records()).length === recordsBeforeWrong, 'wrong files: the count is still ' + recordsBeforeWrong);
+  await proposalOpen('wrong files');
   await pickFiles([{ name: 'huge.bin', mimeType: 'application/octet-stream', buffer: Buffer.alloc(1048576 + 1) }]);
   await page.waitForFunction(() => /larger than one resource may be|not the size/.test(document.querySelector('.char-status')?.textContent || ''));
+  assert(await stored() === rawBeforeWrong, 'oversized file: the saved characters are byte-for-byte what they were before the picker');
+  assert((await records()).length === recordsBeforeWrong, 'oversized file: the count is still ' + recordsBeforeWrong);
+  await proposalOpen('oversized file');
   await pickFiles([{ name: 'tide-card.txt', mimeType: 'text/plain', buffer: Buffer.from(resources.card) }, { name: 'chart.png', mimeType: 'image/png', buffer: Buffer.from(resources.chart) }]);
   await review().waitFor();
   assert(/Came from a file you chose/.test(await page.locator('.char-resource[data-resource="asset:chart"]').innerText()), 'the review says these came from the files you chose');
