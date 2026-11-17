@@ -12,6 +12,7 @@ import { fileURLToPath } from 'node:url';
 import {
   commitInfo, assertCleanCheckout, allocateScratchChild, cleanupOwnedChild, archiveCommit, buildArchive, readBuildIdentity, assertBuildIdentity,
   neriExpectedResources, assertNeriResources, producerNeriRecord, runScratchActors,
+  allocateEvidenceReport, writeEvidenceReport, runEvidenceActors,
 } from './e2e/vault-transition-support.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -207,6 +208,108 @@ test(`scratch isolation: an owner killed with SIGKILL after allocation (4 actors
   }
   assert.equal(fs.readFileSync(path.join(parent, 'SENTINEL'), 'utf8'), 'other owner');
 });
+
+// ---- evidence reports must outlive the export child ----------------------------------------------------------------------------------------------
+// These call the SAME helpers the canonical suite calls (allocateEvidenceReport, writeEvidenceReport, cleanupOwnedChild); no browser, vault or lifecycle is run.
+const evidenceWorld = (name) => {
+  const parent = sub(name); const sentinel = path.join(parent, 'OTHER-OWNER-SENTINEL'); fs.writeFileSync(sentinel, 'not ours');
+  const sibling = allocateScratchChild(parent, 'sibling'); fs.writeFileSync(path.join(sibling.dir, 'keep'), 'sibling export');
+  const owned = allocateScratchChild(parent, 'e2e'); fs.writeFileSync(path.join(owned.dir, 'export.txt'), 'transient export');
+  return { parent, sentinel, sibling, owned };
+};
+const assertSurvived = (w, r, file, text) => {
+  assert.equal(fs.readFileSync(file, 'utf8'), text, 'report holds exactly the bytes written');
+  assert.notEqual(path.dirname(file), w.owned.dir, 'report is not inside the export child');
+  assert.ok(!path.resolve(file).startsWith(w.owned.dir + path.sep), 'report path is outside the export child tree');
+  assert.ok(!fs.existsSync(w.owned.dir), 'the export child is gone');
+  assert.ok(fs.existsSync(w.parent) && fs.readFileSync(w.sentinel, 'utf8') === 'not ours', 'parent and foreign sentinel intact');
+  assert.equal(fs.readFileSync(path.join(w.sibling.dir, 'keep'), 'utf8'), 'sibling export', 'sibling export intact');
+};
+
+test('evidence: the default success report is unique, outside the export child and survives its cleanup', () => {
+  const w = evidenceWorld('evidence-default-success');
+  const r = allocateEvidenceReport({ parent: w.parent, label: 'e2e' });
+  assert.equal(r.explicit, false); assert.ok(!fs.existsSync(r.path), 'nothing written yet');
+  const written = writeEvidenceReport(r, { cases: { A: 1 }, sources: {} });
+  assert.equal(written.file, r.path); assert.equal(written.sha256, sha(written.text)); assert.equal(written.bytes, Buffer.byteLength(written.text));
+  assert.equal(cleanupOwnedChild(w.owned), true, 'the actual cleanup removed the own export child');
+  assertSurvived(w, r, r.path, written.text);
+  assert.ok(!fs.existsSync(r.failedPath), 'no failed report beside a success');
+  assert.throws(() => writeEvidenceReport(r, { other: 1 }), /EEXIST/, 'a written report is never overwritten');
+  assert.equal(fs.readFileSync(r.path, 'utf8'), written.text);
+  assert.equal(cleanupOwnedChild(w.sibling), true); // never touched the report folder
+  assert.ok(fs.existsSync(r.path));
+  assert.throws(() => cleanupOwnedChild({ dir: r.dir, token: w.owned.token, parent: w.parent }), /ownership/, 'the report folder is not an owned export child and cannot be cleaned as one');
+  assert.ok(fs.existsSync(r.path));
+});
+
+test('evidence: the default failure report (.failed) survives cleanup of the export child', () => {
+  const w = evidenceWorld('evidence-default-failure');
+  const r = allocateEvidenceReport({ parent: w.parent, label: 'e2e' });
+  const written = writeEvidenceReport(r, { cases: { B: 'partial' }, sources: {} }, { failed: true });
+  assert.equal(written.file, r.failedPath); assert.ok(written.file.endsWith('.failed'));
+  assert.equal(cleanupOwnedChild(w.owned), true);
+  assertSurvived(w, r, r.failedPath, written.text);
+  assert.ok(!fs.existsSync(r.path), 'a failure never leaves a success-named report');
+});
+
+test('evidence: an explicit PLC_TRANSITION_EVIDENCE destination is used exactly, its parent is made and another owner\'s report is never overwritten', () => {
+  const w = evidenceWorld('evidence-explicit');
+  const dest = path.join(sub('evidence-explicit-dest'), 'made', 'later', 'report.json');
+  const r = allocateEvidenceReport({ parent: w.parent, explicit: dest });
+  assert.equal(r.explicit, true); assert.equal(r.path, dest); assert.equal(r.failedPath, dest + '.failed'); assert.ok(fs.existsSync(path.dirname(dest)), 'parent made');
+  const written = writeEvidenceReport(r, { cases: {} });
+  assert.equal(cleanupOwnedChild(w.owned), true);
+  assertSurvived(w, r, dest, written.text);
+  assert.deepEqual(fs.readdirSync(w.parent).filter((n) => n.startsWith('plc-evidence-')), [], 'an explicit destination allocates no default folder');
+  // another owner's report at the destination (success or failed) refuses allocation and stays byte for byte
+  assert.throws(() => allocateEvidenceReport({ parent: w.parent, explicit: dest }), /refusing to overwrite/);
+  const foreign = path.join(path.dirname(dest), 'foreign.json.failed'); fs.writeFileSync(foreign, 'foreign report');
+  assert.throws(() => allocateEvidenceReport({ parent: w.parent, explicit: path.join(path.dirname(dest), 'foreign.json') }), /refusing to overwrite/);
+  assert.equal(fs.readFileSync(foreign, 'utf8'), 'foreign report'); assert.equal(fs.readFileSync(dest, 'utf8'), written.text);
+  // a report appearing between allocation and write is not clobbered either
+  const late = allocateEvidenceReport({ parent: w.parent, explicit: path.join(path.dirname(dest), 'late.json') });
+  fs.writeFileSync(late.path, 'appeared later');
+  assert.throws(() => writeEvidenceReport(late, { x: 1 }), /EEXIST/); assert.equal(fs.readFileSync(late.path, 'utf8'), 'appeared later');
+  const failedExplicit = allocateEvidenceReport({ parent: w.parent, explicit: path.join(path.dirname(dest), 'bad.json') });
+  assert.equal(writeEvidenceReport(failedExplicit, { x: 1 }, { failed: true }).file, path.join(path.dirname(dest), 'bad.json.failed'));
+});
+
+test('evidence: the canonical suite allocates and writes its report only through the shared helpers (no report inside the export child)', () => {
+  const src = fs.readFileSync(path.join(ROOT, 'tests/e2e/vault-transition.e2e.mjs'), 'utf8').replace(/^\s*\/\/.*$/gm, '');
+  assert.match(src, /allocateEvidenceReport\(\{ parent: owned\.parent, explicit: process\.env\.PLC_TRANSITION_EVIDENCE/);
+  assert.match(src, /writeEvidenceReport\(report, evidence\)/); assert.match(src, /writeEvidenceReport\(report, evidence, \{ failed: true \}\)/);
+  assert.ok(!/evidence\.json/.test(src), 'the canonical suite names no default report file itself');
+  assert.ok(!/evidencePath/.test(src), 'the old in-child evidencePath is gone');
+  assert.ok(!/writeFileSync\(evidence/.test(src));
+  assert.ok(/cleanupOwnedChild\(owned\)/.test(src), 'cleanup of the owned export child remains');
+});
+
+for (const actors of [4, 8, 16]) {
+  test(`evidence: ${actors} simultaneous callers allocate independent default reports that all survive cleanup, ${REPEATS} repeats`, { timeout: 300000 }, async () => {
+    const parent = sub(`evidence-actors-${actors}`); fs.writeFileSync(path.join(parent, 'SENTINEL'), 'other owner');
+    const kept = new Set();
+    for (let i = 0; i < REPEATS; i++) {
+      const reports = await runEvidenceActors({ parent, actors });
+      const where = `${actors} actors round ${i}`;
+      assert.equal(reports.length, actors);
+      assert.ok(reports.every((r) => r.code === 0 && r.errors.length === 0 && r.cleaned === true), where + ': actor errors ' + JSON.stringify(reports.filter((r) => r.errors.length || r.code !== 0)));
+      assert.equal(new Set(reports.map((r) => r.report)).size, actors, where + ': distinct report paths');
+      for (const r of reports) {
+        assert.ok(!kept.has(r.file), where + ': path never reused across rounds'); kept.add(r.file);
+        const text = fs.readFileSync(r.file, 'utf8');
+        assert.equal(sha(text), r.sha256, where + ': exact bytes, none overwritten or torn'); assert.equal(JSON.parse(text).actor, r.id);
+        assert.ok(!fs.existsSync(r.child), where + ': export child gone');
+        assert.equal(r.file.endsWith('.failed'), Number(r.id) % 2 === 1, where + ': success/failure naming kept');
+      }
+    }
+    assert.equal(kept.size, actors * REPEATS);
+    assert.equal(fs.readFileSync(path.join(parent, 'SENTINEL'), 'utf8'), 'other owner');
+    const left = fs.readdirSync(parent).filter((n) => n !== 'SENTINEL');
+    assert.equal(left.length, actors * REPEATS, 'only the retained report folders are left: ' + left.filter((n) => !n.startsWith('plc-evidence-')));
+    assert.ok(left.every((n) => n.startsWith('plc-evidence-')));
+  });
+}
 
 test('importing the support module starts no browser and no build', async () => {
   const out = execFileSync(process.execPath, ['--input-type=module', '-e', "await import(new URL('./tests/e2e/vault-transition-support.mjs', 'file://' + process.cwd() + '/')); console.log('imported')"], { cwd: ROOT, encoding: 'utf8', timeout: 30000 });

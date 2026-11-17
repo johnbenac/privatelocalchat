@@ -10,7 +10,7 @@
 import { createRequire } from 'node:module';
 import { spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { assertCleanCheckout, buildArchive, allocateScratchChild, cleanupOwnedChild, assertNeriResources } from './vault-transition-support.mjs';
+import { assertCleanCheckout, buildArchive, allocateScratchChild, cleanupOwnedChild, assertNeriResources, allocateEvidenceReport, writeEvidenceReport } from './vault-transition-support.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -25,7 +25,8 @@ const PORT = 18491 + Number(process.env.E2E_PORT_OFFSET || 0), ORIGIN = `http://
 // Each process owns one child of the supplied parent (default: the ignored work/ folder of this checkout, never /tmp) and removes only that child.
 const owned = allocateScratchChild(process.env.PLC_TRANSITION_SCRATCH || path.join(ROOT, 'work', 'transition-scratch'), 'e2e');
 const scratch = owned.dir;
-const evidencePath = process.env.PLC_TRANSITION_EVIDENCE || path.join(scratch, 'evidence.json');
+// The report is NOT inside the owned export child (that child is removed at the end): the default is its own unique folder next to it, an explicit PLC_TRANSITION_EVIDENCE is used exactly.
+let report; try { report = allocateEvidenceReport({ parent: owned.parent, explicit: process.env.PLC_TRANSITION_EVIDENCE || '', label: 'e2e' }); } catch (e) { cleanupOwnedChild(owned); throw e; }
 const evidence = { cases: {}, sources: {} };
 const ok = (n) => console.log('PASS ' + n);
 const sha = (s) => createHash('sha256').update(s).digest('hex');
@@ -232,7 +233,7 @@ try {
   await context.close(); ctxs = []; await stop();
 
   assert(errors.length === 0, 'no page errors: ' + errors.join(' | '));
-  fs.writeFileSync(evidencePath, JSON.stringify(evidence, null, 1)); console.log('EVIDENCE ' + evidencePath);
+  const written = writeEvidenceReport(report, evidence); console.log(`EVIDENCE ${written.file} sha256=${written.sha256} bytes=${written.bytes}`);
   console.log('vault-broad-transition e2e: ok');
-} catch (error) { console.error(error); try { fs.writeFileSync(evidencePath + '.failed', JSON.stringify(evidence, null, 1)); } catch { /* */ } process.exitCode = 1; }
+} catch (error) { console.error(error); try { const w = writeEvidenceReport(report, evidence, { failed: true }); console.error(`EVIDENCE-FAILED ${w.file} sha256=${w.sha256} bytes=${w.bytes}`); } catch (e) { console.error('evidence: failed report not written: ' + e.message); } process.exitCode = 1; }
 finally { for (const c of ctxs) await c.close().catch(() => {}); if (stop) await stop().catch(() => {}); try { if (!process.env.PLC_TRANSITION_KEEP) cleanupOwnedChild(owned); } catch (e) { console.error(e.message); process.exitCode = 1; } }

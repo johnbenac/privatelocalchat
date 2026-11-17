@@ -60,6 +60,34 @@ export function cleanupOwnedChild({ dir, token, parent }) {
   return true;
 }
 
+// ---- evidence reports that outlive the export child ------------------------------------------------------------------------------------
+const EVIDENCE_PREFIX = 'plc-evidence-';
+/**
+ * Reserves where one run's report goes. An explicit destination (PLC_TRANSITION_EVIDENCE) is used exactly (its parent is made); an existing report or failed report
+ * there is refused, never replaced. Without one, a unique mkdtemp folder `plc-evidence-<label>-XXXX` of `parent` is made: a sibling of the owned export children,
+ * not inside one and not matching the owned prefix, so cleanupOwnedChild can never remove it.
+ */
+export function allocateEvidenceReport({ parent, explicit = '', label = 'e2e' }) {
+  if (explicit) {
+    const file = path.resolve(explicit);
+    for (const f of [file, file + '.failed']) if (fs.existsSync(f)) throw new Error('evidence: refusing to overwrite an existing report: ' + f);
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    return { path: file, failedPath: file + '.failed', explicit: true, dir: null };
+  }
+  if (!parent) throw new Error('allocateEvidenceReport needs a parent folder');
+  fs.mkdirSync(parent, { recursive: true });
+  const dir = fs.mkdtempSync(path.join(parent, EVIDENCE_PREFIX + String(label).replace(/[^a-z0-9-]/gi, '-') + '-'));
+  return { path: path.join(dir, 'evidence.json'), failedPath: path.join(dir, 'evidence.json.failed'), explicit: false, dir };
+}
+
+/** Writes the success report (or, with failed, the .failed report) exclusively: an existing file of another owner is never overwritten. Returns the file, its size and sha256. */
+export function writeEvidenceReport(report, evidence, { failed = false } = {}) {
+  const file = failed ? report.failedPath : report.path;
+  const text = JSON.stringify(evidence, null, 1);
+  fs.writeFileSync(file, text, { flag: 'wx' });
+  return { file, bytes: Buffer.byteLength(text), sha256: sha256(text), text };
+}
+
 // ---- exact source archives and real builds -----------------------------------------------------------------------------------------
 /** `git archive` of exactly `sha` into the new empty folder `dest`. The archive has no .git. Returns the sha256 of the tar. */
 export function archiveCommit(repo, sha, dest) {
@@ -252,4 +280,41 @@ export async function runScratchActors({ parent, actors, crashOne = false, node 
   } finally { for (const r of live) r.p.kill('SIGKILL'); cleanupOwnedChild(control); }
 }
 
+// ---- independent evidence actors: each allocates a default report AND its own export child, then finishes like the canonical run ------------------------
+function evidenceActorMain([parent, id, startFile]) {
+  const out = { id, errors: [] };
+  try {
+    const child = allocateScratchChild(parent, 'evidence-actor' + id);
+    const report = allocateEvidenceReport({ parent, label: 'actor' + id });
+    fs.writeFileSync(path.join(child.dir, 'export.txt'), 'export of ' + id);
+    Object.assign(out, { child: child.dir, report: report.path });
+    process.stdout.write('READY ' + JSON.stringify(out) + '\n');
+    for (let i = 0; i < 4000 && !fs.existsSync(startFile); i++) nap(5);
+    if (!fs.existsSync(startFile)) throw new Error('barrier: never released');
+    const w = writeEvidenceReport(report, { actor: id, filler: 'x'.repeat(20000) + ':' + id }, { failed: Number(id) % 2 === 1 });
+    out.file = w.file; out.sha256 = w.sha256; out.cleaned = cleanupOwnedChild(child);
+  } catch (e) { out.errors.push(String(e.stack || e)); }
+  process.stdout.write('DONE ' + JSON.stringify(out) + '\n');
+}
+
+/** `actors` independent processes, released together after all allocated, each allocating a default report and an export child, writing its report and cleaning its child. */
+export async function runEvidenceActors({ parent, actors, node = process.execPath, timeoutMs = 60000 }) {
+  const control = allocateScratchChild(parent, 'evidence-control'); const startFile = path.join(control.dir, 'go'); const live = [];
+  const within = (promise, what) => Promise.race([promise, new Promise((_, rej) => setTimeout(() => rej(new Error('timeout (deadlock?): ' + what)), timeoutMs).unref())]);
+  try {
+    const running = Array.from({ length: actors }, (_, i) => {
+      const p = spawn(node, [fileURLToPath(import.meta.url), '--evidence-actor', parent, String(i), startFile], { stdio: ['ignore', 'pipe', 'pipe'] });
+      let stdout = '', stderr = ''; p.stdout.on('data', (d) => { stdout += d; }); p.stderr.on('data', (d) => { stderr += d; });
+      const done = new Promise((res) => p.on('exit', (code) => res({ code, stdout, stderr })));
+      const ready = new Promise((res, rej) => { const t = setTimeout(() => rej(new Error('actor never became ready')), 20000); const poll = () => { if (parseLine(stdout, 'READY')) { clearTimeout(t); res(); } else setTimeout(poll, 5); }; poll(); });
+      live.push({ p }); return { done, ready };
+    });
+    await within(Promise.all(running.map((r) => r.ready)), 'every evidence actor ready');
+    fs.writeFileSync(startFile, 'go');
+    const results = await within(Promise.all(running.map((r) => r.done)), 'evidence actors finishing');
+    return results.map((r) => ({ code: r.code, stderr: r.stderr, ...(parseLine(r.stdout, 'DONE') || { errors: ['no DONE line'] }) }));
+  } finally { for (const r of live) r.p.kill('SIGKILL'); cleanupOwnedChild(control); }
+}
+
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url) && process.argv[2] === '--actor') actorMain(process.argv.slice(3));
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url) && process.argv[2] === '--evidence-actor') evidenceActorMain(process.argv.slice(3));
