@@ -14,8 +14,11 @@ tasks and `O12` for objectives in pages and briefings only.
 
 ## Rules
 
-- Send `X-Actor: <your name>` on every write; it is recorded in the history. Without it the
-  actor is `You` (the owner). Executors use `Executor`; Claude sessions use `Claude`.
+- Send `X-Actor: <your team>` on every write; it is recorded in the history. The names are one
+  list, used for who owns a task, who wrote an item or a note, and who made a change: `John`,
+  `platform`, `plc`, `memory`, `simulator`, `infra`, `cyberplanetary`, `sonalon`, `brand`,
+  `cosmogenitor`, `concepts`, `business`, `planner`. Use the team whose folder you work in.
+  Without the header the actor is `John`. Use the same name as `author` on notes.
 - Read before you act: `GET /api/state` (the whole board) or one briefing, see below.
 - Work is recorded as notes on its task. Set the task `in progress` when you start. Set `done`
   only when the task says you close it; otherwise leave it for whoever assigned it.
@@ -30,12 +33,12 @@ tasks and `O12` for objectives in pages and briefings only.
     curl -s $B/api/context/task/43.md                      # briefing: task, notes, what it depends on
     curl -s "$B/api/context?tasks=43,44&mode=brief"        # several items, mode full|brief|item
     curl -s $B/api/state                                   # everything, JSON
-    curl -s -X PATCH $B/api/tasks/43 -H 'X-Actor: Executor' \
+    curl -s -X PATCH $B/api/tasks/43 -H 'X-Actor: <your team>' \
       -H 'Content-Type: application/json' -d '{"status":"in progress"}'
-    curl -s -X POST $B/api/tasks/43/notes -H 'X-Actor: Executor' \
-      -H 'Content-Type: application/json' -d '{"author":"Executor","text":"[TIME] what I did"}'
+    curl -s -X POST $B/api/tasks/43/notes -H 'X-Actor: <your team>' \
+      -H 'Content-Type: application/json' -d '{"author":"<your team>","text":"[TIME] what I did"}'
 
-Task fields you may PATCH: `title`, `detail`, `who`, `kind`, `status`, `size`, `high_priority`.
+Task fields you may PATCH: `title`, `detail`, `who` (the owner: `John` or a team from the list above), `kind`, `status`, `size`, `high_priority`.
 When you create a task (POST /api/tasks) you must send `high_priority`: `true` if the task must be
 finished before its objective counts as met, `false` if it is optional (the objective can be met
 and move to Done while it is unfinished). The call is refused without it. A write that is

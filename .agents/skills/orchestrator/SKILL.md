@@ -25,7 +25,7 @@ Everything here works the same from Claude Code, Codex and opencode. Read the `b
 6. Verify: `cosmo-verify RECEIPT` (the receipt path is in the command's output and beside the hand-back as
    `HANDBACK.receipt.json`). Exit 0 means every check passed. Read the table, not just the code: WARN rows
    (a step without a DONE line) are yours to judge.
-7. Record the checked result as ONE note on the board task (`X-Actor` and `author` are your own name). The text
+7. Record the checked result as ONE note on the board task (`X-Actor` and `author` are your team's name). The text
    must begin with the time in square brackets, from `date '+%Y-%m-%d %H:%M %Z'` that you just ran, as
    `[2026-11-15 12:55 EST] what was verified...`: which commands, and the lane and seconds from the receipt.
    Do not post it twice. Then start the next piece.
