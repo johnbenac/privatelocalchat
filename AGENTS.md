@@ -121,7 +121,7 @@ program:
 [[sonalon-phase-evidence-location]] — The host directory for Sonalon browser-study evidence and the phase-five record pointers.
 [[any-one-lane-is-enough]] — The standing bar that any one of Claude Code, Codex or opencode on the local router must be able to run Cosmoshot, and the routing-policy mechanism that chooses lanes.
 [[development-infrastructure-scope]] — Scope and ownership of the shared developer foundation; read before expanding infrastructure into application or commercial design.
-[8/18 entries shown; cosmo-mem read program _index.md]
+[8/19 entries shown; cosmo-mem read program _index.md]
 ```
 
 
