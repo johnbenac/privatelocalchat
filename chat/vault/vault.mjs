@@ -62,6 +62,7 @@ const openBytes = async (subtle, wrapKey, sealed, aad) => new Uint8Array(await s
 // ---- state ------------------------------------------------------------------------------------------------------------------------------------------------------------
 export const emptyState = () => ({ kv: new Map(), threads: new Map(), docs: new Map(), keys: new Map() }); // keys: keyId -> raw bytes (the DEK-sealed copies live in the log)
 
+const KNOWN_EVENTS = new Set(["kv.set", "kv.del", "thread.put", "thread.del", "doc.put", "doc.del", "key.put", "key.destroy"]); // the types applyEvent understands
 /** The reducer: one event applied to the state. Pure. Unknown events are ignored (a newer app may write more kinds). */
 export function applyEvent(state, event) {
   switch (event?.t) {
@@ -129,6 +130,14 @@ export function createVault({ adapter, crypto = globalThis.crypto, now = () => D
     throw new VaultError("bad-passphrase", "That passphrase did not unlock the vault.");
   }
 
+  const newerFormat = () => new VaultError("format", "This vault was made by a newer version of the app.");
+  /** Refuse a format this version does not support: the supplied header AND the header actually stored now (a read failure rejects; nothing is written). */
+  async function requireSupportedFormat(supplied) {
+    if (supplied?.format !== VAULT_FORMAT) throw newerFormat();
+    const actual = await adapter.readHeader();
+    if (actual && actual.format !== VAULT_FORMAT) throw newerFormat();
+  }
+
   /** Unlock with the passphrase. Returns a session, with `damaged` listing records that could not be read. */
   async function unlock(passphrase) {
     const header = await adapter.readHeader();
@@ -139,6 +148,7 @@ export function createVault({ adapter, crypto = globalThis.crypto, now = () => D
 
   /** Unlock when the vault key bytes are already known (a passkey unwrapped them). */
   async function unlockWithKey(header, dekRaw) {
+    await requireSupportedFormat(header);
     const log = await adapter.readLog();
     const dek = await importAes(subtle, dekRaw);
     const state = emptyState(), damaged = [];
@@ -147,6 +157,7 @@ export function createVault({ adapter, crypto = globalThis.crypto, now = () => D
     // so its first append is legitimately seq 1.
     let lastSeq = log.length === 0 ? 1 : 0, previous = 0, firstSeq = null, gap = false;
     const seenKvKeys = new Set();
+    let unsupported = false;
     const keyOf = async (keyId) => {
       if (keyId === KEY_DEK) return dek;
       const raw = state.keys.get(keyId);
@@ -162,12 +173,13 @@ export function createVault({ adapter, crypto = globalThis.crypto, now = () => D
       if (!key) { damaged.push({ seq: rec.seq, reason: "no-key" }); gap = true; continue; }
       try {
         const event = JSON.parse(dec.decode(unpad(new Uint8Array(await subtle.decrypt({ name: "AES-GCM", iv: fromB64(rec.iv), additionalData: aadFor(rec.seq, rec.keyId) }, key, fromB64(rec.data))))));
+        if (!KNOWN_EVENTS.has(event?.t)) unsupported = true;
         applyEvent(state, event);
         if (event?.t === "kv.set" || event?.t === "kv.del") seenKvKeys.add(String(event.k));
       } catch { gap = true; damaged.push({ seq: rec.seq, reason: "unreadable" }); }
     }
     const readable = damaged.filter((d) => d.reason !== "no-key");
-    const s = session(header, dekRaw, state, lastSeq);
+    const s = session(header, dekRaw, state, lastSeq, unsupported);
     s.damaged = readable;
     s.destroyedRecords = damaged.length - readable.length;
     // Read-only replay evidence. A key that no kv event of the stored log ever named was never encrypted ONLY when the whole history was observed: a non-empty log that starts at seq 1,
@@ -177,7 +189,7 @@ export function createVault({ adapter, crypto = globalThis.crypto, now = () => D
     return s;
   }
 
-  function session(header, dekRaw, state, lastSeq) {
+  function session(header, dekRaw, state, lastSeq, sawUnsupported = false) {
     let seq = lastSeq, dekPromise = importAes(subtle, dekRaw), locked = false, tail = Promise.resolve();
     const cache = new Map();
     const keyFor = async (keyId) => {
@@ -213,6 +225,7 @@ export function createVault({ adapter, crypto = globalThis.crypto, now = () => D
       // The record is durable. If the session was locked while the adapter's completion was pending, lock() already cleared the in-memory state: applying the event now would put plaintext back
       // into a locked session. The same holds for an OBSOLETE session (the guard no longer authorizes: the lifecycle that started this write ended, the session may still be unlocked): its memory
       // is not written to either. The stored record stays (it was legitimate when written), its sequence is reported truthfully (no rollback, no resend), and memory is left as it is.
+      if (!KNOWN_EVENTS.has(event?.t)) sawUnsupported = true; // durable, even when the session is locked or obsolete: compaction must not drop it
       if (locked || !authorized(guard)) return at; // durable
       applyEvent(state, event);
       return at;
@@ -256,6 +269,9 @@ export function createVault({ adapter, crypto = globalThis.crypto, now = () => D
        * One adapter call, so it is all-or-nothing.
        */
       compact: () => enqueue(async () => {
+        // Refused before any record is sealed or replaced: a decoded event this version cannot apply would be dropped, and the stored header may be newer than the supplied one.
+        if (sawUnsupported) throw new VaultError("unsupported-event", "This vault holds data written by a newer version of the app, so it was not compacted.");
+        await requireSupportedFormat(api.header);
         const before = seq, add = [];
         for (const item of eventsFor(state)) { const at = ++seq; add.push(await seal(item.keyId, item.event, at)); }
         try { await adapter.replaceLog({ add, removeUpTo: before }); } catch (error) { seq = before; throw error; }

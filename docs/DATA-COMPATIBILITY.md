@@ -26,6 +26,10 @@ When a browser holds data from a newer version than the one running, that versio
 
 It decides this from the record `plc.formats.v1` and from the keys present (a key named for a higher version of a known store). A document database created by a newer version raises a `VersionError`, which is handled the same way. `chat/vault/data-formats.mjs` holds the logic, `chat/vault/format-guard-ui.mjs` the message, and `tests/e2e/format-guard.e2e.mjs` proves it in a browser.
 
+### A vault this version cannot fully read
+
+The vault reader refuses rather than guesses. Opening with a known key checks the supplied header and the header stored at that moment, and refuses a format this version does not support. Start-up that cannot read the vault header at all (a `VersionError` or any read failure) stops with an error and keeps the vault marker, the header and the log, instead of carrying on as if there were no vault. Compaction refuses with an explicit error, before it replaces or deletes anything, when the log holds an event of a type this version does not know, so a newer version's records are never dropped; unknown fields inside a known event are still allowed. `tests/vault-reader-hardening.test.mjs` covers all three.
+
 ## Data from every release: the snapshot suite
 
 `tests/fixtures/data/` holds one folder per snapshot, numbered from `001`, named `NNN-<release>-<commit>`. Each has:
