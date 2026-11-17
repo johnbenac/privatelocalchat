@@ -24,6 +24,13 @@ export function memoryStorage(initial = {}) {
   return { getItem: (k) => (m.has(k) ? m.get(k) : null), setItem: (k, v) => { m.set(k, String(v)); }, removeItem: (k) => { m.delete(k); }, clear: () => m.clear(), key: (i) => [...m.keys()][i] ?? null, get length() { return m.size; } };
 }
 
+/**
+ * Legacy plain-ledger keys that are recognized (classified) but never admitted into the vault by migration or by this storage: copying the whole ledger under the vault key would put every
+ * encounter's text into one global copy that no chat deletion could shred. They are HELD: read as they are, never written or removed here, never copied. Any admission waits for the typed
+ * projection (docs/OWNED-CONVERSATION-STORE.md) and a separately reviewed migration. An existing private copy already in the vault keeps its bytes and stays readable.
+ */
+const LEGACY_EN = "plc.encounters.v1";
+export const LEGACY_HOLD = Object.freeze([LEGACY_EN]);
 const RECOVERED_KEYS = "meta/recoveredKeys"; // JSON list of keys whose raw copy was reconciled into the vault: a later stale raw copy of one is never copied back
 /** The vaulted keys every earlier vault-capable reader (canonical dev 0b0ef275) already migrates itself. For these a raw value that the vault lacks is a stale retained copy, never recovered. */
 export const LEGACY_VAULT_KEYS = Object.freeze(["chatThreads", "plc.activeThread.v1", "plc.drafts.v1", "plc.prefs.v1", "plc.folders.v1", "plc.presets.v1", "plc.memory.v1", "plc.modelMemory.v1", "plc.voice.v2", "plc.voice.v1", "plc.inferenceMode.v1", "plc.models.v1", "plc.shell.pins.v1", "chatConfig", "chatModels", "chatEndpointTokens", "plc.draft", "plc.pendingToken.v1"]);
@@ -49,6 +56,11 @@ export function createAppStorage({ realLocal, realSession, onWriteError = () => 
   const heldValue = new Map();           // key -> the raw value seen when it was held (served if another tab removes the raw copy after saving it into the vault)
   let recovery = null;                   // the report of the start-up reconciliation (reconcileRaw)
   const refuseHeld = (key) => { if (!held.has(key)) return false; try { onHeldWrite(key, held.get(key)); } catch { /* a listener must not stop the page */ } return true; };
+  // Typed encounters (or a pending typed operation) make the whole chat store read-only to this legacy path. Asked BEFORE the optimistic mirror, thread JSON or the write queue are touched, from the
+  // live session state; the engine refuses the same writes again at its own boundary (chat/vault/vault.mjs), so a queued job or a direct module call cannot get around it.
+  const refuseTyped = (key) => { const why = session?.typedHold; if (!why) return false; try { onHeldWrite(key, "typed-encounters"); } catch { /* a listener must not stop the page */ } return true; };
+  // The legacy encounter ledger is never admitted by this storage (LEGACY_HOLD): refused before the mirror or the queue, preserved wherever it is.
+  const refuseLegacy = (key) => { if (!LEGACY_HOLD.includes(key)) return false; try { onHeldWrite(key, "legacy-encounters"); } catch { /* a listener must not stop the page */ } return true; };
   let dirty = new Map(), running = null, writes = 0, failures = 0;
 
   // ---- writing: latest value per key, one batch in flight ----
@@ -100,7 +112,8 @@ export function createAppStorage({ realLocal, realSession, onWriteError = () => 
         key = String(key); value = String(value);
         if (refuse(key) || (vaulted(key) && refuseHeld(key))) return;
         if (!vaulted(key)) return real.setItem(key, value);
-        if (key === THREADS) { setThreads(value); onChange(key); return; }
+        if (key === THREADS) { if (refuseTyped(key)) return; setThreads(value); onChange(key); return; }
+        if (refuseLegacy(key)) return;
         mirror[kind].set(key, value);
         if (!memoryOnly.has(key)) schedule("k:" + ns(kind, key), () => session.setKv(ns(kind, key), key === "chatConfig" && !rememberKeys ? withoutToken(value) : value));
         onChange(key);
@@ -109,14 +122,15 @@ export function createAppStorage({ realLocal, realSession, onWriteError = () => 
         key = String(key);
         if (refuse(key) || (vaulted(key) && refuseHeld(key))) return;
         if (!vaulted(key)) return real.removeItem(key);
-        if (key === THREADS) { setThreads("[]"); onChange(key); return; }
+        if (key === THREADS) { if (refuseTyped(key)) return; setThreads("[]"); onChange(key); return; }
+        if (refuseLegacy(key)) return;
         if (mirror[kind].delete(key)) schedule("k:" + ns(kind, key), () => session.delKv(ns(kind, key)));
         onChange(key);
       },
       clear() {
         if (session) {
           for (const key of [...mirror[kind].keys()]) this.removeItem(key);
-          if (kind === "local" && !blocked.has(THREADS)) setThreads("[]");
+          if (kind === "local" && !blocked.has(THREADS) && !refuseTyped(THREADS)) setThreads("[]");
         }
         if (!blocked.size && !held.size) { real.clear(); return; }
         const own = []; for (let i = 0; i < real.length; i++) own.push(real.key(i));
@@ -429,6 +443,7 @@ export async function reconcileRaw({ session, adapter, realLocal, writer, exclus
       else if (cmp.status === "conflict" && LEGACY_VAULT_KEYS.includes(key)) report.retained.push(key); // the normal retained plaintext copy of a store every reader migrates, edited since: kept quietly, listed at cleanup
       else if (cmp.status === "conflict") { report.conflicts.push({ key, ids: cmp.differ }); reconciled.add(key); }
       else if (cmp.status === "unreadable") report.unreadable.push(key);
+      else if (LEGACY_HOLD.includes(key)) hold(key, "legacy-encounters", raw); // never copied into the vault: served as it is, before any migration write
       else if (LEGACY_VAULT_KEYS.includes(key) || marker.has(key) || history.seenKvKeys.has(ns("local", key))) report.stale.push(key); // it was encrypted once: its absence means it was deleted, so the raw copy is old
       else if (stored.damaged.length) hold(key, "vault-damaged", raw);
       else if (!history.observedHistoryComplete) hold(key, "history-unproven", raw); // compacted / empty / gapped history: absence proves nothing, so it is not copied (it could be a deleted store)
@@ -553,12 +568,13 @@ export async function createAndMigrate({ passphrase, adapter, realLocal, realSes
   const plain = readPlaintext(realLocal, realSession);
   const session = await vault.create(passphrase, { iterations, guard });
   try {
+    const held = (kind, k) => kind === "local" && LEGACY_HOLD.includes(k); // the legacy encounter ledger stays where it is: no copy, no check, not named in the recovered list
     for (const kind of ["local", "session"]) for (const [k, v] of Object.entries(plain[kind])) {
-      if (k === THREADS) continue;
+      if (k === THREADS || held(kind, k)) continue;
       await session.setKv(ns(kind, k), v, options);
     }
     const threads = (() => { try { const l = JSON.parse(plain.local[THREADS] || "[]"); return Array.isArray(l) ? l : []; } catch { return []; } })();
-    const newer = Object.keys(plain.local).filter((k) => k !== THREADS && !LEGACY_VAULT_KEYS.includes(k)).sort();
+    const newer = Object.keys(plain.local).filter((k) => k !== THREADS && !LEGACY_VAULT_KEYS.includes(k) && !LEGACY_HOLD.includes(k)).sort();
     if (newer.length) await session.setKv(RECOVERED_KEYS, JSON.stringify(newer), options); // these are in the vault now: a stale plaintext copy kept after a later delete is never copied back
     for (const t of threads) if (t?.id != null) await session.putThread(String(t.id), t, options);
     await session.setKv(THREAD_ORDER, JSON.stringify(threads.filter((t) => t?.id != null).map((t) => String(t.id))), options);
@@ -568,7 +584,7 @@ export async function createAndMigrate({ passphrase, adapter, realLocal, realSes
     const check = await createVault({ adapter }).unlock(passphrase);
     if (check.damaged.length) throw new VaultError("verify", "The encrypted copy could not be read back completely.");
     for (const kind of ["local", "session"]) for (const [k, v] of Object.entries(plain[kind])) {
-      if (k === THREADS) continue;
+      if (k === THREADS || held(kind, k)) continue;
       if (check.state.kv.get(ns(kind, k)) !== v) throw new VaultError("verify", "The encrypted copy of " + k + " does not match.");
     }
     if (!sameJson(threads.filter((t) => t?.id != null).map((t) => [String(t.id), t]), threads.filter((t) => t?.id != null).map((t) => [String(t.id), check.state.threads.get(String(t.id))]))) throw new VaultError("verify", "The encrypted chats do not match.");
@@ -587,7 +603,7 @@ export async function createAndMigrate({ passphrase, adapter, realLocal, realSes
   }
   if (!okNow()) { session.lock(); throw new VaultError("session-changed", "The vault enable was interrupted; some setup data may already be saved; the original unencrypted data was kept."); }
   try { realLocal.setItem(VAULT_MARKER, JSON.stringify({ autoMinutes, createdAt: Date.now() })); } catch { /* the marker is an optimisation */ }
-  return { session, plaintext: plain, documents };
+  return { session, plaintext: plain, documents, heldLegacy: LEGACY_HOLD.filter((k) => plain.local[k] != null) };
 }
 
 /**

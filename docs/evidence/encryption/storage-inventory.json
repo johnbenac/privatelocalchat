@@ -361,6 +361,16 @@
       "since": "v0.47.0"
     }
   ],
+  "vaultInternalKeys": [
+    {
+      "key": "meta/encounters.index.v1",
+      "class": "vault",
+      "owner": "chat/vault/vault.mjs",
+      "note": "an engine-internal key inside the vault log, sealed under the vault key; NOT a browser storage key. The header of the same vault database may carry the semantic format plc-vault/2 once typed encounters are admitted (the encryption domain plc-vault/1 and IndexedDB schema 1 are unchanged). The one noncontent index of typed encounters: logical counters, opaque owner and generation references and the pending/committed operation receipt. No text, label or payload digest. Written only by commitChatProjection and reconcileChatProjection; generic writes refuse it",
+      "format": 1,
+      "since": "unreleased"
+    }
+  ],
   "deviceStores": [
     {
       "name": "OPFS model and voice files",
