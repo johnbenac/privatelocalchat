@@ -99,7 +99,7 @@ test('U direct settlePending: rollback lands physically, ACK fails, next actor h
 });
 
 // ============================================================================ U raw settled-then-refused: liveness probe
-test('U raw settled-then-refused: alpha settles/ACKs, beta conflicts because base remains0, new begin never occurs', async () => {
+test('U raw settled-then-refused: alpha settles/ACKs, then the NEW begin itself is refused before any beta write', async () => {
   const root = new URL('../', import.meta.url).href;
   const { outcomeOf: outcomeOfLocal } = await import('../chat/encounters/save-outcome.mjs');
   const storage = memStorage({ chatThreads: '[]' });
@@ -119,6 +119,9 @@ test('U raw settled-then-refused: alpha settles/ACKs, beta conflicts because bas
   backend.failing.cas = false;
   backend.failing.casCount = 1;
   tab.thread('t').messages.push(msg('beta', 'user', 'beta'));
+  // every CAS attempt of the second save, in order: the recovery ACK (applied, uses the one allowed CAS), then the NEW operation's begin (state open) that now fails
+  const casAttempts = []; const casOriginal = backend.cas;
+  backend.cas = async function (expect, record) { casAttempts.push(record?.state); return casOriginal.call(this, expect, record); };
   const second = await tab.save();
   const outcome = outcomeOfLocal(second);
   const record = backend.peek();
@@ -131,5 +134,9 @@ test('U raw settled-then-refused: alpha settles/ACKs, beta conflicts because bas
     scope: 'actual S producer/commit/coordination/consumer; actual memory backend and supplied Storage/WebLocks/CAS limit, no UI/browser proof',
     first, second, outcome, oldOperationRecord: record, storedIds: stored[0].messages.map((m) => m.id)
   }, null, 2));
+  assert.deepEqual(casAttempts, ['stable', 'open'], 'the NEW operation reached its begin (attempt actually made) after the recovery ACK');
+  assert.equal(second.ok, false); assert.equal(second.code, 'coordination-unavailable', 'the new begin refusal is definite and names its cause');
+  assert.equal(second.unknown, undefined, 'no unknown marker on a begin that never wrote');
+  assert.equal(backend.failing.casCount, 0, 'the single permitted CAS was the recovery ACK');
   assert.equal(outcome.unknown, false, 'a settled earlier operation must not be reopened as unknown when the new operation never began');
 });

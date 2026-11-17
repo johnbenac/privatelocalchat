@@ -76,11 +76,13 @@ export function createLedgerStore({ storage, key = 'plc.encounters.v1', locks = 
     try { return storage.getItem(k) === (text == null ? null : text); } catch { return false; }
   };
   /** One transaction object per lock hold. begin/beforeWrite/ack are write-ahead durable steps of the coordination record (no-ops when no coordination protects this hold). */
-  function makeTx(coord, pending) {
+  function makeTx(coord, pending, receipt = null) {
     const none = { ok: true };
     let armed = false;      // true once this hold may have issued a raw write (a write-ahead step succeeded, or a recovery wrote): from then on a failure is not provably "nothing changed"
     return {
       read, write, preview, key, put, pending: pending || null, coordinated: Boolean(coord),
+      /** read-only { op, outcome } of the last acknowledged operation, exactly as coordination.acquire validated it (null: none, or not a stable record) */
+      receipt: receipt || null,
       /** BEFORE the first raw write: patches = ordered { key: text|null } steps, back = patch of the rollback pair. A refusal means nothing was written. */
       begin: async (patches, o = {}) => (coord ? coord.begin(patches, o) : none),
       beforeWrite: async (i, from) => { const r = coord ? await coord.beforeWrite(i, from) : none; if (r.ok) armed = true; return r; },
@@ -125,9 +127,9 @@ export function createLedgerStore({ storage, key = 'plc.encounters.v1', locks = 
       return await locks.request(lockName, controller ? { signal: controller.signal } : {}, async () => {
         if (timer) clearTimeout(timer);
         const coord = activeCoord();
-        let pending = null;
-        if (coord) { const a = await coord.acquire(); if (!a.ok) { return a; } pending = a.pending || null; }
-        const tx = makeTx(coord, pending);
+        let pending = null, receipt = null;
+        if (coord) { const a = await coord.acquire(); if (!a.ok) { return a; } pending = a.pending || null; receipt = a.last || null; }
+        const tx = makeTx(coord, pending, receipt);
         const out = await fn(tx);
         const op = coord ? coord.openOp() : null;
         if (!op) { return out; }

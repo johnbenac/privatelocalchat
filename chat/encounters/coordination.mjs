@@ -167,7 +167,8 @@ export function createCoordination({ backend, keys, read, hasIntent = () => fals
         : fail('recovery-unproven', 'An earlier save was interrupted and this tab cannot yet see what it stored. Nothing from this tab was saved; try again in a moment, or reload the app.');
     }
     cur = R;
-    if (R.state === 'stable') return { ok: true };
+    // `last`: a read-only copy of the acknowledged operation of the record ALREADY validated above (never a second read of the backend)
+    if (R.state === 'stable') return { ok: true, last: R.last ? Object.freeze({ op: R.last.op, outcome: R.last.outcome }) : null };
     return { ok: true, pending: { op: R.op, record: R, viewPair: v, viewIndex: R.ph.findIndex((p) => same(p, v)) } };
   }
 

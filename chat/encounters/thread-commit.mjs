@@ -34,7 +34,10 @@ export function createThreadCommit({ storage, store, key = 'chatThreads', active
   const locksOk = Boolean(locks?.request);
   const base = new Map();          // threadId -> canonical copy of what this tab last synchronised with storage
   let epoch = null;                // the ledger epoch this tab started with (null: no usable ledger)
-  const hints = { imported: new Set(), branch: new Map(), planned: new Map() };   // planned: messageId -> { thread, spec }
+  const hints = { imported: new Map(), branch: new Map(), planned: new Map() };   // imported: threadId -> mark number; planned: messageId -> { thread, spec }
+  let hintSeq = 0;
+  // MEMORY ONLY, per controller: the frozen effect of every attempt that began (coordination op open) and whose outcome this tab did not see acknowledged. Never stored anywhere.
+  const attempts = new Map();      // op id -> { op, items: [{ id, tabCanon, sig, changed, absentBefore }], removals: [id], hints: { imported, branch, planned } }
   let tail = Promise.resolve(), queued = null, lastResult = null;
 
   // canonical form: the app's own normaliser, but a message still being written keeps its live status (it is not an interrupted one yet)
@@ -66,7 +69,7 @@ export function createThreadCommit({ storage, store, key = 'chatThreads', active
    * built from the same bytes the screen was built from. Without `raw` the key is read now (tests, tools).
    */
   function init(raw) {
-    base.clear();
+    base.clear(); attempts.clear();
     const s = raw === undefined ? readStored() : parseStored(raw);
     if (s.ok) for (const t of s.list) if (t && typeof t.id === 'string' && !t.temporary) { const c = canon(t); if (c) base.set(c.id, c); }
     const l = store.read(); epoch = l.ok ? l.ledger.epoch : null;
@@ -94,9 +97,10 @@ export function createThreadCommit({ storage, store, key = 'chatThreads', active
     const L = tx.read();
     if (tx.pending) {
       const wasClear = L.ok && L.ledger.intent?.kind === 'clear';
+      const op = tx.pending.op;
       const r = await store.settlePending(tx); if (!r.ok) return r;
       if (wasClear && r.outcome === 'applied') { try { storage.removeItem(activeKey); } catch { /* the chats are gone; the pointer is only a hint */ } }
-      return { ok: true, recovered: r.recovered || (r.outcome === 'applied' ? 'forward' : 'back') };
+      return { ok: true, recovered: r.recovered || (r.outcome === 'applied' ? 'forward' : 'back'), settled: { op, outcome: r.outcome } };
     }
     if (L.ok && L.ledger.intent) {
       if (tx.coordinated) return fail('recovery-unproven', 'An interrupted save was left by a version of the app that did not keep the safety record, so this tab does not guess what it stored. Nothing was saved.');
@@ -108,15 +112,15 @@ export function createThreadCommit({ storage, store, key = 'chatThreads', active
   // ---- one commit -----------------------------------------------------------------------------------------------------------------
   // `defer(fn)`: what may change this tab's baseline (base, hints) runs ONLY after the stable ACK (run() calls it once store.critical returned ok). An unconfirmed result leaves the baseline
   // untouched, so the next save recomputes the same patch (already stored = no change) and can never erase or duplicate the unconfirmed durable change.
-  async function commitStep(tx, defer) {
+  async function commitStep(tx, defer, attempt = () => {}) {
     onPhase('in-lock');
     const result = { ok: true, conflicts: [], refused: [], duplicates: [], recording: 'ok', wrote: false, recovered: null };
-    let L = tx.read();
+    let L = tx.read(), settled = null;
     if (!L.ok && L.code !== 'newer') return fail(L.code, L.message);   // malformed / unreadable: not a recognised newer store, so nothing is saved without its records
     if (tx.pending || (L.ok && L.ledger.intent)) {
       const r = await recover(tx);
       if (!r.ok) return fail(r.code, r.message, r.unknown ? { unknown: r.unknown } : {});
-      result.recovered = r.recovered; L = tx.read();
+      result.recovered = r.recovered; settled = r.settled || null; L = tx.read();
       if (!L.ok && L.code !== 'newer') return fail(L.code, L.message);
     }
     let s = readStored(); if (!s.ok) return s;
@@ -125,6 +129,9 @@ export function createThreadCommit({ storage, store, key = 'chatThreads', active
     if (!L.ok) result.recording = 'newer';
     const storedById = new Map(s.list.filter((t) => t && typeof t.id === 'string').map((t) => [t.id, t]));
     const tabThreads = (getThreads() || []).filter((t) => t && typeof t.id === 'string' && !t.temporary);
+
+    // an earlier attempt of THIS tab whose acknowledgement it never saw: settle its frozen effect from validated durable evidence BEFORE hints are checked and the next patch is calculated
+    const unproven = reconcile(tx, settled, storedById);
 
     // explicit received messages: check them against the fresh ledger first, so a refused or replayed one never reaches the transcript
     // (a replay of an occurrence already held returns that original record and changes nothing; the same occurrence with other bytes is a conflict)
@@ -151,6 +158,8 @@ export function createThreadCommit({ storage, store, key = 'chatThreads', active
       const diff = diffThread(base.get(t.id) || null, tabCanon);
       if (!diff) continue;
       const st = storedById.get(t.id);
+      // a conversation an earlier attempt may have created, now absent: rolled back, or stored and then deleted? Not provable -> explicit refusal (never recreated, the draft stays)
+      if (!st && unproven.has(t.id)) { result.conflicts.push({ thread: t.id, code: 'unproven-baseline', detail: 'An earlier save of this conversation was not confirmed and it is no longer stored, so it is not created again.' }); continue; }
       const applied = applyDiff(st ? canon(st) : null, diff);
       if (!applied.ok) { result.conflicts.push({ thread: t.id, code: applied.code, detail: applied.detail }); continue; }
       plans.push({ id: t.id, stored: st ? canon(st) : null, patched: applied.thread, changed: applied.changed, tabCanon, existed: Boolean(st) });
@@ -166,7 +175,8 @@ export function createThreadCommit({ storage, store, key = 'chatThreads', active
     const removedIds = removals.filter((r) => r.present).map((r) => r.id);
     const finishBase = () => { for (const p of plans) base.set(p.id, p.tabCanon); for (const r of removals) base.delete(r.id); };
     if (!changedPlans.length && !removedIds.length) {
-      defer(() => { finishBase(); clearHints(plans); });
+      const capNoChange = captureHints(plans);
+      defer(() => { finishBase(); releaseHints(capNoChange); });
       if (ledger && removals.length) {   // already gone elsewhere: only the leftover records
         const d = clone(ledger);
         if (sweepThreads(d, removals.map((r) => r.id)).removed) {
@@ -185,6 +195,14 @@ export function createThreadCommit({ storage, store, key = 'chatThreads', active
     for (const raw of s.list) { const id = raw?.id; if (gone.has(id)) continue; newList.push(patchedById.has(id) ? patchedById.get(id) : raw); }
     for (const p of changedPlans) if (!p.existed) newList.push(p.patched);
 
+    // the effect of THIS attempt, frozen (cloned) in the same synchronous step as the plan: exactly the hints it consumes (by identity) and the canonical copies of what it touched.
+    // It is bound to the coordination op once that is begun, BEFORE any raw write, and is applied only when that op is known applied (stable ACK, validated recovery or receipt, or evidence).
+    const hintCap = captureHints(changedPlans);
+    const frozenItems = plans.map((p) => ({ id: p.id, tabCanon: clone(p.tabCanon), sig: sigOf(p.patched), changed: changedPlans.includes(p), absentBefore: !base.has(p.id) }));
+    const frozenRemovals = removals.map((r) => r.id);
+    let effect = null;
+    const freeze = (op) => { effect = { op, items: frozenItems, removals: frozenRemovals, hints: hintCap }; attempt(effect); };
+
     // the records
     let draft = null, intentLedger = null, intentText = null, opIdx = null, noLedgerOp = false;
     if (ledger) {
@@ -201,7 +219,7 @@ export function createThreadCommit({ storage, store, key = 'chatThreads', active
       const backPre = clone(intentAfter); delete backPre.intent; applyUndo(backPre, undo);
       const begun = await tx.begin([{ [tx.key]: tx.preview({ ...draft, intent }) }, { [key]: JSON.stringify(newList) }, { [tx.key]: tx.preview(finPre) }], { op: intent.id, back: { [tx.key]: tx.preview(backPre) } });
       if (!begun.ok) return fail(begun.code, begun.message, { conflicts: result.conflicts, refused: result.refused });
-      opIdx = begun;
+      opIdx = begun; freeze(begun.op);
       onPhase('planned');
       const bw1 = await tx.beforeWrite(1); if (!bw1.ok) return fail(bw1.code, bw1.message, { conflicts: result.conflicts, refused: result.refused, notStored: true });
       onPhase('wal-1');
@@ -216,7 +234,7 @@ export function createThreadCommit({ storage, store, key = 'chatThreads', active
     } else {
       const begun = await tx.begin([{ [key]: JSON.stringify(newList) }], { back: {} });
       if (!begun.ok) return fail(begun.code, begun.message, { conflicts: result.conflicts, refused: result.refused });
-      opIdx = begun; noLedgerOp = true;
+      opIdx = begun; noLedgerOp = true; freeze(begun.op);
       onPhase('planned');
     }
     const text = JSON.stringify(newList);
@@ -251,21 +269,68 @@ export function createThreadCommit({ storage, store, key = 'chatThreads', active
       if (!w2.ok) return fail('records-finish-failed', 'Your chats were saved but the conversation records could not be finished, so the save is not confirmed yet. Try again: it will not duplicate.');
       onPhase('finalized');
     }
-    defer(() => { finishBase(); clearHints(changedPlans); });
+    defer(() => applyEffect(effect));
     return result;
   }
-  function clearHints(list) {
-    for (const p of list) { hints.imported.delete(p.id); hints.branch.delete(p.id); }
-    for (const [mid, pl] of [...hints.planned]) if (list.some((p) => p.id === pl.thread)) hints.planned.delete(mid);
+  // ---- the frozen effect of an attempt ---------------------------------------------------------------------------------------------
+  /** the hint entries (by identity) that exist for these conversations right now: exactly what a plan made in the same synchronous step consumes */
+  function captureHints(list) {
+    const ids = new Set(list.map((p) => p.id)), cap = { imported: [], branch: [], planned: [] };
+    for (const id of ids) { if (hints.imported.has(id)) cap.imported.push([id, hints.imported.get(id)]); if (hints.branch.has(id)) cap.branch.push([id, hints.branch.get(id)]); }
+    for (const [mid, pl] of hints.planned) if (ids.has(pl.thread)) cap.planned.push([mid, pl]);
+    return cap;
+  }
+  /** drop only the captured entries, and only while they are still the very same entries: a hint queued after the attempt (a newer mark, a newer plan) is never consumed by it */
+  function releaseHints(cap, only = null) {
+    for (const [id, g] of cap.imported) if ((only == null || only === id) && hints.imported.get(id) === g) hints.imported.delete(id);
+    for (const [id, h] of cap.branch) if ((only == null || only === id) && hints.branch.get(id) === h) hints.branch.delete(id);
+    for (const [mid, pl] of cap.planned) if ((only == null || only === pl.thread) && hints.planned.get(mid) === pl) hints.planned.delete(mid);
+  }
+  /** the attempt is known applied: its frozen baseline becomes this tab's baseline (never the live thread), and an older unresolved attempt can no longer move those conversations back */
+  function applyEffect(e) {
+    const ids = new Set(e.items.map((i) => i.id));
+    for (const i of e.items) base.set(i.id, clone(i.tabCanon));
+    for (const id of e.removals) { base.delete(id); ids.add(id); }
+    releaseHints(e.hints); attempts.delete(e.op);
+    for (const [, o] of attempts) o.items = o.items.filter((i) => !ids.has(i.id));
+  }
+  /**
+   * Settle earlier unresolved attempts from VALIDATED durable evidence only (inside the hold, before the next patch):
+   *   * the op this hold just recovered (applied / rolled-back), or the stable record's last acknowledged op as coordination.acquire validated it -> applied: apply the frozen effect; rolled-back: discard it;
+   *   * a later operation superseded the record: a touched conversation whose acquired, validated stored copy is exactly the attempt's own target is applied for that conversation alone.
+   * Uncertainty never advances the baseline. -> the ids of conversations an unresolved attempt may have created that cannot be proven either way.
+   */
+  function reconcile(tx, settled, storedById) {
+    const verdict = new Map();
+    if (tx.receipt?.op) verdict.set(tx.receipt.op, tx.receipt.outcome);
+    if (settled?.op) verdict.set(settled.op, settled.outcome);
+    const unproven = new Set();
+    for (const [op, e] of [...attempts]) {
+      const v = verdict.get(op);
+      if (v === 'applied') { applyEffect(e); continue; }
+      if (v === 'rolled-back') { attempts.delete(op); continue; }
+      if (!tx.coordinated) continue;
+      e.items = e.items.filter((i) => {
+        if (!i.changed) return true;
+        const st = storedById.get(i.id);
+        if (st && sigOf(st) === i.sig) { base.set(i.id, clone(i.tabCanon)); releaseHints(e.hints, i.id); return false; }
+        if (i.absentBefore) unproven.add(i.id);
+        return true;
+      });
+      if (!e.items.length && !e.removals.length) attempts.delete(op);
+    }
+    return unproven;
   }
   const plannedFor = (threadId) => { const o = {}; for (const [mid, p] of hints.planned) if (p.thread === threadId) o[mid] = { ...p.spec, id: p.eventId }; return o; };
 
   const finish = (r) => { lastResult = r; try { onResult(r); } catch { /* a listener must not stop saving */ } return r; };
   async function run() {
     if (isBlocked()) return finish(fail('blocked', BLOCKED));
-    let after = null;
-    const r = await store.critical((tx) => commitStep(tx, (fn) => { after = fn; }));
+    let after = null, begun = null;
+    const r = await store.critical((tx) => commitStep(tx, (fn) => { after = fn; }, (e) => { begun = e; }));
     if (r && r.ok && after) after();               // the stable ACK happened: only now does this tab's baseline move
+    // an attempt that began but was not acknowledged keeps its frozen effect (memory only) until its outcome is proven; a definite failure (nothing can have been stored) drops it
+    else if (begun && (r?.unknown || r?.code === 'write-failed')) attempts.set(begun.op, begun);
     return finish(r);
   }
 
@@ -340,7 +405,7 @@ export function createThreadCommit({ storage, store, key = 'chatThreads', active
         const bw = await tx.beforeWrite(3); if (!bw.ok) return bw;
         const w = tx.write(fin); if (!w.ok) return fail('records-finish-failed', 'History was cleared but the conversation records could not be finished, so the result is not confirmed yet. Try again.');
       }
-      after = () => { base.clear(); epoch = nextEpoch; hints.imported.clear(); hints.branch.clear(); hints.planned.clear(); };   // only after the stable ACK
+      after = () => { base.clear(); attempts.clear(); epoch = nextEpoch; hints.imported.clear(); hints.branch.clear(); hints.planned.clear(); };   // only after the stable ACK
       return { ok: true };
     });
     if (r && r.ok && after) after();
@@ -365,7 +430,7 @@ export function createThreadCommit({ storage, store, key = 'chatThreads', active
   return {
     init, prepare, request, clearAll, mutateLedger, lastResult: () => lastResult, epoch: () => epoch, baseSize: () => base.size,
     /** the next commit records these new conversations as imported (legacy: their messages carry no attribution) */
-    markImported: (ids) => { for (const id of ids) hints.imported.add(id); },
+    markImported: (ids) => { for (const id of ids) hints.imported.set(id, ++hintSeq); },
     /** the next commit records `id` as a branch of `source`: map is { newMessageId: sourceMessageId } */
     markBranch: (id, source, map) => hints.branch.set(id, { source, map }),
     /** a change that was refused is taken back in this tab's memory: the hints made for it are dropped with it */
