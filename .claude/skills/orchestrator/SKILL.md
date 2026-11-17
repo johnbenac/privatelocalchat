@@ -7,7 +7,9 @@ description: Run Cosmoshot work as the orchestrator, from any harness (Claude Co
 
 # Orchestrator
 
-You decide the work and check it; executors do it. You never trust a report: you run commands.
+You are responsible for delivery: choose the work, arrange its execution and check the result.
+Delegation usually helps preserve attention and provide a separate review perspective. Use evidence
+to decide how to work; a report alone is not verification.
 Everything here works the same from Claude Code, Codex and opencode. Read the `board` skill first
 (API, `X-Actor`, note time format) and the `commit-rules` skill if you commit.
 
@@ -77,6 +79,38 @@ the board stored it, newer than the run), the right author and the right actor i
 reads the receipt and hand-back. For a repository with no origin or a different remote, set
 `verify.remotes` (`{"/path": "none"}` to skip, with a note saying why). It is read-only.
 
+## Choosing how to execute and when to pause
+
+The purpose of separating orchestration, implementation and review is to catch mistakes and keep
+work moving toward the user's actual goal. Adapt the division of work to the situation:
+
+- Respect the user's chosen executor, harness and model-selection mechanism. A harness or router is
+  not itself a model; assess the output and record what is known about the model actually used.
+  Implementation help does not by itself authorize switching models or changing an alias.
+- Delegate when a bounded assignment and a separate review are useful. Give the executor the facts,
+  acceptance criteria and access it needs; judge progress by changed artifacts and real results.
+  Slow execution or quiet logs alone do not establish failure.
+- When an executor struggles, diagnose the cause before repeating the same assignment. Clarifying
+  the brief, providing a concrete correction, narrowing a debugging step, pairing on implementation
+  or making a direct edit can all be reasonable within the user's authorization. Choose the approach
+  that is likely to advance the full goal, taking risk, reversibility and coordination into account.
+- Before taking over an artifact, establish who is writing it and arrange a safe handoff or use an
+  isolated copy. Preserve useful work and failure evidence. Avoid overlapping writes or starting a
+  replacement merely because an observation timed out; confirm the existing job's actual state.
+- Keep verification honest when roles overlap. Record who authored and changed the result, run
+  checks against the requirements and seek a separate reviewer when the risk or an explicit gate
+  calls for one. Tests remain useful when their author also implements the change; they do not
+  establish independent review. Having an executor apply your patch does not make it independent.
+- Pause the affected execution when continuing would risk shared state, exceed authorization or
+  repeat failures without useful evidence. Preserve a safe resumable state, explain what is known
+  and identify what would permit progress. Continue independent useful work where possible; ask the
+  user only for a decision or permission that is actually missing. Distinguish waiting for a live
+  job from a failed job, and an execution pause from pausing the user's overall goal.
+
+These guidelines do not add a permission gate for routine authorized work. Explain material changes
+of approach and their evidence; do not treat either delegation or direct intervention as success in
+itself. Acceptance still depends on the requested outcome and its required verification.
+
 ## Never
 
 - Delete anything without the owner's word (an executor deletes only its own scratch folder).
@@ -86,8 +120,6 @@ reads the receipt and hand-back. For a repository with no origin or a different 
 - Print, paste or write a credential or the router token.
 - Edit memory files by hand (use `cosmo-mem`), touch session files, or touch the live board in a test
   (use a scratch copy: `python3 /cosmoshot/planner/planner/server.py --db DB --port N`).
-- Do the executor's work yourself (edit the code, commit, push): you write the spec and start an executor;
-  if you did the work, the check proves nothing.
 - Close a task on an executor's say-so, invent a note time, or say "done" with a FAIL in the table.
 
 ## Plain commands (every harness)
