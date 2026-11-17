@@ -404,8 +404,9 @@ export function createCharactersUi(host) {
         }
         if (preparation) out = await store.commit(preparation, { fence: () => stale(born) });
       } catch { out = preparation ? { ok: false, code: 'unconfirmed', unconfirmed: true, message: UNCONFIRMED } : { ok: false, code: 'error', message: 'The copy could not be made. Nothing was changed.' }; }
+      if (stale(born)) return; // locked or changed session meanwhile: draw nothing, and never put a private preparation back after the lifecycle cleared it
       if (preparation && isUnconfirmed(out)) pendingCopies.set(copyKey, { preparation, born }); else pendingCopies.delete(copyKey);
-      if (stale(born) || handle.closed) return; // locked or changed session meanwhile: draw nothing
+      if (handle.closed) return;
       render();
       if (!out.ok) { say(out.message); return; }
       say('Copied “' + r.name + '” as a new character. It has its own reference and no shared history.');

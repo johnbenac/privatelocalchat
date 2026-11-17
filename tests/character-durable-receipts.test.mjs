@@ -9,6 +9,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { spawn } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 import { webcrypto } from 'node:crypto';
 import { createCharacterStore, createTemporaryCharacterStore, createMemoryStorage, createMemoryLocks, CHARACTER_LOCK_NAME } from '../chat/characters/character-store.mjs';
 import { realKvBackend, plainWriteScope, CHARACTER_KEY } from './helpers/character-write-scope.mjs';
@@ -395,40 +397,25 @@ test('CH contract only: the plain provided scope drives the same store without a
 });
 
 // ---- concurrency: parallel actors over ONE real encrypted writer / KV backend ----
-// Invariants (stated before the run): every acknowledged admission is present exactly once with its own admission id; local individual ids are unique; the stored revision equals
-// the number of durable writes; nothing acknowledged is lost; an operation that was not acknowledged is retried with the SAME preparation until it is, and then appears once; nothing
-// is acknowledged while its append is still held. Injected failures: rejected appends and appends whose reply is lost.
+// Per round: `actors` stores (4, 8 and 16) each make 2 fresh saves in parallel (8, 16 and 32 intended saves) over one real KV backend with rejected appends and lost replies injected;
+// 20 rounds per actor count, each round on its own fresh backend. Invariants (burstRound in the helper): every intended save is acknowledged exactly once, unique local ids, exact stored
+// count and revision (no loss, no duplicate), a cold session agrees, the mirror is never written; failures that left the preparation retryable (unconfirmed, changed, a proven pre-put
+// busy at the DEFAULT lock wait) are retried with the SAME preparation, never counted as success and never dropped. The 20 rounds run as 5 child processes x 4 rounds in parallel.
 const REPEATS = Number(process.env.PLC_CONC_REPEATS || 20) || 20;
+const PROCESSES = 5;
+const runChild = (cfg) => new Promise((resolve, reject) => {
+  const child = spawn(process.execPath, [fileURLToPath(new URL('./helpers/character-write-scope.mjs', import.meta.url))], { env: { ...process.env, CH_BURST: JSON.stringify(cfg) }, stdio: ['ignore', 'pipe', 'pipe'] });
+  let out = ''; let err = '';
+  child.stdout.on('data', (c) => { out += c; }); child.stderr.on('data', (c) => { err += c; });
+  child.on('error', reject);
+  child.on('close', (code) => (code === 0 ? resolve(JSON.parse(out.trim().split('\n').at(-1))) : reject(new Error('burst child exited ' + code + ': ' + err.slice(-3000)))));
+});
 for (const actors of [4, 8, 16]) {
-  test(`CH concurrency: ${actors} parallel actors x1 save over one real KV backend, repeated ${REPEATS} times, with injected failures`, { timeout: 280000 }, async () => {
-    for (let round = 0; round < REPEATS; round++) {
-      const r = await rig({ locks: createMemoryLocks() });
-      const stores = Array.from({ length: actors }, () => createCharacterStore({ storage: r.storage, key: KEY, locks: r.locks, crypto: webcrypto, runWriteScope: r.b.runWriteScope })); // DEFAULT waitMs: a pre-put busy is retried with the same preparation, never waited out longer
-      const preps = await Promise.all(stores.flatMap((s) => [0].map(async () => ({ store: s, preparation: await prep(s, { text: bundle('minimal') }) }))));
-      r.b.control.rejectNext = 1 + (round % 2); r.b.control.dropNext = 1 + (round % 3);
-      const acked = [];
-      let unconfirmed = 0; let handled = 0; let recovering = Promise.resolve();
-      // A session that lost an append REPLY is re-opened (the realistic recovery: its next append would collide); actors in flight then fail closed and retry the same preparation.
-      const recover = () => { recovering = recovering.then(async () => { if (r.b.control.afterAppend > handled) { handled = r.b.control.afterAppend; await r.b.reload(); } }); return recovering; };
-      await Promise.all(preps.map(async ({ store, preparation }) => {
-        for (let attempt = 0; attempt < 60; attempt++) {
-          await recover();
-          const out = await store.commit(preparation);
-          if (out.ok) { acked.push({ out, admissionId: preparation.admissionId }); return; }
-          assert.ok(['unconfirmed', 'changed', 'write-refused', 'unreadable', 'busy'].includes(out.code), 'only a failure that left the preparation retryable is expected: ' + JSON.stringify(out)); unconfirmed += 1;
-        }
-        assert.fail('never acknowledged');
-      }));
-      assert.ok(unconfirmed >= 1, 'the injected failures were really exercised');
-      const state = await r.parsed();
-      const total = actors;
-      assert.equal(acked.length, total); assert.equal(state.records.length, total, 'no loss, no duplicate');
-      assert.equal(new Set(state.records.map((x) => x.individualId)).size, total, 'unique local ids');
-      for (const a of acked) { const rec = state.records.find((x) => x.individualId === a.out.individualId); assert.ok(rec, 'acknowledged record present'); assert.deepEqual(rec.admissions, [a.admissionId]); assert.equal(rec.recordVersion, 1); }
-      assert.equal(new Set(acked.map((a) => a.out.individualId)).size, total);
-      assert.equal(state.revision, total, 'one revision per admission');
-      assert.equal(await r.b.coldRaw(), await r.b.replay());
-      assert.equal(r.mirrorStats.sets, 0);
-    }
+  test(`CH concurrency: ${actors} parallel actors x2 saves over one real KV backend, ${REPEATS} rounds as ${PROCESSES} processes, with injected failures`, { timeout: 500000 }, async () => {
+    const per = Math.ceil(REPEATS / PROCESSES);
+    const results = await Promise.all(Array.from({ length: PROCESSES }, (_, i) => ({ actors, opsPer: 2, rounds: Math.min(per, REPEATS - i * per), first: i * per })).filter((cfg) => cfg.rounds > 0).map(runChild));
+    assert.equal(results.reduce((n, r) => n + r.rounds, 0), REPEATS, 'all rounds ran');
+    assert.equal(results.reduce((n, r) => n + r.saves, 0), REPEATS * actors * 2, 'every intended save was acknowledged exactly once');
+    assert.ok(results.reduce((n, r) => n + r.retries, 0) >= REPEATS, 'the injected failures were really exercised');
   });
 }

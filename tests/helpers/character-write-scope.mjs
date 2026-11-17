@@ -9,6 +9,9 @@
 //  2. plainWriteScope(storage): a minimal PROVIDED scope over a localStorage-contract object, for the existing store, bounds, fence, UI-lifecycle and crash tests that exercise
 //     other contracts (format, bounds, fences, recovery). It is a CONTRACT-ONLY fixture: no physical stale-cache or mode coverage is claimed from it.
 import { webcrypto } from 'node:crypto';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { createCharacterStore, createMemoryLocks } from '../../chat/characters/character-store.mjs';
 import { createAppStorage, memoryStorage, withWriteMode, readbackState } from '../../chat/vault/vault-store.mjs';
 import { createVault } from '../../chat/vault/vault.mjs';
 import { createMemoryAdapter } from '../../chat/vault/vault-db.mjs';
@@ -86,3 +89,49 @@ export async function realKvBackend({ iterations = 1000 } = {}) {
 }
 
 export const crypto = webcrypto;
+
+/**
+ * One burst round over ONE real encrypted KV backend: `actors` stores (one lock, as tabs of one origin share Web Locks) each make `opsPer` fresh saves of a real producer package in parallel,
+ * with rejected appends and appends whose reply is lost injected. Invariants (stated before the run): every intended save is acknowledged EXACTLY once, with its own admission id; local ids are
+ * unique; the stored record count and revision equal the number of intended saves (no loss, no duplicate); a cold session sees the same raw; the display mirror was never written. A failure that
+ * left the preparation retryable (unconfirmed, changed, proven pre-put busy ...) is retried with the SAME preparation; success is never counted from a failure and no operation is dropped.
+ */
+export async function burstRound({ actors, opsPer, round }) {
+  const bundleText = readFileSync(new URL('../fixtures/characters/examples/minimal.bundle.json', import.meta.url), 'utf8');
+  const KEY = CHARACTER_KEY;
+  const b = await realKvBackend(); const locks = createMemoryLocks(); const stats = { sets: 0 };
+  const storage = { getItem: (k) => b.app.local.getItem(k) ?? b.mirrorStorage.getItem(k), setItem(k, v) { stats.sets += 1; b.app.local.setItem(k, v); }, removeItem() { stats.sets += 1; } };
+  const stores = Array.from({ length: actors }, () => createCharacterStore({ storage, key: KEY, locks, crypto: webcrypto, runWriteScope: b.runWriteScope })); // DEFAULT waitMs
+  const preps = (await Promise.all(stores.flatMap((store) => Array.from({ length: opsPer }, async () => { const p = await store.prepare({ text: bundleText }); assert.equal(p.ok, true, JSON.stringify(p)); return { store, preparation: p.preparation }; }))));
+  b.control.rejectNext = 1 + (round % 2); b.control.dropNext = 1 + (round % 3);
+  const acked = []; let retries = 0; let handled = 0; let recovering = Promise.resolve();
+  // A session that lost an append REPLY is re-opened (the realistic recovery: its next append would collide); actors in flight then fail closed and retry the same preparation.
+  const recover = () => { recovering = recovering.then(async () => { if (b.control.afterAppend > handled) { handled = b.control.afterAppend; await b.reload(); } }); return recovering; };
+  await Promise.all(preps.map(async ({ store, preparation }) => {
+    for (let attempt = 0; attempt < 80; attempt++) {
+      await recover();
+      const out = await store.commit(preparation);
+      if (out.ok) { acked.push({ out, admissionId: preparation.admissionId }); return; }
+      assert.ok(['unconfirmed', 'changed', 'write-refused', 'unreadable', 'busy'].includes(out.code), 'only a failure that left the preparation retryable is expected: ' + JSON.stringify(out)); retries += 1;
+    }
+    assert.fail('an intended save was never acknowledged');
+  }));
+  assert.ok(retries >= 1, 'the injected failures were really exercised');
+  const state = JSON.parse(await b.replay()); const total = actors * opsPer;
+  assert.equal(acked.length, total, 'every intended save acknowledged exactly once'); assert.equal(state.records.length, total, 'no loss, no duplicate');
+  assert.equal(new Set(state.records.map((x) => x.individualId)).size, total, 'unique local ids');
+  for (const a of acked) { const rec = state.records.find((x) => x.individualId === a.out.individualId); assert.ok(rec, 'acknowledged record present'); assert.deepEqual(rec.admissions, [a.admissionId]); assert.equal(rec.recordVersion, 1); }
+  assert.equal(new Set(acked.map((a) => a.out.individualId)).size, total);
+  assert.equal(state.revision, total, 'one revision per admission');
+  assert.equal(await b.coldRaw(), await b.replay(), 'a cold session sees the same raw');
+  assert.equal(stats.sets, 0, 'the display mirror was never written');
+  return { total, retries };
+}
+
+// Child-process entry: the burst test starts several of these in parallel (real CPU parallelism) so the full intended load fits the command limit. `CH_BURST` = { actors, opsPer, rounds, first }.
+if (process.env.CH_BURST) {
+  const { actors, opsPer, rounds, first } = JSON.parse(process.env.CH_BURST);
+  let retries = 0; let saves = 0;
+  for (let i = 0; i < rounds; i++) { const r = await burstRound({ actors, opsPer, round: first + i }); retries += r.retries; saves += r.total; }
+  process.stdout.write(JSON.stringify({ ok: true, actors, opsPer, rounds, first, saves, retries }) + '\n');
+}
