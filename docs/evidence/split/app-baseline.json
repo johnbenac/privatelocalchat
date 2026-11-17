@@ -8,7 +8,7 @@
   "SOURCE_DATE_EPOCH": "0",
   "SITE_DIR": ""
  },
- "fileCount": 202,
+ "fileCount": 204,
  "files": {
   "404.html": {
    "bytes": 101,
@@ -91,16 +91,20 @@
    "sha256": "0de05304e1a9c7280393b2c71942f691de16221aae843269ae9055090eda3543"
   },
   "index.html": {
-   "bytes": 79649,
-   "sha256": "c1011cd4e917a8db0a023658c27560b682aed0d9813de894c13d0a91443c8c0e"
+   "bytes": 80779,
+   "sha256": "a485d7439d0cb7e996733a8623d91fd190229597d83ef8ab4132e41d54f138db"
   },
   "manifest.webmanifest": {
    "bytes": 633,
    "sha256": "4f104609324189c39f279c75a7eedf8c3cb3cdb9d2fa9caad375931e94db83d8"
   },
   "releases/0000000000000000000000000000000000000000/chat/assistant/assistant.mjs": {
-   "bytes": 20125,
-   "sha256": "8fd225b1cfafd2dc830326013849f2d0e43d117c82470da5cd8a4dd1d1a215b6"
+   "bytes": 20328,
+   "sha256": "f09eab7cef53fcb97558597a2625a84b382de808ce62951538d706a5ca38fb18"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/assistant/prefs-store.mjs": {
+   "bytes": 9864,
+   "sha256": "2dbce7845cef5dcc278eca81e2825e1267c66f2f2d9e1cd0a8a20c6aaabc2291"
   },
   "releases/0000000000000000000000000000000000000000/chat/assistant/preset-candidate.mjs": {
    "bytes": 11127,
@@ -391,8 +395,8 @@
    "sha256": "e13cd2c356ef465cb652a3726d6d2f68c8a6ec7df7c5013b3ef78f0c528be761"
   },
   "releases/0000000000000000000000000000000000000000/chat/transfer/backups.mjs": {
-   "bytes": 4529,
-   "sha256": "e6070423d547f4f8b05c9fe2ed6c3c539c4ffaa485398c2c7bda8419b6a57010"
+   "bytes": 5154,
+   "sha256": "db0ca887c760facd7be5b5354cd2bffcfb30b69e179590e10039c2251d8dc1c0"
   },
   "releases/0000000000000000000000000000000000000000/chat/transfer/exports.mjs": {
    "bytes": 3103,
@@ -405,6 +409,10 @@
   "releases/0000000000000000000000000000000000000000/chat/transfer/foreign-import.mjs": {
    "bytes": 3987,
    "sha256": "f3000046717d3c760310ca41e5bd5d47c7f365546ec3fee58371790903ffcb0e"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/transfer/prefs-restore.mjs": {
+   "bytes": 2441,
+   "sha256": "38efccdee21f40da441bd63c103198b8dd9af95702d4ebd0038eae4dea08cb0a"
   },
   "releases/0000000000000000000000000000000000000000/chat/transfer/product-share.mjs": {
    "bytes": 6768,
@@ -607,8 +615,8 @@
    "sha256": "c5772e879f6bc50dadfcfbd55a1044748652fb18da69ca50978546dcb0c67b63"
   },
   "releases/0000000000000000000000000000000000000000/release.json": {
-   "bytes": 26762,
-   "sha256": "83d96a7f62b44378635ef1b59ba09477a8ac570d02aba68825ece73b8d107986"
+   "bytes": 27067,
+   "sha256": "a15c9fbea8368cd92c5b0c91e21c5d42db694c33d8ac35327b47e8428ab950a1"
   },
   "releases/0000000000000000000000000000000000000000/runtime/auto-load.mjs": {
    "bytes": 565,
@@ -811,8 +819,8 @@
    "sha256": "802e46c9e6bf5a295ed08ff9debdd12d3d5c3b6f16d898ffac0ed6a7b40b06f4"
   },
   "sw.js": {
-   "bytes": 20259,
-   "sha256": "6cb2d7be5def655c6c7dc19bbf8bc77216b2230b87c1a8f7aa7e69d770097a66"
+   "bytes": 20428,
+   "sha256": "dcd9bf0a01c194b0b3d6ec14ddc5a558d2e18282e09b03fc39908a59d3b27071"
   },
   "version.json": {
    "bytes": 170,

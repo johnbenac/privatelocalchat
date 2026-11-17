@@ -2,9 +2,9 @@
 // putting the extras back from a backup. The encryption is chat/crypto.mjs (loaded when first needed); passField is the passphrase input the lock and the backup dialogs share.
 // createBackups(host) returns { loadCrypto, passField, buildBackup, askPassphrase, restoreExtras }.
 //
-// host: el, moduleBase(), threads(), folders(), saveFolders(), assistant (its restorePresets puts presets back), addMemory, prefs, savePrefs, generateThreadId, loadDocModules(), promptDialog, showToast
+// host: el, moduleBase(), threads(), folders(), saveFolders(), assistant (its restorePresets puts presets back), addMemory, prefs, prefsStore (chat/assistant/prefs-store.mjs: the one writer of the preferences; its restore() puts a backup's preferences back), generateThreadId, loadDocModules(), promptDialog, showToast
 export function createBackups(host) {
-  const { el, assistant, addMemory, prefs, savePrefs, generateThreadId, promptDialog, showToast, saveFolders } = host;
+  const { el, assistant, addMemory, prefs, generateThreadId, promptDialog, showToast, saveFolders } = host;
   let cryptoMod = null;
   const loadCrypto = async () => (cryptoMod ||= await import(host.moduleBase() + 'chat/crypto.mjs'));
   const passField = (label, id) => { const w = el('div'); const l = el('label', null, label); l.htmlFor = id; const i = el('input'); i.type = 'password'; i.id = id; i.autocomplete = 'new-password'; w.append(l, i); return [w, i]; };
@@ -39,7 +39,13 @@ export function createBackups(host) {
     if (!skip.has('memory')) (extras.memory?.items || []).forEach(i => { if (i?.text && addMemory(i.text)) added++; });
     // presets are put back by the assistant under the same lock every other preset change takes (a name already among yours is skipped, each added one gets a new id)
     if (!skip.has('presets')) added += (await assistant.restorePresets(extras.presets)).added;
-    if (!skip.has('prefs')) { if (extras.prefs?.instructions && !prefs.instructions) { prefs.instructions = extras.prefs.instructions; added++; } savePrefs(); }
+    // preferences (instructions, Enter sends, voice, reading speed): what is not set here is taken from the backup, what the person chose here is kept (chat/transfer/prefs-restore.mjs).
+    // Written by the preferences store under its lock; when that cannot be done nothing is written and this says so. The page redraws what shows a changed preference when the store levels it.
+    if (!skip.has('prefs')) {
+      const r = await host.prefsStore.restore(extras.prefs);
+      if (r.ok) added += r.added.length;
+      else showToast('The backup’s settings were not restored: ' + (r.message || 'your saved settings could not be updated.') + ' Nothing was changed.', 7000);
+    }
     if (extras.docs?.length && !skip.has('docs')) {
       const { docs, store } = await host.loadDocModules();
       for (const d of extras.docs) {

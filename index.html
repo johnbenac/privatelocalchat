@@ -463,7 +463,7 @@
       const modulesAt = window.APP_BUILD?.commit ? '/releases/' + window.APP_BUILD.commit + '/' : '/';
       // the vault's modules are fetched together with the rest, so the start-up does not wait one more round trip for them
       const vaultModules = Promise.all([import(modulesAt + 'chat/vault/vault-store.mjs'), import(modulesAt + 'chat/vault/vault-control.mjs'), import(modulesAt + 'chat/documents/doc-store.mjs')]);
-      const [{ createDialogs }, { createLock }, { createCall }, { createModelServices }, { createEvents }, { createDocumentsUi }, { createDrafts }, { createVoiceUi }, { createAssistant }, { createRobertaGlue }, { createContextUi }, { createBackups }, { createStorageUi }, { createConversationList }, { createHistoryIo }, { createProviderSettings }, { createTransferGlue }, { createPageChrome }, { createMessagesView }, { createSender }, { createThreadState }, { createConnectionGlue }] = await Promise.all([import(modulesAt + 'chat/dialogs.mjs'), import(modulesAt + 'chat/lock/lock.mjs'), import(modulesAt + 'chat/call/call.mjs'), import(modulesAt + 'chat/models/services.mjs'), import(modulesAt + 'chat/events.mjs'), import(modulesAt + 'chat/documents/documents-ui.mjs'), import(modulesAt + 'chat/documents/drafts.mjs'), import(modulesAt + 'chat/voice/voice-ui.mjs'), import(modulesAt + 'chat/assistant/assistant.mjs'), import(modulesAt + 'chat/roberta/roberta-glue.mjs'), import(modulesAt + 'chat/context/context-ui.mjs'), import(modulesAt + 'chat/transfer/backups.mjs'), import(modulesAt + 'chat/storage/storage-ui.mjs'), import(modulesAt + 'chat/list/conversation-list.mjs'), import(modulesAt + 'chat/history/history-io.mjs'), import(modulesAt + 'chat/provider/provider-settings.mjs'), import(modulesAt + 'chat/transfer/transfer-glue.mjs'), import(modulesAt + 'chat/core/page-chrome.mjs'), import(modulesAt + 'chat/core/messages-view.mjs'), import(modulesAt + 'chat/core/sender.mjs'), import(modulesAt + 'chat/core/thread-state.mjs'), import(modulesAt + 'chat/connection/connection-glue.mjs')]);
+      const [{ createDialogs }, { createLock }, { createCall }, { createModelServices }, { createEvents }, { createDocumentsUi }, { createDrafts }, { createVoiceUi }, { createAssistant }, { createRobertaGlue }, { createContextUi }, { createBackups }, { createStorageUi }, { createConversationList }, { createHistoryIo }, { createProviderSettings }, { createTransferGlue }, { createPageChrome }, { createMessagesView }, { createSender }, { createThreadState }, { createConnectionGlue }, { createPrefsStore }] = await Promise.all([import(modulesAt + 'chat/dialogs.mjs'), import(modulesAt + 'chat/lock/lock.mjs'), import(modulesAt + 'chat/call/call.mjs'), import(modulesAt + 'chat/models/services.mjs'), import(modulesAt + 'chat/events.mjs'), import(modulesAt + 'chat/documents/documents-ui.mjs'), import(modulesAt + 'chat/documents/drafts.mjs'), import(modulesAt + 'chat/voice/voice-ui.mjs'), import(modulesAt + 'chat/assistant/assistant.mjs'), import(modulesAt + 'chat/roberta/roberta-glue.mjs'), import(modulesAt + 'chat/context/context-ui.mjs'), import(modulesAt + 'chat/transfer/backups.mjs'), import(modulesAt + 'chat/storage/storage-ui.mjs'), import(modulesAt + 'chat/list/conversation-list.mjs'), import(modulesAt + 'chat/history/history-io.mjs'), import(modulesAt + 'chat/provider/provider-settings.mjs'), import(modulesAt + 'chat/transfer/transfer-glue.mjs'), import(modulesAt + 'chat/core/page-chrome.mjs'), import(modulesAt + 'chat/core/messages-view.mjs'), import(modulesAt + 'chat/core/sender.mjs'), import(modulesAt + 'chat/core/thread-state.mjs'), import(modulesAt + 'chat/connection/connection-glue.mjs'), import(modulesAt + 'chat/assistant/prefs-store.mjs')]);
       // an encrypted vault, if the person made one, is unlocked before anything reads a saved setting (chat/vault/); the same answer gates local-models.js. Importing the other modules first is safe: none of them reads storage until it is created below.
       const [{ bootVault, appLocal, appSession, app: vaultApp }, { createVaultControl }, { docStore: vaultDocs }] = await vaultModules;
       await bootVault();
@@ -724,7 +724,16 @@
 
       const PREFS_KEY = 'plc.prefs.v1';
       const prefs = { enterSends: null, ...readJson(appLocal, PREFS_KEY, {}) };
-      const savePrefs = () => writeJson(appLocal, PREFS_KEY, prefs);
+      // Every write of the preferences, manual or from a backup, goes through one store (chat/assistant/prefs-store.mjs): the Web Lock "plc-prefs", a fresh read, only the changed fields.
+      // Without the lock nothing is written and `prefs` goes back to what is stored; a field another tab changed first keeps that tab's value and says so.
+      const PREF_LABELS = { instructions: 'your standing instructions', enterSends: 'how Enter sends', voiceURI: 'the reading voice', speechRate: 'the reading speed', callSounds: 'call sounds' };
+      const prefsStore = createPrefsStore({
+        storage: appLocal, key: PREFS_KEY, live: prefs, isReadOnly: () => vaultApp.readOnly,
+        onLiveChanged: () => updateComposerHint(),
+        onConflict: (list) => showToast('Another tab changed ' + list.map((c) => PREF_LABELS[c.field] || 'a setting').join(' and ') + ' first, so that choice was kept and yours was not saved. Change it again if you still want it.', 7000),
+        onRefused: (outcome) => showToast(outcome.message + ' The change was not kept.', 7000),
+      });
+      const savePrefs = () => prefsStore.save();
       const isTouchDevice = () => Boolean(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
       const enterSends = () => (typeof prefs.enterSends === 'boolean' ? prefs.enterSends : !isTouchDevice());
       const composerHint = document.getElementById('composerHint');
@@ -948,7 +957,7 @@
 
       // ---- protected backups (chat/transfer/backups.mjs) ----
       const backups = createBackups({
-        el, moduleBase, threads: () => threads, folders: () => convoList.folders(), saveFolders, assistant, addMemory, prefs, savePrefs, generateThreadId, loadDocModules, promptDialog, showToast
+        el, moduleBase, threads: () => threads, folders: () => convoList.folders(), saveFolders, assistant, addMemory, prefs, prefsStore, generateThreadId, loadDocModules, promptDialog, showToast
       });
       const { loadCrypto, passField, buildBackup, askPassphrase, restoreExtras } = backups;
 

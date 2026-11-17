@@ -59,7 +59,7 @@ chat/                   features, one folder each (below); the files left at the
                         context, crypto, dialogs, events, icons, markdown, search, storage-check, stream, threads, tools, and the stylesheets (page.css is the page's own)
 chat/voice/             speech, the voice engines (Kitten, Kokoro), voice choice, voice notes and recorder, playback, text preparation, voice-session logic
 chat/call/              the voice call screen and its sounds
-chat/assistant/         preferences, presets, memory and the exact-answer tools; importing a reviewed preset file or link (preset-candidate.mjs reads and admits, preset-import.mjs is the review box, preset-store.mjs is the locked write all preset changes use, backup restore included: docs/PRESET-IMPORT.md)
+chat/assistant/         preferences (prefs-store.mjs is the one writer of plc.prefs.v1), presets, memory and the exact-answer tools; importing a reviewed preset file or link (preset-candidate.mjs reads and admits, preset-import.mjs is the review box, preset-store.mjs is the locked write all preset changes use, backup restore included: docs/PRESET-IMPORT.md)
 chat/roberta/           the phone-menu robot: menu engine, content, intent router and its vectors, on-screen front desk
 chat/embedding/         the small matching model (used by Roberta and by search): embedder, config, model description
 chat/documents/         attachments: reading, storing (IndexedDB), PDF text, retrieval, images

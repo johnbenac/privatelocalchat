@@ -129,7 +129,7 @@ export function createAssistant(host) {
     const root = el('div');
     const sec = (title, ...nodes) => { const d = el('section'); d.appendChild(el('h3', null, title)); nodes.forEach(n => d.appendChild(n)); root.appendChild(d); return d; };
     // standing instructions
-    const instr = el('textarea'); instr.value = prefs.instructions || ''; instr.id = 'prefInstructions'; instr.placeholder = 'For example: Reply in British English. Keep answers short. I am a nurse, not a programmer.';
+    const instr = el('textarea'); instr.value = prefs.instructions || ''; const openedInstructions = instr.value; instr.id = 'prefInstructions'; instr.placeholder = 'For example: Reply in British English. Keep answers short. I am a nurse, not a programmer.';
     const instrLabel = el('label', 'sr-only', 'How should the assistant respond?'); instrLabel.htmlFor = 'prefInstructions';
     sec('How should replies be written?', el('p', 'muted', 'Applied to every chat, on top of that chat’s own instructions. Kept on this device.'), instrLabel, instr);
     // memory
@@ -212,7 +212,7 @@ export function createAssistant(host) {
       soundBox.addEventListener('change', () => { prefs.callSounds = soundBox.checked; savePrefs(); });
       sec('Voice calls', soundRow);
     }
-    openAppDialog({ title: 'Memory & preferences', content: root, wide: true, actions: [{ label: 'Done', primary: true, run: () => { prefs.instructions = instr.value.trim().slice(0, 4000); savePrefs(); } }] });
+    openAppDialog({ title: 'Memory & preferences', content: root, wide: true, actions: [{ label: 'Done', primary: true, run: () => { if (instr.value === openedInstructions) return; prefs.instructions = instr.value.trim().slice(0, 4000); savePrefs(); } }] }); // only a field the person edited is written: Done in a stale tab must not claim the instructions it merely showed
   }
 
   // slash commands are answered here, without the model; exact results are attached to ordinary questions
