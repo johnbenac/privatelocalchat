@@ -10,6 +10,7 @@ import {buildAppConfig} from '../runtime/config/app-config.mjs';
 const DEFAULTS=JSON.parse(readFileSync(new URL('../app-config.json',import.meta.url),'utf8'));
 const {format,note,...baseline}=JSON.parse(readFileSync(BASELINE,'utf8'));
 const ROOT=DEFAULTS.modelSources[0].base;
+const isApp=u=>u.startsWith('app:'); // the WebLLM libraries ship in the app (docs/RUNTIMES.md): they are not downloaded from the model source
 const strip=(urls,root)=>JSON.parse(JSON.stringify(urls).split(root).join('<root>/'));
 const restore=async(config,fresh)=>{const saved=globalThis.APP_CONFIG;globalThis.APP_CONFIG=config;try{const catalog=await import('../runtime/providers/catalog.mjs'+fresh);return await collectModelUrls({effectiveSources:catalog.resolveSources(null).sources,fresh});}finally{globalThis.APP_CONFIG=saved;}};
 
@@ -22,7 +23,8 @@ test('every default address is under the configured root: no other host is named
   const urls=await restore(globalThis.APP_CONFIG,'?hosts');
   const all=[...Object.values(urls.tiers).flatMap(t=>Object.values(t)).flat(),...Object.values(urls.voices).flat()].map(f=>f.url);
   assert.ok(all.length>250);
-  for(const u of all)assert.ok(u.startsWith(ROOT),u);
+  for(const u of all.filter(u=>!isApp(u)))assert.ok(u.startsWith(ROOT),u);
+  assert.equal(all.filter(isApp).length,2,'exactly the two WebLLM libraries are app-served');
   assert.ok(urls.embedding.modelBase.startsWith(ROOT));
   assert.equal(urls.embedding.wasmBase,'app:chat/vendor/embedding/ort/','the ONNX Runtime files are served by the app, not by the model source');
 });
@@ -32,7 +34,7 @@ test('an operator source changes where files come from and nothing else: same pa
   const urls=await restore(buildAppConfig(DEFAULTS,{modelSources:[{id:'mine',label:'My models',base:other}]}),'?override');
   assert.deepEqual(strip(urls,other),strip(baseline,ROOT));
   const all=[...Object.values(urls.tiers).flatMap(t=>Object.values(t)).flat(),...Object.values(urls.voices).flat()].map(f=>f.url);
-  for(const u of all)assert.ok(u.startsWith(other)&&!u.includes('privatelocal.chat'),u);
+  for(const u of all.filter(u=>!isApp(u)))assert.ok(u.startsWith(other)&&!u.includes('privatelocal.chat'),u);
 });
 
 test('the catalog says when the source is not the shipped one', async () => {

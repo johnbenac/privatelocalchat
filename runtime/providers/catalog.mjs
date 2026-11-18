@@ -30,11 +30,14 @@ const CONFIG = appConfig();
 // the origin of an address ("" for a path on this host), without naming a host of our own
 const originOf = (u) => /^https:\/\/[^/]+/.exec(String(u))?.[0] ?? "";
 const ROOT = CONFIG.modelRoot();
-// The 9B model's WebLLM builds are laid out like the Hugging Face repositories they were copied from: <name>/resolve/<revision>/, which WebLLM requires. The model and its library share a folder.
+// The 9B model's WebLLM builds are laid out like the Hugging Face repositories they were copied from: <name>/resolve/<revision>/, which WebLLM requires. The weights and config are data and come from the model root.
 const webllmDir = (v) => ROOT + W[v].repo.split("/").pop() + "/resolve/" + W[v].commit + "/";
+// The compiled model library (.wasm) is code, not data: the app serves it itself, from its own release folder (runtime/providers/vendor/webllm/libs/, pinned below), never from the model root.
+// A shared data-only CDN holds no executable files (T587). The address is resolved against this module, so it follows the release the page started on.
+const webllmLibDir = new URL("./vendor/webllm/libs/", import.meta.url).href;
 export const OFFICIAL_SOURCES = Object.freeze({
   webllmModelBase: Object.freeze(Object.fromEntries(WEBLLM_VARIANTS.map((v) => [v, webllmDir(v)]))),
-  webllmLibBase: Object.freeze(Object.fromEntries(WEBLLM_VARIANTS.map((v) => [v, webllmDir(v)]))),
+  webllmLibBase: Object.freeze(Object.fromEntries(WEBLLM_VARIANTS.map((v) => [v, webllmLibDir]))),
   // Qwen/Qwen3.5-2B (Apache-2.0) as Q4_0 GGUF shards
   wllamaModelBase: ROOT + L.dir,
   // the other wllama models, pinned file by file
@@ -158,7 +161,9 @@ export function resolveSources(overrides = null) {
   if (overrides.wllamaTierBase) sources.wllamaTierBase = Object.freeze(Object.fromEntries(Object.entries({ ...OFFICIAL_SOURCES.wllamaTierBase, ...overrides.wllamaTierBase }).map(([k, v]) => [k, v.endsWith("/") ? v : v + "/"])));
   // WebLLM rewrites a model URL that lacks /resolve/<rev>/ by appending resolve/main/, which would silently miss every cached file
   for (const v of WEBLLM_VARIANTS) if (!/.+\/resolve\/.+\//.test(sources.webllmModelBase[v])) throw new RangeError(`webllmModelBase.${v} must contain /resolve/<revision>/ (WebLLM would rewrite it otherwise): ${sources.webllmModelBase[v]}`);
-  const flat = [...Object.values(sources.webllmModelBase), ...Object.values(sources.webllmLibBase), sources.wllamaModelBase, ...Object.values(sources.wllamaTierBase)];
+  // the library is served by the app itself, so it names no origin unless a test moved it
+  const libs = overrides.webllmLibBase ? Object.values(sources.webllmLibBase) : [];
+  const flat = [...Object.values(sources.webllmModelBase), ...libs, sources.wllamaModelBase, ...Object.values(sources.wllamaTierBase)];
   const origins = [...new Set(flat.map((u) => originOf(u) || "this host").filter((o) => o !== (originOf(ROOT) || "this host")))];
   return { sources, label: "OVERRIDE: " + origins.join(", "), overridden: true };
 }
