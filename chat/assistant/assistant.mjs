@@ -97,13 +97,10 @@ export function createAssistant(host) {
   }
   document.getElementById('importPresetBtn')?.addEventListener('click', () => presetImport.chooseFile());
   // a Cosmogenitor character package is only PREVIEWED: nothing is added or saved (chat/presentation/preview.mjs, board T444). The shared validator is loaded when a package is opened.
-  // Only a build that ships the reader has one (chat/presentation/reader.mjs; scripts/build.mjs makes it null in a copy made for others, which has neither the reader nor the button).
-  const previewButton = document.getElementById('previewCharacterBtn');
-  if (previewButton && typeof loadValidator === 'function') {
-    const presentationPreview = createPresentationPreview({ el, openAppDialog, showToast, loadValidator });
-    previewButton.hidden = false;
-    previewButton.addEventListener('click', () => presentationPreview.chooseFile());
-  }
+  // A Cosmogenitor character package is only PREVIEWED: nothing is added or saved (chat/presentation/preview.mjs, board T444). The shared validator (its neutral entry, chat/presentation/reader.mjs)
+  // is loaded when a package is opened.
+  const presentationPreview = createPresentationPreview({ el, openAppDialog, showToast, loadValidator });
+  document.getElementById('previewCharacterBtn')?.addEventListener('click', () => presentationPreview.chooseFile());
   // another tab changed the saved presets: show them here too (the list is read again; nothing is written)
   window.addEventListener('storage', event => {
     if (event.key !== PRESETS_KEY && event.key !== null) return;

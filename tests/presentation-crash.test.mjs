@@ -17,7 +17,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { openAuthored } from '../vendor/authored-profiles/authored-profiles/index.mjs';
+import { openAuthored } from '../vendor/authored-profiles/neutral/index.mjs';
 import { openPresentationBundle } from '../chat/presentation/open-bundle.mjs';
 import { makeRecord, checkRecord } from '../chat/presentation/record.mjs';
 import { startBroker } from './helpers/preset-crash-broker.mjs';

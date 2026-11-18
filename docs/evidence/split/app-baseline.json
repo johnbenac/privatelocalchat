@@ -8,7 +8,7 @@
   "SOURCE_DATE_EPOCH": "0",
   "SITE_DIR": ""
  },
- "fileCount": 216,
+ "fileCount": 226,
  "files": {
   "404.html": {
    "bytes": 101,
@@ -19,8 +19,8 @@
    "sha256": "0d96a4ff68ad6d4b6f1f30f713b18d5184912ba8dd389f86aa7710db079abcb0"
   },
   "THIRD-PARTY-NOTICES.md": {
-   "bytes": 10296,
-   "sha256": "b4e7df855bdd0e00765651062ab860ee932addf1c023ea9412a18bdcb8b26983"
+   "bytes": 10365,
+   "sha256": "283f5aef286c9fe40bdb85b837016881613c08b9fa3a2961b74e8fcdb28f8995"
   },
   "_headers": {
    "bytes": 598,
@@ -91,16 +91,16 @@
    "sha256": "0de05304e1a9c7280393b2c71942f691de16221aae843269ae9055090eda3543"
   },
   "index.html": {
-   "bytes": 80893,
-   "sha256": "1b35c6fc345b8c0e11b9a34b88f7087792d291a8d56bd1be8964feeb6bb49992"
+   "bytes": 80886,
+   "sha256": "ace7a74ec3b8c842de08698e63fc1ba7f39de29773f55f1d2fa7c8139524b13d"
   },
   "manifest.webmanifest": {
    "bytes": 633,
    "sha256": "4f104609324189c39f279c75a7eedf8c3cb3cdb9d2fa9caad375931e94db83d8"
   },
   "releases/0000000000000000000000000000000000000000/chat/assistant/assistant.mjs": {
-   "bytes": 21195,
-   "sha256": "93201abb81e7b0790b2f4a266f386174d919dfe022633b8eae2a37cc22dfdc2c"
+   "bytes": 21109,
+   "sha256": "c8ba9639936f9ea02c20b2b3921cd029d3bfdc2a1acc2e0967ddfac90627deef"
   },
   "releases/0000000000000000000000000000000000000000/chat/assistant/prefs-store.mjs": {
    "bytes": 9864,
@@ -299,8 +299,8 @@
    "sha256": "2c4c460555a024290b115ec9a7ab4e0bf14362f4c04f7907bb2faab648bd9dc7"
   },
   "releases/0000000000000000000000000000000000000000/chat/presentation/reader.mjs": {
-   "bytes": 153,
-   "sha256": "3d897e521029d4b98a6a8c92619e2c6de5b6f9da0597b99de789f1ec5b5bf3aa"
+   "bytes": 596,
+   "sha256": "37915e64eb33658a605b59368244c8429a884feb6d73cccfc48bf537607030b5"
   },
   "releases/0000000000000000000000000000000000000000/chat/presentation/record.mjs": {
    "bytes": 9555,
@@ -651,8 +651,8 @@
    "sha256": "54ab05c4b23c2e2ca8e7e698a5d2a156e4305fc08d3db4862869d9ae40c6344b"
   },
   "releases/0000000000000000000000000000000000000000/release.json": {
-   "bytes": 29068,
-   "sha256": "e0c0c32014316dc3f9f4b1cf339406dec8614d64981f59a83a5854c2294d0c98"
+   "bytes": 30828,
+   "sha256": "23895c733f78ccca6f06c22a59d686852688ea5b8547dd802153f408505ceba2"
   },
   "releases/0000000000000000000000000000000000000000/runtime/auto-load.mjs": {
    "bytes": 565,
@@ -862,13 +862,53 @@
    "bytes": 12713,
    "sha256": "a8e6f2c5d9b99d7dd1445c000f7d5d214562c816991e96fee59a76a5039156dd"
   },
+  "releases/0000000000000000000000000000000000000000/vendor/authored-profiles/authored-profiles/authored-engine.mjs": {
+   "bytes": 12837,
+   "sha256": "160f2fa1b836942d311e052fde52b223773d2a9ceb49f6253b55d14cb88e32f1"
+  },
+  "releases/0000000000000000000000000000000000000000/vendor/authored-profiles/authored-profiles/authored-util.mjs": {
+   "bytes": 419,
+   "sha256": "9a5375535492fa89595eaab0202d9dd650c1764363afad413234f0fdf90f4da4"
+  },
+  "releases/0000000000000000000000000000000000000000/vendor/authored-profiles/authored-profiles/definitions.mjs": {
+   "bytes": 18542,
+   "sha256": "be5323bae64f7b10b6fd555781b08379cb0741b8bc4b86cf1555ec23c0691596"
+  },
+  "releases/0000000000000000000000000000000000000000/vendor/authored-profiles/neutral/index.mjs": {
+   "bytes": 1600,
+   "sha256": "530c8604164383fe82ffa3054a431ba554e9276cb01e5f8236a2c8c4b7965342"
+  },
+  "releases/0000000000000000000000000000000000000000/vendor/authored-profiles/src/core/bundle-engine.mjs": {
+   "bytes": 29486,
+   "sha256": "6f187fa376be4a0adbbf83f7ac11b717e9eefee632b1c98b1cdd2c9232df57e9"
+  },
+  "releases/0000000000000000000000000000000000000000/vendor/authored-profiles/src/core/content-engine.mjs": {
+   "bytes": 36950,
+   "sha256": "27a4b8fa49006424dbfa3c1c4a101434519eb4aec259a2185de1424e5068a723"
+  },
+  "releases/0000000000000000000000000000000000000000/vendor/authored-profiles/src/core/content-schema.neutral.mjs": {
+   "bytes": 8882,
+   "sha256": "faefc9a5167efa829ad538e609ae0c8480167a786599c746069dac93dd30bbaf"
+  },
+  "releases/0000000000000000000000000000000000000000/vendor/authored-profiles/src/core/plc-projection.mjs": {
+   "bytes": 2048,
+   "sha256": "9735b2112fbe3c237e4a2cbfb6ca0e9c75cd83e35282f6393d2d6e6d96d03328"
+  },
+  "releases/0000000000000000000000000000000000000000/vendor/authored-profiles/src/core/projection-kit.mjs": {
+   "bytes": 7097,
+   "sha256": "7da0f33f012d0bbe258683dc9d2c821eb36190c437a4444a2e17287eb2417b9a"
+  },
+  "releases/0000000000000000000000000000000000000000/vendor/authored-profiles/src/core/providers.mjs": {
+   "bytes": 17448,
+   "sha256": "ec6a493a562e3ce60b302daacb610262293a158e144d1f9673f99255853f1af4"
+  },
   "releases/index.json": {
    "bytes": 69,
    "sha256": "802e46c9e6bf5a295ed08ff9debdd12d3d5c3b6f16d898ffac0ed6a7b40b06f4"
   },
   "sw.js": {
-   "bytes": 21390,
-   "sha256": "41710584dabf3e7f602220c34eaddd998e42ea0758e5017cb39a27803dd92012"
+   "bytes": 22466,
+   "sha256": "f1ae5971ef4340cf7e5e8a7e1f99c0025c3763034b6dac3ae1c7f3dc4f1051b3"
   },
   "version.json": {
    "bytes": 170,

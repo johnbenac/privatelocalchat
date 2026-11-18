@@ -23,7 +23,7 @@ const RECEIVER_LANE = new Set(['authored-profiles/receiving-sources.json',
 
 test('every shipped file exists and the package ships what package.json lists', () => {
   assert.ok(shipped.length > 40);
-  for (const f of ['LICENSE', 'README.md', 'index.mjs', 'authored-profiles/index.mjs']) assert.ok(shipped.includes(f), f);
+  for (const f of ['LICENSE', 'README.md', 'index.mjs', 'authored-profiles/index.mjs', 'neutral/index.mjs']) assert.ok(shipped.includes(f), f);
   assert.ok(!shipped.some(f => /(^|\/)(\.git|node_modules|dist-src)(\/|$)/.test(f)));
 });
 
@@ -67,6 +67,8 @@ const EXPECTED = {
     'projectSonalonDesign', 'projectSonalonPlace'],
   './authored-profiles': ['LIMITS', 'PLC_PROVISIONAL_LIMITS', 'DEFINITIONS', 'RECEIVING_DEFINITIONS', 'parseDefinitions',
     'loadRegistry', 'validateAuthored', 'exportAuthored', 'openAuthored', 'receivingFixture'],
+  './neutral': ['LIMITS', 'DEFINITIONS', 'parseDefinitions', 'loadRegistry', 'validateAuthored', 'openAuthored',
+    'projectPLCPreset'],
 };
 
 for (const [key, names] of Object.entries(EXPECTED)) {
@@ -93,9 +95,9 @@ test('the entry points work together: authored registry validates and exports a 
 
 test('package metadata: name, version, license and the license text are as released', async () => {
   assert.equal(manifest.name, 'authored-profiles');
-  assert.equal(manifest.version, '1.0.0');
+  assert.equal(manifest.version, '1.1.0');
   assert.equal(manifest.license, 'AGPL-3.0-only');
   assert.equal(manifest.type, 'module');
   assert.match(await readFile(path.join(root, 'LICENSE'), 'utf8'), /GNU AFFERO GENERAL PUBLIC LICENSE\s+Version 3, 19 November 2007/);
-  assert.match(readme, /Version \*\*1\.0\.0\*\*/);
+  assert.match(readme, /Version \*\*1\.1\.0\*\*/);
 });

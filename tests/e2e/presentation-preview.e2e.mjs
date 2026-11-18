@@ -10,7 +10,6 @@ import {newProfileDir} from './profile-root.mjs';
 const ok=n=>console.log('PASS '+n);
 const bundle=n=>readFileSync(new URL('../fixtures/presentation/'+n+'.bundle.json',import.meta.url),'utf8');
 const lantern=bundle('lantern-keeper'),ferry=bundle('ferry-clerk');
-process.env.SITE_DIR=process.env.SITE_DIR||'tests/fixtures/site'; // the reader ships only in our own deployment (the site target), so this suite builds the fixture site
 const h=await launch({port:18541,profileDir:newProfileDir('presentation-preview')});
 const {context}=h;const page=h.page;const origin=h.origin;
 const outside=[];context.on('request',r=>{const u=new URL(r.url());if(u.origin!==origin&&!/^(data|blob|about):/.test(r.url()))outside.push(r.method()+' '+r.url());});

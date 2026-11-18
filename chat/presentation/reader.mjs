@@ -1,4 +1,4 @@
-// Where the shared character package validator comes from (board T444, T705): the vendored package in vendor/authored-profiles, loaded only when a package is opened.
-// This is the version for our own deployment. scripts/build.mjs replaces this file with `export const loadValidator = null;` in a copy made for others, because that copy must carry
-// nothing of ours (tests/neutrality.test.mjs) and the validator names other projects and hosts; the page shows the "Preview character package" button only when this is a function.
-export const loadValidator = () => import('../../vendor/authored-profiles/authored-profiles/index.mjs');
+// Where the shared character package validator comes from (board T444, T705): the NEUTRAL entry of the vendored package in vendor/authored-profiles (authored-profiles 1.1.0, Cosmogenitor),
+// loaded only when a package is opened. Its ten-file import closure names no other project and no web address, so every build, including a copy made for others, ships it
+// (tests/neutrality.test.mjs checks the built output; tests/presentation-build.test.mjs checks that the build ships exactly that closure).
+export const loadValidator = () => import('../../vendor/authored-profiles/neutral/index.mjs');

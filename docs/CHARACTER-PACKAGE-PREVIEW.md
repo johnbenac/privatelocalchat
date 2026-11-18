@@ -33,21 +33,23 @@ A package whose look cannot be used (for example a required picture with no byte
 | Open a package through the validator and describe each character | `chat/presentation/open-bundle.mjs` (pure; the validator is passed in) |
 | Plain-language sentences for every reason | `chat/presentation/explain.mjs` (every reason code has one: `tests/presentation-explain.test.mjs`) |
 | The box | `chat/presentation/preview.mjs` |
-| The validator loader | `chat/presentation/reader.mjs` |
+| The validator loader (the neutral entry of the vendored package) | `chat/presentation/reader.mjs` |
 | Wiring | `chat/assistant/assistant.mjs`, `index.html` (`#previewCharacterBtn`) |
 | Styles | `chat/chat.css` (the "Character package preview" block) |
 
 ## Which builds have it
 
-A copy of the app made for others (targets `app` and `runkit`) must carry nothing of ours (`tests/neutrality.test.mjs`), and the validator names other projects and hosts in its code and licence.
-So **only our own deployment (target `site`) ships the reader**: `scripts/build.mjs` copies ten files of the vendored package (its runtime modules and licence, not its tests, examples or fixtures)
-to `vendor/authored-profiles/` inside the release, and leaves `chat/presentation/reader.mjs` as it is; in a copy for others it writes `export const loadValidator = null;` instead, and the page then
-keeps the button hidden. `tests/presentation-build.test.mjs` checks both. Making the reader neutral for everyone is for the package's owner to decide (a version without the other projects' names).
+Every build has it, a copy made for others included. A copy made for others must carry nothing of ours (`tests/neutrality.test.mjs`), and the first version of the shared validator (authored-profiles 1.0.0) named
+other projects and web addresses in its code, so for a while only our own deployment shipped it. authored-profiles **1.1.0** (Cosmogenitor, 2026-11-18) adds a **neutral entry** (`neutral/index.mjs`) whose
+ten-file import closure names none of them: PLC vendors the package whole in `vendor/authored-profiles/` (read-only, pinned in `vendor.lock.json`), loads only the neutral entry (`chat/presentation/reader.mjs`),
+and `scripts/build.mjs` ships exactly those ten files in every target. `tests/presentation-build.test.mjs` computes the closure from the imports and fails when the build ships more, fewer or different files, or
+anything of the package's tests, examples, documents or licence file; the neutrality test scans the built output. The package's own licence text is not shipped separately: the AGPL text is in the copy's `LICENSE`.
+The neutral entry opens, validates and projects a plain preset; it cannot write a bundle (`exportAuthored` is not in it), and a package whose aspects PLC does not use is still opened, with those aspects listed as unused.
 
 ## Tests
 
 - `tests/presentation-view-model.test.mjs`, `presentation-real-packages.test.mjs`, `presentation-open-bundle.test.mjs`, `presentation-explain.test.mjs`, `presentation-style.test.mjs`, `presentation-build.test.mjs`.
 - `tests/fixtures/presentation/` holds Cosmogenitor's first two real packages (`lantern-keeper`, valid with an audio element and an extra aspect PLC cannot use; `ferry-clerk`, a required portrait with no
   bytes), with their hashes in the README there. They were hand-assembled with the owner's validator, not made by an authoring tool (none exists yet).
-- Browser: `node scripts/e2e.mjs presentation-preview` (the site build): the preview of both packages, attribution, the own-look toggle, contrast, 320 px reflow, reduced motion, keyboard and focus,
+- Browser: `node scripts/e2e.mjs presentation-preview`: the preview of both packages, attribution, the own-look toggle, contrast, 320 px reflow, reduced motion, keyboard and focus,
   released picture addresses, nothing stored or sent, a second package not stacked, and refusals (a changed byte, not a package, a plain preset, too large, edited text).

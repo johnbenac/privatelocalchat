@@ -4,7 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {readFileSync} from 'node:fs';
-import {openAuthored} from '../vendor/authored-profiles/authored-profiles/index.mjs';
+import {openAuthored} from '../vendor/authored-profiles/neutral/index.mjs';
 import {openPresentationBundle, MAX_PACKAGE_CHARS, MAX_CHARACTERS} from '../chat/presentation/open-bundle.mjs';
 
 const raw = (name) => readFileSync(new URL('./fixtures/presentation/' + name + '.bundle.json', import.meta.url), 'utf8');

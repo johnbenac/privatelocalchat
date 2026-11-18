@@ -231,7 +231,7 @@ export function validateJobUpdate(update, previous) {
   }
   return errors;
 }
-/** Sonalon-compatible error taxonomy; no timeout, retry or routing behavior. */
+/** Receiver-compatible error taxonomy; no timeout, retry or routing behavior. */
 export function mapProviderError(error) {
   if (!object(error) || !ERROR_CLASSES.includes(error.class)) return {event: 'failed', failureClass: 'exception'};
   if (error.class === 'aborted') return error.abort?.deliberate === true &&

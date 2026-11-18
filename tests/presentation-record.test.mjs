@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {readFileSync} from 'node:fs';
-import {openAuthored} from '../vendor/authored-profiles/authored-profiles/index.mjs';
+import {openAuthored} from '../vendor/authored-profiles/neutral/index.mjs';
 import {openPresentationBundle} from '../chat/presentation/open-bundle.mjs';
 import {RECORD_FORMAT,RECORD_LIMITS,checkRecord,makeRecord,withChoice,describeRecord,verifyRecordHashes,toBase64,fromBase64} from '../chat/presentation/record.mjs';
 
