@@ -1,0 +1,94 @@
+{
+  "format": "plc-history/1",
+  "exportedAt": 1794997974690,
+  "app": {
+    "version": "2.0.0",
+    "commit": "b130225ac3f3d6bddd53f4e98b7a1f82e6a32181"
+  },
+  "threads": [
+    {
+      "id": "mwlyxthu-e54702ee",
+      "title": "Packing list for a week in Lisbon, please.",
+      "systemPrompt": "",
+      "messages": [
+        {
+          "id": "mwlyxts3-f0a6caef",
+          "role": "user",
+          "content": "Packing list for a week in Lisbon, please.",
+          "at": 1794997119747
+        },
+        {
+          "id": "mwlyxtty-1be0ec27",
+          "role": "assistant",
+          "content": "Reply to: Packing list for a week in Lisbon, please.",
+          "at": 1794997119814,
+          "model": "fake-model · 127.0.0.1"
+        },
+        {
+          "id": "mwlyxtyt-b377b727",
+          "role": "user",
+          "content": "And what about the weather in March?",
+          "at": 1794997119989
+        },
+        {
+          "id": "mwlyxtz1-a3b3e986",
+          "role": "assistant",
+          "content": "Reply to: And what about the weather in March?",
+          "at": 1794997119997,
+          "model": "fake-model · 127.0.0.1"
+        }
+      ],
+      "createdAt": 1794997119378,
+      "updatedAt": 1794997120041,
+      "folderId": "mwlyxugx-074c7a9f"
+    },
+    {
+      "id": "mwlyxu22-5bfe0a18",
+      "title": "Summarise the launch notes in one line.",
+      "systemPrompt": "",
+      "messages": [
+        {
+          "id": "mwlyxu93-1566c144",
+          "role": "user",
+          "content": "Summarise the launch notes in one line.",
+          "at": 1794997120359,
+          "attachments": [
+            {
+              "id": "mwlyxu5e-7d492ae6",
+              "name": "notes.txt",
+              "kind": "text",
+              "size": 70,
+              "pages": null,
+              "chars": 70
+            }
+          ]
+        },
+        {
+          "id": "mwlyxu96-e118cdf9",
+          "role": "assistant",
+          "content": "Reply to: [Attached file: notes.txt] Launch notes: the review is on Thursday and the budget is 4200 euros.  [End of notes.txt]  Summarise the launch notes in one line.",
+          "at": 1794997120362,
+          "model": "fake-model · 127.0.0.1",
+          "sources": [
+            {
+              "docId": "mwlyxu5e-7d492ae6",
+              "name": "notes.txt"
+            }
+          ]
+        }
+      ],
+      "createdAt": 1794997120106,
+      "updatedAt": 1794997120483,
+      "pinned": true
+    },
+    {
+      "id": "mwlyxwa7-95dc8f02",
+      "title": "New chat",
+      "systemPrompt": "Talk like a pirate.",
+      "messages": [],
+      "createdAt": 1794997122991,
+      "updatedAt": 1794997122991,
+      "presetId": "preset-mwlyxwf9-31801353"
+    }
+  ]
+}
