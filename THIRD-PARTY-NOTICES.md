@@ -1,6 +1,6 @@
 # Third-party notices
 
-Private Local Chat is released under the **GNU Affero General Public License, version 3** (`LICENSE`). Earlier releases were published under the Apache License 2.0 and, from the release that first bundled the voice engine described below, under the GNU General Public License, version 3; they remain available under those terms for the code they contained. A copy that people use over a network must offer them its source (section 13 of the AGPL), and this repository is that source.
+Private Local Chat is released under the **GNU Affero General Public License, version 3** (`LICENSE`). Earlier releases were published under the Apache License 2.0 and remain available under it for the code they contained. The change to the AGPL takes effect with the release that first carries this notice. A copy that people use over a network must offer them its source (section 13 of the AGPL), and this repository is that source.
 
 ## Software bundled with the app
 
