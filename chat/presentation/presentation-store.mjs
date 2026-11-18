@@ -1,4 +1,4 @@
-// The one place the kept character looks are changed (board T706, docs/PRESENTATION-CHOICE-PLAN.md). The store is a map: preset id -> record (chat/presentation/record.mjs).
+// The one place the kept character looks are changed (docs/PRESENTATION-CHOICE-PLAN.md). The store is a map: preset id -> record (chat/presentation/record.mjs).
 // It is built like the preset store (chat/assistant/preset-store.mjs) and keeps its promises:
 //
 //   every change = take the Web Lock "plc-presentations" -> read the stored map afresh -> apply a SYNCHRONOUS change -> write -> read back to check -> release.

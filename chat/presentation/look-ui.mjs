@@ -1,4 +1,4 @@
-// Showing and controlling a kept character look in the conversation (board T706, docs/PRESENTATION-CHOICE-PLAN.md).
+// Showing and controlling a kept character look in the conversation (docs/PRESENTATION-CHOICE-PLAN.md).
 //   createLookUi({ el, keeper, showToast, urls?, strip, messagesEl, controlsEl, confirm? }) -> { render(presetId), release() }
 // render(presetId) is called when a chat is selected and whenever presets or looks change. With no kept look, or one that is disabled or unusable, the page is exactly as before: nothing
 // is drawn, the strip is hidden and no attribute is set. With a usable look it draws

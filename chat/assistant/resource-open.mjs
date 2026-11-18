@@ -1,4 +1,4 @@
-// The visible side of a discovery "Open in Private Local Chat" link (board T461, chat/assistant/resource-link.mjs): the address says WHICH file (title, version, size, checksum, licence, the page it came from);
+// The visible side of a discovery "Open in Private Local Chat" link (chat/assistant/resource-link.mjs): the address says WHICH file (title, version, size, checksum, licence, the page it came from);
 // the person downloads it from that page and chooses it here; PLC checks that it is exactly the listed file, and only then does the family's own reader run (a preset file goes to PLC's preset review box, where
 // only Add adds anything). Opening the link changes nothing. PLC never fetches the file or the page: the download is the browser's, on the person's click.
 //   createResourceOpen(host) returns { openFromAddress }

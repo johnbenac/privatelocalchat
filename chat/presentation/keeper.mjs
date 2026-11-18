@@ -1,4 +1,4 @@
-// The kept character looks of this browser (board T706, docs/PRESENTATION-CHOICE-PLAN.md): the one owner of the storage key `plc.presentations.v1`
+// The kept character looks of this browser (docs/PRESENTATION-CHOICE-PLAN.md): the one owner of the storage key `plc.presentations.v1`
 // (a map: preset id -> record, class "user", through appLocal so the vault, a read-only tab and "newer data is left alone" apply). Everything that changes it goes through the lock-protected
 // store (presentation-store.mjs); everything that shows it reads through describe(), which checks the record again and gives the default look for anything it cannot use.
 //

@@ -1,4 +1,4 @@
-// A link from a discovery page that DESCRIBES a downloadable resource and never carries it (board T461, docs/contracts/discovery-opening/contract-request.md, agreed with the owner of the discovery pages):
+// A link from a discovery page that DESCRIBES a downloadable resource and never carries it (docs/contracts/discovery-opening/contract-request.md, agreed with the owner of the discovery pages):
 //   https://<app address>/#resource=<base64url, UTF-8, no padding, of one JSON object>
 //   { "v": 1, "family": "preset-candidate", "title": "…", "version": "1.0.0", "bytes": 149, "sha256": "<64 lower-case hex>", "license": "CC0-1.0", "page": "https://…" }
 // Pure: no DOM, storage, network or clock. Opening such a link changes nothing and fetches nothing: the person downloads the file and chooses it, and checkResourceFile compares what was chosen with what the

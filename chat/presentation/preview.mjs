@@ -1,4 +1,4 @@
-// The visible side of opening a character package: choose a file, see how each character in it would look, and read what was and was not used (board T444).
+// The visible side of opening a character package: choose a file, see how each character in it would look, and read what was and was not used.
 // A PREVIEW only. Nothing is added, saved or applied, nothing is fetched, and the package grants nothing: no code, tool, memory or network authority. Choosing, overriding
 // and keeping a look in conversations is a later task (T706).
 //   createPresentationPreview(host) returns { chooseFile, showResult }

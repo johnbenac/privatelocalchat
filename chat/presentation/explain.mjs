@@ -1,4 +1,4 @@
-// Plain-language sentences for what the presentation view model and the package opener report (board T444). Pure text, no DOM.
+// Plain-language sentences for what the presentation view model and the package opener report. Pure text, no DOM.
 // Every reason code that view-model.mjs or open-bundle.mjs can produce has a sentence here: tests/presentation-explain.test.mjs reads the source of both and fails when one is missing.
 // Names inside the sentences (an asset id, a layout name) come from the package, which is untrusted: they are cut short, and the caller puts the text on the page as text, never as markup.
 

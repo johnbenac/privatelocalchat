@@ -1,10 +1,10 @@
-// Character presentation view model (board T444, objective O133).
+// Character presentation view model.
 //
 // Turns the two aspects Cosmogenitor's T415 profile defines, authored:presentation-v1 and authored:media-v1, plus the assets they point to, into ONE plain
 // description of how a character should look, or says why PLC's own default look is used. Contract and answers: docs/contracts/character-presentation/.
 //
 // This module is pure: no DOM, no storage, no network, no clock, nothing imported. It is NOT a validator. The bundle and the aspects are validated by the
-// shared authored-profiles package (board T705) before anything reaches here; this module only refuses to use a value it does not understand, and names
+// shared authored-profiles package before anything reaches here; this module only refuses to use a value it does not understand, and names
 // what it did not use, so a bad or newer package can never change how PLC looks beyond the closed vocabulary below.
 //
 // Closed v1 vocabulary (Cosmogenitor, T415): layout dialogue | folio; palette dusk | paper | sea. A palette is a NAME: the UI maps it to PLC's own tokens and

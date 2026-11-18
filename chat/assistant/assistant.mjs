@@ -117,11 +117,11 @@ export function createAssistant(host) {
   document.getElementById('importPresetBtn')?.addEventListener('click', () => presetImport.chooseFile());
   // a discovery page's "Open in Private Local Chat" link describes a file (chat/assistant/resource-link.mjs); the person downloads it, chooses it in the box, and PLC's preset review does the rest
   const resourceOpen = createResourceOpen({ el, openAppDialog, reviewPreset: (...a) => presetImport.reviewResult(...a), readPreset: parsePresetCandidate });
-  // a Cosmogenitor character package is only PREVIEWED: nothing is added or saved (chat/presentation/preview.mjs, board T444). The shared validator is loaded when a package is opened.
+  // a Cosmogenitor character package is only PREVIEWED: nothing is added or saved (chat/presentation/preview.mjs). The shared validator is loaded when a package is opened.
   // Kept character looks (chat/presentation/keeper.mjs owns the key): one per preset, attached when a package's character is added as a preset, shown in the conversation by look-ui.mjs.
   const keeper = createPresentationKeeper({ storage: appLocal, isReadOnly: () => app.readOnly, onChange: () => look?.render(currentThread()?.presetId || null) });
   look = createLookUi({ el, keeper, showToast, strip: document.getElementById('lookStrip'), messagesEl: document.getElementById('messages'), controlsEl: document.getElementById('lookControls'), confirm: (...a) => window.plcDialogs.confirm(...a) });
-  // A Cosmogenitor character package is previewed first (chat/presentation/preview.mjs, board T444); only "Add as a preset" changes anything, and it goes through the preset review box.
+  // A Cosmogenitor character package is previewed first (chat/presentation/preview.mjs); only "Add as a preset" changes anything, and it goes through the preset review box.
   // The shared validator (its neutral entry, chat/presentation/reader.mjs) is loaded when a package is opened.
   const presentationPreview = createPresentationPreview({
     el, openAppDialog, showToast, loadValidator,

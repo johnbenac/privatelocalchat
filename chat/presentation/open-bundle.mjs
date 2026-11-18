@@ -1,4 +1,4 @@
-// Open a Cosmogenitor character package and describe how each character in it would look (board T444, objective O133).
+// Open a Cosmogenitor character package and describe how each character in it would look.
 //
 // This is the piece between the shared validator and the view model:
 //   text of a file  ->  openAuthored (the shared authored-profiles package, T705: parses, checks the exact bytes against their SHA-256, checks the authored rules)

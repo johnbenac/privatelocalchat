@@ -1,4 +1,4 @@
-// Kept character looks in a full backup (board T706). Pure: no DOM, storage or clock.
+// Kept character looks in a full backup. Pure: no DOM, storage or clock.
 // A backup (`plc-backup/1`) gets an optional `looks` section: { "<preset id>": record }, one entry for each of the person's own presets that has a look that can be used (a damaged one, or one a
 // newer version wrote, stays in the browser and is not exported). Restoring a backup gives every restored preset a NEW id (and skips a preset whose name the person already has), so a look can
 // only follow the preset it belongs to through the id the preset got: idMapForRestore works that out from the lists before and after the merge. A look is never attached to a preset the person

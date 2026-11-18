@@ -1,6 +1,6 @@
 // The one storage interface the app uses for what the person keeps (docs/ENCRYPTION-AT-REST-PLAN.md, phases 2 and 3).
 //
-// `appLocal` and `appSession` look like localStorage and sessionStorage. With the vault off they ARE those (nothing changes, and the formats CLAUDE.md says to preserve are still
+// `appLocal` and `appSession` look like localStorage and sessionStorage. With the vault off they ARE those (nothing changes, and the formats the project's instructions say to preserve are still
 // what is written). With the vault on, every key the inventory classes as user / setting / transient is kept in the encrypted vault instead: reads come from an in-memory copy
 // (so the app stays synchronous), writes update that copy at once and are sealed and stored in the background, one write in flight per key, so a streaming reply is stored
 // about as often as the page saves it. Keys the inventory calls plain (the side panel, the lock reminder...) stay in the browser's own storage, readable before unlock.

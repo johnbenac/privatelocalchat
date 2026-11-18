@@ -22,7 +22,7 @@ export const VOICE_CONFIG = Object.freeze({
   maxStartDelayMs: 10000,    // policy value (owner), not a measurement: longest wait before gapless playback of a typical 20 s reply may begin (see startDelayMs)
   qualityMinMemoryGB: 8,     // placeholder: memory (or unknown on desktop) needed for the larger voice
   qualityProbeMaxMs: 200     // advice threshold for recommending the larger voice (or a real GPU adapter). Measured: Kokoro factor x probe ms is about 235 (sweep, 4 threads) and 300 to 317 on the real desktops
-                             // (Centroid 2.31x at 137 ms, Boiler 2.00x at 150 ms); the start delay stays under maxStartDelayMs up to a probe of about 317 ms (190 ms with 1 thread). 200 keeps a factor of 1.0 to 1.6 and the
+                             // (two test machines: 2.31x at 137 ms and 2.00x at 150 ms); the start delay stays under maxStartDelayMs up to a probe of about 317 ms (190 ms with 1 thread). 200 keeps a factor of 1.0 to 1.6 and the
                              // desktops 137 and 150 pass with 1.3x or more. The N100 (probe 216) is above it; its Kokoro run is not usable evidence (its recorded audio length is that of the Kitten text).
 });
 

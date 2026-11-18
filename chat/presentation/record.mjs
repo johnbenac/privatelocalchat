@@ -1,4 +1,4 @@
-// The record of a character look that a person chose to keep for a preset (board T706, docs/PRESENTATION-CHOICE-PLAN.md). Pure: no DOM, storage or clock.
+// The record of a character look that a person chose to keep for a preset (docs/PRESENTATION-CHOICE-PLAN.md). Pure: no DOM, storage or clock.
 //
 // A record holds what the view model produced and nothing else of the package: layout and palette NAMES (closed lists), the pictures with their text alternative, author and licence, the
 // person's choices (the whole look off, or one part off), and where it came from. It is checked again on EVERY read (checkRecord): what is stored may be damaged, hand-edited or written by
