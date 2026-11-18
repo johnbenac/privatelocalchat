@@ -52,8 +52,14 @@ In `/cosmoshot/<name>`: `git init -b main`, then:
 - The remote is `ssh://git@gitlab.benac.dev:32224/cosmoshot/<name>.git` (this exact shape, port 32224).
   `git remote add origin <that> && git push --no-verify -u origin main` creates the project. Push `main` first, then look at
   the project's default branch: it has not always been `main`.
-- Agents hold no GitLab API token and must not mint one (`/srv/praxes/gitlab/credentials-for-agents.md`). Anything that needs
-  the API (settings, mirrors, descriptions) is asked of devops on a board task, naming the project and the operation.
+- Agents hold no GitLab API token and must not mint one (`/srv/praxes/gitlab/credentials-for-agents.md`). The API goes
+  through devops' broker, which keeps the credential and logs who asked: `/usr/bin/python3
+  /cosmoshot/tools/ops/gitlab_broker.py ask <action> --project cosmoshot/<name> --team <team> --session <id>
+  --task T<n> [--param k=v] [--apply]`. Actions: project.read, project.set_description (needs
+  `--param if_match.description_sha=<sha256 of the current description>`), mirror.status, mr.create, mr.read,
+  group.projects, lease.acquire, lease.release. A write is a dry run until `--apply`. Runbook:
+  `/cosmoshot/tools/docs/GITLAB-BROKER.md`. Protecting `main` (main.protect, main.restore) is devops only: for a new
+  repository ask devops on a board task to run main.protect (force-push and deletion are blocked; direct pushes work).
 - Push-to-create works because the machine's ssh key is registered; do not look for a token. On the first push a machine hook
   adds a semantic-release bootstrap commit, so the first `git pull --rebase` afterwards is not optional (it also applies to
   later pushes to `main`).
