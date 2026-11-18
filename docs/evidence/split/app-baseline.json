@@ -8,7 +8,7 @@
   "SOURCE_DATE_EPOCH": "0",
   "SITE_DIR": ""
  },
- "fileCount": 209,
+ "fileCount": 210,
  "files": {
   "404.html": {
    "bytes": 101,
@@ -281,6 +281,10 @@
   "releases/0000000000000000000000000000000000000000/chat/page.css": {
    "bytes": 21972,
    "sha256": "fba55f72d834d3263b82792ef27c0133236030cf5b7b9e2aaac0225f4d3a1034"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/presentation/view-model.mjs": {
+   "bytes": 8682,
+   "sha256": "950908fd60a1cc7616978b9b533fb519c046adfece6e4b1a8aea65ee8e64bd98"
   },
   "releases/0000000000000000000000000000000000000000/chat/provider/api-formats.mjs": {
    "bytes": 13073,
@@ -623,8 +627,8 @@
    "sha256": "54ab05c4b23c2e2ca8e7e698a5d2a156e4305fc08d3db4862869d9ae40c6344b"
   },
   "releases/0000000000000000000000000000000000000000/release.json": {
-   "bytes": 27996,
-   "sha256": "2e2018777e99f7de29bdbbc7dd9e9e96671b66d2592ed3a1d0138221820b444b"
+   "bytes": 28150,
+   "sha256": "e824b2efb4de07b59178c4898a4d9da6e2661d25ffed27b4e6c30f00118a1cd5"
   },
   "releases/0000000000000000000000000000000000000000/runtime/auto-load.mjs": {
    "bytes": 565,
@@ -839,8 +843,8 @@
    "sha256": "802e46c9e6bf5a295ed08ff9debdd12d3d5c3b6f16d898ffac0ed6a7b40b06f4"
   },
   "sw.js": {
-   "bytes": 20793,
-   "sha256": "fe506312aaeaa15b08e3e0996b2923782cacaa82a1608e5c7706f56b585c4e1e"
+   "bytes": 20879,
+   "sha256": "984e074823fba03e6d8729540b06b16d62d3db271b46e8c7917499c31798ba21"
   },
   "version.json": {
    "bytes": 170,

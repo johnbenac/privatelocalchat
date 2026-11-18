@@ -75,6 +75,7 @@ chat/context/           the context meter and the summary divider
 chat/storage/           the Storage and backups screen and the backup reminder
 chat/connection/        whether the app is online, and one sentence for everything that needs a connection
 chat/shell/             the app shell: rail, panel, Settings page and pickers
+chat/presentation/      how a character's presentation (layout, palette, portrait, background, attribution) is described for display: a pure view model with no DOM or storage; opening a bundle, the preview, storage and rendering are the next tasks (T444, T706)
 chat/site/              where the pages of the site that serves this copy are (the site manifest); the app links to our pages only through it
 chat/vendor/            bundled third-party code (voice worker, embedding worker, pdf.js, qr)
 ops/                    publishing and build tooling for models and workers (not shipped)
