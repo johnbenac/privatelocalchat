@@ -113,7 +113,7 @@ plc:
 program:
 [[what-this-project-is]] — What Cosmoshot is and the near-term objectives for it.
 [[concept-systems-plugin-path-and-loading]] — Where the Concept Systems plugin lives and the command that loads it in Claude Code.
-[2/21 entries shown; cosmo-mem read program _index.md]
+[2/23 entries shown; cosmo-mem read program _index.md]
 ```
 
 

@@ -1,0 +1,116 @@
+{
+ "what": "The shipped WebLLM installer (runtime/providers/adapters/webllm.mjs storageOps.install, model-runtime 1.0.0 as in privatelocal.chat 579282c) installing the 131 files of Qwen3.5-9B q4f16_1 from cdn.aiofourown.com, run unmodified in a Worker by harness.js. Real Safari 27.0 on the Mac (macOS 26.7.1) and headless Chromium on this machine. Scripted calls, not a user gesture.",
+ "date": "2026-11-17/18",
+ "safari_fault_injected_from_130_of_131": {
+  "time": "23:28:49",
+  "result": {
+   "ok": true,
+   "state": "complete",
+   "fetchedBytes": 7492887,
+   "keptBytes": 5051097829,
+   "filesFetched": 2,
+   "refetched": 1
+  },
+  "events": [
+   {
+    "t": 123223,
+    "refetch": [
+     "mlc-chat-config.json"
+    ],
+    "retryAttempt": null
+   }
+  ],
+  "dropped": 1,
+  "ms": 125194,
+  "note": "cache drops the first put of mlc-chat-config.json; refetched 1 names it in the progress event"
+ },
+ "safari_clean_from_empty_1": {
+  "time": "23:39:14",
+  "result": {
+   "ok": true,
+   "state": "complete",
+   "fetchedBytes": 5058588355,
+   "keptBytes": 0,
+   "filesFetched": 131,
+   "refetched": 0
+  },
+  "events": [],
+  "dropped": 0,
+  "ms": 532035
+ },
+ "safari_clean_from_empty_2": {
+  "time": "23:48:29",
+  "result": {
+   "ok": true,
+   "state": "complete",
+   "fetchedBytes": 5058588355,
+   "keptBytes": 0,
+   "filesFetched": 131,
+   "refetched": 0
+  },
+  "events": [],
+  "dropped": 0,
+  "ms": 510156
+ },
+ "chromium_clean_on_disk_profile": {
+  "seconds": 1929,
+  "cdnRequests": 136,
+  "distinctUrls": 130,
+  "requestedMoreThanOnce": [
+   [
+    "params_shard_29.bin",
+    3
+   ],
+   [
+    "params_shard_3.bin",
+    3
+   ],
+   [
+    "params_shard_30.bin",
+    3
+   ]
+  ],
+  "result": {
+   "ok": true,
+   "state": "complete",
+   "fetchedBytes": 5058588355,
+   "keptBytes": 0,
+   "filesFetched": 131,
+   "refetched": 0
+  },
+  "networkRetryEvents": [
+   {
+    "t": 1469215,
+    "refetch": null,
+    "retryAttempt": 1
+   },
+   {
+    "t": 1469216,
+    "refetch": null,
+    "retryAttempt": 1
+   },
+   {
+    "t": 1469217,
+    "refetch": null,
+    "retryAttempt": 1
+   },
+   {
+    "t": 1471970,
+    "refetch": null,
+    "retryAttempt": 2
+   },
+   {
+    "t": 1471971,
+    "refetch": null,
+    "retryAttempt": 2
+   },
+   {
+    "t": 1471971,
+    "refetch": null,
+    "retryAttempt": 2
+   }
+  ],
+  "note": "three shards each failed twice at the same moment (a network drop with 3 downloads in flight) and succeeded on the third attempt: 9 requests for 3 files; refetched 0; fetchedBytes equals the catalogue total"
+ },
+ "not_shown": "Why the 130-of-131 state and the InvalidStateError (code 11) happened on Cosmogenitor installs: neither occurred in these runs. The retry is a defence, not a diagnosed fix."
+}
