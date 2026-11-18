@@ -1,0 +1,29 @@
+{
+  "name": "authored-profiles",
+  "version": "1.0.0",
+  "description": "Cosmogenitor content-bundle consumer and the authored-profiles extension, pure and self-contained",
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "engines": {
+    "node": "^20.19.0 || >=22.0.0"
+  },
+  "exports": {
+    ".": "./index.mjs",
+    "./authored-profiles": "./authored-profiles/index.mjs",
+    "./content/*.json": "./content/*.json",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "LICENSE",
+    "README.md",
+    "index.mjs",
+    "authored-profiles",
+    "content",
+    "scripts",
+    "src",
+    "tests"
+  ],
+  "scripts": {
+    "test": "node --test"
+  }
+}

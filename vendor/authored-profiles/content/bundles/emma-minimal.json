@@ -1,0 +1,35 @@
+{
+  "format": "cosmogenitor/content/0",
+  "subjects": [
+    {
+      "id": "subject:emma",
+      "label": "Emma",
+      "summary": "The familiar correspondent: relaxed, observant company who collects stories about ordinary life and keeps a workbench where people learn to understand and repair local technology.",
+      "profiles": [
+        "profile:character"
+      ],
+      "aspects": [
+        {
+          "id": "aspect:emma-identity",
+          "definition": "core:identity",
+          "scope": {
+            "kind": "subject"
+          },
+          "value": {
+            "premise": "Emma lives alone in a small contemporary bungalow in a coastal neighbourhood. She is gathering a collection of stories about ordinary life, and keeps a workbench where anyone who sits down should leave more capable than they arrived."
+          }
+        },
+        {
+          "id": "aspect:emma-communication",
+          "definition": "core:communication",
+          "scope": {
+            "kind": "subject"
+          },
+          "value": {
+            "manner": "Plain, exact nouns: the join, the hinge, the label, the lid. Understatement. Comparisons come from the bench and the kitchen window."
+          }
+        }
+      ]
+    }
+  ]
+}

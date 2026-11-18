@@ -1,0 +1,2217 @@
+{
+  "format": "cosmogenitor/bundle/0",
+  "selection": {
+    "kind": "subject",
+    "ids": [
+      "subject:neri"
+    ]
+  },
+  "visibility": "private",
+  "audience": [
+    "my-devices"
+  ],
+  "content": {
+    "format": "cosmogenitor/content/0",
+    "subjects": [
+      {
+        "id": "subject:harbour",
+        "label": "The imagined harbour",
+        "profiles": [
+          "profile:world"
+        ]
+      },
+      {
+        "id": "subject:neri",
+        "label": "Neri",
+        "summary": "An imagined coastal archivist who leaves uncertainty visible in her tide notebooks.",
+        "profiles": [
+          "profile:character",
+          "authored:character-v1"
+        ],
+        "aspects": [
+          {
+            "id": "aspect:neri-design-attribution",
+            "definition": "authored:identity-v1",
+            "scope": {
+              "kind": "subject"
+            },
+            "value": {
+              "version": "1.0.0",
+              "designId": "design:neri-tidekeeper",
+              "revision": "1.0.0",
+              "author": "T415 original fiction",
+              "standing": "authored"
+            }
+          },
+          {
+            "id": "aspect:neri-identity",
+            "definition": "core:identity",
+            "scope": {
+              "kind": "subject"
+            },
+            "value": {
+              "premise": "An archivist comparing incomplete accounts of an imaginary harbour."
+            }
+          },
+          {
+            "id": "aspect:neri-dossier",
+            "definition": "core:dossier",
+            "scope": {
+              "kind": "subject"
+            },
+            "value": {
+              "motive": "Keep uncertain records useful without making them certain.",
+              "contradiction": "She longs for a complete chart and distrusts tidy explanations.",
+              "authorBackstory": "Private drafting possibility: she may abandon the archive; undecided."
+            }
+          },
+          {
+            "id": "aspect:neri-communication",
+            "definition": "core:communication",
+            "scope": {
+              "kind": "subject"
+            },
+            "value": {
+              "manner": "Quiet, precise questions; room for disagreement.",
+              "signatureLine": "There is a gap here. We can leave it visible."
+            }
+          },
+          {
+            "id": "aspect:neri-lore",
+            "definition": "authored:lore-v1",
+            "scope": {
+              "kind": "subject"
+            },
+            "value": {
+              "version": "1.0.0",
+              "budgetChars": 1200,
+              "privateNote": "The lost ledger has no settled explanation.",
+              "entries": [
+                {
+                  "id": "lore:lights",
+                  "text": "In this invented harbour, two painted lights mark a disused channel.",
+                  "tags": [
+                    "tag:harbour"
+                  ],
+                  "contexts": [
+                    "context:archive"
+                  ],
+                  "eligibleInputs": [
+                    "input:chart"
+                  ],
+                  "priority": 70,
+                  "insertion": "before-guidance",
+                  "audience": [
+                    "public"
+                  ]
+                },
+                {
+                  "id": "lore:gap",
+                  "text": "The ledger has an unfilled page. Its cause is deliberately unspecified.",
+                  "tags": [
+                    "tag:uncertainty"
+                  ],
+                  "priority": 40,
+                  "insertion": "after-guidance",
+                  "audience": [
+                    "participant:reader"
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "id": "aspect:neri-guidance",
+            "definition": "authored:guidance-v1",
+            "scope": {
+              "kind": "subject"
+            },
+            "value": {
+              "version": "1.0.0",
+              "instructions": [
+                "Distinguish the invented harbour from real navigation advice.",
+                "Offer competing readings without declaring a missing event to have occurred."
+              ],
+              "adapter": "role-messages-v1",
+              "examples": [
+                {
+                  "input": "Who tore out the page?",
+                  "output": "We do not know that it was torn out. Shall we compare the edges?",
+                  "standing": "authored-example"
+                }
+              ]
+            }
+          },
+          {
+            "id": "aspect:neri-prepared",
+            "definition": "authored:prepared-v1",
+            "scope": {
+              "kind": "subject"
+            },
+            "value": {
+              "version": "1.0.0",
+              "variables": [
+                {
+                  "key": "mode",
+                  "values": [
+                    "quiet",
+                    "compare"
+                  ]
+                }
+              ],
+              "initial": "state:desk",
+              "states": [
+                {
+                  "id": "state:desk",
+                  "inputs": [
+                    "input:chart"
+                  ],
+                  "when": [
+                    {
+                      "key": "mode",
+                      "equals": "quiet"
+                    }
+                  ],
+                  "variants": [
+                    {
+                      "id": "variant:offer-card",
+                      "text": "Here is the little chart. The empty space is intentional.",
+                      "assets": [
+                        "asset:chart",
+                        "asset:card"
+                      ],
+                      "next": "state:compare"
+                    }
+                  ]
+                },
+                {
+                  "id": "state:compare",
+                  "inputs": [
+                    "input:question"
+                  ],
+                  "generativeExit": true
+                }
+              ]
+            }
+          },
+          {
+            "id": "aspect:neri-presentation",
+            "definition": "authored:presentation-v1",
+            "scope": {
+              "kind": "subject"
+            },
+            "value": {
+              "version": "1.0.0",
+              "layout": "folio",
+              "palette": "paper",
+              "reducedMotion": true,
+              "alt": "An abstract two-colour chart, not a portrait or usable navigation map.",
+              "assets": [
+                "asset:chart"
+              ]
+            }
+          },
+          {
+            "id": "aspect:neri-media",
+            "definition": "authored:media-v1",
+            "scope": {
+              "kind": "subject"
+            },
+            "value": {
+              "version": "1.0.0",
+              "resources": [
+                {
+                  "asset": "asset:chart",
+                  "required": true,
+                  "purpose": "illustration",
+                  "alt": "Two by two dark and cream squares.",
+                  "author": "T415 original synthetic fixture",
+                  "license": "CC0-1.0"
+                },
+                {
+                  "asset": "asset:card",
+                  "required": true,
+                  "purpose": "document",
+                  "alt": "A synthetic tide card, not real navigation information.",
+                  "author": "T415 original synthetic fixture",
+                  "license": "CC0-1.0"
+                }
+              ]
+            }
+          },
+          {
+            "id": "aspect:neri-evidence",
+            "definition": "authored:evidence-v1",
+            "scope": {
+              "kind": "subject"
+            },
+            "value": {
+              "version": "1.0.0",
+              "privateNote": "Drafting note only; never part of a lived memory.",
+              "entries": [
+                {
+                  "id": "seed:neri",
+                  "standing": "authored-seed",
+                  "text": "Neri begins with an unfinished notebook, as fictional authoring.",
+                  "author": "T415 original fiction",
+                  "design": "subject:neri",
+                  "audience": [
+                    "participant:reader"
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "id": "subject:neri-harbour",
+        "label": "Neri records the harbour",
+        "profiles": [
+          "profile:relationship"
+        ],
+        "participants": [
+          {
+            "subject": "subject:neri",
+            "role": "archivist"
+          },
+          {
+            "subject": "subject:harbour",
+            "role": "place-recorded"
+          }
+        ]
+      }
+    ],
+    "contexts": [
+      {
+        "id": "context:archive",
+        "label": "At the archive desk",
+        "subjects": [
+          "subject:neri",
+          "subject:harbour",
+          "subject:neri-harbour"
+        ]
+      }
+    ],
+    "assets": [
+      {
+        "id": "asset:card",
+        "mediaType": "text/plain",
+        "sha256": "sha256:f79174c821407054158207ddc95c0143dedc6a95cb9bded7b2090cac99914b6f",
+        "size": 86,
+        "availability": "missing"
+      },
+      {
+        "id": "asset:chart",
+        "mediaType": "image/png",
+        "sha256": "sha256:dbb67ebcf4b72c96c7d6e9d93cabae41d201381cad8cd1bf9e31037dbf4b837f",
+        "size": 76,
+        "availability": "missing"
+      }
+    ]
+  },
+  "definitions": {
+    "schema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "urn:cosmogenitor:content:0",
+      "title": "Cosmogenitor content envelope v0",
+      "type": "object",
+      "properties": {
+        "format": {
+          "const": "cosmogenitor/content/0"
+        },
+        "subjects": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/subject"
+          }
+        },
+        "contexts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/context"
+          }
+        },
+        "expressions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/expression"
+          }
+        },
+        "assets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/asset"
+          }
+        },
+        "references": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/reference"
+          }
+        },
+        "judgments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/judgment"
+          }
+        },
+        "bindings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/binding"
+          }
+        },
+        "instances": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/instance"
+          }
+        }
+      },
+      "required": [
+        "format"
+      ],
+      "additionalProperties": false,
+      "$defs": {
+        "subject": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+            },
+            "label": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "summary": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "profiles": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+              },
+              "uniqueItems": true
+            },
+            "requires": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+              },
+              "uniqueItems": true
+            },
+            "aspects": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+                  },
+                  "definition": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+                  },
+                  "required": {
+                    "type": "boolean"
+                  },
+                  "scope": {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "enum": [
+                          "subject",
+                          "context",
+                          "instance"
+                        ]
+                      },
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+                      }
+                    },
+                    "required": [
+                      "kind"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "value": true,
+                  "claims": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+                        },
+                        "path": {
+                          "type": "string"
+                        },
+                        "standing": {
+                          "enum": [
+                            "authored",
+                            "provisional",
+                            "generated",
+                            "observed",
+                            "lived",
+                            "unknown",
+                            "unspecified"
+                          ]
+                        },
+                        "stability": {
+                          "enum": [
+                            "fixed",
+                            "default",
+                            "varies"
+                          ]
+                        },
+                        "visibility": {
+                          "enum": [
+                            "author-only",
+                            "character-known",
+                            "shared-description"
+                          ]
+                        },
+                        "commitment": {
+                          "type": "boolean"
+                        },
+                        "source": {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "enum": [
+                                "human",
+                                "model",
+                                "measurement",
+                                "import"
+                              ]
+                            },
+                            "actor": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            },
+                            "record": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "\\S"
+                            }
+                          },
+                          "required": [
+                            "kind"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "instance": {
+                          "type": "string",
+                          "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+                        },
+                        "event": {
+                          "type": "string",
+                          "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "path",
+                        "standing",
+                        "visibility",
+                        "source"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "id",
+                  "definition",
+                  "scope",
+                  "value"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "participants": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "subject": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+                  },
+                  "role": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "\\S"
+                  }
+                },
+                "required": [
+                  "subject",
+                  "role"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "extensions": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "required": [
+            "id",
+            "label"
+          ],
+          "additionalProperties": false
+        },
+        "context": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+            },
+            "label": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "subjects": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+              },
+              "uniqueItems": true
+            },
+            "aesthetics": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+              },
+              "uniqueItems": true
+            },
+            "description": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            }
+          },
+          "required": [
+            "id",
+            "label"
+          ],
+          "additionalProperties": false
+        },
+        "expression": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+            },
+            "kind": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "subjects": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+              },
+              "uniqueItems": true,
+              "minItems": 1
+            },
+            "contexts": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+              },
+              "uniqueItems": true
+            },
+            "aspects": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+              },
+              "uniqueItems": true
+            },
+            "assets": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+              },
+              "uniqueItems": true
+            },
+            "references": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+              },
+              "uniqueItems": true
+            },
+            "bindings": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+              },
+              "uniqueItems": true
+            },
+            "text": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            }
+          },
+          "required": [
+            "id",
+            "kind",
+            "subjects"
+          ],
+          "additionalProperties": false
+        },
+        "asset": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+            },
+            "mediaType": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "sha256": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "size": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "availability": {
+              "enum": [
+                "local",
+                "remote",
+                "missing"
+              ]
+            },
+            "representation": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "source": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+            }
+          },
+          "required": [
+            "id",
+            "mediaType",
+            "sha256",
+            "size",
+            "availability"
+          ],
+          "additionalProperties": false
+        },
+        "reference": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+            },
+            "target": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+            },
+            "role": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "description": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            }
+          },
+          "required": [
+            "id",
+            "target",
+            "role"
+          ],
+          "additionalProperties": false
+        },
+        "judgment": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+            },
+            "target": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+            },
+            "criterion": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "kind": {
+              "enum": [
+                "human",
+                "observation",
+                "measurement"
+              ]
+            },
+            "actor": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "evidence": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+              },
+              "uniqueItems": true,
+              "minItems": 1
+            },
+            "context": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+            },
+            "decision": {
+              "enum": [
+                "approved",
+                "unresolved",
+                "rejected"
+              ]
+            },
+            "observation": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "score": {
+              "type": "number"
+            },
+            "instrument": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "limits": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "note": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "target",
+            "criterion",
+            "kind",
+            "actor",
+            "evidence"
+          ],
+          "additionalProperties": false
+        },
+        "binding": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+            },
+            "subject": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+            },
+            "model": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                },
+                "revision": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                }
+              },
+              "required": [
+                "id",
+                "revision"
+              ],
+              "additionalProperties": false
+            },
+            "capability": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "mechanism": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "aspects": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+              },
+              "uniqueItems": true
+            },
+            "references": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+              },
+              "uniqueItems": true
+            },
+            "settings": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "support": {
+              "enum": [
+                "declared",
+                "tested"
+              ]
+            },
+            "evidence": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+              },
+              "uniqueItems": true
+            }
+          },
+          "required": [
+            "id",
+            "subject",
+            "model",
+            "capability",
+            "mechanism",
+            "support"
+          ],
+          "additionalProperties": false
+        },
+        "instance": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+            },
+            "design": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+            },
+            "consumer": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "events": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+                  },
+                  "description": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "\\S"
+                  }
+                },
+                "required": [
+                  "id",
+                  "description"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "id",
+            "design",
+            "consumer"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "profiles": [
+      {
+        "id": "authored:character-v1",
+        "version": "1.0.0",
+        "label": "Rich authored character",
+        "definition": "Optional composable authored character resources; no complete dossier required.",
+        "extends": [
+          "profile:character"
+        ],
+        "aspects": [
+          "authored:identity-v1",
+          "authored:lore-v1",
+          "authored:guidance-v1",
+          "authored:prepared-v1",
+          "authored:presentation-v1",
+          "authored:media-v1",
+          "authored:evidence-v1"
+        ]
+      },
+      {
+        "id": "profile:character",
+        "version": "0",
+        "label": "Character",
+        "definition": "An authored being; a name and line can be enough to start.",
+        "aspects": [
+          "core:identity",
+          "core:dossier",
+          "core:communication",
+          "core:voice",
+          "core:look"
+        ],
+        "extends": []
+      },
+      {
+        "id": "profile:relationship",
+        "version": "0",
+        "label": "Relationship",
+        "definition": "An authored relational pattern with participant roles.",
+        "aspects": [
+          "core:relationship"
+        ],
+        "extends": []
+      },
+      {
+        "id": "profile:world",
+        "version": "0",
+        "label": "World",
+        "definition": "A context of conventions, places and a cast.",
+        "aspects": [
+          "core:world"
+        ],
+        "extends": []
+      }
+    ],
+    "aspectDefinitions": [
+      {
+        "id": "authored:evidence-v1",
+        "version": "1.0.0",
+        "label": "Evidence",
+        "definition": "Explicitly attributed seeds and reports; no firsthand authority.",
+        "scopes": [
+          "subject",
+          "context"
+        ],
+        "schema": {
+          "type": "object",
+          "properties": {
+            "version": {
+              "const": "1.0.0"
+            },
+            "entries": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "standing": {
+                    "enum": [
+                      "authored-seed",
+                      "reported",
+                      "synthetic-report",
+                      "derived"
+                    ]
+                  },
+                  "text": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 8192
+                  },
+                  "author": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 8192
+                  },
+                  "design": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "individual": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "run": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "participant": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "source": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "occurrence": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "audience": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "maxItems": 128
+                  },
+                  "derivedFrom": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "maxItems": 128
+                  }
+                },
+                "required": [
+                  "id",
+                  "standing",
+                  "text",
+                  "author",
+                  "design",
+                  "audience"
+                ],
+                "additionalProperties": false
+              },
+              "maxItems": 128
+            },
+            "privateNote": {
+              "type": "string",
+              "maxLength": 8192
+            }
+          },
+          "required": [
+            "version"
+          ],
+          "additionalProperties": false
+        },
+        "links": [
+          {
+            "path": "/entries/*/design",
+            "collection": "subjects"
+          }
+        ],
+        "localReferences": [
+          {
+            "ids": "/entries/*/id",
+            "references": [
+              "/entries/*/derivedFrom/*"
+            ]
+          }
+        ],
+        "privatePaths": [
+          "/privateNote"
+        ]
+      },
+      {
+        "id": "authored:guidance-v1",
+        "version": "1.0.0",
+        "label": "Guidance",
+        "definition": "Model-independent instructions and labelled illustrative exchanges.",
+        "scopes": [
+          "subject",
+          "context"
+        ],
+        "schema": {
+          "type": "object",
+          "properties": {
+            "version": {
+              "const": "1.0.0"
+            },
+            "instructions": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 8192
+              },
+              "maxItems": 128
+            },
+            "examples": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "input": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 8192
+                  },
+                  "output": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 8192
+                  },
+                  "standing": {
+                    "const": "authored-example"
+                  }
+                },
+                "required": [
+                  "input",
+                  "output",
+                  "standing"
+                ],
+                "additionalProperties": false
+              },
+              "maxItems": 128
+            },
+            "adapter": {
+              "enum": [
+                "plain-text-v1",
+                "role-messages-v1"
+              ]
+            },
+            "privateNote": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 8192
+            }
+          },
+          "required": [
+            "version"
+          ],
+          "additionalProperties": false
+        },
+        "links": [],
+        "localReferences": [],
+        "privatePaths": [
+          "/privateNote"
+        ]
+      },
+      {
+        "id": "authored:identity-v1",
+        "version": "1.0.0",
+        "label": "Identity",
+        "definition": "Authored design attribution; conveys no individual or authority.",
+        "scopes": [
+          "subject",
+          "context"
+        ],
+        "schema": {
+          "type": "object",
+          "properties": {
+            "version": {
+              "const": "1.0.0"
+            },
+            "designId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "revision": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "author": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 8192
+            },
+            "standing": {
+              "enum": [
+                "authored"
+              ]
+            },
+            "privateNote": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 8192
+            }
+          },
+          "required": [
+            "version"
+          ],
+          "additionalProperties": false
+        },
+        "links": [],
+        "localReferences": [],
+        "privatePaths": [
+          "/privateNote"
+        ]
+      },
+      {
+        "id": "authored:lore-v1",
+        "version": "1.0.0",
+        "label": "Lore",
+        "definition": "Bounded authored context selection; not lived knowledge.",
+        "scopes": [
+          "subject",
+          "context"
+        ],
+        "schema": {
+          "type": "object",
+          "properties": {
+            "version": {
+              "const": "1.0.0"
+            },
+            "budgetChars": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4096
+            },
+            "entries": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "text": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 8192
+                  },
+                  "tags": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "maxItems": 128
+                  },
+                  "contexts": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "maxItems": 128
+                  },
+                  "eligibleInputs": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "maxItems": 128
+                  },
+                  "priority": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100
+                  },
+                  "insertion": {
+                    "enum": [
+                      "before-guidance",
+                      "after-guidance"
+                    ]
+                  },
+                  "audience": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "maxItems": 128
+                  }
+                },
+                "required": [
+                  "id",
+                  "text",
+                  "audience"
+                ],
+                "additionalProperties": false
+              },
+              "maxItems": 128
+            },
+            "privateNote": {
+              "type": "string",
+              "maxLength": 8192
+            }
+          },
+          "required": [
+            "version"
+          ],
+          "additionalProperties": false
+        },
+        "links": [
+          {
+            "path": "/entries/*/contexts/*",
+            "collection": "contexts"
+          }
+        ],
+        "localReferences": [
+          {
+            "ids": "/entries/*/id",
+            "references": []
+          }
+        ],
+        "privatePaths": [
+          "/privateNote"
+        ]
+      },
+      {
+        "id": "authored:media-v1",
+        "version": "1.0.0",
+        "label": "Media",
+        "definition": "Explicit resource requirements and licensed alternatives.",
+        "scopes": [
+          "subject",
+          "context"
+        ],
+        "schema": {
+          "type": "object",
+          "properties": {
+            "version": {
+              "const": "1.0.0"
+            },
+            "resources": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "asset": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "required": {
+                    "type": "boolean"
+                  },
+                  "purpose": {
+                    "enum": [
+                      "illustration",
+                      "background",
+                      "prepared-audio",
+                      "document"
+                    ]
+                  },
+                  "alt": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 8192
+                  },
+                  "author": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 8192
+                  },
+                  "license": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 8192,
+                    "pattern": "\\S"
+                  }
+                },
+                "required": [
+                  "asset",
+                  "required",
+                  "purpose",
+                  "alt",
+                  "author",
+                  "license"
+                ],
+                "additionalProperties": false
+              },
+              "maxItems": 128
+            }
+          },
+          "required": [
+            "version"
+          ],
+          "additionalProperties": false
+        },
+        "links": [
+          {
+            "path": "/resources/*/asset",
+            "collection": "assets"
+          }
+        ],
+        "localReferences": [],
+        "privatePaths": []
+      },
+      {
+        "id": "authored:prepared-v1",
+        "version": "1.0.0",
+        "label": "Prepared",
+        "definition": "Offered finite interaction material; no app actions or resident commands.",
+        "scopes": [
+          "subject",
+          "context"
+        ],
+        "schema": {
+          "type": "object",
+          "properties": {
+            "version": {
+              "const": "1.0.0"
+            },
+            "variables": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "key": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "values": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 8192
+                    },
+                    "maxItems": 128
+                  }
+                },
+                "required": [
+                  "key",
+                  "values"
+                ],
+                "additionalProperties": false
+              },
+              "maxItems": 128
+            },
+            "initial": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "states": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "inputs": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "maxItems": 128
+                  },
+                  "when": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "key": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "equals": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 8192
+                        }
+                      },
+                      "required": [
+                        "key",
+                        "equals"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "maxItems": 128
+                  },
+                  "variants": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        },
+                        "text": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 8192
+                        },
+                        "assets": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 128
+                          },
+                          "maxItems": 128
+                        },
+                        "next": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "text"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "maxItems": 128
+                  },
+                  "generativeExit": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "id"
+                ],
+                "additionalProperties": false
+              },
+              "maxItems": 128
+            }
+          },
+          "required": [
+            "version"
+          ],
+          "additionalProperties": false
+        },
+        "links": [
+          {
+            "path": "/states/*/variants/*/assets/*",
+            "collection": "assets"
+          }
+        ],
+        "localReferences": [
+          {
+            "ids": "/states/*/id",
+            "references": [
+              "/initial",
+              "/states/*/variants/*/next"
+            ]
+          }
+        ],
+        "privatePaths": []
+      },
+      {
+        "id": "authored:presentation-v1",
+        "version": "1.0.0",
+        "label": "Presentation",
+        "definition": "Data-only app-owned presentation vocabulary.",
+        "scopes": [
+          "subject",
+          "context"
+        ],
+        "schema": {
+          "type": "object",
+          "properties": {
+            "version": {
+              "const": "1.0.0"
+            },
+            "layout": {
+              "enum": [
+                "dialogue",
+                "folio"
+              ]
+            },
+            "palette": {
+              "enum": [
+                "dusk",
+                "paper",
+                "sea"
+              ]
+            },
+            "reducedMotion": {
+              "const": true
+            },
+            "alt": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 8192
+            },
+            "assets": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "maxItems": 128
+            }
+          },
+          "required": [
+            "version"
+          ],
+          "additionalProperties": false
+        },
+        "links": [
+          {
+            "path": "/assets/*",
+            "collection": "assets"
+          }
+        ],
+        "localReferences": [],
+        "privatePaths": []
+      },
+      {
+        "id": "core:communication",
+        "version": "0",
+        "label": "Communication",
+        "definition": "How a character expresses themselves in words.",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "manner": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "signatureLine": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "soundsLike": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "neverSoundsLike": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            }
+          },
+          "required": [],
+          "additionalProperties": false
+        },
+        "scopes": [
+          "subject",
+          "context",
+          "instance"
+        ],
+        "links": []
+      },
+      {
+        "id": "core:dossier",
+        "version": "0",
+        "label": "Dossier",
+        "definition": "The authored generative pattern of a character, not lived memory.",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "motive": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "contradiction": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "actsOnOthers": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "traits": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              }
+            },
+            "backstory": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "authorBackstory": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            }
+          },
+          "required": [],
+          "additionalProperties": false
+        },
+        "scopes": [
+          "subject",
+          "context",
+          "instance"
+        ],
+        "links": [],
+        "privatePaths": [
+          "/authorBackstory"
+        ]
+      },
+      {
+        "id": "core:identity",
+        "version": "0",
+        "label": "Identity",
+        "definition": "Names, premise and identity commitments for an authored being.",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "aliases": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              }
+            },
+            "premise": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "kindOfBeing": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "commitments": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              }
+            },
+            "freedoms": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              }
+            }
+          },
+          "required": [],
+          "additionalProperties": false
+        },
+        "scopes": [
+          "subject",
+          "context",
+          "instance"
+        ],
+        "links": []
+      },
+      {
+        "id": "core:look",
+        "version": "0",
+        "label": "Look development",
+        "definition": "Visual brief, commitments, studies and revisions in an explicit context.",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "brief": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "hypothesis": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "commitments": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              }
+            },
+            "freedoms": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              }
+            },
+            "studies": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+              },
+              "uniqueItems": true
+            },
+            "portrayals": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+              },
+              "uniqueItems": true
+            },
+            "revisions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "change": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "\\S"
+                  },
+                  "preserved": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "\\S"
+                    }
+                  },
+                  "before": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+                  },
+                  "after": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+                  },
+                  "decision": {
+                    "enum": [
+                      "keep",
+                      "undo",
+                      "revise"
+                    ]
+                  }
+                },
+                "required": [
+                  "change",
+                  "preserved"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [],
+          "additionalProperties": false
+        },
+        "scopes": [
+          "subject",
+          "context",
+          "instance"
+        ],
+        "links": [
+          {
+            "path": "/studies/*",
+            "collection": "expressions"
+          },
+          {
+            "path": "/portrayals/*",
+            "collection": "expressions"
+          },
+          {
+            "path": "/revisions/*/before",
+            "collection": "expressions"
+          },
+          {
+            "path": "/revisions/*/after",
+            "collection": "expressions"
+          }
+        ]
+      },
+      {
+        "id": "core:relationship",
+        "version": "0",
+        "label": "Relational pattern",
+        "definition": "An authored pattern among named participants.",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "pattern": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "tensions": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              }
+            },
+            "situations": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "\\S"
+                  },
+                  "description": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "\\S"
+                  }
+                },
+                "required": [
+                  "name"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [],
+          "additionalProperties": false
+        },
+        "scopes": [
+          "subject",
+          "context",
+          "instance"
+        ],
+        "links": []
+      },
+      {
+        "id": "core:voice",
+        "version": "0",
+        "label": "Voice identity",
+        "definition": "Speaker description and selected references, separate from a delivery.",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "description": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "timbre": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "accent": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "pace": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "neutralReference": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+            },
+            "repertoire": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "\\S"
+                  },
+                  "direction": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "\\S"
+                  },
+                  "reference": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+                  }
+                },
+                "required": [
+                  "label"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [],
+          "additionalProperties": false
+        },
+        "scopes": [
+          "subject",
+          "context",
+          "instance"
+        ],
+        "links": [
+          {
+            "path": "/neutralReference",
+            "collection": "references"
+          },
+          {
+            "path": "/repertoire/*/reference",
+            "collection": "references"
+          }
+        ]
+      },
+      {
+        "id": "core:world",
+        "version": "0",
+        "label": "World",
+        "definition": "Authored conventions and connected places/cast without required geometry.",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "premise": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "rules": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              }
+            },
+            "places": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+              },
+              "uniqueItems": true
+            },
+            "cast": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+              },
+              "uniqueItems": true
+            }
+          },
+          "required": [],
+          "additionalProperties": false
+        },
+        "scopes": [
+          "subject",
+          "context",
+          "instance"
+        ],
+        "links": [
+          {
+            "path": "/places/*",
+            "collection": "subjects"
+          },
+          {
+            "path": "/cast/*",
+            "collection": "subjects"
+          }
+        ]
+      }
+    ]
+  },
+  "receipts": [],
+  "records": [
+    {
+      "id": "asset:card",
+      "collection": "assets"
+    },
+    {
+      "id": "asset:chart",
+      "collection": "assets"
+    },
+    {
+      "id": "context:archive",
+      "collection": "contexts"
+    },
+    {
+      "id": "subject:harbour",
+      "collection": "subjects"
+    },
+    {
+      "id": "subject:neri",
+      "collection": "subjects"
+    },
+    {
+      "id": "subject:neri-harbour",
+      "collection": "subjects"
+    }
+  ],
+  "assets": [
+    {
+      "hash": "sha256:dbb67ebcf4b72c96c7d6e9d93cabae41d201381cad8cd1bf9e31037dbf4b837f",
+      "size": 76,
+      "status": "inline",
+      "data": "iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAE0lEQVR4nGOQNPL+8OwEAxADWQAs0gZp6kYd/wAAAABJRU5ErkJggg=="
+    },
+    {
+      "hash": "sha256:f79174c821407054158207ddc95c0143dedc6a95cb9bded7b2090cac99914b6f",
+      "size": 86,
+      "status": "inline",
+      "data": "U3ludGhldGljIHRpZGUgY2FyZDogdHdvIGxpZ2h0cyBtYXJrIHRoZSBjaGFubmVsOyBuZWl0aGVyIGxpZ2h0IHByZWRpY3RzIGEgcmVhbCB0aWRlLgo="
+    }
+  ],
+  "root": "sha256:f1dfe5b54eb3eb084684dba9d1d19b66cb6f950489378428052093e5196fecaf"
+}

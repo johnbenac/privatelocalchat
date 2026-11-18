@@ -1,0 +1,1077 @@
+{
+  "format": "cosmogenitor/content/0",
+  "subjects": [
+    {
+      "id": "subject:mara",
+      "label": "Mara",
+      "profiles": [
+        "profile:character"
+      ],
+      "aspects": [
+        {
+          "id": "aspect:mara-identity",
+          "definition": "core:identity",
+          "scope": {
+            "kind": "subject"
+          },
+          "value": {
+            "premise": "A patient boatwright who cares through repair.",
+            "kindOfBeing": "Human-like fictional adult",
+            "commitments": [
+              "Recognizable asymmetrical smile",
+              "Care expressed through practical help"
+            ],
+            "freedoms": [
+              "Wardrobe",
+              "Illustration medium",
+              "Lighting"
+            ]
+          },
+          "claims": [
+            {
+              "id": "claim:mara-smile",
+              "path": "/commitments/0",
+              "standing": "authored",
+              "stability": "fixed",
+              "visibility": "shared-description",
+              "commitment": true,
+              "source": {
+                "kind": "human",
+                "actor": "Synthetic fixture author; no real owner decision"
+              }
+            },
+            {
+              "id": "claim:mara-clothing",
+              "path": "/freedoms/0",
+              "standing": "authored",
+              "stability": "varies",
+              "visibility": "shared-description",
+              "commitment": false,
+              "source": {
+                "kind": "human",
+                "actor": "Synthetic fixture author; no real owner decision"
+              }
+            }
+          ]
+        },
+        {
+          "id": "aspect:mara-dossier",
+          "definition": "core:dossier",
+          "scope": {
+            "kind": "subject"
+          },
+          "value": {
+            "motive": "Keep people safe by making useful things.",
+            "contradiction": "Offers help readily but avoids asking for it.",
+            "actsOnOthers": "Notices what is broken before she asks what hurts.",
+            "backstory": "Keeps the neighborhood boats working.",
+            "authorBackstory": "Author-only: her reluctance to ask for help is not automatically known to her."
+          },
+          "claims": [
+            {
+              "id": "claim:mara-motive",
+              "path": "/motive",
+              "standing": "authored",
+              "stability": "fixed",
+              "visibility": "shared-description",
+              "commitment": true,
+              "source": {
+                "kind": "human",
+                "actor": "Synthetic fixture author; no real owner decision"
+              }
+            },
+            {
+              "id": "claim:mara-author-only",
+              "path": "/authorBackstory",
+              "standing": "authored",
+              "stability": "default",
+              "visibility": "author-only",
+              "commitment": false,
+              "source": {
+                "kind": "human",
+                "actor": "Synthetic fixture author; no real owner decision"
+              }
+            }
+          ]
+        },
+        {
+          "id": "aspect:mara-communication",
+          "definition": "core:communication",
+          "scope": {
+            "kind": "subject"
+          },
+          "value": {
+            "manner": "Careful concrete language with a dry smile.",
+            "signatureLine": "Keep the light on."
+          },
+          "claims": [
+            {
+              "id": "claim:mara-manner",
+              "path": "/manner",
+              "standing": "authored",
+              "stability": "default",
+              "visibility": "shared-description",
+              "commitment": false,
+              "source": {
+                "kind": "human",
+                "actor": "Synthetic fixture author; no real owner decision"
+              }
+            }
+          ]
+        },
+        {
+          "id": "aspect:mara-voice",
+          "definition": "core:voice",
+          "scope": {
+            "kind": "subject"
+          },
+          "value": {
+            "description": "A warm measured adult speaker; no generated voice exists in this fixture.",
+            "timbre": "Warm",
+            "pace": "Unhurried",
+            "neutralReference": "reference:mara-neutral",
+            "repertoire": [
+              {
+                "label": "Whispered warning",
+                "direction": "Protect the listener without alarming the room.",
+                "reference": "reference:mara-whisper"
+              },
+              {
+                "label": "Called across water",
+                "direction": "Reach a distant listener clearly without anger.",
+                "reference": "reference:mara-call"
+              }
+            ]
+          },
+          "claims": [
+            {
+              "id": "claim:mara-timbre",
+              "path": "/timbre",
+              "standing": "authored",
+              "stability": "default",
+              "visibility": "shared-description",
+              "commitment": false,
+              "source": {
+                "kind": "human",
+                "actor": "Synthetic fixture author; no real owner decision"
+              }
+            },
+            {
+              "id": "claim:mara-pace",
+              "path": "/pace",
+              "standing": "authored",
+              "stability": "varies",
+              "visibility": "shared-description",
+              "commitment": false,
+              "source": {
+                "kind": "human",
+                "actor": "Synthetic fixture author; no real owner decision"
+              }
+            }
+          ]
+        },
+        {
+          "id": "aspect:mara-photo-look",
+          "definition": "core:look",
+          "scope": {
+            "kind": "context",
+            "id": "context:coastal"
+          },
+          "value": {
+            "brief": "A coastal portrait with practical clothes.",
+            "hypothesis": "Warmth comes through asymmetry and attentive posture.",
+            "commitments": [
+              "Preserve the authored smile and care"
+            ],
+            "freedoms": [
+              "Lighting",
+              "Clothing"
+            ],
+            "studies": [
+              "expression:mara-photo-study"
+            ],
+            "portrayals": [
+              "expression:mara-photo"
+            ],
+            "revisions": [
+              {
+                "change": "Soften the lamp without changing the smile.",
+                "preserved": [
+                  "Smile asymmetry",
+                  "Face proportions"
+                ],
+                "before": "expression:mara-photo-study",
+                "after": "expression:mara-photo",
+                "decision": "revise"
+              }
+            ]
+          }
+        },
+        {
+          "id": "aspect:mara-ink-look",
+          "definition": "core:look",
+          "scope": {
+            "kind": "context",
+            "id": "context:storybook"
+          },
+          "value": {
+            "brief": "Ink illustration for the neighborhood storybook.",
+            "commitments": [
+              "Same character and relational pattern"
+            ],
+            "freedoms": [
+              "Line weight",
+              "Paper texture"
+            ],
+            "studies": [
+              "expression:mara-ink"
+            ],
+            "portrayals": [
+              "expression:mara-ink"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "subject:ivo",
+      "label": "Ivo",
+      "profiles": [
+        "profile:character"
+      ],
+      "aspects": [
+        {
+          "id": "aspect:ivo-dossier",
+          "definition": "core:dossier",
+          "scope": {
+            "kind": "subject"
+          },
+          "value": {
+            "motive": "Become someone whose work can be trusted.",
+            "contradiction": "Wants independence while seeking reassurance."
+          }
+        }
+      ],
+      "summary": "Mara's apprentice, beginning to trust his own hands."
+    },
+    {
+      "id": "subject:mentorship",
+      "label": "Mara and Ivo: mentorship",
+      "profiles": [
+        "profile:relationship"
+      ],
+      "aspects": [
+        {
+          "id": "aspect:mentorship-pattern",
+          "definition": "core:relationship",
+          "scope": {
+            "kind": "subject"
+          },
+          "value": {
+            "pattern": "Care expressed as teaching, sometimes mistaken for doubt.",
+            "tensions": [
+              "Mara protects by withholding praise; Ivo hears criticism."
+            ],
+            "situations": [
+              {
+                "name": "Workshop",
+                "description": "Mara explains a repair while Ivo tries it himself."
+              }
+            ]
+          }
+        }
+      ],
+      "participants": [
+        {
+          "subject": "subject:mara",
+          "role": "mentor"
+        },
+        {
+          "subject": "subject:ivo",
+          "role": "apprentice"
+        }
+      ]
+    },
+    {
+      "id": "subject:coastal-aesthetic",
+      "label": "Coastal workshop",
+      "profiles": [
+        "profile:aesthetic"
+      ],
+      "aspects": [
+        {
+          "id": "aspect:coastal-aesthetic",
+          "definition": "core:aesthetic",
+          "scope": {
+            "kind": "subject"
+          },
+          "value": {
+            "intent": "A world of practical kindness and repair.",
+            "register": "Warm, weathered and attentive.",
+            "domains": [
+              {
+                "id": "domain:beings",
+                "label": "Beings",
+                "definition": "People whose care is visible in practiced gestures.",
+                "principles": [
+                  "Preserve expressive asymmetry."
+                ],
+                "boundaries": [
+                  "Polish must not erase individuality."
+                ],
+                "judgments": [
+                  "Does the person remain recognizable?"
+                ],
+                "process": [
+                  "Study",
+                  "Compare",
+                  "Revise one relationship."
+                ]
+              },
+              {
+                "id": "domain:tideglass",
+                "label": "Tide-lit glass",
+                "definition": "A user-authored material domain for light that helps neighbors find home.",
+                "principles": [
+                  "Let light be useful before it is spectacular."
+                ],
+                "examples": [
+                  "A blue pulse on a foggy evening."
+                ],
+                "hypothesis": "Beauty follows the relation between shelter and the weather."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "subject:storybook-aesthetic",
+      "label": "Neighborhood storybook",
+      "profiles": [
+        "profile:aesthetic"
+      ],
+      "aspects": [
+        {
+          "id": "aspect:storybook-aesthetic",
+          "definition": "core:aesthetic",
+          "scope": {
+            "kind": "subject"
+          },
+          "value": {
+            "intent": "The same neighborhood expressed through ink and paper.",
+            "register": "Gentle and particular.",
+            "domains": [
+              {
+                "id": "domain:ink",
+                "label": "Ink portrayal",
+                "definition": "A drawn treatment of existing subjects.",
+                "principles": [
+                  "Keep gestures specific to each character."
+                ],
+                "boundaries": [
+                  "A medium change is not a new person."
+                ],
+                "judgments": [
+                  "Does the portrayal fit the cast and relationship?"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "subject:neighborhood",
+      "label": "The harbor neighborhood",
+      "profiles": [
+        "profile:world"
+      ],
+      "aspects": [
+        {
+          "id": "aspect:neighborhood-world",
+          "definition": "core:world",
+          "scope": {
+            "kind": "subject"
+          },
+          "value": {
+            "premise": "A small harbor where work and friendship overlap.",
+            "rules": [
+              "People can ask for help without owing a performance."
+            ],
+            "places": [
+              "subject:mara-home",
+              "subject:beacon"
+            ],
+            "cast": [
+              "subject:mara",
+              "subject:ivo"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "subject:mara-home",
+      "label": "Mara's home and workshop",
+      "profiles": [
+        "profile:residence"
+      ],
+      "aspects": [
+        {
+          "id": "aspect:home-place",
+          "definition": "core:place",
+          "scope": {
+            "kind": "subject"
+          },
+          "value": {
+            "description": "A kitchen opens through a door into a workshop.",
+            "rooms": [
+              {
+                "id": "room:kitchen",
+                "label": "Kitchen"
+              },
+              {
+                "id": "room:workshop",
+                "label": "Workshop"
+              }
+            ],
+            "connections": [
+              {
+                "from": "room:kitchen",
+                "to": "room:workshop"
+              }
+            ],
+            "residents": [
+              "subject:mara"
+            ]
+          }
+        },
+        {
+          "id": "aspect:home-affordances",
+          "definition": "core:affordances",
+          "scope": {
+            "kind": "subject"
+          },
+          "value": {
+            "items": [
+              {
+                "id": "item:workshop-chair",
+                "label": "Workshop chair",
+                "uses": [
+                  {
+                    "label": "Sit",
+                    "requires": [
+                      "Chair is unoccupied."
+                    ],
+                    "effects": [
+                      "The actor is seated at the bench."
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "item:lamp",
+                "label": "Bench lamp",
+                "uses": [
+                  {
+                    "label": "Switch on",
+                    "requires": [
+                      "Lamp has power."
+                    ],
+                    "effects": [
+                      "The workbench is lit."
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "subject:beacon",
+      "label": "The harbor beacon",
+      "profiles": [
+        "neighborhood:beacon"
+      ],
+      "aspects": [
+        {
+          "id": "aspect:beacon-signal",
+          "definition": "neighborhood:signal",
+          "scope": {
+            "kind": "subject"
+          },
+          "value": {
+            "color": "blue",
+            "pulseSeconds": 4,
+            "meaning": "A light for finding the harbor workshop.",
+            "keeper": "subject:mara"
+          },
+          "claims": [
+            {
+              "id": "claim:beacon-color",
+              "path": "/color",
+              "standing": "authored",
+              "stability": "default",
+              "visibility": "shared-description",
+              "commitment": false,
+              "source": {
+                "kind": "human",
+                "actor": "Synthetic fixture author; no real owner decision"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "subject:keep-light",
+      "label": "Keep the light on",
+      "profiles": [
+        "profile:utterance"
+      ],
+      "aspects": [
+        {
+          "id": "aspect:light-utterance",
+          "definition": "core:utterance",
+          "scope": {
+            "kind": "subject"
+          },
+          "value": {
+            "words": "Keep the light on.",
+            "speaker": "subject:mara",
+            "context": "context:workshop"
+          }
+        }
+      ]
+    },
+    {
+      "id": "subject:light-performance",
+      "label": "A whispered workshop performance",
+      "profiles": [
+        "profile:performance"
+      ],
+      "aspects": [
+        {
+          "id": "aspect:light-performance",
+          "definition": "core:performance",
+          "scope": {
+            "kind": "subject"
+          },
+          "value": {
+            "utterance": "subject:keep-light",
+            "speaker": "subject:mara",
+            "direction": "A quiet request to the apprentice before leaving.",
+            "take": "expression:light-whisper",
+            "alternatives": [
+              "expression:light-neutral",
+              "expression:light-call"
+            ]
+          },
+          "claims": [
+            {
+              "id": "claim:performance-direction",
+              "path": "/direction",
+              "standing": "authored",
+              "stability": "varies",
+              "visibility": "shared-description",
+              "commitment": false,
+              "source": {
+                "kind": "human",
+                "actor": "Synthetic fixture author; no real owner decision"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "subject:offstage-neighbor",
+      "label": "Ari",
+      "summary": "A neighbor mentioned by Ivo; no dossier is required."
+    },
+    {
+      "id": "subject:light-neutral-performance",
+      "label": "Neutral delivery",
+      "profiles": [
+        "profile:performance"
+      ],
+      "aspects": [
+        {
+          "id": "aspect:light-neutral-performance",
+          "definition": "core:performance",
+          "scope": {
+            "kind": "subject"
+          },
+          "value": {
+            "utterance": "subject:keep-light",
+            "speaker": "subject:mara",
+            "direction": "Speak evenly and without urgency.",
+            "take": "expression:light-neutral"
+          }
+        }
+      ]
+    },
+    {
+      "id": "subject:light-call-performance",
+      "label": "Called delivery",
+      "profiles": [
+        "profile:performance"
+      ],
+      "aspects": [
+        {
+          "id": "aspect:light-call-performance",
+          "definition": "core:performance",
+          "scope": {
+            "kind": "subject"
+          },
+          "value": {
+            "utterance": "subject:keep-light",
+            "speaker": "subject:mara",
+            "direction": "Reach Ivo across the water clearly, without anger.",
+            "take": "expression:light-call"
+          }
+        }
+      ]
+    }
+  ],
+  "contexts": [
+    {
+      "id": "context:coastal",
+      "label": "Coastal photographic look",
+      "subjects": [
+        "subject:mara",
+        "subject:neighborhood"
+      ],
+      "aesthetics": [
+        "subject:coastal-aesthetic"
+      ]
+    },
+    {
+      "id": "context:storybook",
+      "label": "Storybook ink look",
+      "subjects": [
+        "subject:mara",
+        "subject:neighborhood"
+      ],
+      "aesthetics": [
+        "subject:storybook-aesthetic"
+      ]
+    },
+    {
+      "id": "context:workshop",
+      "label": "A quiet departure from the workshop",
+      "subjects": [
+        "subject:mara",
+        "subject:ivo",
+        "subject:mentorship",
+        "subject:mara-home"
+      ],
+      "aesthetics": [
+        "subject:coastal-aesthetic"
+      ]
+    }
+  ],
+  "expressions": [
+    {
+      "id": "expression:mara-photo-study",
+      "kind": "visual-study",
+      "subjects": [
+        "subject:mara"
+      ],
+      "contexts": [
+        "context:coastal"
+      ],
+      "assets": [
+        "asset:photo-study"
+      ],
+      "description": "Synthetic planned study record; no image or continuity evidence."
+    },
+    {
+      "id": "expression:mara-photo",
+      "kind": "portrait",
+      "subjects": [
+        "subject:mara"
+      ],
+      "contexts": [
+        "context:coastal"
+      ],
+      "aspects": [
+        "aspect:mara-identity",
+        "aspect:mara-photo-look"
+      ],
+      "assets": [
+        "asset:photo"
+      ],
+      "bindings": [
+        "binding:photo"
+      ],
+      "description": "Synthetic photographic portrayal record, not a generated picture."
+    },
+    {
+      "id": "expression:mara-ink",
+      "kind": "portrait",
+      "subjects": [
+        "subject:mara"
+      ],
+      "contexts": [
+        "context:storybook"
+      ],
+      "aspects": [
+        "aspect:mara-identity",
+        "aspect:mara-ink-look"
+      ],
+      "assets": [
+        "asset:ink"
+      ],
+      "bindings": [
+        "binding:ink"
+      ],
+      "description": "Synthetic ink portrayal record of the same authored character."
+    },
+    {
+      "id": "expression:light-neutral",
+      "kind": "speech-take",
+      "subjects": [
+        "subject:mara",
+        "subject:keep-light",
+        "subject:light-neutral-performance"
+      ],
+      "contexts": [
+        "context:workshop"
+      ],
+      "assets": [
+        "asset:neutral"
+      ],
+      "bindings": [
+        "binding:neutral"
+      ],
+      "text": "Keep the light on.",
+      "description": "Synthetic neutral take record; no waveform or actual voice exists."
+    },
+    {
+      "id": "expression:light-whisper",
+      "kind": "speech-take",
+      "subjects": [
+        "subject:mara",
+        "subject:keep-light",
+        "subject:light-performance"
+      ],
+      "contexts": [
+        "context:workshop"
+      ],
+      "assets": [
+        "asset:whisper"
+      ],
+      "bindings": [
+        "binding:speech"
+      ],
+      "text": "Keep the light on.",
+      "description": "Synthetic selected whisper take; selection is fixture data, not an actual audition."
+    },
+    {
+      "id": "expression:light-call",
+      "kind": "speech-take",
+      "subjects": [
+        "subject:mara",
+        "subject:keep-light",
+        "subject:light-call-performance"
+      ],
+      "contexts": [
+        "context:workshop"
+      ],
+      "assets": [
+        "asset:call"
+      ],
+      "bindings": [
+        "binding:speech"
+      ],
+      "text": "Keep the light on.",
+      "description": "Synthetic called-across-water take; no waveform supplied."
+    },
+    {
+      "id": "expression:workshop-film",
+      "kind": "film",
+      "subjects": [
+        "subject:mara",
+        "subject:ivo",
+        "subject:mentorship",
+        "subject:mara-home",
+        "subject:light-performance"
+      ],
+      "contexts": [
+        "context:coastal",
+        "context:workshop"
+      ],
+      "assets": [
+        "asset:film"
+      ],
+      "references": [
+        "reference:film-start",
+        "reference:film-speech",
+        "reference:film-place"
+      ],
+      "bindings": [
+        "binding:film"
+      ],
+      "description": "Synthetic composition record linking portrayal, place and selected speech; no clip produced."
+    },
+    {
+      "id": "expression:mara-prompt",
+      "kind": "system-prompt",
+      "subjects": [
+        "subject:mara"
+      ],
+      "aspects": [
+        "aspect:mara-communication"
+      ],
+      "bindings": [
+        "binding:prompt"
+      ],
+      "text": "Speak carefully and concretely, with dry humor. This fixture projects selected communication facts only.",
+      "description": "An authored consumer projection; no author-only dossier or lived memories included."
+    }
+  ],
+  "assets": [
+    {
+      "id": "asset:photo-study",
+      "mediaType": "image/png",
+      "sha256": "sha256:c309d536c02c56969466e8f16b5bea735ea46974169c13afae6b7f7bad82e5f0",
+      "size": 1024,
+      "availability": "missing",
+      "representation": "Synthetic placeholder metadata only; no media bytes generated or supplied."
+    },
+    {
+      "id": "asset:photo",
+      "mediaType": "image/png",
+      "sha256": "sha256:4f0c0e39067f654a138d787dab3240ca62eedb1d580aa2ba139301c17d45931d",
+      "size": 1024,
+      "availability": "missing",
+      "representation": "Synthetic placeholder metadata only; no media bytes generated or supplied."
+    },
+    {
+      "id": "asset:ink",
+      "mediaType": "image/png",
+      "sha256": "sha256:99f2032bea913afbd781129f53c6aed8209c363cc2176eb5d6c920f55e43bdeb",
+      "size": 1024,
+      "availability": "missing",
+      "representation": "Synthetic placeholder metadata only; no media bytes generated or supplied."
+    },
+    {
+      "id": "asset:neutral",
+      "mediaType": "audio/wav",
+      "sha256": "sha256:ec17d389e12a3047637cca672340b6bdcb096f465d27e939afc9d1c8c398d977",
+      "size": 1024,
+      "availability": "missing",
+      "representation": "Synthetic placeholder metadata only; no media bytes generated or supplied."
+    },
+    {
+      "id": "asset:whisper",
+      "mediaType": "audio/wav",
+      "sha256": "sha256:96349f290cba7ea8e81ed0787343dbda5323db3b662f8717501ecaa28ec95012",
+      "size": 1024,
+      "availability": "missing",
+      "representation": "Synthetic placeholder metadata only; no media bytes generated or supplied."
+    },
+    {
+      "id": "asset:call",
+      "mediaType": "audio/wav",
+      "sha256": "sha256:2622795a36ba442f73765121295aa58993eccfbad3d51040040f98547ebe12af",
+      "size": 1024,
+      "availability": "missing",
+      "representation": "Synthetic placeholder metadata only; no media bytes generated or supplied."
+    },
+    {
+      "id": "asset:film",
+      "mediaType": "video/mp4",
+      "sha256": "sha256:b06977617ba2efbc060de4678e2cd518bcead3442dbcac82295c35d82d12edff",
+      "size": 1024,
+      "availability": "missing",
+      "representation": "Synthetic placeholder metadata only; no media bytes generated or supplied."
+    }
+  ],
+  "references": [
+    {
+      "id": "reference:mara-face",
+      "target": "expression:mara-photo",
+      "role": "visual-identity",
+      "description": "Intended identity reference; not established as effective."
+    },
+    {
+      "id": "reference:mara-neutral",
+      "target": "expression:light-neutral",
+      "role": "voice-identity",
+      "description": "Synthetic neutral-reference selection, not a cloned voice."
+    },
+    {
+      "id": "reference:mara-whisper",
+      "target": "expression:light-whisper",
+      "role": "vocal-delivery"
+    },
+    {
+      "id": "reference:mara-call",
+      "target": "expression:light-call",
+      "role": "vocal-delivery"
+    },
+    {
+      "id": "reference:film-start",
+      "target": "expression:mara-photo",
+      "role": "start-frame"
+    },
+    {
+      "id": "reference:film-speech",
+      "target": "expression:light-whisper",
+      "role": "supplied-performance",
+      "description": "Exact selected take intended, not merely a voice-style hint."
+    },
+    {
+      "id": "reference:film-place",
+      "target": "subject:mara-home",
+      "role": "environment"
+    }
+  ],
+  "judgments": [
+    {
+      "id": "judgment:continuity",
+      "target": "expression:mara-ink",
+      "criterion": "identity-continuity",
+      "kind": "human",
+      "actor": "Synthetic fixture reviewer; no real person reviewed media",
+      "evidence": [
+        "expression:mara-photo",
+        "expression:mara-ink"
+      ],
+      "context": "context:storybook",
+      "decision": "unresolved",
+      "note": "There are no images to compare; the link records intended continuity only."
+    },
+    {
+      "id": "judgment:observation",
+      "target": "expression:mara-photo",
+      "criterion": "visibility",
+      "kind": "observation",
+      "actor": "Synthetic fixture observer; no model was called",
+      "evidence": [
+        "expression:mara-photo"
+      ],
+      "observation": "Example observation text only; no image inspected."
+    },
+    {
+      "id": "judgment:measurement",
+      "target": "expression:mara-photo",
+      "criterion": "structural-example-score",
+      "kind": "measurement",
+      "actor": "Synthetic fixture measurement",
+      "evidence": [
+        "expression:mara-photo"
+      ],
+      "score": 0.5,
+      "instrument": "Not a real identity judge; fixture scalar",
+      "limits": "Synthetic metadata value only. No face, voice or behavior comparison performed."
+    }
+  ],
+  "bindings": [
+    {
+      "id": "binding:photo",
+      "subject": "subject:mara",
+      "model": {
+        "id": "fixture:image-a",
+        "revision": "synthetic-contract-0"
+      },
+      "capability": "image",
+      "mechanism": "description-and-reference",
+      "aspects": [
+        "aspect:mara-identity",
+        "aspect:mara-photo-look"
+      ],
+      "references": [],
+      "support": "declared"
+    },
+    {
+      "id": "binding:ink",
+      "subject": "subject:mara",
+      "model": {
+        "id": "fixture:image-b",
+        "revision": "synthetic-contract-0"
+      },
+      "capability": "image",
+      "mechanism": "reference-edit",
+      "aspects": [
+        "aspect:mara-identity",
+        "aspect:mara-ink-look"
+      ],
+      "references": [
+        "reference:mara-face"
+      ],
+      "support": "declared"
+    },
+    {
+      "id": "binding:speech",
+      "subject": "subject:mara",
+      "model": {
+        "id": "fixture:speech-a",
+        "revision": "synthetic-contract-0"
+      },
+      "capability": "speech",
+      "mechanism": "reference-clone",
+      "aspects": [
+        "aspect:mara-voice"
+      ],
+      "references": [
+        "reference:mara-neutral"
+      ],
+      "support": "declared"
+    },
+    {
+      "id": "binding:film",
+      "subject": "subject:mara",
+      "model": {
+        "id": "fixture:video-a",
+        "revision": "synthetic-contract-0"
+      },
+      "capability": "video",
+      "mechanism": "start-frame-and-supplied-performance",
+      "aspects": [
+        "aspect:mara-identity"
+      ],
+      "references": [
+        "reference:film-start",
+        "reference:film-speech",
+        "reference:film-place"
+      ],
+      "support": "declared"
+    },
+    {
+      "id": "binding:prompt",
+      "subject": "subject:mara",
+      "model": {
+        "id": "fixture:text-a",
+        "revision": "synthetic-contract-0"
+      },
+      "capability": "text",
+      "mechanism": "selected-character-aspects",
+      "aspects": [
+        "aspect:mara-communication"
+      ],
+      "references": [],
+      "support": "declared"
+    },
+    {
+      "id": "binding:neutral",
+      "subject": "subject:mara",
+      "model": {
+        "id": "fixture:speech-a",
+        "revision": "synthetic-contract-0"
+      },
+      "capability": "speech",
+      "mechanism": "description-voice",
+      "aspects": [
+        "aspect:mara-voice"
+      ],
+      "references": [],
+      "support": "declared"
+    }
+  ]
+}

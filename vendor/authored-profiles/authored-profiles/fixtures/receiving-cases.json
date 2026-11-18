@@ -1,0 +1,130 @@
+[
+  {
+    "id": "plc-archive-as-new",
+    "example": "minimal",
+    "target": "plc",
+    "purpose": "archive-as-new",
+    "expectedValue": null,
+    "expectedError": "purpose"
+  },
+  {
+    "id": "plc-reported-experience",
+    "example": "minimal",
+    "target": "plc",
+    "purpose": "reported-experience",
+    "expectedValue": null,
+    "expectedError": "purpose"
+  },
+  {
+    "id": "plc-attach-existing",
+    "example": "minimal",
+    "target": "plc",
+    "purpose": "attach-existing",
+    "expectedValue": null,
+    "expectedError": "purpose"
+  },
+  {
+    "id": "plc-move-authoritative-host",
+    "example": "minimal",
+    "target": "plc",
+    "purpose": "move-authoritative-host",
+    "expectedValue": null,
+    "expectedError": "purpose"
+  },
+  {
+    "id": "plc-metadata-neri",
+    "example": "neri",
+    "target": "plc",
+    "purpose": "fresh-design",
+    "mode": "metadata",
+    "expectedError": "missing-resource"
+  },
+  {
+    "id": "plc-metadata-bex",
+    "example": "bex",
+    "target": "plc",
+    "purpose": "fresh-design",
+    "mode": "metadata",
+    "expectedError": null
+  },
+  {
+    "id": "plc-required-prepared-neri",
+    "example": "neri",
+    "target": "plc",
+    "purpose": "fresh-design",
+    "mode": "required-prepared",
+    "expectedError": "required-aspect"
+  },
+  {
+    "id": "plc-required-festival-bex",
+    "example": "bex",
+    "target": "plc",
+    "purpose": "fresh-design",
+    "mode": "required-festival",
+    "expectedError": "required-profile"
+  },
+  {
+    "id": "sonalon-archive-as-new",
+    "example": "minimal",
+    "target": "sonalon",
+    "purpose": "archive-as-new",
+    "expectedValue": null,
+    "expectedError": "purpose"
+  },
+  {
+    "id": "sonalon-reported-experience",
+    "example": "minimal",
+    "target": "sonalon",
+    "purpose": "reported-experience",
+    "expectedValue": null,
+    "expectedError": "purpose"
+  },
+  {
+    "id": "sonalon-attach-existing",
+    "example": "minimal",
+    "target": "sonalon",
+    "purpose": "attach-existing",
+    "expectedValue": null,
+    "expectedError": "purpose"
+  },
+  {
+    "id": "sonalon-move-authoritative-host",
+    "example": "minimal",
+    "target": "sonalon",
+    "purpose": "move-authoritative-host",
+    "expectedValue": null,
+    "expectedError": "purpose"
+  },
+  {
+    "id": "sonalon-metadata-neri",
+    "example": "neri",
+    "target": "sonalon",
+    "purpose": "fresh-design",
+    "mode": "metadata",
+    "expectedError": "missing-resource"
+  },
+  {
+    "id": "sonalon-metadata-bex",
+    "example": "bex",
+    "target": "sonalon",
+    "purpose": "fresh-design",
+    "mode": "metadata",
+    "expectedError": null
+  },
+  {
+    "id": "sonalon-required-prepared-neri",
+    "example": "neri",
+    "target": "sonalon",
+    "purpose": "fresh-design",
+    "mode": "required-prepared",
+    "expectedError": "required-aspect"
+  },
+  {
+    "id": "sonalon-required-festival-bex",
+    "example": "bex",
+    "target": "sonalon",
+    "purpose": "fresh-design",
+    "mode": "required-festival",
+    "expectedError": "required-profile"
+  }
+]

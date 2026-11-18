@@ -1,0 +1,70 @@
+{
+  "aspectDefinitions": [
+    {
+      "id": "sonalon:design-metadata",
+      "version": "0",
+      "label": "design-metadata",
+      "definition": "Explicit receiving design identifiers and adult identity fields.",
+      "scopes": [
+        "subject",
+        "context"
+      ],
+      "schema": {
+        "type": "object"
+      }
+    },
+    {
+      "id": "sonalon:authored-sections",
+      "version": "0",
+      "label": "authored-sections",
+      "definition": "Explicit remaining Sonalon authored sections, not lived history.",
+      "scopes": [
+        "subject",
+        "context"
+      ],
+      "schema": {
+        "type": "object"
+      }
+    },
+    {
+      "id": "sonalon:voice-sections",
+      "version": "0",
+      "label": "voice-sections",
+      "definition": "Explicit receiver speech samples and voice habits.",
+      "scopes": [
+        "subject",
+        "context"
+      ],
+      "schema": {
+        "type": "object"
+      }
+    },
+    {
+      "id": "sonalon:start",
+      "version": "0",
+      "label": "start",
+      "definition": "Explicit authored initial state, projects and seeded memories.",
+      "scopes": [
+        "subject",
+        "context"
+      ],
+      "schema": {
+        "type": "object"
+      }
+    },
+    {
+      "id": "sonalon:place-metadata",
+      "version": "0",
+      "label": "place-metadata",
+      "definition": "Explicit sidecar metadata, room mappings and affordance details.",
+      "scopes": [
+        "subject",
+        "context"
+      ],
+      "schema": {
+        "type": "object"
+      }
+    }
+  ],
+  "profiles": []
+}

@@ -13,11 +13,11 @@ const TOOL='tools/vendor-check/vendor_check.py';
 const run=(args)=>spawnSync('python3',['-I',TOOL,...args],{encoding:'utf8',env:{...process.env,PYTHONDONTWRITEBYTECODE:'1'}});
 const lock=JSON.parse(readFileSync('vendor.lock.json','utf8'));
 
-test('the lock pins both components by an exact version and a package SHA-256',()=>{
+test('the lock pins every component by an exact version and a package SHA-256',()=>{
   assert.equal(lock.schema,'aiofourown-vendor-lock/1');
   const byName=Object.fromEntries(lock.components.map((c)=>[c.name,c]));
-  assert.deepEqual(Object.keys(byName).sort(),['model-runtime','vendor-check']);
-  for(const [name,owner,vendored] of [['model-runtime','plc','runtime/providers'],['vendor-check','devops','tools/vendor-check']]){
+  assert.deepEqual(Object.keys(byName).sort(),['authored-profiles','model-runtime','vendor-check']);
+  for(const [name,owner,vendored] of [['authored-profiles','cosmogenitor','vendor/authored-profiles'],['model-runtime','plc','runtime/providers'],['vendor-check','devops','tools/vendor-check']]){
     const c=byName[name];
     assert.equal(c.owner,owner);assert.equal(c.path,vendored);
     assert.match(c.version,/^\d+\.\d+\.\d+$/,name+': an exact version, never a range or latest');
@@ -27,7 +27,7 @@ test('the lock pins both components by an exact version and a package SHA-256',(
   }
 });
 
-test('every vendored file matches its pin: nothing edited, added or removed in runtime/providers or tools/vendor-check',()=>{
+test('every vendored file matches its pin: nothing edited, added or removed in runtime/providers, tools/vendor-check or vendor/authored-profiles',()=>{
   const r=run(['check','--root','.']);
   assert.equal(r.status,0,r.stdout+r.stderr);
 });

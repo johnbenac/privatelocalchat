@@ -8,7 +8,7 @@
   "SOURCE_DATE_EPOCH": "0",
   "SITE_DIR": ""
  },
- "fileCount": 212,
+ "fileCount": 213,
  "files": {
   "404.html": {
    "bytes": 101,
@@ -19,8 +19,8 @@
    "sha256": "0d96a4ff68ad6d4b6f1f30f713b18d5184912ba8dd389f86aa7710db079abcb0"
   },
   "THIRD-PARTY-NOTICES.md": {
-   "bytes": 9804,
-   "sha256": "2230fff88cbf1a567eb76c601fcb895c3bd5aea26ec324ed23b5bc16597832d9"
+   "bytes": 10296,
+   "sha256": "b4e7df855bdd0e00765651062ab860ee932addf1c023ea9412a18bdcb8b26983"
   },
   "_headers": {
    "bytes": 598,
@@ -289,6 +289,10 @@
   "releases/0000000000000000000000000000000000000000/chat/page.css": {
    "bytes": 21972,
    "sha256": "fba55f72d834d3263b82792ef27c0133236030cf5b7b9e2aaac0225f4d3a1034"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/presentation/open-bundle.mjs": {
+   "bytes": 5698,
+   "sha256": "7542b61417922f0eb3d235a8ecc95eae410cef5973d44323c1bdef6355fb2f1f"
   },
   "releases/0000000000000000000000000000000000000000/chat/presentation/view-model.mjs": {
    "bytes": 8682,
@@ -635,8 +639,8 @@
    "sha256": "54ab05c4b23c2e2ca8e7e698a5d2a156e4305fc08d3db4862869d9ae40c6344b"
   },
   "releases/0000000000000000000000000000000000000000/release.json": {
-   "bytes": 28150,
-   "sha256": "c5d895ea34efd0af488988b253579c859d101b1a5cd441147c3acb502c548c7f"
+   "bytes": 28305,
+   "sha256": "97f95d4028844bf0541ae63d115432b91c871143d1098cc9b20dd71de7f96687"
   },
   "releases/0000000000000000000000000000000000000000/runtime/auto-load.mjs": {
    "bytes": 565,
@@ -851,8 +855,8 @@
    "sha256": "802e46c9e6bf5a295ed08ff9debdd12d3d5c3b6f16d898ffac0ed6a7b40b06f4"
   },
   "sw.js": {
-   "bytes": 20932,
-   "sha256": "f3c01ac5b254887df9ee50eca29b7b2be6a6cb0cc4dafb45710214267310ad1c"
+   "bytes": 21019,
+   "sha256": "7a6b418de195aa7e994eb86220cf29842c566e5ad0228b2ac562286786daec1b"
   },
   "version.json": {
    "bytes": 170,

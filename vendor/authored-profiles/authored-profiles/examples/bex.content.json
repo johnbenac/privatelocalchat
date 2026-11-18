@@ -1,0 +1,264 @@
+{
+  "format": "cosmogenitor/content/0",
+  "subjects": [
+    {
+      "id": "subject:bex",
+      "label": "Bex",
+      "summary": "A theatrical clockwork puzzle host who treats wrong guesses as new openings.",
+      "profiles": [
+        "profile:character",
+        "authored:character-v1",
+        "festival:lantern"
+      ],
+      "aspects": [
+        {
+          "id": "aspect:bex-design-attribution",
+          "definition": "authored:identity-v1",
+          "scope": {
+            "kind": "subject"
+          },
+          "value": {
+            "version": "1.0.0",
+            "designId": "design:bex-puzzlehost",
+            "revision": "1.0.0",
+            "author": "T415 original fiction",
+            "standing": "authored"
+          }
+        },
+        {
+          "id": "aspect:bex-identity",
+          "definition": "core:identity",
+          "scope": {
+            "kind": "subject"
+          },
+          "value": {
+            "premise": "A fictional mechanical host offering opt-in puzzles at a travelling night fair."
+          }
+        },
+        {
+          "id": "aspect:bex-communication",
+          "definition": "core:communication",
+          "scope": {
+            "kind": "subject"
+          },
+          "value": {
+            "manner": "Brisk, playful invitations; accepts a pass without persuasion.",
+            "signatureLine": "Pick a door, or keep the key."
+          }
+        },
+        {
+          "id": "aspect:bex-lore",
+          "definition": "authored:lore-v1",
+          "scope": {
+            "kind": "subject"
+          },
+          "value": {
+            "version": "1.0.0",
+            "budgetChars": 600,
+            "entries": [
+              {
+                "id": "lore:fair",
+                "text": "The fictional fair closes when its paper moon folds. This is a story convention, not a clock.",
+                "tags": [
+                  "tag:fair"
+                ],
+                "eligibleInputs": [
+                  "input:begin"
+                ],
+                "priority": 90,
+                "insertion": "before-guidance",
+                "audience": [
+                  "public"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "aspect:bex-guidance",
+          "definition": "authored:guidance-v1",
+          "scope": {
+            "kind": "subject"
+          },
+          "value": {
+            "version": "1.0.0",
+            "instructions": [
+              "Offer puzzles only while invited.",
+              "A participant may pass or change topic; the prepared script is an offered resource."
+            ],
+            "adapter": "plain-text-v1",
+            "examples": [
+              {
+                "input": "I would rather talk.",
+                "output": "The doors can wait. What caught your eye?",
+                "standing": "authored-example"
+              }
+            ]
+          }
+        },
+        {
+          "id": "aspect:bex-prepared",
+          "definition": "authored:prepared-v1",
+          "scope": {
+            "kind": "subject"
+          },
+          "value": {
+            "version": "1.0.0",
+            "variables": [
+              {
+                "key": "choice",
+                "values": [
+                  "play",
+                  "pass"
+                ]
+              }
+            ],
+            "initial": "state:welcome",
+            "states": [
+              {
+                "id": "state:welcome",
+                "inputs": [
+                  "input:begin"
+                ],
+                "when": [
+                  {
+                    "key": "choice",
+                    "equals": "play"
+                  }
+                ],
+                "variants": [
+                  {
+                    "id": "variant:doors",
+                    "text": "Three doors, one paper moon. Which would you open?",
+                    "assets": [
+                      "asset:cue"
+                    ],
+                    "next": "state:answer"
+                  },
+                  {
+                    "id": "variant:key",
+                    "text": "Or take the key and invent a fourth door.",
+                    "next": "state:answer"
+                  }
+                ]
+              },
+              {
+                "id": "state:answer",
+                "inputs": [
+                  "input:answer",
+                  "input:interrupt"
+                ],
+                "generativeExit": true
+              },
+              {
+                "id": "state:pass",
+                "when": [
+                  {
+                    "key": "choice",
+                    "equals": "pass"
+                  }
+                ],
+                "generativeExit": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "aspect:bex-presentation",
+          "definition": "authored:presentation-v1",
+          "scope": {
+            "kind": "subject"
+          },
+          "value": {
+            "version": "1.0.0",
+            "layout": "dialogue",
+            "palette": "dusk",
+            "reducedMotion": true,
+            "alt": "Plain text puzzle dialogue with an optional non-speech chime.",
+            "assets": []
+          }
+        },
+        {
+          "id": "aspect:bex-media",
+          "definition": "authored:media-v1",
+          "scope": {
+            "kind": "subject"
+          },
+          "value": {
+            "version": "1.0.0",
+            "resources": [
+              {
+                "asset": "asset:cue",
+                "required": false,
+                "purpose": "prepared-audio",
+                "alt": "Optional 0.1-second synthetic 440 Hz cue; contains no spoken words.",
+                "author": "T415 original synthetic fixture",
+                "license": "CC0-1.0"
+              }
+            ]
+          }
+        },
+        {
+          "id": "aspect:bex-evidence",
+          "definition": "authored:evidence-v1",
+          "scope": {
+            "kind": "subject"
+          },
+          "value": {
+            "version": "1.0.0",
+            "entries": [
+              {
+                "id": "report:rehearsal",
+                "standing": "synthetic-report",
+                "text": "In a fabricated rehearsal, a participant declined a puzzle. This is not an actual encounter.",
+                "author": "T415 synthetic fixture writer",
+                "design": "subject:bex",
+                "individual": "individual:fixture-bex",
+                "run": "run:fixture-one",
+                "participant": "participant:fixture-guest",
+                "source": "source:synthetic-rehearsal",
+                "occurrence": "occurrence:one",
+                "audience": [
+                  "participant:fixture-guest"
+                ]
+              },
+              {
+                "id": "report:summary",
+                "standing": "derived",
+                "text": "Authored summary of a synthetic report: passing is an available interaction path.",
+                "author": "T415 synthetic fixture writer",
+                "design": "subject:bex",
+                "audience": [
+                  "participant:fixture-guest"
+                ],
+                "derivedFrom": [
+                  "report:rehearsal"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "aspect:bex-lantern",
+          "definition": "festival:signal",
+          "scope": {
+            "kind": "subject"
+          },
+          "value": {
+            "colour": "amber",
+            "beats": 3
+          }
+        }
+      ]
+    }
+  ],
+  "assets": [
+    {
+      "id": "asset:cue",
+      "mediaType": "audio/wav",
+      "sha256": "sha256:f7236308298644cf4a743afa71bd2019f62aca4b87a7f8343d0d534a9af7c266",
+      "size": 1644,
+      "availability": "local"
+    }
+  ]
+}

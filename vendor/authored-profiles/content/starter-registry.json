@@ -1,0 +1,988 @@
+{
+  "format": "cosmogenitor/content-registry/0",
+  "aspectDefinitions": [
+    {
+      "id": "core:identity",
+      "version": "0",
+      "label": "Identity",
+      "definition": "Names, premise and identity commitments for an authored being.",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "aliases": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            }
+          },
+          "premise": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "kindOfBeing": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "commitments": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            }
+          },
+          "freedoms": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            }
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "scopes": [
+        "subject",
+        "context",
+        "instance"
+      ],
+      "links": []
+    },
+    {
+      "id": "core:dossier",
+      "version": "0",
+      "label": "Dossier",
+      "definition": "The authored generative pattern of a character, not lived memory.",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "motive": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "contradiction": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "actsOnOthers": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "traits": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            }
+          },
+          "backstory": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "authorBackstory": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "scopes": [
+        "subject",
+        "context",
+        "instance"
+      ],
+      "links": [],
+      "privatePaths": [
+        "/authorBackstory"
+      ]
+    },
+    {
+      "id": "core:communication",
+      "version": "0",
+      "label": "Communication",
+      "definition": "How a character expresses themselves in words.",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "manner": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "signatureLine": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "soundsLike": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "neverSoundsLike": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "scopes": [
+        "subject",
+        "context",
+        "instance"
+      ],
+      "links": []
+    },
+    {
+      "id": "core:voice",
+      "version": "0",
+      "label": "Voice identity",
+      "definition": "Speaker description and selected references, separate from a delivery.",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "timbre": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "accent": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "pace": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "neutralReference": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+          },
+          "repertoire": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                },
+                "direction": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                },
+                "reference": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+                }
+              },
+              "required": [
+                "label"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "scopes": [
+        "subject",
+        "context",
+        "instance"
+      ],
+      "links": [
+        {
+          "path": "/neutralReference",
+          "collection": "references"
+        },
+        {
+          "path": "/repertoire/*/reference",
+          "collection": "references"
+        }
+      ]
+    },
+    {
+      "id": "core:look",
+      "version": "0",
+      "label": "Look development",
+      "definition": "Visual brief, commitments, studies and revisions in an explicit context.",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "brief": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "hypothesis": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "commitments": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            }
+          },
+          "freedoms": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            }
+          },
+          "studies": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+            },
+            "uniqueItems": true
+          },
+          "portrayals": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+            },
+            "uniqueItems": true
+          },
+          "revisions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "change": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                },
+                "preserved": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "\\S"
+                  }
+                },
+                "before": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+                },
+                "after": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+                },
+                "decision": {
+                  "enum": [
+                    "keep",
+                    "undo",
+                    "revise"
+                  ]
+                }
+              },
+              "required": [
+                "change",
+                "preserved"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "scopes": [
+        "subject",
+        "context",
+        "instance"
+      ],
+      "links": [
+        {
+          "path": "/studies/*",
+          "collection": "expressions"
+        },
+        {
+          "path": "/portrayals/*",
+          "collection": "expressions"
+        },
+        {
+          "path": "/revisions/*/before",
+          "collection": "expressions"
+        },
+        {
+          "path": "/revisions/*/after",
+          "collection": "expressions"
+        }
+      ]
+    },
+    {
+      "id": "core:relationship",
+      "version": "0",
+      "label": "Relational pattern",
+      "definition": "An authored pattern among named participants.",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "pattern": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "tensions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            }
+          },
+          "situations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                },
+                "description": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                }
+              },
+              "required": [
+                "name"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "scopes": [
+        "subject",
+        "context",
+        "instance"
+      ],
+      "links": []
+    },
+    {
+      "id": "core:aesthetic",
+      "version": "0",
+      "label": "Aesthetic",
+      "definition": "Reusable world intent and extensible creative domains.",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "intent": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "register": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "commitments": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            }
+          },
+          "domains": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+                },
+                "label": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                },
+                "definition": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                },
+                "principles": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "\\S"
+                  }
+                },
+                "boundaries": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "\\S"
+                  }
+                },
+                "diagnoses": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "\\S"
+                  }
+                },
+                "depictions": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "\\S"
+                  }
+                },
+                "judgments": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "\\S"
+                  }
+                },
+                "process": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "\\S"
+                  }
+                },
+                "method": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "\\S"
+                  }
+                },
+                "brief": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "\\S"
+                  }
+                },
+                "revision": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "\\S"
+                  }
+                },
+                "examples": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "\\S"
+                  }
+                },
+                "hypothesis": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                }
+              },
+              "required": [
+                "id",
+                "label",
+                "definition"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "scopes": [
+        "subject",
+        "context",
+        "instance"
+      ],
+      "links": [],
+      "localReferences": [
+        {
+          "ids": "/domains/*/id",
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "core:world",
+      "version": "0",
+      "label": "World",
+      "definition": "Authored conventions and connected places/cast without required geometry.",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "premise": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "rules": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            }
+          },
+          "places": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+            },
+            "uniqueItems": true
+          },
+          "cast": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+            },
+            "uniqueItems": true
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "scopes": [
+        "subject",
+        "context",
+        "instance"
+      ],
+      "links": [
+        {
+          "path": "/places/*",
+          "collection": "subjects"
+        },
+        {
+          "path": "/cast/*",
+          "collection": "subjects"
+        }
+      ]
+    },
+    {
+      "id": "core:place",
+      "version": "0",
+      "label": "Place structure",
+      "definition": "Meaningful spaces and connections, independently of geometry.",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "rooms": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+                },
+                "label": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                }
+              },
+              "required": [
+                "id",
+                "label"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "connections": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "from": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+                },
+                "to": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+                },
+                "via": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+                }
+              },
+              "required": [
+                "from",
+                "to"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "residents": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+            },
+            "uniqueItems": true
+          },
+          "geometry": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+            },
+            "uniqueItems": true
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "scopes": [
+        "subject",
+        "context",
+        "instance"
+      ],
+      "links": [
+        {
+          "path": "/residents/*",
+          "collection": "subjects"
+        },
+        {
+          "path": "/geometry/*",
+          "collection": "assets"
+        }
+      ],
+      "localReferences": [
+        {
+          "ids": "/rooms/*/id",
+          "references": [
+            "/connections/*/from",
+            "/connections/*/to"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "core:affordances",
+      "version": "0",
+      "label": "Affordances",
+      "definition": "Declared uses, conditions and effects; not current world state.",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+                },
+                "label": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                },
+                "uses": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "label": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "\\S"
+                      },
+                      "requires": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "pattern": "\\S"
+                        }
+                      },
+                      "effects": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "pattern": "\\S"
+                        }
+                      }
+                    },
+                    "required": [
+                      "label"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              },
+              "required": [
+                "id",
+                "label"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "scopes": [
+        "subject",
+        "context",
+        "instance"
+      ],
+      "links": [],
+      "localReferences": [
+        {
+          "ids": "/items/*/id",
+          "references": []
+        }
+      ]
+    },
+    {
+      "id": "core:utterance",
+      "version": "0",
+      "label": "Utterance",
+      "definition": "Intended words, speaker and dramatic context, not a performed event.",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "words": {
+            "type": "string"
+          },
+          "speaker": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+          },
+          "context": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "scopes": [
+        "subject",
+        "context",
+        "instance"
+      ],
+      "links": [
+        {
+          "path": "/speaker",
+          "collection": "subjects"
+        },
+        {
+          "path": "/context",
+          "collection": "contexts"
+        }
+      ]
+    },
+    {
+      "id": "core:performance",
+      "version": "0",
+      "label": "Performance",
+      "definition": "A particular delivery intent and selected take.",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "utterance": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+          },
+          "direction": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "speaker": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+          },
+          "take": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+          },
+          "alternatives": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9.-]*:[A-Za-z0-9][A-Za-z0-9._/-]*$"
+            },
+            "uniqueItems": true
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "scopes": [
+        "subject",
+        "context",
+        "instance"
+      ],
+      "links": [
+        {
+          "path": "/utterance",
+          "collection": "subjects"
+        },
+        {
+          "path": "/speaker",
+          "collection": "subjects"
+        },
+        {
+          "path": "/take",
+          "collection": "expressions"
+        },
+        {
+          "path": "/alternatives/*",
+          "collection": "expressions"
+        }
+      ]
+    }
+  ],
+  "profiles": [
+    {
+      "id": "profile:character",
+      "version": "0",
+      "label": "Character",
+      "definition": "An authored being; a name and line can be enough to start.",
+      "aspects": [
+        "core:identity",
+        "core:dossier",
+        "core:communication",
+        "core:voice",
+        "core:look"
+      ],
+      "extends": []
+    },
+    {
+      "id": "profile:relationship",
+      "version": "0",
+      "label": "Relationship",
+      "definition": "An authored relational pattern with participant roles.",
+      "aspects": [
+        "core:relationship"
+      ],
+      "extends": []
+    },
+    {
+      "id": "profile:aesthetic",
+      "version": "0",
+      "label": "Aesthetic",
+      "definition": "Reusable creative guidance for worlds and portrayals.",
+      "aspects": [
+        "core:aesthetic"
+      ],
+      "extends": []
+    },
+    {
+      "id": "profile:world",
+      "version": "0",
+      "label": "World",
+      "definition": "A context of conventions, places and a cast.",
+      "aspects": [
+        "core:world"
+      ],
+      "extends": []
+    },
+    {
+      "id": "profile:building",
+      "version": "0",
+      "label": "Building",
+      "definition": "A place with spatial and material expressions.",
+      "aspects": [
+        "core:place",
+        "core:affordances"
+      ],
+      "extends": []
+    },
+    {
+      "id": "profile:residence",
+      "version": "0",
+      "label": "Residence",
+      "definition": "A place related to those who live there.",
+      "aspects": [],
+      "extends": [
+        "profile:building"
+      ]
+    },
+    {
+      "id": "profile:utterance",
+      "version": "0",
+      "label": "Utterance",
+      "definition": "Intended words associated with a speaker and context.",
+      "aspects": [
+        "core:utterance"
+      ],
+      "extends": []
+    },
+    {
+      "id": "profile:performance",
+      "version": "0",
+      "label": "Performance",
+      "definition": "A situated delivery and its realized take.",
+      "aspects": [
+        "core:performance"
+      ],
+      "extends": []
+    }
+  ]
+}

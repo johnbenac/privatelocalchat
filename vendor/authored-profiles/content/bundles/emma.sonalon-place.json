@@ -1,0 +1,2277 @@
+{
+  "format": "world-sidecar/1",
+  "contractVersion": "0.1.0",
+  "location": {
+    "id": "private-commons-bungalow-skeleton",
+    "namespace": "private-commons-bungalow",
+    "name": "The bungalow by the sea (skeleton)",
+    "description": "A semantic-only stand-in for the bungalow home build (WLD-05a). It exists so that the resident record and the fabric can resolve every thing they need before the house is built, and as the list of what the real sidecar must contain. The plan (a small invented layout: the kitchen in the south with the bench to its east and the bedroom to its north) only gives the anchors positions; the ids, classes, states and uses of the required items are the agreement. The real sidecar keeps these ids.",
+    "version": "0.2.0",
+    "status": "placeholder",
+    "units": "metres",
+    "frame": {
+      "axes": "+X forward, +Y left, +Z up",
+      "zero": "finished floor of the lowest level",
+      "north": [
+        0,
+        1
+      ]
+    }
+  },
+  "levels": [
+    {
+      "id": "ground-floor",
+      "designation": {
+        "name": "ground floor"
+      },
+      "elevation": 0
+    }
+  ],
+  "rooms": [
+    {
+      "id": "kitchen",
+      "designation": {
+        "name": "kitchen",
+        "description": "The real front room of the house: a table where two people sit side by side as easily as across, and a window over the sink."
+      },
+      "kind": "kitchen",
+      "level": "ground-floor",
+      "bounds": {
+        "polygon": [
+          [
+            0,
+            0
+          ],
+          [
+            5,
+            0
+          ],
+          [
+            5,
+            4
+          ],
+          [
+            0,
+            4
+          ]
+        ],
+        "floorZ": 0,
+        "height": 2.6
+      }
+    },
+    {
+      "id": "workbench-area",
+      "designation": {
+        "name": "workbench",
+        "aliases": [
+          "the bench"
+        ],
+        "description": "A shared work surface in daily use, with room to stand or sit at it. An area, not necessarily a room of its own."
+      },
+      "kind": "workroom",
+      "level": "ground-floor",
+      "bounds": {
+        "polygon": [
+          [
+            5.2,
+            0
+          ],
+          [
+            8.2,
+            0
+          ],
+          [
+            8.2,
+            4
+          ],
+          [
+            5.2,
+            4
+          ]
+        ],
+        "floorZ": 0,
+        "height": 2.6
+      }
+    },
+    {
+      "id": "bedroom",
+      "designation": {
+        "name": "bedroom",
+        "description": "A quiet room with a window to the north, a chest of drawers and a bed."
+      },
+      "kind": "bedroom",
+      "level": "ground-floor",
+      "bounds": {
+        "polygon": [
+          [
+            0,
+            4.2
+          ],
+          [
+            5,
+            4.2
+          ],
+          [
+            5,
+            8.2
+          ],
+          [
+            0,
+            8.2
+          ]
+        ],
+        "floorZ": 0,
+        "height": 2.6
+      }
+    }
+  ],
+  "connections": [
+    {
+      "id": "conn.kitchen-bench",
+      "kind": "opening",
+      "passage": {
+        "requires": [
+          "walk"
+        ]
+      },
+      "anchors": [
+        "at.kitchen-bench.in-kitchen",
+        "at.kitchen-bench.in-bench"
+      ],
+      "between": [
+        "kitchen",
+        "workbench-area"
+      ]
+    },
+    {
+      "id": "conn.kitchen-bedroom",
+      "kind": "door",
+      "via": "bedroom-door",
+      "gate": {},
+      "passage": {
+        "requires": [
+          "walk"
+        ]
+      },
+      "anchors": [
+        "at.bedroom-door.in-kitchen",
+        "at.bedroom-door.in-bedroom"
+      ],
+      "between": [
+        "kitchen",
+        "bedroom"
+      ]
+    },
+    {
+      "id": "conn.front",
+      "kind": "door",
+      "between": [
+        "kitchen",
+        "outside"
+      ],
+      "via": "front-door",
+      "gate": {
+        "openVar": "open",
+        "lockVar": "locked"
+      },
+      "passage": {
+        "requires": [
+          "walk"
+        ]
+      },
+      "travel": {
+        "location": "coastal-neighbourhood",
+        "mode": "walk",
+        "duration": 90
+      },
+      "anchors": [
+        "at.front-door.in-kitchen",
+        null
+      ]
+    }
+  ],
+  "items": [
+    {
+      "id": "front-door",
+      "class": "door",
+      "virtual": true,
+      "designation": {
+        "name": "front door",
+        "description": "A plain painted door to the lane."
+      },
+      "location": {
+        "room": "kitchen"
+      },
+      "state": {
+        "open": {
+          "type": "boolean",
+          "initial": false
+        },
+        "locked": {
+          "type": "boolean",
+          "initial": false
+        }
+      }
+    },
+    {
+      "id": "bedroom-door",
+      "class": "door",
+      "virtual": true,
+      "designation": {
+        "name": "bedroom door"
+      },
+      "location": {
+        "room": "kitchen"
+      },
+      "state": {
+        "open": {
+          "type": "boolean",
+          "initial": true
+        }
+      }
+    },
+    {
+      "id": "kitchen-faucet",
+      "class": "sink",
+      "virtual": true,
+      "tags": [
+        "drinking-water"
+      ],
+      "designation": {
+        "name": "kitchen tap",
+        "aliases": [
+          "the tap",
+          "the sink"
+        ],
+        "description": "A mixer tap over a deep single sink. The water runs cold and clean and is safe to drink."
+      },
+      "location": {
+        "room": "kitchen"
+      }
+    },
+    {
+      "id": "kitchen-table",
+      "class": "table",
+      "virtual": true,
+      "designation": {
+        "name": "kitchen table",
+        "description": "A plain table where two people can sit side by side as easily as across."
+      },
+      "location": {
+        "room": "kitchen"
+      }
+    },
+    {
+      "id": "kitchen-chair-1",
+      "class": "seat",
+      "virtual": true,
+      "designation": {
+        "name": "kitchen chair",
+        "description": "A plain wooden chair at the kitchen table."
+      },
+      "location": {
+        "room": "kitchen"
+      }
+    },
+    {
+      "id": "kitchen-chair-2",
+      "class": "seat",
+      "virtual": true,
+      "designation": {
+        "name": "kitchen chair",
+        "description": "A plain wooden chair at the kitchen table."
+      },
+      "location": {
+        "room": "kitchen"
+      }
+    },
+    {
+      "id": "kitchen-cabinet-upper-east",
+      "class": "cabinet",
+      "virtual": true,
+      "tags": [
+        "tableware",
+        "upper",
+        "east"
+      ],
+      "designation": {
+        "name": "tableware cupboard",
+        "aliases": [
+          "the cupboard",
+          "the glasses cupboard"
+        ],
+        "description": "A plain, everyday cupboard fixed high on the east wall of the kitchen. Nothing precious is kept in it."
+      },
+      "location": {
+        "room": "kitchen"
+      },
+      "state": {
+        "open": {
+          "type": "boolean",
+          "initial": false
+        }
+      },
+      "container": {
+        "kind": "closed",
+        "gatedBy": "open",
+        "contents": "authored"
+      }
+    },
+    {
+      "id": "kitchen-glass-1",
+      "class": "glass",
+      "virtual": true,
+      "designation": {
+        "name": "drinking glass",
+        "aliases": [
+          "a glass"
+        ],
+        "description": "A plain, everyday drinking glass."
+      },
+      "location": {
+        "room": "kitchen",
+        "in": "kitchen-cabinet-upper-east"
+      },
+      "state": {
+        "contents": {
+          "type": "enum",
+          "values": [
+            "empty",
+            "half",
+            "full"
+          ],
+          "initial": "empty"
+        }
+      }
+    },
+    {
+      "id": "kitchen-glass-2",
+      "class": "glass",
+      "virtual": true,
+      "designation": {
+        "name": "drinking glass",
+        "aliases": [
+          "a glass"
+        ],
+        "description": "A plain, everyday drinking glass."
+      },
+      "location": {
+        "room": "kitchen",
+        "in": "kitchen-cabinet-upper-east"
+      },
+      "state": {
+        "contents": {
+          "type": "enum",
+          "values": [
+            "empty",
+            "half",
+            "full"
+          ],
+          "initial": "empty"
+        }
+      }
+    },
+    {
+      "id": "kitchen-glass-3",
+      "class": "glass",
+      "virtual": true,
+      "designation": {
+        "name": "drinking glass",
+        "aliases": [
+          "a glass"
+        ],
+        "description": "A plain, everyday drinking glass."
+      },
+      "location": {
+        "room": "kitchen",
+        "in": "kitchen-cabinet-upper-east"
+      },
+      "state": {
+        "contents": {
+          "type": "enum",
+          "values": [
+            "empty",
+            "half",
+            "full"
+          ],
+          "initial": "empty"
+        }
+      }
+    },
+    {
+      "id": "kitchen-glass-4",
+      "class": "glass",
+      "virtual": true,
+      "designation": {
+        "name": "drinking glass",
+        "aliases": [
+          "a glass"
+        ],
+        "description": "A plain, everyday drinking glass."
+      },
+      "location": {
+        "room": "kitchen",
+        "in": "kitchen-cabinet-upper-east"
+      },
+      "state": {
+        "contents": {
+          "type": "enum",
+          "values": [
+            "empty",
+            "half",
+            "full"
+          ],
+          "initial": "empty"
+        }
+      }
+    },
+    {
+      "id": "bedroom-window-north",
+      "class": "window",
+      "virtual": true,
+      "tags": [
+        "casement",
+        "north-facing"
+      ],
+      "designation": {
+        "name": "north window",
+        "aliases": [
+          "the bedroom window"
+        ],
+        "description": "A casement window set in the north wall; it swings in on a hinge and has a catch."
+      },
+      "location": {
+        "room": "bedroom"
+      },
+      "state": {
+        "open": {
+          "type": "boolean",
+          "initial": false
+        },
+        "locked": {
+          "type": "boolean",
+          "initial": false
+        }
+      }
+    },
+    {
+      "id": "bedroom-chest",
+      "class": "cabinet",
+      "virtual": true,
+      "designation": {
+        "name": "chest of drawers",
+        "aliases": [
+          "the chest"
+        ],
+        "description": "A low chest of drawers in dark wood, worn pale where hands rest on the top."
+      },
+      "location": {
+        "room": "bedroom"
+      },
+      "container": {
+        "kind": "open",
+        "contents": "authored"
+      }
+    },
+    {
+      "id": "bedroom-chest-top-drawer",
+      "class": "cabinet",
+      "virtual": true,
+      "designation": {
+        "name": "top drawer",
+        "description": "The top drawer of the chest. It sticks a little."
+      },
+      "location": {
+        "room": "bedroom",
+        "in": "bedroom-chest"
+      },
+      "state": {
+        "open": {
+          "type": "boolean",
+          "initial": false
+        }
+      },
+      "container": {
+        "kind": "closed",
+        "gatedBy": "open",
+        "contents": "authored"
+      }
+    },
+    {
+      "id": "grandmothers-wedding-ring",
+      "class": "object",
+      "virtual": true,
+      "tags": [
+        "heirloom"
+      ],
+      "designation": {
+        "name": "Grandmother's wedding ring",
+        "aliases": [
+          "the ring"
+        ],
+        "description": "A thin gold band, softened by long wear."
+      },
+      "location": {
+        "room": "bedroom",
+        "in": "bedroom-chest-top-drawer"
+      },
+      "ownership": {
+        "holder": "resident-1",
+        "policy": {
+          "take": "holder-or-invited"
+        }
+      }
+    },
+    {
+      "id": "workbench",
+      "class": "table",
+      "virtual": true,
+      "tags": [
+        "workbench"
+      ],
+      "designation": {
+        "name": "workbench",
+        "aliases": [
+          "the bench"
+        ],
+        "description": "A long, solid work surface with a second seat beside the first, for doing rather than watching."
+      },
+      "location": {
+        "room": "workbench-area"
+      }
+    },
+    {
+      "id": "bench-stool",
+      "class": "seat",
+      "virtual": true,
+      "designation": {
+        "name": "stool",
+        "description": "A tall stool pulled up to the workbench."
+      },
+      "location": {
+        "room": "workbench-area"
+      }
+    },
+    {
+      "id": "workbench-lamp",
+      "class": "light",
+      "virtual": true,
+      "designation": {
+        "name": "bench lamp",
+        "description": "An adjustable lamp clamped to the edge of the workbench."
+      },
+      "location": {
+        "room": "workbench-area",
+        "on": "workbench"
+      },
+      "state": {
+        "power": {
+          "type": "enum",
+          "values": [
+            "off",
+            "on"
+          ],
+          "initial": "off"
+        }
+      }
+    },
+    {
+      "id": "local-computer",
+      "class": "computer",
+      "virtual": true,
+      "designation": {
+        "name": "computer",
+        "aliases": [
+          "her computer",
+          "the machine"
+        ],
+        "description": "A plain desktop machine, switched on, with its screen facing the seat. The case can be opened and nothing inside is sealed or hidden."
+      },
+      "location": {
+        "room": "workbench-area",
+        "on": "workbench"
+      },
+      "state": {
+        "power": {
+          "type": "enum",
+          "values": [
+            "off",
+            "on"
+          ],
+          "initial": "on"
+        },
+        "open": {
+          "type": "boolean",
+          "initial": false,
+          "description": "the case is open and its parts can be seen"
+        }
+      },
+      "externalState": {
+        "ref": "local-computer",
+        "kind": "computer",
+        "editableByHuman": false,
+        "summary": "A working machine with her own files and a messaging program."
+      }
+    }
+  ],
+  "affordances": [
+    {
+      "id": "front-door.open",
+      "kind": "open",
+      "item": "front-door",
+      "label": "open the front door",
+      "requires": {
+        "capabilities": [
+          "grasp"
+        ],
+        "conditions": [
+          {
+            "kind": "state",
+            "item": "@self",
+            "var": "locked",
+            "is": false,
+            "unmet": "The door is locked."
+          },
+          {
+            "kind": "state",
+            "item": "@self",
+            "var": "open",
+            "is": false,
+            "unmet": "The door is already open."
+          }
+        ]
+      },
+      "effects": [
+        {
+          "op": "set",
+          "item": "@self",
+          "var": "open",
+          "to": true
+        },
+        {
+          "op": "emit",
+          "modality": "hearing",
+          "signal": "a door swinging open",
+          "loudness": "soft",
+          "reach": "house"
+        }
+      ],
+      "done": "You open the front door.",
+      "approach": [
+        "at.front-door.in-kitchen"
+      ]
+    },
+    {
+      "id": "front-door.close",
+      "kind": "close",
+      "item": "front-door",
+      "label": "close the front door",
+      "requires": {
+        "capabilities": [
+          "grasp"
+        ],
+        "conditions": [
+          {
+            "kind": "state",
+            "item": "@self",
+            "var": "open",
+            "is": true,
+            "unmet": "The door is already shut."
+          }
+        ]
+      },
+      "effects": [
+        {
+          "op": "set",
+          "item": "@self",
+          "var": "open",
+          "to": false
+        },
+        {
+          "op": "emit",
+          "modality": "hearing",
+          "signal": "a door closing",
+          "loudness": "soft",
+          "reach": "house"
+        }
+      ],
+      "done": "You close the front door.",
+      "approach": [
+        "at.front-door.in-kitchen"
+      ]
+    },
+    {
+      "id": "bedroom-door.close",
+      "kind": "close",
+      "item": "bedroom-door",
+      "label": "close the bedroom door",
+      "requires": {
+        "capabilities": [
+          "grasp"
+        ],
+        "conditions": [
+          {
+            "kind": "state",
+            "item": "@self",
+            "var": "open",
+            "is": true,
+            "unmet": "The door is already shut."
+          }
+        ]
+      },
+      "effects": [
+        {
+          "op": "set",
+          "item": "@self",
+          "var": "open",
+          "to": false
+        }
+      ],
+      "done": "You close the bedroom door.",
+      "approach": [
+        "at.bedroom-door.in-kitchen",
+        "at.bedroom-door.in-bedroom"
+      ]
+    },
+    {
+      "id": "bedroom-door.open",
+      "kind": "open",
+      "item": "bedroom-door",
+      "label": "open the bedroom door",
+      "requires": {
+        "capabilities": [
+          "grasp"
+        ],
+        "conditions": [
+          {
+            "kind": "state",
+            "item": "@self",
+            "var": "open",
+            "is": false,
+            "unmet": "The door is already open."
+          }
+        ]
+      },
+      "effects": [
+        {
+          "op": "set",
+          "item": "@self",
+          "var": "open",
+          "to": true
+        }
+      ],
+      "done": "You open the bedroom door.",
+      "approach": [
+        "at.bedroom-door.in-kitchen",
+        "at.bedroom-door.in-bedroom"
+      ]
+    },
+    {
+      "id": "kitchen-faucet.wash",
+      "kind": "wash",
+      "item": "kitchen-faucet",
+      "label": "wash your hands at the kitchen tap",
+      "requires": {
+        "capabilities": [
+          "grasp"
+        ]
+      },
+      "effects": [
+        {
+          "op": "emit",
+          "modality": "hearing",
+          "signal": "running water",
+          "loudness": "soft",
+          "reach": "room"
+        }
+      ],
+      "duration": 10,
+      "done": "You wash your hands at the tap.",
+      "approach": [
+        "at.kitchen-faucet.stand"
+      ]
+    },
+    {
+      "id": "kitchen-faucet.fill",
+      "kind": "fill",
+      "item": "kitchen-faucet",
+      "label": "fill {target} at the kitchen tap",
+      "requires": {
+        "capabilities": [
+          "grasp"
+        ],
+        "conditions": [
+          {
+            "kind": "holding",
+            "class": "glass",
+            "unmet": "You have nothing to fill."
+          }
+        ]
+      },
+      "effects": [
+        {
+          "op": "emit",
+          "modality": "hearing",
+          "signal": "water running into a glass",
+          "loudness": "soft",
+          "reach": "room",
+          "phase": "start"
+        },
+        {
+          "op": "set",
+          "item": "@held",
+          "var": "contents",
+          "to": "full",
+          "phase": "end"
+        }
+      ],
+      "duration": 10,
+      "done": "You fill it at the tap.",
+      "approach": [
+        "at.kitchen-faucet.stand"
+      ]
+    },
+    {
+      "id": "kitchen-cabinet-upper-east.open",
+      "kind": "open",
+      "item": "kitchen-cabinet-upper-east",
+      "label": "open the tableware cupboard",
+      "requires": {
+        "capabilities": [
+          "reach",
+          "grasp"
+        ],
+        "conditions": [
+          {
+            "kind": "state",
+            "item": "@self",
+            "var": "open",
+            "is": false,
+            "unmet": "The cupboard is already open."
+          }
+        ]
+      },
+      "effects": [
+        {
+          "op": "set",
+          "item": "@self",
+          "var": "open",
+          "to": true
+        },
+        {
+          "op": "emit",
+          "modality": "hearing",
+          "signal": "a cupboard door opening",
+          "loudness": "faint",
+          "reach": "room"
+        }
+      ],
+      "done": "You open the tableware cupboard.",
+      "approach": [
+        "at.kitchen-cabinet-upper-east.stand"
+      ]
+    },
+    {
+      "id": "kitchen-cabinet-upper-east.close",
+      "kind": "close",
+      "item": "kitchen-cabinet-upper-east",
+      "label": "close the tableware cupboard",
+      "requires": {
+        "capabilities": [
+          "reach",
+          "grasp"
+        ],
+        "conditions": [
+          {
+            "kind": "state",
+            "item": "@self",
+            "var": "open",
+            "is": true,
+            "unmet": "The cupboard is already shut."
+          }
+        ]
+      },
+      "effects": [
+        {
+          "op": "set",
+          "item": "@self",
+          "var": "open",
+          "to": false
+        },
+        {
+          "op": "emit",
+          "modality": "hearing",
+          "signal": "a cupboard door closing",
+          "loudness": "faint",
+          "reach": "room"
+        }
+      ],
+      "done": "You close the tableware cupboard.",
+      "approach": [
+        "at.kitchen-cabinet-upper-east.stand"
+      ]
+    },
+    {
+      "id": "kitchen-cabinet-upper-east.take-from",
+      "kind": "take-from",
+      "item": "kitchen-cabinet-upper-east",
+      "label": "take {target} out of the tableware cupboard",
+      "requires": {
+        "capabilities": [
+          "reach",
+          "grasp",
+          "carry"
+        ],
+        "conditions": [
+          {
+            "kind": "state",
+            "item": "@self",
+            "var": "open",
+            "is": true,
+            "unmet": "The cupboard is shut."
+          },
+          {
+            "kind": "contents",
+            "item": "@self",
+            "empty": false,
+            "unmet": "There is nothing in it."
+          }
+        ]
+      },
+      "effects": [
+        {
+          "op": "move",
+          "item": "@target",
+          "to": {
+            "held": true
+          }
+        }
+      ],
+      "done": "You take it out of the cupboard.",
+      "approach": [
+        "at.kitchen-cabinet-upper-east.stand"
+      ]
+    },
+    {
+      "id": "kitchen-cabinet-upper-east.put-in",
+      "kind": "put-in",
+      "item": "kitchen-cabinet-upper-east",
+      "label": "put {target} in the tableware cupboard",
+      "requires": {
+        "capabilities": [
+          "reach",
+          "grasp"
+        ],
+        "conditions": [
+          {
+            "kind": "state",
+            "item": "@self",
+            "var": "open",
+            "is": true,
+            "unmet": "The cupboard is shut."
+          },
+          {
+            "kind": "holding",
+            "any": true,
+            "unmet": "You are not holding anything."
+          }
+        ]
+      },
+      "effects": [
+        {
+          "op": "move",
+          "item": "@held",
+          "to": {
+            "in": "@self"
+          }
+        }
+      ],
+      "done": "You put it in the cupboard.",
+      "approach": [
+        "at.kitchen-cabinet-upper-east.stand"
+      ]
+    },
+    {
+      "id": "kitchen-glass-1.drink",
+      "kind": "drink",
+      "item": "kitchen-glass-1",
+      "label": "drink from the glass",
+      "requires": {
+        "capabilities": [
+          "grasp"
+        ],
+        "conditions": [
+          {
+            "kind": "holding",
+            "item": "@self",
+            "unmet": "You are not holding the glass."
+          },
+          {
+            "kind": "state",
+            "item": "@self",
+            "var": "contents",
+            "isNot": "empty",
+            "unmet": "The glass is empty."
+          }
+        ]
+      },
+      "effects": [
+        {
+          "op": "set",
+          "item": "@self",
+          "var": "contents",
+          "to": "empty",
+          "phase": "end"
+        },
+        {
+          "op": "body",
+          "adjust": {
+            "thirst": -0.5
+          },
+          "phase": "end"
+        }
+      ],
+      "duration": 15,
+      "done": "You drink from the glass."
+    },
+    {
+      "id": "kitchen-glass-2.drink",
+      "kind": "drink",
+      "item": "kitchen-glass-2",
+      "label": "drink from the glass",
+      "requires": {
+        "capabilities": [
+          "grasp"
+        ],
+        "conditions": [
+          {
+            "kind": "holding",
+            "item": "@self",
+            "unmet": "You are not holding the glass."
+          },
+          {
+            "kind": "state",
+            "item": "@self",
+            "var": "contents",
+            "isNot": "empty",
+            "unmet": "The glass is empty."
+          }
+        ]
+      },
+      "effects": [
+        {
+          "op": "set",
+          "item": "@self",
+          "var": "contents",
+          "to": "empty",
+          "phase": "end"
+        },
+        {
+          "op": "body",
+          "adjust": {
+            "thirst": -0.5
+          },
+          "phase": "end"
+        }
+      ],
+      "duration": 15,
+      "done": "You drink from the glass."
+    },
+    {
+      "id": "kitchen-glass-3.drink",
+      "kind": "drink",
+      "item": "kitchen-glass-3",
+      "label": "drink from the glass",
+      "requires": {
+        "capabilities": [
+          "grasp"
+        ],
+        "conditions": [
+          {
+            "kind": "holding",
+            "item": "@self",
+            "unmet": "You are not holding the glass."
+          },
+          {
+            "kind": "state",
+            "item": "@self",
+            "var": "contents",
+            "isNot": "empty",
+            "unmet": "The glass is empty."
+          }
+        ]
+      },
+      "effects": [
+        {
+          "op": "set",
+          "item": "@self",
+          "var": "contents",
+          "to": "empty",
+          "phase": "end"
+        },
+        {
+          "op": "body",
+          "adjust": {
+            "thirst": -0.5
+          },
+          "phase": "end"
+        }
+      ],
+      "duration": 15,
+      "done": "You drink from the glass."
+    },
+    {
+      "id": "kitchen-glass-4.drink",
+      "kind": "drink",
+      "item": "kitchen-glass-4",
+      "label": "drink from the glass",
+      "requires": {
+        "capabilities": [
+          "grasp"
+        ],
+        "conditions": [
+          {
+            "kind": "holding",
+            "item": "@self",
+            "unmet": "You are not holding the glass."
+          },
+          {
+            "kind": "state",
+            "item": "@self",
+            "var": "contents",
+            "isNot": "empty",
+            "unmet": "The glass is empty."
+          }
+        ]
+      },
+      "effects": [
+        {
+          "op": "set",
+          "item": "@self",
+          "var": "contents",
+          "to": "empty",
+          "phase": "end"
+        },
+        {
+          "op": "body",
+          "adjust": {
+            "thirst": -0.5
+          },
+          "phase": "end"
+        }
+      ],
+      "duration": 15,
+      "done": "You drink from the glass."
+    },
+    {
+      "id": "bedroom-window-north.open",
+      "kind": "open",
+      "item": "bedroom-window-north",
+      "label": "open the north window",
+      "requires": {
+        "capabilities": [
+          "grasp"
+        ],
+        "conditions": [
+          {
+            "kind": "state",
+            "item": "@self",
+            "var": "locked",
+            "is": false,
+            "unmet": "The window is latched."
+          },
+          {
+            "kind": "state",
+            "item": "@self",
+            "var": "open",
+            "is": false,
+            "unmet": "The window is already open."
+          }
+        ]
+      },
+      "effects": [
+        {
+          "op": "set",
+          "item": "@self",
+          "var": "open",
+          "to": true
+        },
+        {
+          "op": "emit",
+          "modality": "hearing",
+          "signal": "a window swinging open",
+          "loudness": "soft",
+          "reach": "room"
+        }
+      ],
+      "done": "You open the north window.",
+      "approach": [
+        "at.bedroom-window-north.stand"
+      ]
+    },
+    {
+      "id": "bedroom-window-north.close",
+      "kind": "close",
+      "item": "bedroom-window-north",
+      "label": "close the north window",
+      "requires": {
+        "capabilities": [
+          "grasp"
+        ],
+        "conditions": [
+          {
+            "kind": "state",
+            "item": "@self",
+            "var": "open",
+            "is": true,
+            "unmet": "The window is already shut."
+          }
+        ]
+      },
+      "effects": [
+        {
+          "op": "set",
+          "item": "@self",
+          "var": "open",
+          "to": false
+        },
+        {
+          "op": "emit",
+          "modality": "hearing",
+          "signal": "a window closing",
+          "loudness": "soft",
+          "reach": "room"
+        }
+      ],
+      "done": "You close the north window.",
+      "approach": [
+        "at.bedroom-window-north.stand"
+      ]
+    },
+    {
+      "id": "bedroom-window-north.lock",
+      "kind": "lock",
+      "item": "bedroom-window-north",
+      "label": "latch the north window",
+      "requires": {
+        "capabilities": [
+          "grasp"
+        ],
+        "conditions": [
+          {
+            "kind": "state",
+            "item": "@self",
+            "var": "open",
+            "is": false,
+            "unmet": "Close the window first."
+          },
+          {
+            "kind": "state",
+            "item": "@self",
+            "var": "locked",
+            "is": false,
+            "unmet": "The window is already latched."
+          }
+        ]
+      },
+      "effects": [
+        {
+          "op": "set",
+          "item": "@self",
+          "var": "locked",
+          "to": true
+        },
+        {
+          "op": "emit",
+          "modality": "hearing",
+          "signal": "a catch snapping shut",
+          "loudness": "faint",
+          "reach": "room"
+        }
+      ],
+      "done": "You latch the north window.",
+      "approach": [
+        "at.bedroom-window-north.stand"
+      ]
+    },
+    {
+      "id": "bedroom-window-north.unlock",
+      "kind": "unlock",
+      "item": "bedroom-window-north",
+      "label": "unlatch the north window",
+      "requires": {
+        "capabilities": [
+          "grasp"
+        ],
+        "conditions": [
+          {
+            "kind": "state",
+            "item": "@self",
+            "var": "locked",
+            "is": true,
+            "unmet": "The window is not latched."
+          }
+        ]
+      },
+      "effects": [
+        {
+          "op": "set",
+          "item": "@self",
+          "var": "locked",
+          "to": false
+        },
+        {
+          "op": "emit",
+          "modality": "hearing",
+          "signal": "a catch being lifted",
+          "loudness": "faint",
+          "reach": "room"
+        }
+      ],
+      "done": "You unlatch the north window.",
+      "approach": [
+        "at.bedroom-window-north.stand"
+      ]
+    },
+    {
+      "id": "bedroom-window-north.look-through",
+      "kind": "look-through",
+      "item": "bedroom-window-north",
+      "label": "look out of the north window",
+      "requires": {
+        "capabilities": [
+          "see"
+        ]
+      },
+      "done": "You look out of the north window.",
+      "approach": [
+        "at.bedroom-window-north.stand"
+      ]
+    },
+    {
+      "id": "bedroom-chest-top-drawer.open",
+      "kind": "open",
+      "item": "bedroom-chest-top-drawer",
+      "label": "open the top drawer",
+      "requires": {
+        "capabilities": [
+          "grasp"
+        ],
+        "conditions": [
+          {
+            "kind": "state",
+            "item": "@self",
+            "var": "open",
+            "is": false,
+            "unmet": "The drawer is already open."
+          }
+        ]
+      },
+      "effects": [
+        {
+          "op": "set",
+          "item": "@self",
+          "var": "open",
+          "to": true
+        },
+        {
+          "op": "emit",
+          "modality": "hearing",
+          "signal": "a drawer sliding out",
+          "loudness": "faint",
+          "reach": "room"
+        }
+      ],
+      "done": "You open the top drawer.",
+      "approach": [
+        "at.bedroom-chest.stand"
+      ]
+    },
+    {
+      "id": "bedroom-chest-top-drawer.close",
+      "kind": "close",
+      "item": "bedroom-chest-top-drawer",
+      "label": "close the top drawer",
+      "requires": {
+        "capabilities": [
+          "grasp"
+        ],
+        "conditions": [
+          {
+            "kind": "state",
+            "item": "@self",
+            "var": "open",
+            "is": true,
+            "unmet": "The drawer is already shut."
+          }
+        ]
+      },
+      "effects": [
+        {
+          "op": "set",
+          "item": "@self",
+          "var": "open",
+          "to": false
+        },
+        {
+          "op": "emit",
+          "modality": "hearing",
+          "signal": "a drawer sliding shut",
+          "loudness": "faint",
+          "reach": "room"
+        }
+      ],
+      "done": "You close the top drawer.",
+      "approach": [
+        "at.bedroom-chest.stand"
+      ]
+    },
+    {
+      "id": "bedroom-chest-top-drawer.put-in",
+      "kind": "put-in",
+      "item": "bedroom-chest-top-drawer",
+      "label": "put {target} in the top drawer",
+      "requires": {
+        "capabilities": [
+          "reach",
+          "grasp"
+        ],
+        "conditions": [
+          {
+            "kind": "state",
+            "item": "@self",
+            "var": "open",
+            "is": true,
+            "unmet": "The drawer is shut."
+          },
+          {
+            "kind": "holding",
+            "any": true,
+            "unmet": "You are not holding anything."
+          }
+        ]
+      },
+      "effects": [
+        {
+          "op": "move",
+          "item": "@held",
+          "to": {
+            "in": "@self"
+          }
+        }
+      ],
+      "done": "You put it in the drawer.",
+      "approach": [
+        "at.bedroom-chest.stand"
+      ]
+    },
+    {
+      "id": "grandmothers-wedding-ring.take",
+      "kind": "take",
+      "item": "grandmothers-wedding-ring",
+      "label": "pick up the ring",
+      "requires": {
+        "capabilities": [
+          "grasp",
+          "carry"
+        ],
+        "conditions": [
+          {
+            "kind": "state",
+            "item": "bedroom-chest-top-drawer",
+            "var": "open",
+            "is": true,
+            "unmet": "The ring is in the top drawer, and the drawer is shut."
+          }
+        ]
+      },
+      "effects": [
+        {
+          "op": "move",
+          "item": "@self",
+          "to": {
+            "held": true
+          }
+        }
+      ],
+      "done": "You pick up the ring.",
+      "approach": [
+        "at.bedroom-chest.stand"
+      ]
+    },
+    {
+      "id": "workbench.place-on",
+      "kind": "place-on",
+      "item": "workbench",
+      "label": "put {target} down on the workbench",
+      "requires": {
+        "capabilities": [
+          "grasp"
+        ],
+        "conditions": [
+          {
+            "kind": "holding",
+            "any": true,
+            "unmet": "You are not holding anything."
+          }
+        ]
+      },
+      "effects": [
+        {
+          "op": "move",
+          "item": "@held",
+          "to": {
+            "on": "@self"
+          }
+        }
+      ],
+      "done": "You put it down on the workbench.",
+      "approach": [
+        "at.workbench.stand"
+      ]
+    },
+    {
+      "id": "kitchen-chair-1.sit",
+      "kind": "sit",
+      "item": "kitchen-chair-1",
+      "label": "sit on the kitchen chair",
+      "requires": {
+        "capabilities": [
+          "sit"
+        ],
+        "conditions": [
+          {
+            "kind": "occupied",
+            "anchor": "at.kitchen-chair-1.sit",
+            "is": false,
+            "unmet": "Someone is already sitting there."
+          }
+        ]
+      },
+      "approach": [
+        "at.kitchen-table.stand"
+      ],
+      "occupies": "at.kitchen-chair-1.sit",
+      "pose": {
+        "posture": "sitting",
+        "anchor": "at.kitchen-chair-1.sit",
+        "seatHeight": 0.45
+      },
+      "effects": [
+        {
+          "op": "body",
+          "posture": "sitting",
+          "anchor": "at.kitchen-chair-1.sit"
+        }
+      ],
+      "done": "You sit down at the kitchen table."
+    },
+    {
+      "id": "kitchen-chair-2.sit",
+      "kind": "sit",
+      "item": "kitchen-chair-2",
+      "label": "sit on the other kitchen chair",
+      "requires": {
+        "capabilities": [
+          "sit"
+        ],
+        "conditions": [
+          {
+            "kind": "occupied",
+            "anchor": "at.kitchen-chair-2.sit",
+            "is": false,
+            "unmet": "Someone is already sitting there."
+          }
+        ]
+      },
+      "approach": [
+        "at.kitchen-table.stand"
+      ],
+      "occupies": "at.kitchen-chair-2.sit",
+      "pose": {
+        "posture": "sitting",
+        "anchor": "at.kitchen-chair-2.sit",
+        "seatHeight": 0.45
+      },
+      "effects": [
+        {
+          "op": "body",
+          "posture": "sitting",
+          "anchor": "at.kitchen-chair-2.sit"
+        }
+      ],
+      "done": "You sit down at the kitchen table."
+    },
+    {
+      "id": "bench-stool.sit",
+      "kind": "sit",
+      "item": "bench-stool",
+      "label": "sit on the stool at the workbench",
+      "requires": {
+        "capabilities": [
+          "sit"
+        ],
+        "conditions": [
+          {
+            "kind": "occupied",
+            "anchor": "at.bench-stool.sit",
+            "is": false,
+            "unmet": "Someone is already sitting there."
+          }
+        ]
+      },
+      "approach": [
+        "at.workbench.stand"
+      ],
+      "occupies": "at.bench-stool.sit",
+      "pose": {
+        "posture": "sitting",
+        "anchor": "at.bench-stool.sit",
+        "seatHeight": 0.45
+      },
+      "effects": [
+        {
+          "op": "body",
+          "posture": "sitting",
+          "anchor": "at.bench-stool.sit"
+        }
+      ],
+      "done": "You sit down on the stool at the workbench."
+    },
+    {
+      "id": "workbench-lamp.switch-on",
+      "kind": "switch-on",
+      "item": "workbench-lamp",
+      "label": "turn on the bench lamp",
+      "requires": {
+        "capabilities": [
+          "operate-controls"
+        ],
+        "conditions": [
+          {
+            "kind": "state",
+            "item": "@self",
+            "var": "power",
+            "is": "off",
+            "unmet": "The lamp is already on."
+          }
+        ]
+      },
+      "approach": [
+        "at.workbench.stand"
+      ],
+      "effects": [
+        {
+          "op": "set",
+          "item": "@self",
+          "var": "power",
+          "to": "on"
+        },
+        {
+          "op": "emit",
+          "modality": "hearing",
+          "signal": "a soft click",
+          "loudness": "faint",
+          "reach": "room"
+        }
+      ],
+      "done": "You turn on the bench lamp."
+    },
+    {
+      "id": "workbench-lamp.switch-off",
+      "kind": "switch-off",
+      "item": "workbench-lamp",
+      "label": "turn off the bench lamp",
+      "requires": {
+        "capabilities": [
+          "operate-controls"
+        ],
+        "conditions": [
+          {
+            "kind": "state",
+            "item": "@self",
+            "var": "power",
+            "is": "on",
+            "unmet": "The lamp is already off."
+          }
+        ]
+      },
+      "approach": [
+        "at.workbench.stand"
+      ],
+      "effects": [
+        {
+          "op": "set",
+          "item": "@self",
+          "var": "power",
+          "to": "off"
+        },
+        {
+          "op": "emit",
+          "modality": "hearing",
+          "signal": "a soft click",
+          "loudness": "faint",
+          "reach": "room"
+        }
+      ],
+      "done": "You turn off the bench lamp."
+    },
+    {
+      "id": "local-computer.use",
+      "kind": "use",
+      "item": "local-computer",
+      "label": "use the computer",
+      "requires": {
+        "capabilities": [
+          "see",
+          "operate-controls"
+        ],
+        "conditions": [
+          {
+            "kind": "state",
+            "item": "@self",
+            "var": "power",
+            "is": "on",
+            "unmet": "The computer is switched off."
+          },
+          {
+            "kind": "ambient",
+            "phenomenon": "light",
+            "atLeast": "dim",
+            "unmet": "It is too dark to see the screen."
+          }
+        ]
+      },
+      "done": "You use the computer.",
+      "approach": [
+        "at.workbench.stand"
+      ]
+    },
+    {
+      "id": "local-computer.switch-on",
+      "kind": "switch-on",
+      "item": "local-computer",
+      "label": "switch the computer on",
+      "requires": {
+        "capabilities": [
+          "operate-controls"
+        ],
+        "conditions": [
+          {
+            "kind": "state",
+            "item": "@self",
+            "var": "power",
+            "is": "off",
+            "unmet": "The computer is already on."
+          }
+        ]
+      },
+      "effects": [
+        {
+          "op": "set",
+          "item": "@self",
+          "var": "power",
+          "to": "on"
+        },
+        {
+          "op": "emit",
+          "modality": "hearing",
+          "signal": "a fan starting up",
+          "loudness": "faint",
+          "reach": "room"
+        }
+      ],
+      "done": "You switch the computer on.",
+      "approach": [
+        "at.workbench.stand"
+      ]
+    },
+    {
+      "id": "local-computer.switch-off",
+      "kind": "switch-off",
+      "item": "local-computer",
+      "label": "switch the computer off",
+      "requires": {
+        "capabilities": [
+          "operate-controls"
+        ],
+        "conditions": [
+          {
+            "kind": "state",
+            "item": "@self",
+            "var": "power",
+            "is": "on",
+            "unmet": "The computer is already off."
+          }
+        ]
+      },
+      "effects": [
+        {
+          "op": "set",
+          "item": "@self",
+          "var": "power",
+          "to": "off"
+        },
+        {
+          "op": "emit",
+          "modality": "hearing",
+          "signal": "a fan winding down",
+          "loudness": "faint",
+          "reach": "room"
+        }
+      ],
+      "done": "You switch the computer off.",
+      "approach": [
+        "at.workbench.stand"
+      ]
+    },
+    {
+      "id": "local-computer.open",
+      "kind": "open",
+      "item": "local-computer",
+      "label": "open up the computer's case",
+      "requires": {
+        "capabilities": [
+          "grasp"
+        ],
+        "conditions": [
+          {
+            "kind": "state",
+            "item": "@self",
+            "var": "open",
+            "is": false,
+            "unmet": "The case is already open."
+          }
+        ]
+      },
+      "effects": [
+        {
+          "op": "set",
+          "item": "@self",
+          "var": "open",
+          "to": true
+        }
+      ],
+      "done": "You open up the case; the parts are all in plain view.",
+      "approach": [
+        "at.workbench.stand"
+      ]
+    },
+    {
+      "id": "local-computer.close",
+      "kind": "close",
+      "item": "local-computer",
+      "label": "close the computer's case",
+      "requires": {
+        "capabilities": [
+          "grasp"
+        ],
+        "conditions": [
+          {
+            "kind": "state",
+            "item": "@self",
+            "var": "open",
+            "is": true,
+            "unmet": "The case is already closed."
+          }
+        ]
+      },
+      "effects": [
+        {
+          "op": "set",
+          "item": "@self",
+          "var": "open",
+          "to": false
+        }
+      ],
+      "done": "You close the case.",
+      "approach": [
+        "at.workbench.stand"
+      ]
+    },
+    {
+      "id": "local-computer.examine",
+      "kind": "examine",
+      "item": "local-computer",
+      "label": "look over the computer's parts",
+      "requires": {
+        "capabilities": [
+          "see"
+        ],
+        "conditions": [
+          {
+            "kind": "state",
+            "item": "@self",
+            "var": "open",
+            "is": true,
+            "unmet": "The case is shut."
+          }
+        ]
+      },
+      "done": "You look over the parts: nothing is sealed or hidden.",
+      "approach": [
+        "at.workbench.stand"
+      ]
+    }
+  ],
+  "phenomena": [
+    {
+      "id": "light.daylight",
+      "kind": "light",
+      "designation": {
+        "name": "daylight"
+      },
+      "reach": {
+        "rooms": [
+          "kitchen",
+          "workbench-area",
+          "bedroom"
+        ]
+      },
+      "control": {
+        "external": "time-of-day"
+      },
+      "states": {
+        "night": {
+          "level": "dark"
+        },
+        "dawn": {
+          "level": "dim"
+        },
+        "day": {
+          "level": "bright"
+        },
+        "dusk": {
+          "level": "dim"
+        }
+      },
+      "initial": "day"
+    },
+    {
+      "id": "light.workbench-lamp",
+      "kind": "light",
+      "designation": {
+        "name": "the bench lamp"
+      },
+      "source": {
+        "item": "workbench-lamp",
+        "position": [
+          7.6,
+          2,
+          0.95
+        ]
+      },
+      "reach": {
+        "rooms": [
+          "workbench-area"
+        ]
+      },
+      "control": {
+        "item": "workbench-lamp",
+        "var": "power"
+      },
+      "states": {
+        "off": {
+          "level": "dark",
+          "intensity": 0
+        },
+        "on": {
+          "level": "normal",
+          "intensity": 4,
+          "colour": "#ffe0b0",
+          "range": 4
+        }
+      },
+      "initial": "off"
+    }
+  ],
+  "sensing": [
+    {
+      "id": "sense.bedroom-window",
+      "modality": "sight",
+      "from": "bedroom",
+      "to": "outside",
+      "via": "bedroom-window-north",
+      "quality": "clear"
+    },
+    {
+      "id": "sense.bedroom-window-air",
+      "modality": "hearing",
+      "from": "bedroom",
+      "to": "outside",
+      "via": "bedroom-window-north",
+      "quality": "partial",
+      "when": [
+        {
+          "kind": "state",
+          "item": "bedroom-window-north",
+          "var": "open",
+          "is": true
+        }
+      ]
+    },
+    {
+      "id": "sense.bedroom-window-shut",
+      "modality": "hearing",
+      "from": "bedroom",
+      "to": "outside",
+      "via": "bedroom-window-north",
+      "quality": "muffled",
+      "when": [
+        {
+          "kind": "state",
+          "item": "bedroom-window-north",
+          "var": "open",
+          "is": false
+        }
+      ]
+    },
+    {
+      "id": "sense.front-door",
+      "modality": "sight",
+      "from": "kitchen",
+      "to": "outside",
+      "via": "front-door",
+      "quality": "clear",
+      "when": [
+        {
+          "kind": "state",
+          "item": "front-door",
+          "var": "open",
+          "is": true
+        }
+      ],
+      "note": "someone arriving can be seen from the kitchen through the open door"
+    }
+  ],
+  "anchors": [
+    {
+      "id": "at.front-door.in-kitchen",
+      "kind": "entry",
+      "room": "kitchen",
+      "position": [
+        1.5,
+        0.8,
+        0
+      ],
+      "direction": [
+        0,
+        1,
+        0
+      ],
+      "item": "front-door"
+    },
+    {
+      "id": "at.kitchen-bench.in-kitchen",
+      "kind": "entry",
+      "room": "kitchen",
+      "position": [
+        4.4,
+        3.1,
+        0
+      ],
+      "direction": [
+        -1,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "at.kitchen-bench.in-bench",
+      "kind": "entry",
+      "room": "workbench-area",
+      "position": [
+        5.8,
+        3.1,
+        0
+      ],
+      "direction": [
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "at.bedroom-door.in-kitchen",
+      "kind": "entry",
+      "room": "kitchen",
+      "position": [
+        3.95,
+        3.4,
+        0
+      ],
+      "direction": [
+        0,
+        -1,
+        0
+      ],
+      "item": "bedroom-door"
+    },
+    {
+      "id": "at.bedroom-door.in-bedroom",
+      "kind": "entry",
+      "room": "bedroom",
+      "position": [
+        3.95,
+        4.8,
+        0
+      ],
+      "direction": [
+        0,
+        1,
+        0
+      ],
+      "item": "bedroom-door"
+    },
+    {
+      "id": "at.kitchen-faucet.stand",
+      "kind": "stand",
+      "room": "kitchen",
+      "position": [
+        3,
+        0.9,
+        0
+      ],
+      "direction": [
+        0,
+        -1,
+        0
+      ],
+      "item": "kitchen-faucet"
+    },
+    {
+      "id": "at.kitchen-cabinet-upper-east.stand",
+      "kind": "stand",
+      "room": "kitchen",
+      "position": [
+        4.3,
+        1.2,
+        0
+      ],
+      "direction": [
+        1,
+        0,
+        0
+      ],
+      "item": "kitchen-cabinet-upper-east"
+    },
+    {
+      "id": "at.kitchen-table.stand",
+      "kind": "stand",
+      "room": "kitchen",
+      "position": [
+        2,
+        3.8,
+        0
+      ],
+      "direction": [
+        0,
+        -1,
+        0
+      ],
+      "item": "kitchen-table"
+    },
+    {
+      "id": "at.kitchen-chair-1.sit",
+      "kind": "sit",
+      "room": "kitchen",
+      "position": [
+        1.6,
+        3.3,
+        0.45
+      ],
+      "direction": [
+        0,
+        -1,
+        0
+      ],
+      "item": "kitchen-chair-1",
+      "posture": "sitting",
+      "seatHeight": 0.45
+    },
+    {
+      "id": "at.kitchen-chair-2.sit",
+      "kind": "sit",
+      "room": "kitchen",
+      "position": [
+        2.4,
+        3.3,
+        0.45
+      ],
+      "direction": [
+        0,
+        -1,
+        0
+      ],
+      "item": "kitchen-chair-2",
+      "posture": "sitting",
+      "seatHeight": 0.45
+    },
+    {
+      "id": "at.workbench.stand",
+      "kind": "stand",
+      "room": "workbench-area",
+      "position": [
+        7,
+        1.2,
+        0
+      ],
+      "direction": [
+        1,
+        0,
+        0
+      ],
+      "item": "workbench"
+    },
+    {
+      "id": "at.bench-stool.sit",
+      "kind": "sit",
+      "room": "workbench-area",
+      "position": [
+        7,
+        2.4,
+        0.45
+      ],
+      "direction": [
+        1,
+        0,
+        0
+      ],
+      "item": "bench-stool",
+      "posture": "sitting",
+      "seatHeight": 0.45
+    },
+    {
+      "id": "at.bedroom-window-north.stand",
+      "kind": "stand",
+      "room": "bedroom",
+      "position": [
+        2.5,
+        7.6,
+        0
+      ],
+      "direction": [
+        0,
+        1,
+        0
+      ],
+      "item": "bedroom-window-north"
+    },
+    {
+      "id": "at.bedroom-chest.stand",
+      "kind": "stand",
+      "room": "bedroom",
+      "position": [
+        3.8,
+        6,
+        0
+      ],
+      "direction": [
+        1,
+        0,
+        0
+      ],
+      "item": "bedroom-chest"
+    }
+  ]
+}

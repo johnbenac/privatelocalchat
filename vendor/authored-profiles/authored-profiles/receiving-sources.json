@@ -1,0 +1,41 @@
+{
+  "basis": "T412 accepted source ec099c7dabc5c1be99bb936aee482cc9769805f8; exact unchanged helper bytes are rechecked, not promoted to application acceptance",
+  "sources": [
+    {
+      "id": "sonalon-schema",
+      "owner": "sonalon",
+      "path": "/cosmoshot/sonalon/work/discovery-integration/continuity-review/contracts/resident/resident.schema.json",
+      "revision": "880c31c3f7fe6c9e9c8c95d632e4adb86cb463f8",
+      "sha256": "fa29542cc128947b48761afa0f4249cb9542b7e50aac17f5420999a17379986b",
+      "bytes": 125579,
+      "scope": "portable message fields omit participant/audience"
+    },
+    {
+      "id": "plc-backups",
+      "owner": "plc",
+      "path": "/cosmoshot/privatelocalchat/chat/transfer/backups.mjs",
+      "revision": "9bef8472ee1160f2593c8dff4b9b2f1b275a0c09",
+      "sha256": "33fdbac787f7de67bb82addaa5cd43c510c10c15afb129b0fdf40b80edea8b4d",
+      "bytes": 4568,
+      "scope": "full backup includes presets/memory; helper restores regenerated IDs and text"
+    },
+    {
+      "id": "sonalon-jsonschema",
+      "owner": "sonalon",
+      "path": "/cosmoshot/sonalon/work/discovery-integration/continuity-review/fabric/keeper/jsonschema.mjs",
+      "revision": "880c31c3f7fe6c9e9c8c95d632e4adb86cb463f8",
+      "sha256": "ec9135633c7d69b017e946588412e0a385a0b1bde50ad649b116f0121ecc6523",
+      "bytes": 17704,
+      "scope": "dependency-free checked runtime schema/record helper; not browser admission"
+    },
+    {
+      "id": "sonalon-create",
+      "owner": "sonalon",
+      "path": "/cosmoshot/sonalon/work/discovery-integration/continuity-review/fabric/keeper/ops.mjs",
+      "revision": "880c31c3f7fe6c9e9c8c95d632e4adb86cb463f8",
+      "sha256": "617a1e42fb807973806c1256e87c0426dab8a83f0b68910a8d1305791328b9ae",
+      "bytes": 10996,
+      "scope": "dependency-free checked runtime schema/record helper; not browser admission"
+    }
+  ]
+}

@@ -1,0 +1,276 @@
+{
+  "plc": {
+    "target": "plc",
+    "purpose": "fresh-design",
+    "value": {
+      "id": "cosmogenitor:subject:bex",
+      "name": "Bex",
+      "prompt": "Portray Bex.\n\nA theatrical clockwork puzzle host who treats wrong guesses as new openings.\n\nPremise: A fictional mechanical host offering opt-in puzzles at a travelling night fair.\n\nCommunication: Brisk, playful invitations; accepts a pass without persuasion.\n\nAuthored sample line: Pick a door, or keep the key.\n\nThe description and sample line above are authored character material, not memories of events with the user."
+    },
+    "omissions": [
+      {
+        "id": "authored:character-v1",
+        "reason": "optional profile transported, not interpreted"
+      },
+      {
+        "id": "festival:lantern",
+        "reason": "optional profile transported, not interpreted"
+      },
+      {
+        "id": "aspect:bex-design-attribution",
+        "reason": "optional aspect transported, not interpreted"
+      },
+      {
+        "id": "aspect:bex-lore",
+        "reason": "optional aspect transported, not interpreted"
+      },
+      {
+        "id": "aspect:bex-guidance",
+        "reason": "optional aspect transported, not interpreted"
+      },
+      {
+        "id": "aspect:bex-prepared",
+        "reason": "optional aspect transported, not interpreted"
+      },
+      {
+        "id": "aspect:bex-presentation",
+        "reason": "optional aspect transported, not interpreted"
+      },
+      {
+        "id": "aspect:bex-media",
+        "reason": "optional aspect transported, not interpreted"
+      },
+      {
+        "id": "aspect:bex-evidence",
+        "reason": "optional aspect transported, not interpreted"
+      },
+      {
+        "id": "aspect:bex-lantern",
+        "reason": "optional aspect transported, not interpreted"
+      }
+    ],
+    "resources": [
+      {
+        "asset": "asset:cue",
+        "required": false,
+        "status": "verified-bytes"
+      }
+    ],
+    "errors": [],
+    "projection": {
+      "consumer": "privatelocalchat/preset",
+      "subjectId": "subject:bex",
+      "ready": false,
+      "validation": "not-run",
+      "mapped": [
+        {
+          "source": "subject:bex/label",
+          "target": "name and prompt"
+        },
+        {
+          "source": "subject:bex/summary",
+          "target": "prompt"
+        },
+        {
+          "source": "aspect:bex-identity/premise",
+          "target": "prompt"
+        },
+        {
+          "source": "aspect:bex-communication/manner",
+          "target": "prompt"
+        },
+        {
+          "source": "aspect:bex-communication/signatureLine",
+          "target": "prompt"
+        }
+      ],
+      "omitted": [
+        {
+          "code": "unmapped-aspect",
+          "source": "aspect:bex-design-attribution",
+          "message": "This aspect is retained in the source library but has no mapping in this projection."
+        },
+        {
+          "code": "unmapped-aspect",
+          "source": "aspect:bex-lore",
+          "message": "This aspect is retained in the source library but has no mapping in this projection."
+        },
+        {
+          "code": "unmapped-aspect",
+          "source": "aspect:bex-guidance",
+          "message": "This aspect is retained in the source library but has no mapping in this projection."
+        },
+        {
+          "code": "unmapped-aspect",
+          "source": "aspect:bex-prepared",
+          "message": "This aspect is retained in the source library but has no mapping in this projection."
+        },
+        {
+          "code": "unmapped-aspect",
+          "source": "aspect:bex-presentation",
+          "message": "This aspect is retained in the source library but has no mapping in this projection."
+        },
+        {
+          "code": "unmapped-aspect",
+          "source": "aspect:bex-media",
+          "message": "This aspect is retained in the source library but has no mapping in this projection."
+        },
+        {
+          "code": "unmapped-aspect",
+          "source": "aspect:bex-evidence",
+          "message": "This aspect is retained in the source library but has no mapping in this projection."
+        },
+        {
+          "code": "unmapped-aspect",
+          "source": "aspect:bex-lantern",
+          "message": "This aspect is retained in the source library but has no mapping in this projection."
+        }
+      ],
+      "missing": [],
+      "errors": []
+    },
+    "shapeAccepted": false,
+    "admissionReady": false,
+    "runtimeReady": false
+  },
+  "sonalon": {
+    "target": "sonalon",
+    "purpose": "fresh-design",
+    "value": null,
+    "omissions": [
+      {
+        "id": "authored:character-v1",
+        "reason": "optional profile transported, not interpreted"
+      },
+      {
+        "id": "festival:lantern",
+        "reason": "optional profile transported, not interpreted"
+      },
+      {
+        "id": "aspect:bex-design-attribution",
+        "reason": "optional aspect transported, not interpreted"
+      },
+      {
+        "id": "aspect:bex-lore",
+        "reason": "optional aspect transported, not interpreted"
+      },
+      {
+        "id": "aspect:bex-guidance",
+        "reason": "optional aspect transported, not interpreted"
+      },
+      {
+        "id": "aspect:bex-prepared",
+        "reason": "optional aspect transported, not interpreted"
+      },
+      {
+        "id": "aspect:bex-presentation",
+        "reason": "optional aspect transported, not interpreted"
+      },
+      {
+        "id": "aspect:bex-media",
+        "reason": "optional aspect transported, not interpreted"
+      },
+      {
+        "id": "aspect:bex-evidence",
+        "reason": "optional aspect transported, not interpreted"
+      },
+      {
+        "id": "aspect:bex-lantern",
+        "reason": "optional aspect transported, not interpreted"
+      }
+    ],
+    "resources": [
+      {
+        "asset": "asset:cue",
+        "required": false,
+        "status": "verified-bytes"
+      }
+    ],
+    "errors": [],
+    "projection": {
+      "consumer": "cognitive-fabric/resident-design",
+      "subjectId": "subject:bex",
+      "ready": false,
+      "validation": "not-run",
+      "mapped": [],
+      "omitted": [
+        {
+          "code": "unmapped-aspect",
+          "source": "aspect:bex-design-attribution",
+          "message": "This aspect is retained in the source library but has no mapping in this projection."
+        },
+        {
+          "code": "unmapped-aspect",
+          "source": "aspect:bex-lore",
+          "message": "This aspect is retained in the source library but has no mapping in this projection."
+        },
+        {
+          "code": "unmapped-aspect",
+          "source": "aspect:bex-guidance",
+          "message": "This aspect is retained in the source library but has no mapping in this projection."
+        },
+        {
+          "code": "unmapped-aspect",
+          "source": "aspect:bex-prepared",
+          "message": "This aspect is retained in the source library but has no mapping in this projection."
+        },
+        {
+          "code": "unmapped-aspect",
+          "source": "aspect:bex-presentation",
+          "message": "This aspect is retained in the source library but has no mapping in this projection."
+        },
+        {
+          "code": "unmapped-aspect",
+          "source": "aspect:bex-media",
+          "message": "This aspect is retained in the source library but has no mapping in this projection."
+        },
+        {
+          "code": "unmapped-aspect",
+          "source": "aspect:bex-evidence",
+          "message": "This aspect is retained in the source library but has no mapping in this projection."
+        },
+        {
+          "code": "unmapped-aspect",
+          "source": "aspect:bex-lantern",
+          "message": "This aspect is retained in the source library but has no mapping in this projection."
+        }
+      ],
+      "missing": [
+        {
+          "code": "missing-aspect",
+          "source": "core:voice",
+          "message": "Supply this consumer-required aspect explicitly."
+        },
+        {
+          "code": "missing-aspect",
+          "source": "sonalon:design-metadata",
+          "message": "Supply this consumer-required aspect explicitly."
+        },
+        {
+          "code": "missing-aspect",
+          "source": "sonalon:authored-sections",
+          "message": "Supply this consumer-required aspect explicitly."
+        },
+        {
+          "code": "missing-aspect",
+          "source": "sonalon:voice-sections",
+          "message": "Supply this consumer-required aspect explicitly."
+        },
+        {
+          "code": "missing-aspect",
+          "source": "sonalon:start",
+          "message": "Supply this consumer-required aspect explicitly."
+        },
+        {
+          "code": "missing-field",
+          "source": "core:voice/description",
+          "message": "Sonalon requires an explicit voice description."
+        }
+      ],
+      "errors": []
+    },
+    "shapeAccepted": false,
+    "admissionReady": false,
+    "runtimeReady": false
+  }
+}

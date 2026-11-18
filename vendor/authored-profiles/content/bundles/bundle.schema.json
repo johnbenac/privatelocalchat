@@ -1,0 +1,183 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cosmogenitor:bundle:0",
+  "title": "Cosmogenitor portable content bundle v0",
+  "type": "object",
+  "properties": {
+    "format": {
+      "const": "cosmogenitor/bundle/0"
+    },
+    "root": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "selection": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "enum": [
+            "subject",
+            "cast",
+            "world",
+            "aesthetic",
+            "relationship",
+            "expression",
+            "asset",
+            "take",
+            "library"
+          ]
+        },
+        "ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "kind",
+        "ids"
+      ],
+      "additionalProperties": false
+    },
+    "visibility": {
+      "enum": [
+        "private",
+        "public"
+      ]
+    },
+    "audience": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "content": {
+      "type": "object"
+    },
+    "definitions": {
+      "type": "object",
+      "properties": {
+        "schema": {
+          "type": "object"
+        },
+        "profiles": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "aspectDefinitions": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      },
+      "required": [
+        "schema",
+        "profiles",
+        "aspectDefinitions"
+      ],
+      "additionalProperties": false
+    },
+    "receipts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "expression": {
+            "type": "string",
+            "minLength": 1
+          },
+          "receipt": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "expression",
+          "receipt"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "records": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "collection": {
+            "enum": [
+              "subjects",
+              "contexts",
+              "expressions",
+              "assets",
+              "references",
+              "judgments",
+              "bindings",
+              "instances"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "collection"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "assets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "hash": {
+            "type": "string",
+            "pattern": "^sha256:[a-f0-9]{64}$"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "status": {
+            "enum": [
+              "inline",
+              "external",
+              "missing"
+            ]
+          },
+          "data": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "hash",
+          "size",
+          "status"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "format",
+    "root",
+    "selection",
+    "visibility",
+    "audience",
+    "content",
+    "definitions",
+    "receipts",
+    "records",
+    "assets"
+  ],
+  "additionalProperties": false
+}

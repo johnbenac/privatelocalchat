@@ -1,0 +1,53 @@
+{
+  "aspectDefinitions": [
+    {
+      "id": "neighborhood:signal",
+      "version": "0",
+      "label": "Beacon signal",
+      "definition": "A user-defined light signal with a keeper meaningful to the cast.",
+      "scopes": [
+        "subject",
+        "context"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "color": {
+            "type": "string"
+          },
+          "pulseSeconds": {
+            "type": "number",
+            "minimum": 0
+          },
+          "meaning": {
+            "type": "string"
+          },
+          "keeper": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "links": [
+        {
+          "path": "/keeper",
+          "collection": "subjects"
+        }
+      ]
+    }
+  ],
+  "profiles": [
+    {
+      "id": "neighborhood:beacon",
+      "version": "0",
+      "label": "Neighborhood beacon",
+      "definition": "A user-defined subject profile derived from building guidance.",
+      "aspects": [
+        "neighborhood:signal"
+      ],
+      "extends": [
+        "profile:building"
+      ]
+    }
+  ]
+}

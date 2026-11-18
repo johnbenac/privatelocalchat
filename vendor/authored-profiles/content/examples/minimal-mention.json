@@ -1,0 +1,10 @@
+{
+  "format": "cosmogenitor/content/0",
+  "subjects": [
+    {
+      "id": "subject:ari",
+      "label": "Ari",
+      "summary": "A neighbor mentioned in passing."
+    }
+  ]
+}
