@@ -1,11 +1,11 @@
 {
  "format": "plc-model-urls-baseline/1",
- "note": "Every address the app requests for a model, a voice or the embedding set, with its pin, as recorded by scripts/model-urls-snapshot.mjs before the configuration existed.",
+ "note": "Every address the app requests for a model, a voice or the embedding set, with its pin, as recorded by scripts/model-urls-snapshot.mjs before the configuration existed. Since T587 the two WebLLM libraries are app:<path> entries: the app serves them itself and they are not downloaded from the model source.",
  "tiers": {
   "default": {
    "q4f16_1": [
     {
-     "url": "https://assets.privatelocal.chat/models/Qwen3.5-9B-q4f16_1-MLC/resolve/c7c5d3f5a81e37b8facbb72970940a1b131314a8/Qwen3.5-9B-q4f16_1_cs1k-webgpu.wasm",
+     "url": "app:runtime/providers/vendor/webllm/libs/Qwen3.5-9B-q4f16_1_cs1k-webgpu.wasm",
      "bytes": 7488165,
      "sha256": "84fc5ef675ea0d8770deaf9a53e81fd663299a69d3cf66e94243914779f9877f"
     },
@@ -662,7 +662,7 @@
    ],
    "q4f32_1": [
     {
-     "url": "https://assets.privatelocal.chat/models/Qwen3.5-9B-q4f32_1-MLC/resolve/f8f042bfb68cb88573af4c8e0ef9b1a26bef4ad0/Qwen3.5-9B-q4f32_1_cs1k-webgpu.wasm",
+     "url": "app:runtime/providers/vendor/webllm/libs/Qwen3.5-9B-q4f32_1_cs1k-webgpu.wasm",
      "bytes": 7347353,
      "sha256": "c2f196c4bd3ee6fae01d2e234d3bcfe356aac66ae15cfe0a34e8d2ecb9ada579"
     },

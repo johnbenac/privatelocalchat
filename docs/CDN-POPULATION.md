@@ -10,6 +10,8 @@
 host: `https://assets.privatelocal.chat` (R2 bucket `privatelocalchat-assets`, provisioned by `ops/cloudflare/provision-cdn.py`; see
 `ops/cloudflare/CDN-OPERATIONS.txt`). The app does not depend on another project's storage or on Hugging Face / GitHub at run time (split stage 4: the models come from the configured model source, `docs/APP-CONFIG.md`).
 
+**Data only (T587):** executable files do not belong on the CDN. The two WebLLM model libraries (`*-webgpu.wasm`) are served by the app from `runtime/providers/vendor/webllm/libs/` (`docs/RUNTIMES.md`); the copies already on `assets.privatelocal.chat` stay there, unused by the app, and are not copied to the shared CDN. The search set's `runtime/ort-wasm-simd-threaded.{wasm,mjs}` are the other two such files (not changed here).
+
 ## State on 2026-11-02
 
 | Kind | On `assets.privatelocal.chat`? | Notes |

@@ -23,7 +23,7 @@ The build checks both files (`checkAppConfig`): an unknown key, a bad address, a
 
 `runtime/config/app-config.mjs` is the only code that knows the shape: `appConfig().modelRoot()`, `.activeSource()`, `.isDefaultSource()`. Without a configuration (a worker, or a test that has not installed one) it throws a plain error rather than using an address of ours; tests import `tests/helpers/install-app-config.mjs` first, which installs what the build would.
 
-The catalog (`runtime/providers/catalog.mjs`), the voices (`chat/voice/voice-manifest*.mjs`) and the memory embedding set (`chat/embedding/embedding-config.mjs`) join the root to the folder each model lives in (`<name>/<revision>/`, kept in `runtime/providers/catalog-data.mjs` as `dir`). No default names Hugging Face, GitHub or any host other than the configured root. The embedding set is the one exception to the pinned files: the app pins no size or SHA-256 for it, only the content-addressed name of its folder (`DATA-HANDLING.md`, section 2d).
+The catalog (`runtime/providers/catalog.mjs`), the voices (`chat/voice/voice-manifest*.mjs`) and the memory embedding set (`chat/embedding/embedding-config.mjs`) join the root to the folder each model lives in (`<name>/<revision>/`, kept in `runtime/providers/catalog-data.mjs` as `dir`). No default names Hugging Face, GitHub or any host other than the configured root. The one exception to "everything joins the root" is the two WebLLM model libraries (`.wasm`, code): the catalog's `webllmLibBase` is the app's own `runtime/providers/vendor/webllm/libs/` (`docs/RUNTIMES.md`), so a model source never has to hold executable files. `model-urls-baseline.json` records them as `app:<path>`, and they are not in `models.json`. The embedding set is the one exception to the pinned files: the app pins no size or SHA-256 for it, only the content-addressed name of its folder (`DATA-HANDLING.md`, section 2d).
 
 ## Integrity
 
@@ -37,7 +37,7 @@ A source decides where bytes come from, never what they are. Every model file an
 
 ## Existing downloads
 
-Downloaded files are cached on the device by their address. The default addresses are unchanged by this configuration (`docs/evidence/split/model-urls-baseline.json` records all 310), so nobody downloads again. An operator who changes the source downloads again from the new one.
+Downloaded files are cached on the device by their address. The default addresses are unchanged by this configuration (`docs/evidence/split/model-urls-baseline.json` records all 310: 308 downloads and the two app-served libraries), so nobody downloads again. An operator who changes the source downloads again from the new one.
 
 ## Site identity
 
