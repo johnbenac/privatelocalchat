@@ -1069,6 +1069,7 @@
         // Check if URL contains chat data and create a thread accordingly
         parseUrlParams();
         assistant.openPresetFromAddress(); // a preset link only opens the review box (the address is not changed); adding is the person's click
+        assistant.openResourceFromAddress(); // a discovery page's link only opens a box that asks for the downloaded file; nothing is fetched or added
         const ensuredId = ensureThreadExists();
         renderThreadList();
         // If a thread was created via URL params select it; otherwise pick the first existing

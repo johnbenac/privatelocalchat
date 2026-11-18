@@ -16,7 +16,7 @@ export function createPresetImport(host) {
     if (reviewing && !reviewing.closed) { showToast('Finish or cancel the preset you are reviewing first.'); return; }
     const root = el('div', 'preset-review');
     const note = el('p', 'muted', 'Nothing has been added yet. Adding creates a new preset on this device; it is not applied to any chat, and nothing is sent anywhere.');
-    const source = el('p', 'muted', 'Read from ' + (origin === 'link' ? 'a link' : origin === 'package' ? 'a character package' : 'a file') + (candidate.sourceId ? '. Its own id (“' + candidate.sourceId.slice(0, 60) + '”) is not used: this device gives it a new one.' : '.'));
+    const source = el('p', 'muted', 'Read from ' + (origin === 'link' ? 'a link' : origin === 'package' ? 'a character package' : origin === 'listing' ? 'a file from a discovery listing' : 'a file') + (candidate.sourceId ? '. Its own id (“' + candidate.sourceId.slice(0, 60) + '”) is not used: this device gives it a new one.' : '.'));
     const nameId = 'presetReviewName', textId = 'presetReviewText';
     const nameLabel = el('label', null, 'Preset name'); nameLabel.htmlFor = nameId;
     const nameInput = el('input'); nameInput.type = 'text'; nameInput.id = nameId; nameInput.value = candidate.name; nameInput.maxLength = PRESET_LIMITS.nameChars; nameInput.autocomplete = 'off';

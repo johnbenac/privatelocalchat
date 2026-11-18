@@ -12,10 +12,11 @@ import { createPresetStore, editPresetChange } from "./preset-store.mjs";
 import { createPresetImport } from "./preset-import.mjs";
 import { createPresentationPreview } from "../presentation/preview.mjs";
 import { loadValidator } from "../presentation/reader.mjs";
+import { createResourceOpen } from "./resource-open.mjs";
 import { createPresentationKeeper, MAX_KEPT } from "../presentation/keeper.mjs";
 import { createLookUi } from "../presentation/look-ui.mjs";
 import { looksForBackup, idMapForRestore, looksToRestore } from "../presentation/backup-looks.mjs";
-import { mergeBackupPresets } from "./preset-candidate.mjs";
+import { mergeBackupPresets, parsePresetCandidate } from "./preset-candidate.mjs";
 
 export function createAssistant(host) {
   const { el, events, prefs, savePrefs, readJson, writeJson, messageInput, systemPromptInput, threadTitleInput, openAppDialog, promptDialog, showToast, saveThreads, growComposer,
@@ -114,6 +115,8 @@ export function createAssistant(host) {
     return kept;
   }
   document.getElementById('importPresetBtn')?.addEventListener('click', () => presetImport.chooseFile());
+  // a discovery page's "Open in Private Local Chat" link describes a file (chat/assistant/resource-link.mjs); the person downloads it, chooses it in the box, and PLC's preset review does the rest
+  const resourceOpen = createResourceOpen({ el, openAppDialog, reviewPreset: (...a) => presetImport.reviewResult(...a), readPreset: parsePresetCandidate });
   // a Cosmogenitor character package is only PREVIEWED: nothing is added or saved (chat/presentation/preview.mjs, board T444). The shared validator is loaded when a package is opened.
   // Kept character looks (chat/presentation/keeper.mjs owns the key): one per preset, attached when a package's character is added as a preset, shown in the conversation by look-ui.mjs.
   const keeper = createPresentationKeeper({ storage: appLocal, isReadOnly: () => app.readOnly, onChange: () => look?.render(currentThread()?.presetId || null) });
@@ -272,5 +275,5 @@ export function createAssistant(host) {
     return true;
   });
   events.on('prompt:ready', retool);
-  return { get memory() { return memory; }, get customPresets() { return customPresets; }, addMemory, restorePresets, looksForBackup: looksForBackupNow, restoreLooks, openPreferences, openPresetFromAddress:() => presetImport.openFromAddress() };
+  return { get memory() { return memory; }, get customPresets() { return customPresets; }, addMemory, restorePresets, looksForBackup: looksForBackupNow, restoreLooks, openResourceFromAddress: () => resourceOpen.openFromAddress(), openPreferences, openPresetFromAddress:() => presetImport.openFromAddress() };
 }

@@ -1,0 +1,373 @@
+{
+ "about": "Cases for the discovery \"Open in Private Local Chat\" link (PLC T461, contract agreed with aiofourown). Made by tests/helpers/make-resource-cases.mjs. expect: ok = the reader returns that resource; none = this fragment holds no resource; any other value is the refusal code; no-link = the generator must leave the link out.",
+ "cases": [
+  {
+   "name": "valid",
+   "builds": {
+    "v": 1,
+    "family": "preset-candidate",
+    "title": "Lantern Keeper",
+    "version": "1.0.0",
+    "bytes": 585,
+    "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+    "license": "CC0-1.0",
+    "page": "https://cosmogenitor.example/characters/lantern-keeper"
+   },
+   "fragment": "#resource=eyJ2IjoxLCJmYW1pbHkiOiJwcmVzZXQtY2FuZGlkYXRlIiwidGl0bGUiOiJMYW50ZXJuIEtlZXBlciIsInZlcnNpb24iOiIxLjAuMCIsImJ5dGVzIjo1ODUsInNoYTI1NiI6IjMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMiLCJsaWNlbnNlIjoiQ0MwLTEuMCIsInBhZ2UiOiJodHRwczovL2Nvc21vZ2VuaXRvci5leGFtcGxlL2NoYXJhY3RlcnMvbGFudGVybi1rZWVwZXIifQ",
+   "expect": "ok",
+   "note": "the canonical key order, compact JSON, UTF-8, base64url without padding"
+  },
+  {
+   "name": "valid, license and title with non-ASCII text",
+   "builds": {
+    "v": 1,
+    "family": "preset-candidate",
+    "title": "Gardienne du phare",
+    "version": "1.0.0",
+    "bytes": 585,
+    "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+    "license": "CC-BY-4.0",
+    "page": "https://cosmogenitor.example/characters/lantern-keeper"
+   },
+   "fragment": "#resource=eyJ2IjoxLCJmYW1pbHkiOiJwcmVzZXQtY2FuZGlkYXRlIiwidGl0bGUiOiJHYXJkaWVubmUgZHUgcGhhcmUiLCJ2ZXJzaW9uIjoiMS4wLjAiLCJieXRlcyI6NTg1LCJzaGEyNTYiOiIzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzIiwibGljZW5zZSI6IkNDLUJZLTQuMCIsInBhZ2UiOiJodHRwczovL2Nvc21vZ2VuaXRvci5leGFtcGxlL2NoYXJhY3RlcnMvbGFudGVybi1rZWVwZXIifQ",
+   "expect": "ok"
+  },
+  {
+   "name": "valid with other parameters in the address",
+   "fragment": "x=1&resource=eyJ2IjoxLCJmYW1pbHkiOiJwcmVzZXQtY2FuZGlkYXRlIiwidGl0bGUiOiJMYW50ZXJuIEtlZXBlciIsInZlcnNpb24iOiIxLjAuMCIsImJ5dGVzIjo1ODUsInNoYTI1NiI6IjMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMiLCJsaWNlbnNlIjoiQ0MwLTEuMCIsInBhZ2UiOiJodHRwczovL2Nvc21vZ2VuaXRvci5leGFtcGxlL2NoYXJhY3RlcnMvbGFudGVybi1rZWVwZXIifQ&y=2",
+   "expect": "ok"
+  },
+  {
+   "name": "not a resource link: a preset link",
+   "fragment": "#preset=eyJuYW1lIjoiQSIsInByb21wdCI6IkIifQ",
+   "expect": "none"
+  },
+  {
+   "name": "not a resource link: a long fragment that names no resource",
+   "fragment": "#aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "expect": "none"
+  },
+  {
+   "name": "not a resource link: empty",
+   "fragment": "",
+   "expect": "none"
+  },
+  {
+   "name": "too long (the whole fragment)",
+   "fragment": "#resource=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+   "expect": "too-large"
+  },
+  {
+   "name": "too long (the value)",
+   "fragment": "#resource=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+   "expect": "too-large"
+  },
+  {
+   "name": "two resource values",
+   "fragment": "#resource=eyJ2IjoxLCJmYW1pbHkiOiJwcmVzZXQtY2FuZGlkYXRlIiwidGl0bGUiOiJMYW50ZXJuIEtlZXBlciIsInZlcnNpb24iOiIxLjAuMCIsImJ5dGVzIjo1ODUsInNoYTI1NiI6IjMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMiLCJsaWNlbnNlIjoiQ0MwLTEuMCIsInBhZ2UiOiJodHRwczovL2Nvc21vZ2VuaXRvci5leGFtcGxlL2NoYXJhY3RlcnMvbGFudGVybi1rZWVwZXIifQ&resource=eyJ2IjoxLCJmYW1pbHkiOiJwcmVzZXQtY2FuZGlkYXRlIiwidGl0bGUiOiJMYW50ZXJuIEtlZXBlciIsInZlcnNpb24iOiIxLjAuMCIsImJ5dGVzIjo1ODUsInNoYTI1NiI6IjMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMiLCJsaWNlbnNlIjoiQ0MwLTEuMCIsInBhZ2UiOiJodHRwczovL2Nvc21vZ2VuaXRvci5leGFtcGxlL2NoYXJhY3RlcnMvbGFudGVybi1rZWVwZXIifQ",
+   "expect": "ambiguous"
+  },
+  {
+   "name": "not base64url",
+   "fragment": "#resource=%%%",
+   "expect": "not-json"
+  },
+  {
+   "name": "not JSON",
+   "fragment": "#resource=bm90IGpzb24",
+   "expect": "not-json"
+  },
+  {
+   "name": "not UTF-8",
+   "fragment": "#resource=_w",
+   "expect": "not-json"
+  },
+  {
+   "name": "JSON that is a list",
+   "fragment": "#resource=W10",
+   "expect": "not-an-object"
+  },
+  {
+   "name": "JSON that is text",
+   "fragment": "#resource=Ingi",
+   "expect": "not-an-object"
+  },
+  {
+   "name": "an unknown field",
+   "fragment": "#resource=eyJ2IjoxLCJmYW1pbHkiOiJwcmVzZXQtY2FuZGlkYXRlIiwidGl0bGUiOiJMYW50ZXJuIEtlZXBlciIsInZlcnNpb24iOiIxLjAuMCIsImJ5dGVzIjo1ODUsInNoYTI1NiI6IjMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMiLCJsaWNlbnNlIjoiQ0MwLTEuMCIsInBhZ2UiOiJodHRwczovL2Nvc21vZ2VuaXRvci5leGFtcGxlL2NoYXJhY3RlcnMvbGFudGVybi1rZWVwZXIiLCJleHRyYSI6MX0",
+   "expect": "unknown-field"
+  },
+  {
+   "name": "a credential-looking field",
+   "fragment": "#resource=eyJ2IjoxLCJmYW1pbHkiOiJwcmVzZXQtY2FuZGlkYXRlIiwidGl0bGUiOiJMYW50ZXJuIEtlZXBlciIsInZlcnNpb24iOiIxLjAuMCIsImJ5dGVzIjo1ODUsInNoYTI1NiI6IjMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMiLCJsaWNlbnNlIjoiQ0MwLTEuMCIsInBhZ2UiOiJodHRwczovL2Nvc21vZ2VuaXRvci5leGFtcGxlL2NoYXJhY3RlcnMvbGFudGVybi1rZWVwZXIiLCJhcGlLZXkiOiJ4In0",
+   "expect": "unknown-field"
+  },
+  {
+   "name": "missing v",
+   "fragment": "#resource=eyJmYW1pbHkiOiJwcmVzZXQtY2FuZGlkYXRlIiwidGl0bGUiOiJMYW50ZXJuIEtlZXBlciIsInZlcnNpb24iOiIxLjAuMCIsImJ5dGVzIjo1ODUsInNoYTI1NiI6IjMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMiLCJsaWNlbnNlIjoiQ0MwLTEuMCIsInBhZ2UiOiJodHRwczovL2Nvc21vZ2VuaXRvci5leGFtcGxlL2NoYXJhY3RlcnMvbGFudGVybi1rZWVwZXIifQ",
+   "expect": "missing"
+  },
+  {
+   "name": "missing family",
+   "fragment": "#resource=eyJ2IjoxLCJ0aXRsZSI6IkxhbnRlcm4gS2VlcGVyIiwidmVyc2lvbiI6IjEuMC4wIiwiYnl0ZXMiOjU4NSwic2hhMjU2IjoiMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMyIsImxpY2Vuc2UiOiJDQzAtMS4wIiwicGFnZSI6Imh0dHBzOi8vY29zbW9nZW5pdG9yLmV4YW1wbGUvY2hhcmFjdGVycy9sYW50ZXJuLWtlZXBlciJ9",
+   "expect": "missing"
+  },
+  {
+   "name": "missing title",
+   "fragment": "#resource=eyJ2IjoxLCJmYW1pbHkiOiJwcmVzZXQtY2FuZGlkYXRlIiwidmVyc2lvbiI6IjEuMC4wIiwiYnl0ZXMiOjU4NSwic2hhMjU2IjoiMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMyIsImxpY2Vuc2UiOiJDQzAtMS4wIiwicGFnZSI6Imh0dHBzOi8vY29zbW9nZW5pdG9yLmV4YW1wbGUvY2hhcmFjdGVycy9sYW50ZXJuLWtlZXBlciJ9",
+   "expect": "missing"
+  },
+  {
+   "name": "missing version",
+   "fragment": "#resource=eyJ2IjoxLCJmYW1pbHkiOiJwcmVzZXQtY2FuZGlkYXRlIiwidGl0bGUiOiJMYW50ZXJuIEtlZXBlciIsImJ5dGVzIjo1ODUsInNoYTI1NiI6IjMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMiLCJsaWNlbnNlIjoiQ0MwLTEuMCIsInBhZ2UiOiJodHRwczovL2Nvc21vZ2VuaXRvci5leGFtcGxlL2NoYXJhY3RlcnMvbGFudGVybi1rZWVwZXIifQ",
+   "expect": "missing"
+  },
+  {
+   "name": "missing bytes",
+   "fragment": "#resource=eyJ2IjoxLCJmYW1pbHkiOiJwcmVzZXQtY2FuZGlkYXRlIiwidGl0bGUiOiJMYW50ZXJuIEtlZXBlciIsInZlcnNpb24iOiIxLjAuMCIsInNoYTI1NiI6IjMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMiLCJsaWNlbnNlIjoiQ0MwLTEuMCIsInBhZ2UiOiJodHRwczovL2Nvc21vZ2VuaXRvci5leGFtcGxlL2NoYXJhY3RlcnMvbGFudGVybi1rZWVwZXIifQ",
+   "expect": "missing"
+  },
+  {
+   "name": "missing sha256",
+   "fragment": "#resource=eyJ2IjoxLCJmYW1pbHkiOiJwcmVzZXQtY2FuZGlkYXRlIiwidGl0bGUiOiJMYW50ZXJuIEtlZXBlciIsInZlcnNpb24iOiIxLjAuMCIsImJ5dGVzIjo1ODUsImxpY2Vuc2UiOiJDQzAtMS4wIiwicGFnZSI6Imh0dHBzOi8vY29zbW9nZW5pdG9yLmV4YW1wbGUvY2hhcmFjdGVycy9sYW50ZXJuLWtlZXBlciJ9",
+   "expect": "missing"
+  },
+  {
+   "name": "missing license",
+   "fragment": "#resource=eyJ2IjoxLCJmYW1pbHkiOiJwcmVzZXQtY2FuZGlkYXRlIiwidGl0bGUiOiJMYW50ZXJuIEtlZXBlciIsInZlcnNpb24iOiIxLjAuMCIsImJ5dGVzIjo1ODUsInNoYTI1NiI6IjMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMiLCJwYWdlIjoiaHR0cHM6Ly9jb3Ntb2dlbml0b3IuZXhhbXBsZS9jaGFyYWN0ZXJzL2xhbnRlcm4ta2VlcGVyIn0",
+   "expect": "missing"
+  },
+  {
+   "name": "missing page",
+   "fragment": "#resource=eyJ2IjoxLCJmYW1pbHkiOiJwcmVzZXQtY2FuZGlkYXRlIiwidGl0bGUiOiJMYW50ZXJuIEtlZXBlciIsInZlcnNpb24iOiIxLjAuMCIsImJ5dGVzIjo1ODUsInNoYTI1NiI6IjMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMiLCJsaWNlbnNlIjoiQ0MwLTEuMCJ9",
+   "expect": "missing"
+  },
+  {
+   "name": "a newer format",
+   "fragment": "#resource=eyJ2IjoyLCJmYW1pbHkiOiJwcmVzZXQtY2FuZGlkYXRlIiwidGl0bGUiOiJMYW50ZXJuIEtlZXBlciIsInZlcnNpb24iOiIxLjAuMCIsImJ5dGVzIjo1ODUsInNoYTI1NiI6IjMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMiLCJsaWNlbnNlIjoiQ0MwLTEuMCIsInBhZ2UiOiJodHRwczovL2Nvc21vZ2VuaXRvci5leGFtcGxlL2NoYXJhY3RlcnMvbGFudGVybi1rZWVwZXIifQ",
+   "expect": "version"
+  },
+  {
+   "name": "v as text",
+   "fragment": "#resource=eyJ2IjoiMSIsImZhbWlseSI6InByZXNldC1jYW5kaWRhdGUiLCJ0aXRsZSI6IkxhbnRlcm4gS2VlcGVyIiwidmVyc2lvbiI6IjEuMC4wIiwiYnl0ZXMiOjU4NSwic2hhMjU2IjoiMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMyIsImxpY2Vuc2UiOiJDQzAtMS4wIiwicGFnZSI6Imh0dHBzOi8vY29zbW9nZW5pdG9yLmV4YW1wbGUvY2hhcmFjdGVycy9sYW50ZXJuLWtlZXBlciJ9",
+   "expect": "version"
+  },
+  {
+   "name": "a family not released",
+   "fragment": "#resource=eyJ2IjoxLCJmYW1pbHkiOiJwcmVzZW50YXRpb24tcGFja2FnZSIsInRpdGxlIjoiTGFudGVybiBLZWVwZXIiLCJ2ZXJzaW9uIjoiMS4wLjAiLCJieXRlcyI6NTg1LCJzaGEyNTYiOiIzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzIiwibGljZW5zZSI6IkNDMC0xLjAiLCJwYWdlIjoiaHR0cHM6Ly9jb3Ntb2dlbml0b3IuZXhhbXBsZS9jaGFyYWN0ZXJzL2xhbnRlcm4ta2VlcGVyIn0",
+   "expect": "family"
+  },
+  {
+   "name": "a family named like a property",
+   "fragment": "#resource=eyJ2IjoxLCJmYW1pbHkiOiJjb25zdHJ1Y3RvciIsInRpdGxlIjoiTGFudGVybiBLZWVwZXIiLCJ2ZXJzaW9uIjoiMS4wLjAiLCJieXRlcyI6NTg1LCJzaGEyNTYiOiIzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzIiwibGljZW5zZSI6IkNDMC0xLjAiLCJwYWdlIjoiaHR0cHM6Ly9jb3Ntb2dlbml0b3IuZXhhbXBsZS9jaGFyYWN0ZXJzL2xhbnRlcm4ta2VlcGVyIn0",
+   "expect": "family"
+  },
+  {
+   "name": "title blank",
+   "fragment": "#resource=eyJ2IjoxLCJmYW1pbHkiOiJwcmVzZXQtY2FuZGlkYXRlIiwidGl0bGUiOiIgICIsInZlcnNpb24iOiIxLjAuMCIsImJ5dGVzIjo1ODUsInNoYTI1NiI6IjMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMiLCJsaWNlbnNlIjoiQ0MwLTEuMCIsInBhZ2UiOiJodHRwczovL2Nvc21vZ2VuaXRvci5leGFtcGxlL2NoYXJhY3RlcnMvbGFudGVybi1rZWVwZXIifQ",
+   "expect": "bad-title"
+  },
+  {
+   "name": "title with a line break",
+   "fragment": "#resource=eyJ2IjoxLCJmYW1pbHkiOiJwcmVzZXQtY2FuZGlkYXRlIiwidGl0bGUiOiJBXG5CIiwidmVyc2lvbiI6IjEuMC4wIiwiYnl0ZXMiOjU4NSwic2hhMjU2IjoiMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMyIsImxpY2Vuc2UiOiJDQzAtMS4wIiwicGFnZSI6Imh0dHBzOi8vY29zbW9nZW5pdG9yLmV4YW1wbGUvY2hhcmFjdGVycy9sYW50ZXJuLWtlZXBlciJ9",
+   "expect": "bad-title"
+  },
+  {
+   "name": "title with a line separator",
+   "fragment": "#resource=eyJ2IjoxLCJmYW1pbHkiOiJwcmVzZXQtY2FuZGlkYXRlIiwidGl0bGUiOiJB4oCoQiIsInZlcnNpb24iOiIxLjAuMCIsImJ5dGVzIjo1ODUsInNoYTI1NiI6IjMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMiLCJsaWNlbnNlIjoiQ0MwLTEuMCIsInBhZ2UiOiJodHRwczovL2Nvc21vZ2VuaXRvci5leGFtcGxlL2NoYXJhY3RlcnMvbGFudGVybi1rZWVwZXIifQ",
+   "expect": "bad-title"
+  },
+  {
+   "name": "title with a direction override",
+   "fragment": "#resource=eyJ2IjoxLCJmYW1pbHkiOiJwcmVzZXQtY2FuZGlkYXRlIiwidGl0bGUiOiJB4oCuQiIsInZlcnNpb24iOiIxLjAuMCIsImJ5dGVzIjo1ODUsInNoYTI1NiI6IjMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMiLCJsaWNlbnNlIjoiQ0MwLTEuMCIsInBhZ2UiOiJodHRwczovL2Nvc21vZ2VuaXRvci5leGFtcGxlL2NoYXJhY3RlcnMvbGFudGVybi1rZWVwZXIifQ",
+   "expect": "bad-title"
+  },
+  {
+   "name": "title one unit too long",
+   "fragment": "#resource=eyJ2IjoxLCJmYW1pbHkiOiJwcmVzZXQtY2FuZGlkYXRlIiwidGl0bGUiOiJ0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0IiwidmVyc2lvbiI6IjEuMC4wIiwiYnl0ZXMiOjU4NSwic2hhMjU2IjoiMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMyIsImxpY2Vuc2UiOiJDQzAtMS4wIiwicGFnZSI6Imh0dHBzOi8vY29zbW9nZW5pdG9yLmV4YW1wbGUvY2hhcmFjdGVycy9sYW50ZXJuLWtlZXBlciJ9",
+   "expect": "bad-title",
+   "note": "120 UTF-16 code units, as PLC counts"
+  },
+  {
+   "name": "title of 61 emoji (122 units)",
+   "fragment": "#resource=eyJ2IjoxLCJmYW1pbHkiOiJwcmVzZXQtY2FuZGlkYXRlIiwidGl0bGUiOiLwn5iA8J-YgPCfmIDwn5iA8J-YgPCfmIDwn5iA8J-YgPCfmIDwn5iA8J-YgPCfmIDwn5iA8J-YgPCfmIDwn5iA8J-YgPCfmIDwn5iA8J-YgPCfmIDwn5iA8J-YgPCfmIDwn5iA8J-YgPCfmIDwn5iA8J-YgPCfmIDwn5iA8J-YgPCfmIDwn5iA8J-YgPCfmIDwn5iA8J-YgPCfmIDwn5iA8J-YgPCfmIDwn5iA8J-YgPCfmIDwn5iA8J-YgPCfmIDwn5iA8J-YgPCfmIDwn5iA8J-YgPCfmIDwn5iA8J-YgPCfmIDwn5iA8J-YgPCfmIDwn5iAIiwidmVyc2lvbiI6IjEuMC4wIiwiYnl0ZXMiOjU4NSwic2hhMjU2IjoiMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMyIsImxpY2Vuc2UiOiJDQzAtMS4wIiwicGFnZSI6Imh0dHBzOi8vY29zbW9nZW5pdG9yLmV4YW1wbGUvY2hhcmFjdGVycy9sYW50ZXJuLWtlZXBlciJ9",
+   "expect": "bad-title"
+  },
+  {
+   "name": "title of 60 emoji (120 units)",
+   "builds": {
+    "v": 1,
+    "family": "preset-candidate",
+    "title": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀",
+    "version": "1.0.0",
+    "bytes": 585,
+    "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+    "license": "CC0-1.0",
+    "page": "https://cosmogenitor.example/characters/lantern-keeper"
+   },
+   "fragment": "#resource=eyJ2IjoxLCJmYW1pbHkiOiJwcmVzZXQtY2FuZGlkYXRlIiwidGl0bGUiOiLwn5iA8J-YgPCfmIDwn5iA8J-YgPCfmIDwn5iA8J-YgPCfmIDwn5iA8J-YgPCfmIDwn5iA8J-YgPCfmIDwn5iA8J-YgPCfmIDwn5iA8J-YgPCfmIDwn5iA8J-YgPCfmIDwn5iA8J-YgPCfmIDwn5iA8J-YgPCfmIDwn5iA8J-YgPCfmIDwn5iA8J-YgPCfmIDwn5iA8J-YgPCfmIDwn5iA8J-YgPCfmIDwn5iA8J-YgPCfmIDwn5iA8J-YgPCfmIDwn5iA8J-YgPCfmIDwn5iA8J-YgPCfmIDwn5iA8J-YgPCfmIDwn5iA8J-YgPCfmIAiLCJ2ZXJzaW9uIjoiMS4wLjAiLCJieXRlcyI6NTg1LCJzaGEyNTYiOiIzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzIiwibGljZW5zZSI6IkNDMC0xLjAiLCJwYWdlIjoiaHR0cHM6Ly9jb3Ntb2dlbml0b3IuZXhhbXBsZS9jaGFyYWN0ZXJzL2xhbnRlcm4ta2VlcGVyIn0",
+   "expect": "ok"
+  },
+  {
+   "name": "license blank",
+   "fragment": "#resource=eyJ2IjoxLCJmYW1pbHkiOiJwcmVzZXQtY2FuZGlkYXRlIiwidGl0bGUiOiJMYW50ZXJuIEtlZXBlciIsInZlcnNpb24iOiIxLjAuMCIsImJ5dGVzIjo1ODUsInNoYTI1NiI6IjMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMiLCJsaWNlbnNlIjoiIiwicGFnZSI6Imh0dHBzOi8vY29zbW9nZW5pdG9yLmV4YW1wbGUvY2hhcmFjdGVycy9sYW50ZXJuLWtlZXBlciJ9",
+   "expect": "bad-license"
+  },
+  {
+   "name": "license too long",
+   "fragment": "#resource=eyJ2IjoxLCJmYW1pbHkiOiJwcmVzZXQtY2FuZGlkYXRlIiwidGl0bGUiOiJMYW50ZXJuIEtlZXBlciIsInZlcnNpb24iOiIxLjAuMCIsImJ5dGVzIjo1ODUsInNoYTI1NiI6IjMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMiLCJsaWNlbnNlIjoibGxsbGxsbGxsbGxsbGxsbGxsbGxsbGxsbGxsbGxsbGxsbGxsbGxsbGxsbGxsbGxsbGxsbGxsbGxsbGxsbGxsbGxsbGxsbGxsbGxsbGxsbGxsbGxsbGxsbGxsbGxsbGxsbGxsbGxsbGxsbGxsbGxsbGxsbGxsbGxsbCIsInBhZ2UiOiJodHRwczovL2Nvc21vZ2VuaXRvci5leGFtcGxlL2NoYXJhY3RlcnMvbGFudGVybi1rZWVwZXIifQ",
+   "expect": "bad-license"
+  },
+  {
+   "name": "license not text",
+   "fragment": "#resource=eyJ2IjoxLCJmYW1pbHkiOiJwcmVzZXQtY2FuZGlkYXRlIiwidGl0bGUiOiJMYW50ZXJuIEtlZXBlciIsInZlcnNpb24iOiIxLjAuMCIsImJ5dGVzIjo1ODUsInNoYTI1NiI6IjMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMiLCJsaWNlbnNlIjo3LCJwYWdlIjoiaHR0cHM6Ly9jb3Ntb2dlbml0b3IuZXhhbXBsZS9jaGFyYWN0ZXJzL2xhbnRlcm4ta2VlcGVyIn0",
+   "expect": "bad-license"
+  },
+  {
+   "name": "version with a space",
+   "fragment": "#resource=eyJ2IjoxLCJmYW1pbHkiOiJwcmVzZXQtY2FuZGlkYXRlIiwidGl0bGUiOiJMYW50ZXJuIEtlZXBlciIsInZlcnNpb24iOiIxIDAiLCJieXRlcyI6NTg1LCJzaGEyNTYiOiIzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzIiwibGljZW5zZSI6IkNDMC0xLjAiLCJwYWdlIjoiaHR0cHM6Ly9jb3Ntb2dlbml0b3IuZXhhbXBsZS9jaGFyYWN0ZXJzL2xhbnRlcm4ta2VlcGVyIn0",
+   "expect": "bad-version"
+  },
+  {
+   "name": "version empty",
+   "fragment": "#resource=eyJ2IjoxLCJmYW1pbHkiOiJwcmVzZXQtY2FuZGlkYXRlIiwidGl0bGUiOiJMYW50ZXJuIEtlZXBlciIsInZlcnNpb24iOiIiLCJieXRlcyI6NTg1LCJzaGEyNTYiOiIzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzIiwibGljZW5zZSI6IkNDMC0xLjAiLCJwYWdlIjoiaHR0cHM6Ly9jb3Ntb2dlbml0b3IuZXhhbXBsZS9jaGFyYWN0ZXJzL2xhbnRlcm4ta2VlcGVyIn0",
+   "expect": "bad-version"
+  },
+  {
+   "name": "version too long",
+   "fragment": "#resource=eyJ2IjoxLCJmYW1pbHkiOiJwcmVzZXQtY2FuZGlkYXRlIiwidGl0bGUiOiJMYW50ZXJuIEtlZXBlciIsInZlcnNpb24iOiIxMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMSIsImJ5dGVzIjo1ODUsInNoYTI1NiI6IjMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMiLCJsaWNlbnNlIjoiQ0MwLTEuMCIsInBhZ2UiOiJodHRwczovL2Nvc21vZ2VuaXRvci5leGFtcGxlL2NoYXJhY3RlcnMvbGFudGVybi1rZWVwZXIifQ",
+   "expect": "bad-version"
+  },
+  {
+   "name": "bytes zero",
+   "fragment": "#resource=eyJ2IjoxLCJmYW1pbHkiOiJwcmVzZXQtY2FuZGlkYXRlIiwidGl0bGUiOiJMYW50ZXJuIEtlZXBlciIsInZlcnNpb24iOiIxLjAuMCIsImJ5dGVzIjowLCJzaGEyNTYiOiIzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzIiwibGljZW5zZSI6IkNDMC0xLjAiLCJwYWdlIjoiaHR0cHM6Ly9jb3Ntb2dlbml0b3IuZXhhbXBsZS9jaGFyYWN0ZXJzL2xhbnRlcm4ta2VlcGVyIn0",
+   "expect": "bad-bytes"
+  },
+  {
+   "name": "bytes one over the family maximum",
+   "fragment": "#resource=eyJ2IjoxLCJmYW1pbHkiOiJwcmVzZXQtY2FuZGlkYXRlIiwidGl0bGUiOiJMYW50ZXJuIEtlZXBlciIsInZlcnNpb24iOiIxLjAuMCIsImJ5dGVzIjozMjc2OSwic2hhMjU2IjoiMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMyIsImxpY2Vuc2UiOiJDQzAtMS4wIiwicGFnZSI6Imh0dHBzOi8vY29zbW9nZW5pdG9yLmV4YW1wbGUvY2hhcmFjdGVycy9sYW50ZXJuLWtlZXBlciJ9",
+   "expect": "bad-bytes"
+  },
+  {
+   "name": "bytes a fraction",
+   "fragment": "#resource=eyJ2IjoxLCJmYW1pbHkiOiJwcmVzZXQtY2FuZGlkYXRlIiwidGl0bGUiOiJMYW50ZXJuIEtlZXBlciIsInZlcnNpb24iOiIxLjAuMCIsImJ5dGVzIjoxLjUsInNoYTI1NiI6IjMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMiLCJsaWNlbnNlIjoiQ0MwLTEuMCIsInBhZ2UiOiJodHRwczovL2Nvc21vZ2VuaXRvci5leGFtcGxlL2NoYXJhY3RlcnMvbGFudGVybi1rZWVwZXIifQ",
+   "expect": "bad-bytes"
+  },
+  {
+   "name": "bytes as text",
+   "fragment": "#resource=eyJ2IjoxLCJmYW1pbHkiOiJwcmVzZXQtY2FuZGlkYXRlIiwidGl0bGUiOiJMYW50ZXJuIEtlZXBlciIsInZlcnNpb24iOiIxLjAuMCIsImJ5dGVzIjoiNTg1Iiwic2hhMjU2IjoiMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMyIsImxpY2Vuc2UiOiJDQzAtMS4wIiwicGFnZSI6Imh0dHBzOi8vY29zbW9nZW5pdG9yLmV4YW1wbGUvY2hhcmFjdGVycy9sYW50ZXJuLWtlZXBlciJ9",
+   "expect": "bad-bytes"
+  },
+  {
+   "name": "bytes at the family maximum",
+   "builds": {
+    "v": 1,
+    "family": "preset-candidate",
+    "title": "Lantern Keeper",
+    "version": "1.0.0",
+    "bytes": 32768,
+    "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+    "license": "CC0-1.0",
+    "page": "https://cosmogenitor.example/characters/lantern-keeper"
+   },
+   "fragment": "#resource=eyJ2IjoxLCJmYW1pbHkiOiJwcmVzZXQtY2FuZGlkYXRlIiwidGl0bGUiOiJMYW50ZXJuIEtlZXBlciIsInZlcnNpb24iOiIxLjAuMCIsImJ5dGVzIjozMjc2OCwic2hhMjU2IjoiMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMyIsImxpY2Vuc2UiOiJDQzAtMS4wIiwicGFnZSI6Imh0dHBzOi8vY29zbW9nZW5pdG9yLmV4YW1wbGUvY2hhcmFjdGVycy9sYW50ZXJuLWtlZXBlciJ9",
+   "expect": "ok"
+  },
+  {
+   "name": "sha256 in capitals",
+   "fragment": "#resource=eyJ2IjoxLCJmYW1pbHkiOiJwcmVzZXQtY2FuZGlkYXRlIiwidGl0bGUiOiJMYW50ZXJuIEtlZXBlciIsInZlcnNpb24iOiIxLjAuMCIsImJ5dGVzIjo1ODUsInNoYTI1NiI6IkFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUEiLCJsaWNlbnNlIjoiQ0MwLTEuMCIsInBhZ2UiOiJodHRwczovL2Nvc21vZ2VuaXRvci5leGFtcGxlL2NoYXJhY3RlcnMvbGFudGVybi1rZWVwZXIifQ",
+   "expect": "bad-sha256"
+  },
+  {
+   "name": "sha256 too short",
+   "fragment": "#resource=eyJ2IjoxLCJmYW1pbHkiOiJwcmVzZXQtY2FuZGlkYXRlIiwidGl0bGUiOiJMYW50ZXJuIEtlZXBlciIsInZlcnNpb24iOiIxLjAuMCIsImJ5dGVzIjo1ODUsInNoYTI1NiI6IjMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMyIsImxpY2Vuc2UiOiJDQzAtMS4wIiwicGFnZSI6Imh0dHBzOi8vY29zbW9nZW5pdG9yLmV4YW1wbGUvY2hhcmFjdGVycy9sYW50ZXJuLWtlZXBlciJ9",
+   "expect": "bad-sha256"
+  },
+  {
+   "name": "sha256 with a prefix",
+   "fragment": "#resource=eyJ2IjoxLCJmYW1pbHkiOiJwcmVzZXQtY2FuZGlkYXRlIiwidGl0bGUiOiJMYW50ZXJuIEtlZXBlciIsInZlcnNpb24iOiIxLjAuMCIsImJ5dGVzIjo1ODUsInNoYTI1NiI6InNoYTI1NjozMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzIiwibGljZW5zZSI6IkNDMC0xLjAiLCJwYWdlIjoiaHR0cHM6Ly9jb3Ntb2dlbml0b3IuZXhhbXBsZS9jaGFyYWN0ZXJzL2xhbnRlcm4ta2VlcGVyIn0",
+   "expect": "bad-sha256"
+  },
+  {
+   "name": "page: http",
+   "fragment": "#resource=eyJ2IjoxLCJmYW1pbHkiOiJwcmVzZXQtY2FuZGlkYXRlIiwidGl0bGUiOiJMYW50ZXJuIEtlZXBlciIsInZlcnNpb24iOiIxLjAuMCIsImJ5dGVzIjo1ODUsInNoYTI1NiI6IjMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMiLCJsaWNlbnNlIjoiQ0MwLTEuMCIsInBhZ2UiOiJodHRwOi8vY29zbW9nZW5pdG9yLmV4YW1wbGUvYSJ9",
+   "expect": "bad-page"
+  },
+  {
+   "name": "page: credentials",
+   "fragment": "#resource=eyJ2IjoxLCJmYW1pbHkiOiJwcmVzZXQtY2FuZGlkYXRlIiwidGl0bGUiOiJMYW50ZXJuIEtlZXBlciIsInZlcnNpb24iOiIxLjAuMCIsImJ5dGVzIjo1ODUsInNoYTI1NiI6IjMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMiLCJsaWNlbnNlIjoiQ0MwLTEuMCIsInBhZ2UiOiJodHRwczovL3VzZXI6cHdAY29zbW9nZW5pdG9yLmV4YW1wbGUvYSJ9",
+   "expect": "bad-page"
+  },
+  {
+   "name": "page: a port",
+   "fragment": "#resource=eyJ2IjoxLCJmYW1pbHkiOiJwcmVzZXQtY2FuZGlkYXRlIiwidGl0bGUiOiJMYW50ZXJuIEtlZXBlciIsInZlcnNpb24iOiIxLjAuMCIsImJ5dGVzIjo1ODUsInNoYTI1NiI6IjMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMiLCJsaWNlbnNlIjoiQ0MwLTEuMCIsInBhZ2UiOiJodHRwczovL2Nvc21vZ2VuaXRvci5leGFtcGxlOjg0NDMvYSJ9",
+   "expect": "bad-page"
+  },
+  {
+   "name": "page: a fragment",
+   "fragment": "#resource=eyJ2IjoxLCJmYW1pbHkiOiJwcmVzZXQtY2FuZGlkYXRlIiwidGl0bGUiOiJMYW50ZXJuIEtlZXBlciIsInZlcnNpb24iOiIxLjAuMCIsImJ5dGVzIjo1ODUsInNoYTI1NiI6IjMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMiLCJsaWNlbnNlIjoiQ0MwLTEuMCIsInBhZ2UiOiJodHRwczovL2Nvc21vZ2VuaXRvci5leGFtcGxlL2EjeCJ9",
+   "expect": "bad-page"
+  },
+  {
+   "name": "page: a token in the query",
+   "fragment": "#resource=eyJ2IjoxLCJmYW1pbHkiOiJwcmVzZXQtY2FuZGlkYXRlIiwidGl0bGUiOiJMYW50ZXJuIEtlZXBlciIsInZlcnNpb24iOiIxLjAuMCIsImJ5dGVzIjo1ODUsInNoYTI1NiI6IjMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMiLCJsaWNlbnNlIjoiQ0MwLTEuMCIsInBhZ2UiOiJodHRwczovL2Nvc21vZ2VuaXRvci5leGFtcGxlL2E_dG9rZW49MSJ9",
+   "expect": "bad-page"
+  },
+  {
+   "name": "page: an api key in the query",
+   "fragment": "#resource=eyJ2IjoxLCJmYW1pbHkiOiJwcmVzZXQtY2FuZGlkYXRlIiwidGl0bGUiOiJMYW50ZXJuIEtlZXBlciIsInZlcnNpb24iOiIxLjAuMCIsImJ5dGVzIjo1ODUsInNoYTI1NiI6IjMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMiLCJsaWNlbnNlIjoiQ0MwLTEuMCIsInBhZ2UiOiJodHRwczovL2Nvc21vZ2VuaXRvci5leGFtcGxlL2E_YXBpX2tleT0xIn0",
+   "expect": "bad-page"
+  },
+  {
+   "name": "page: a numeric host",
+   "fragment": "#resource=eyJ2IjoxLCJmYW1pbHkiOiJwcmVzZXQtY2FuZGlkYXRlIiwidGl0bGUiOiJMYW50ZXJuIEtlZXBlciIsInZlcnNpb24iOiIxLjAuMCIsImJ5dGVzIjo1ODUsInNoYTI1NiI6IjMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMiLCJsaWNlbnNlIjoiQ0MwLTEuMCIsInBhZ2UiOiJodHRwczovLzE5Mi4xNjguMS4yL2EifQ",
+   "expect": "bad-page"
+  },
+  {
+   "name": "page: localhost",
+   "fragment": "#resource=eyJ2IjoxLCJmYW1pbHkiOiJwcmVzZXQtY2FuZGlkYXRlIiwidGl0bGUiOiJMYW50ZXJuIEtlZXBlciIsInZlcnNpb24iOiIxLjAuMCIsImJ5dGVzIjo1ODUsInNoYTI1NiI6IjMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMiLCJsaWNlbnNlIjoiQ0MwLTEuMCIsInBhZ2UiOiJodHRwczovL2xvY2FsaG9zdC9hIn0",
+   "expect": "bad-page"
+  },
+  {
+   "name": "page: a host without a dot",
+   "fragment": "#resource=eyJ2IjoxLCJmYW1pbHkiOiJwcmVzZXQtY2FuZGlkYXRlIiwidGl0bGUiOiJMYW50ZXJuIEtlZXBlciIsInZlcnNpb24iOiIxLjAuMCIsImJ5dGVzIjo1ODUsInNoYTI1NiI6IjMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMiLCJsaWNlbnNlIjoiQ0MwLTEuMCIsInBhZ2UiOiJodHRwczovL2ludHJhbmV0L2EifQ",
+   "expect": "bad-page"
+  },
+  {
+   "name": "page: a local host name",
+   "fragment": "#resource=eyJ2IjoxLCJmYW1pbHkiOiJwcmVzZXQtY2FuZGlkYXRlIiwidGl0bGUiOiJMYW50ZXJuIEtlZXBlciIsInZlcnNpb24iOiIxLjAuMCIsImJ5dGVzIjo1ODUsInNoYTI1NiI6IjMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMiLCJsaWNlbnNlIjoiQ0MwLTEuMCIsInBhZ2UiOiJodHRwczovL3ByaW50ZXIubG9jYWwvYSJ9",
+   "expect": "bad-page"
+  },
+  {
+   "name": "page: not an address",
+   "fragment": "#resource=eyJ2IjoxLCJmYW1pbHkiOiJwcmVzZXQtY2FuZGlkYXRlIiwidGl0bGUiOiJMYW50ZXJuIEtlZXBlciIsInZlcnNpb24iOiIxLjAuMCIsImJ5dGVzIjo1ODUsInNoYTI1NiI6IjMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMiLCJsaWNlbnNlIjoiQ0MwLTEuMCIsInBhZ2UiOiJub3QgYW4gYWRkcmVzcyJ9",
+   "expect": "bad-page"
+  },
+  {
+   "name": "page: a javascript address",
+   "fragment": "#resource=eyJ2IjoxLCJmYW1pbHkiOiJwcmVzZXQtY2FuZGlkYXRlIiwidGl0bGUiOiJMYW50ZXJuIEtlZXBlciIsInZlcnNpb24iOiIxLjAuMCIsImJ5dGVzIjo1ODUsInNoYTI1NiI6IjMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMiLCJsaWNlbnNlIjoiQ0MwLTEuMCIsInBhZ2UiOiJqYXZhc2NyaXB0OmFsZXJ0KDEpIn0",
+   "expect": "bad-page"
+  },
+  {
+   "name": "page: an address over 2,048 characters makes the whole fragment too long, which is checked first",
+   "fragment": "#resource=eyJ2IjoxLCJmYW1pbHkiOiJwcmVzZXQtY2FuZGlkYXRlIiwidGl0bGUiOiJMYW50ZXJuIEtlZXBlciIsInZlcnNpb24iOiIxLjAuMCIsImJ5dGVzIjo1ODUsInNoYTI1NiI6IjMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMiLCJsaWNlbnNlIjoiQ0MwLTEuMCIsInBhZ2UiOiJodHRwczovL2Nvc21vZ2VuaXRvci5leGFtcGxlL2FhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhIn0",
+   "expect": "too-large"
+  },
+  {
+   "name": "a field that would not fit: the page leaves the link out",
+   "builds": {
+    "v": 1,
+    "family": "preset-candidate",
+    "title": "tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt",
+    "version": "1.0.0",
+    "bytes": 585,
+    "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+    "license": "CC0-1.0",
+    "page": "https://cosmogenitor.example/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+   },
+   "fragment": null,
+   "expect": "no-link",
+   "note": "encodeResourceFragment returns null above 2,048 characters: the page offers the download link only and never cuts a field"
+  }
+ ]
+}
