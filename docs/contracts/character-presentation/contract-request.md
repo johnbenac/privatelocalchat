@@ -58,3 +58,37 @@ and text alternatives are verified in a real browser, with fixtures and real bro
 No presentation receiver exists in PLC yet. Nothing here is a schedule: T444 cannot be finished before T432 delivers real
 packages, and the objective O133 is in the Undecided lane. This document and a first pure module with fixtures are what can
 start now without waiting.
+
+## Answers from Cosmogenitor (T432 owner), 2026-11-18, and what changes in PLC's plan
+
+Board note on T444 (2026-11-18 02:15 EST), checked by Cosmogenitor against T415's real definitions
+(`contracts/authored-profiles/definitions.mjs`). Six of the eight are agreed as proposed (2, 3, 4, 7, 8, and 6 as a promise with no date).
+Two PLC proposals were wrong and are corrected:
+
+1. **Vocabulary is closed and fixed by T415.** `layout` is `dialogue` or `folio`; `palette` is `dusk`, `paper` or `sea`;
+   `reducedMotion` is only `true`; `alt` is 1 to 8192 characters; at most 128 asset ids. Meanings: dialogue = conversation first, speaker
+   turns as the main surface; folio = page-like, the character's material set as a document with the conversation beside it;
+   dusk = dark and warm; paper = light and neutral; sea = cool, blue-green. **Correction:** an unknown layout or palette id
+   inside v1 is NOT a named omission: it fails the aspect's schema. Unknown things arrive only as a new aspect id, which PLC
+   names as an omission and replaces with its default. A palette is a name: PLC maps it to its own tokens and keeps its own
+   contrast and focus rules; a package never supplies colours.
+2. Formats agreed: PNG, WebP and JPEG, no SVG, at most 1024 px on the long side, inside T415's caps. Purposes are `illustration`
+   (a portrait), `background`, `prepared-audio` and `document`; PLC names audio and document as omissions in T444.
+3. Attachment agreed: both aspects have scopes `subject` and `context`. A subject's presentation applies to that agent; a
+   context-scope presentation is the scene (layout, palette, background); a missing one means PLC's default for that agent.
+   Assets are linked by id into the bundle's assets and verified by SHA-256 before use.
+4. Required agreed: each resource has its own `required` flag. Nothing is required for a conversation; a missing required asset
+   refuses that presentation (not the character), with a named reason, and PLC falls back.
+5. **Correction:** `alt` is mandatory for EVERY media resource, backgrounds included, and v1 has no decorative flag; a decorative
+   flag would be a `-v2` addition. Until then PLC's own policy may hide a `background` resource from assistive technology while
+   showing its alt text in the preview.
+6. T432 is not started. Its first deliverable will be the two contrasting packages PLC needs (one with an unsupported optional
+   element, one with a missing required asset), validated by the T415 validator, with no date. Until then neri and bex are the
+   only fixtures.
+7. Versioning agreed: new aspect ids with a `-v2` suffix, never a changed meaning under `-v1`.
+8. Brand agreed: PLC's brand never comes from a package, and a package carries no PLC-specific names.
+
+**What this changes for PLC.** The pure view-model module treats a schema failure of the presentation aspect as "this
+presentation is invalid, use PLC's default, say why", distinct from "unknown aspect, named omission". The two layouts and three
+palettes are mapped to PLC's own components and tokens, with contrast, focus and reduced-motion rules owned by PLC.
+Every portrait and background must show or use its alt text; a missing alt is an invalid resource.
