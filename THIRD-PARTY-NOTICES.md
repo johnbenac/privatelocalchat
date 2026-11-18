@@ -1,6 +1,6 @@
 # Third-party notices
 
-Private Local Chat is released under the **GNU General Public License, version 3** (`LICENSE`). Earlier releases were published under the Apache License 2.0 and remain available under it for the code they contained. The change takes effect with the release that first bundles the voice engine described below.
+Private Local Chat is released under the **GNU Affero General Public License, version 3** (`LICENSE`). Earlier releases were published under the Apache License 2.0 and remain available under it for the code they contained. The change to the AGPL takes effect with the release that first carries this notice. A copy that people use over a network must offer them its source (section 13 of the AGPL), and this repository is that source.
 
 ## Software bundled with the app
 
@@ -16,7 +16,7 @@ Private Local Chat is released under the **GNU General Public License, version 3
 | wllama and the llama.cpp engine inside it (`runtime/providers/vendor/wllama/`) | Running GGUF models | MIT | https://github.com/ngxson/wllama |
 | WebLLM, transformers.js and the other runtimes listed in `docs/RUNTIMES.md` and `docs/EMBEDDINGS.md` | On-device language models and search | Apache-2.0 / MIT, see those documents | see those documents |
 
-The complete corresponding source of every GPL-covered part is this repository, which also contains the script that rebuilds the voice worker (`ops/voice/`, see `docs/VOICE-RUNTIME.md`). The eSpeak NG source is available at the address above. Apache-2.0 and MIT components are combined with this program under the terms of GPL-3.0, which permits it.
+The complete corresponding source of every GPL-covered part is this repository, which also contains the script that rebuilds the voice worker (`ops/voice/`, see `docs/VOICE-RUNTIME.md`). The eSpeak NG source is available at the address above. The GPL-covered parts (eSpeak NG) stay under GPL-3.0-or-later; section 13 of GPL-3.0 and section 13 of AGPL-3.0 permit combining them with this AGPL-3.0 program, and Apache-2.0 and MIT components are combined with it under the terms of AGPL-3.0, which permits it.
 
 ## Models (downloaded files, not part of the program)
 

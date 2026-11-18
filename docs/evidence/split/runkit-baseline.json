@@ -15,20 +15,20 @@
    "sha256": "6e2ce07360188a9a9a2a48f16d76378816bec0532b413fee38762e05c69e2a3e"
   },
   "LICENSE": {
-   "bytes": 35149,
-   "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+   "bytes": 34523,
+   "sha256": "0d96a4ff68ad6d4b6f1f30f713b18d5184912ba8dd389f86aa7710db079abcb0"
   },
   "THIRD-PARTY-NOTICES.md": {
-   "bytes": 9522,
-   "sha256": "66f894c1685669f8b0db48eaa0e91f830205e85cc9d9bb661e30069ac0a1ec97"
+   "bytes": 9804,
+   "sha256": "2230fff88cbf1a567eb76c601fcb895c3bd5aea26ec324ed23b5bc16597832d9"
   },
   "_headers": {
    "bytes": 598,
    "sha256": "2b5c3f561683ef9534eea46b638e7aaed8d337db7b9e140df8a2f4e54357601d"
   },
   "about/index.html": {
-   "bytes": 9011,
-   "sha256": "831e8f4dce4e6d08b191fef192e787801141fd52df9b3ddffb15d23cdefe9346"
+   "bytes": 9026,
+   "sha256": "5573cafbb428b4db5286c583a6f435e078a35eee264156e2e290b6317916e58a"
   },
   "brand/README.md": {
    "bytes": 1020,
@@ -95,8 +95,8 @@
    "sha256": "0de05304e1a9c7280393b2c71942f691de16221aae843269ae9055090eda3543"
   },
   "help/index.html": {
-   "bytes": 36535,
-   "sha256": "04b05d4a150448453450721451e58769b53b3ea4a9d9bf51321ce8159c667f8d"
+   "bytes": 36542,
+   "sha256": "935aa47c6455100ecc0f0fe8f85c9abf2e66bbe29ed656d571b9be19d48dda7e"
   },
   "index.html": {
    "bytes": 80806,

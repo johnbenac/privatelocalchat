@@ -128,7 +128,7 @@ await writeFile(path.join(out,'index.html'),html);
 // release's folder and every stylesheet, script and image a page names must exist in the output. See docs/PUBLIC-SITE.md.
 const rootLastmod=process.env.SOURCE_DATE_EPOCH?buildTime().toISOString().slice(0,10):execFileSync('git',['show','-s','--format=%cs','HEAD'],{encoding:'utf8'}).trim();
 const publicSite=siteDir?await buildPublicSite({siteDir,outDir:out,releasePath,config:siteConfig,rootLastmod,origin:siteJson.site?siteJson.site.url.replace(/\/$/,''):null}):{urls:[],pages:[]}; // the app target has no pages
-// The licence documents are published at /LICENSE and /THIRD-PARTY-NOTICES.md (GPL text and source offer; see docs/PUBLIC-SITE.md).
+// The licence documents are published at /LICENSE and /THIRD-PARTY-NOTICES.md (AGPL text and source offer; see docs/PUBLIC-SITE.md).
 for(const file of LICENCE_FILES)await cp(file,path.join(out,file));
 await writeFile(path.join(out,'404.html'),'<!doctype html><title>Not found</title><h1>Page not found</h1><a href="/">Open Private Local Chat</a>');
 await writeFile(path.join(out,'version.json'),JSON.stringify(build,null,2)+'\n');
