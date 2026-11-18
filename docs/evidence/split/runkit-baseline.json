@@ -8,7 +8,7 @@
   "SOURCE_DATE_EPOCH": "0",
   "SITE_DIR": ""
  },
- "fileCount": 216,
+ "fileCount": 218,
  "files": {
   "404.html": {
    "bytes": 101,
@@ -298,6 +298,10 @@
    "bytes": 5698,
    "sha256": "7542b61417922f0eb3d235a8ecc95eae410cef5973d44323c1bdef6355fb2f1f"
   },
+  "releases/0000000000000000000000000000000000000000/chat/presentation/presentation-store.mjs": {
+   "bytes": 8227,
+   "sha256": "24fbe279dcd98cafc65db043e1e12e50e10a54e0bf65fbec5bcba8022e6fddcd"
+  },
   "releases/0000000000000000000000000000000000000000/chat/presentation/preview.mjs": {
    "bytes": 7889,
    "sha256": "2c4c460555a024290b115ec9a7ab4e0bf14362f4c04f7907bb2faab648bd9dc7"
@@ -305,6 +309,10 @@
   "releases/0000000000000000000000000000000000000000/chat/presentation/reader.mjs": {
    "bytes": 153,
    "sha256": "3d897e521029d4b98a6a8c92619e2c6de5b6f9da0597b99de789f1ec5b5bf3aa"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/presentation/record.mjs": {
+   "bytes": 9555,
+   "sha256": "3af2b2a29a6a6ce737058fba99910105b30e90ace329761138ac788f5c2fcdbf"
   },
   "releases/0000000000000000000000000000000000000000/chat/presentation/view-model.mjs": {
    "bytes": 8682,
@@ -651,8 +659,8 @@
    "sha256": "54ab05c4b23c2e2ca8e7e698a5d2a156e4305fc08d3db4862869d9ae40c6344b"
   },
   "releases/0000000000000000000000000000000000000000/release.json": {
-   "bytes": 28756,
-   "sha256": "f837021a10ec300944d405fea856bf75994aff416007bc79a11e4fa13940a3f5"
+   "bytes": 29068,
+   "sha256": "e0c0c32014316dc3f9f4b1cf339406dec8614d64981f59a83a5854c2294d0c98"
   },
   "releases/0000000000000000000000000000000000000000/runtime/auto-load.mjs": {
    "bytes": 565,
@@ -867,8 +875,8 @@
    "sha256": "802e46c9e6bf5a295ed08ff9debdd12d3d5c3b6f16d898ffac0ed6a7b40b06f4"
   },
   "sw.js": {
-   "bytes": 21267,
-   "sha256": "843dc922974c4472d15b704f07193fbd501e7a266b30446048146deda33258cd"
+   "bytes": 21443,
+   "sha256": "986dfb4af37082a83d647fd4bb4ea7655299f9ac1416ac24bbe0209e467dd862"
   },
   "version.json": {
    "bytes": 170,

@@ -30,9 +30,13 @@ header and the agent's messages are drawn from that choice; without a preset, a 
 
 ## Two releases (docs/DATA-COMPATIBILITY.md)
 
-- **Release A (invisible).** The key and its format in `chat/vault/key-classes.mjs` and the storage inventory; the store module and its tests; the reader that turns a record into a description;
-  backup and restore of the records; the format guard knowing the key. No screen can create a record yet, so nothing is written. A browser that goes back from A to an earlier build loses nothing.
-- **Release B (the choice).** "Use this look", the override and disable controls, the header and message rendering, Remove look. B writes the key. An A build that meets B's data reads it and never rewrites it.
+- **Release A (invisible; built 2026-11-18).** Only the modules and their tests: `chat/presentation/record.mjs` (the record, checked again on every read; unknown fields not carried; a newer record is
+  "newer", never damaged), `chat/presentation/presentation-store.mjs` (the lock-protected map; an entry it cannot read is carried through every write untouched and never overwritten; `lookup` reads own
+  properties only), and their tests, including 7 parallel actors with one killed by SIGKILL at three points (20 repeats each) and three controls that must fail. **The key is NOT registered yet:** PLC's
+  own rules refuse a registered key that its owner does not use (`tests/storage-inventory.test.mjs`) and a registered format that no data snapshot has written (`tests/data-fixtures.test.mjs`), so the
+  key, its inventory entry and the snapshot arrive together with the writer in B. Nothing is written by A. Backup and restore of the records also move to B, because they change the backup file
+  (`docs/FILE-COMPATIBILITY.md`).
+- **Release B (the choice).** Registers `plc.presentations.v1` (key class, inventory, `since`), carries the records in a full backup, and adds "Use this look", the override and disable controls, the header and message rendering, Remove look. B writes the key. An A build that meets B's data reads it and never rewrites it.
 - **Snapshot.** A real-app data snapshot from a build that writes the key (`scripts/data-snapshot.mjs`, extended to attach a look to a preset) is captured at B and `tests/e2e/data-upgrade.e2e.mjs` loads it.
 
 ## Tests T706 requires, and where they go
