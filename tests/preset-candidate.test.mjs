@@ -146,3 +146,16 @@ test('the actual Cosmogenitor plc-preset candidates (producer output) are admitt
     const admitted = admitPreset([], r.candidate, { makeId: ids() }); assert.equal(admitted.ok, true); assert.notEqual(admitted.preset.id, producer.id);
   }
 });
+
+test('limits are counted in UTF-16 code units, so a producer must count the same way (T452 review item 1)', () => {
+  const emoji = '\u{1F600}';
+  assert.equal(parsePresetCandidate(text({ name: 'n'.repeat(120), prompt: 'B' })).ok, true, '120 plain characters is the longest name');
+  const longName = parsePresetCandidate(text({ name: emoji.repeat(120), prompt: 'B' }));
+  assert.equal(longName.ok, false); assert.equal(longName.code, 'too-large'); // 120 code points are 240 units
+  assert.equal(parsePresetCandidate(text({ name: emoji.repeat(60), prompt: 'B' })).ok, true, '60 emoji are 120 units');
+  const longPrompt = parsePresetCandidate(text({ name: 'A', prompt: emoji.repeat(5000) }));
+  assert.equal(longPrompt.ok, false); assert.equal(longPrompt.code, 'too-large'); // 5000 code points are 10000 units
+  assert.equal(parsePresetCandidate(text({ name: 'A', prompt: emoji.repeat(4000) })).ok, true, '4000 emoji are exactly 8000 units');
+  assert.equal(parsePresetCandidate(text({ name: 'A', prompt: 'B', id: emoji.repeat(101) })).ok, false, '101 emoji are 202 units, over the 200 limit');
+  assert.equal(parsePresetCandidate(text({ name: 'A', prompt: 'B', id: emoji.repeat(100) })).ok, true);
+});
