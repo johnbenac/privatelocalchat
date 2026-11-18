@@ -36,3 +36,18 @@ continue automatically" and `installed: false`. The state read a few seconds lat
 
 `plc-offline.sh` (runs ON the Mac, never touches Wi-Fi) and the page scripts it reads (`plc-before.js`, `plc-mark.js`, `plc-reload.js`, `plc-probe.js`, `plc-read*.js`);
 `make-preview-driver.py` and `preview-driver.template.js` make the in-page preview driver from a package file. The driver files that embed a package were not kept (they only repeat the fixtures).
+
+## Tampered stored picture, real Safari (2026-11-18, about 13:55 EST)
+
+Mac, Safari 27.0 (macOS 26.7.1), reached over the bridge (ssh port 2222), one run, my own marked tab (`runner=plc-t720b`) on production (commit 7090a3b), a script drove it with AppleScript `do JavaScript`.
+`tamper-check-build.mjs` builds the test record from Cosmogenitor's real Harbour Clerk export with PLC's own modules (record 5,650 characters) and the snippets that were injected.
+The storage was empty before (no presets, no kept looks) and was emptied again afterwards (both keys read back null).
+
+| State | What Safari showed |
+| --- | --- |
+| good record kept for a preset, preset chosen | strip shown, palette sea, layout folio, both pictures loaded, message area carries the sea palette, no warning |
+| the same record with the last byte of the portrait changed (same size, still valid base64) | strip hidden, no palette, no pictures, the warning "A picture of this look no longer matches the checksum it was kept with, so the look is not shown. Remove it, or add the ..." in the look controls, the stored text unchanged |
+| the good record put back | strip shown again, sea and folio, both pictures loaded, no warning |
+
+So the check that shipped in 7a98e27 (stored pictures hashed again before drawing) works in real Safari as it does in Chromium.
+Limits: one machine, one Safari version, one run; the record was written into storage by the script, not kept through the preview and Add buttons (that path was run in Chromium); no touch, keyboard or narrow-width check here; no offline test.
