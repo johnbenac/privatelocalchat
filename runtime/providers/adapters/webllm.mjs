@@ -121,21 +121,37 @@ async function install({ files, parallel = 3, verifyHash = true, deep = false },
   if (plan.deleteFirst.length) await removeFiles({ files, paths: plan.deleteFirst });
   report({ resumed: plan.bytesKept > 0 });
   let last = 0;
-  await mapLimit(plan.todo, parallel, async (f) => {
-    if (signal?.aborted) throw Object.assign(new Error("cancelled"), { name: "AbortError" });
-    active.add(f.path);
-    await retryDownload(async()=>{
+  // one file, whole, through the same size and SHA-256 checks and the same retry policy for a network failure
+  const fetchFile = (f) => retryDownload(async()=>{
     let mine = 0;
     report();
     try {
       await downloadOne(f, { signal, verifyHash, onBytes: (b) => { mine += b; fetched += b; const t = performance.now(); if (t - last > 400) { last = t; report(); } } });
     } catch (e) { fetched -= mine; throw e; } // a failed file leaves nothing behind and is not counted
-    },{signal,onRetry:extra=>{rate.reset();report(extra);}});
+  },{signal,onRetry:extra=>{rate.reset();report(extra);}});
+  await mapLimit(plan.todo, parallel, async (f) => {
+    if (signal?.aborted) throw Object.assign(new Error("cancelled"), { name: "AbortError" });
+    active.add(f.path);
+    await fetchFile(f);
     active.delete(f.path); filesDone++; report();
   });
-  const after = await inspect({ files }, { signal });
+  let after = await inspect({ files }, { signal });
+  // A file whose download finished and was stored can still be absent from this check (T520: real Safari 27.0 ended with 130 of 131 files, the
+  // missing one a 2 KB config, cause unknown). Fetch exactly those files once more, each at most once, through the same checks: a checksum or size
+  // failure here still throws and is never hidden, and a file that is still missing afterwards fails the install as before.
+  let refetched = 0;
+  if (!after.ok && after.missing.length && !signal?.aborted) {
+    const again = files.filter((f) => after.missing.includes(f.path));
+    report({ phase: "install", refetchMissing: again.map((f) => f.path) });
+    await mapLimit(again, parallel, async (f) => {
+      if (signal?.aborted) throw Object.assign(new Error("cancelled"), { name: "AbortError" });
+      await fetchFile(f);
+    });
+    refetched = again.length;
+    after = await inspect({ files }, { signal });
+  }
   if (!after.ok) throw Object.assign(new Error(`cache-incomplete after install: ${after.missing.length} missing, ${after.bad.length} bad`), { code: "cache-corrupt", detail: { missing: after.missing.slice(0, 20), bad: after.bad.slice(0, 20) } });
-  return { ...after, fetchedBytes: fetched, keptBytes: plan.bytesKept, replaced: plan.deleteFirst, filesFetched: plan.todo.length };
+  return { ...after, fetchedBytes: fetched, keptBytes: plan.bytesKept, replaced: plan.deleteFirst, filesFetched: plan.todo.length, refetched };
 }
 
 export const storageOps = {

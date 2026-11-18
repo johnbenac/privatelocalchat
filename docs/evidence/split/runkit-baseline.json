@@ -632,7 +632,7 @@
   },
   "releases/0000000000000000000000000000000000000000/release.json": {
    "bytes": 27983,
-   "sha256": "ab84204a817039ebff86090bbc2b6a2f230c4df6cccae1df2115f863bb501ac6"
+   "sha256": "a5d457b973f33aa5bafae3764d19fe1351494ba69fb1d400f4c780b4b72f3ef3"
   },
   "releases/0000000000000000000000000000000000000000/runtime/auto-load.mjs": {
    "bytes": 565,
@@ -679,8 +679,8 @@
    "sha256": "1bef792ac631b65f7e28d2c151db7f6dea77b0e9d4b0f85141e995827da415c3"
   },
   "releases/0000000000000000000000000000000000000000/runtime/providers/adapters/webllm.mjs": {
-   "bytes": 14876,
-   "sha256": "d76a0a80ac7b5319789103ad11e24b3edc6bdf1cff4c57c204c12b1ff51c89b6"
+   "bytes": 15948,
+   "sha256": "68e9c2bab30aa75c269dde1c71c3e95726653b78c4c58f3f5dc9f8aebc9b08e1"
   },
   "releases/0000000000000000000000000000000000000000/runtime/providers/adapters/wllama.mjs": {
    "bytes": 20753,
