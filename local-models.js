@@ -14,7 +14,7 @@ await bootVault();
 
 const $ = id => document.getElementById(id);
 // Where the model files come from is the configured model source (runtime/providers/app-config.mjs, docs/APP-CONFIG.md); the catalog reads it, so there is nothing to pass here.
-const host = createModelHost({});
+const host = createModelHost({settings:appLocal});
 /* DEV_DIAGNOSTICS_START */
 window.__plcDebugModelHost=host;
 let diagnosticsStarted;
