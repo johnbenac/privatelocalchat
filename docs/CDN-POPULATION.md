@@ -1,112 +1,77 @@
-# Populating the CDN (task for an agent or operator with Cloudflare access)
+# Where the model files live and how they are published
 
-> **T587 (2026-11-17): the shipped model source is the shared CDN `https://cdn.aiofourown.com/models/`** (R2 bucket `cosmoshot-cdn`, run by infra; data only, no `.wasm`). The files below were copied server-side with their hashes checked, and the search set was published without its two runtime files. PLC pins every file itself (`ops/cloudflare/model-cdn-manifest.json`). `assets.privatelocal.chat` still serves the same files. The rest of this page describes how they were first published to that host.
->
-> ## DONE (2026-11-02): the search model is on the project CDN
->
-> **T587 (2026-11-17):** the two executable files of this set (`runtime/ort-wasm-simd-threaded.wasm` and `.mjs`) are no longer fetched from the CDN: the app serves them itself
-> (`chat/vendor/embedding/ort/`, pinned in `chat/vendor/embedding/VERSIONS.json`), because the shared CDN is data-only. `publish-embedding.py --data-only` publishes the
-> set without them (8 objects, 23,891,541 bytes; dry run verified).
->
-> `ops/cloudflare/publish-embedding.py` uploaded all 10 objects (36,858,671 bytes) to `models/memory/79cbff1e617b319a/` and verified each over
-> the public URL (bytes, CORS, content type). The app now reads it from `https://assets.privatelocal.chat/models/memory/`; Task 2 below is done
-> and `tests/e2e/ivr-semantic.e2e.mjs` passes against the new host. Task 3 is still open.
+**Rule:** every model file the app downloads, of any kind (language, search, voices), is served by one host, the programme's shared data CDN
+`https://cdn.aiofourown.com` (R2 bucket `cosmoshot-cdn`, run by infra). The app does not depend on another project's storage or on Hugging Face /
+GitHub at run time (the models come from the configured model source, `docs/APP-CONFIG.md`).
 
-**Rule:** every model file the app downloads, of any kind (language, search, and later speech-to-text and text-to-speech), is served from one
-host: `https://assets.privatelocal.chat` (R2 bucket `privatelocalchat-assets`, provisioned by `ops/cloudflare/provision-cdn.py`; see
-`ops/cloudflare/CDN-OPERATIONS.txt`). The app does not depend on another project's storage or on Hugging Face / GitHub at run time (split stage 4: the models come from the configured model source, `docs/APP-CONFIG.md`).
+**Data only:** executable files do not belong on that CDN. The two WebLLM model libraries (`*-webgpu.wasm`) are served by the app from
+`runtime/providers/vendor/webllm/libs/` (`docs/RUNTIMES.md`), and the search model's ONNX Runtime files (`runtime/ort-wasm-simd-threaded.wasm` and
+`.mjs`) from `chat/vendor/embedding/ort/` (pinned in `chat/vendor/embedding/VERSIONS.json`).
 
-**Data only (T587):** executable files do not belong on the CDN. The two WebLLM model libraries (`*-webgpu.wasm`) are served by the app from `runtime/providers/vendor/webllm/libs/` (`docs/RUNTIMES.md`); the copies already on `assets.privatelocal.chat` stay there, unused by the app, and are not copied to the shared CDN. The search set's `runtime/ort-wasm-simd-threaded.{wasm,mjs}` are the other two such files (not changed here).
+## State
 
-## State on 2026-11-02
+| Date | What |
+|---|---|
+| 2026-11-17 | T587: the shipped model source became `https://cdn.aiofourown.com/models/`. Infra copied the 308 pinned files (nine families) server-side with their hashes checked, and published the search set's data files (`models/memory/79cbff1e617b319a/`, 8 objects, without the two runtime files). |
+| 2026-11-17 22:07 EST | T674: production (`privatelocal.chat`, commit `a1059ea`) and the site layer name the new host; a real-browser network log showed no request to the old host. |
+| 2026-11-17 22:10 EST | The old host `assets.privatelocal.chat` was made to 301-redirect `/models/*` to the shared CDN (applied by infra on PLC's written word on T674). `*.wasm` and `/models/catalog.json` stay on the old host. |
+| 2026-11-17 | T677: the old publishers, verifier and provisioning scripts were deleted from this repository (see below). |
 
-| Kind | On `assets.privatelocal.chat`? | Notes |
-|---|---|---|
-| Qwen3.5-9B WebLLM (q4f16_1, q4f32_1) and Qwen3.5-2B GGUF | **Yes** (275 objects, 11.3 GB, `models/catalog.json`) | Done. Verified by `ops/cloudflare/verify-cdn.py`. |
-| Small search model for Roberta (MongoDB/mdbr-leaf-ir int8 ONNX + ONNX Runtime WASM, about 37 MB) | **Yes** (10 objects, `models/memory/79cbff1e617b319a/`) | Done 2026-11-02; app switched over. |
-| LFM2.5-2.6B Q3_K_M (6 files, 1.37 GB) and Granite 4.0 H 1B Q4_K_M (12 files, 0.90 GB) | **Yes** (published 2026-11-02 with `ops/cloudflare/publish-gguf.py`, listed in `models/catalog.json`) | Every file was downloaded from the earlier host, checked against its SHA-256, uploaded, and read back over the public URL. Licences are stored beside the weights. |
-| Granite 4.0 H 350M Q4_K_M (1 file, 223 MB) and SmolLM2-135M Q4_K_M (1 file, 105 MB) | **Yes** (published 2026-11-03 with `ops/cloudflare/publish-gguf.py`, listed in `models/catalog.json`) | Single-file models downloaded from IBM's and bartowski's Hugging Face repositories at pinned commits, checked against their SHA-256 and uploaded unchanged. Licences stored beside the weights. |
-| Text-to-speech, speech-to-text models | Not used yet (the app uses the browser's own speech services) | Later; follow the layout below. |
+Records of the retired bucket, kept as they were and not maintained: `ops/cloudflare/cdn-state.json` (account, zone, bucket, domain),
+`ops/cloudflare/public-cdn-verification.json` (its last public check, 2026-11-02), and `ops/cloudflare/cdn-inventory.json`.
 
-Coding sessions have no Cloudflare credentials, so this could not be done there. `ops/cloudflare/publish-embedding.py --dry-run` was run in
-such a session on 2026-11-02: all eight files downloaded from the current host and matched their pinned SHA-256 values. Nothing was uploaded.
+## What PLC keeps (the pins)
 
-## Task 1: publish the search-model set
+PLC owns the record of what the app asks for. Every file is pinned by size and SHA-256 here, checked by the app before use, and published
+under `models/<family>/<revision>/` (the two Qwen3.5-9B sets under `models/<family>/resolve/<revision>/`):
 
-1. Machine with the operator token at `/root/.config/privatelocalchat/cloudflare-api-token` (outside Git; never print or copy it) and `boto3`.
-2. `python3 ops/cloudflare/publish-embedding.py --dry-run` should end with `10 objects, 36858671 bytes` and no MISMATCH.
-3. `python3 ops/cloudflare/publish-embedding.py` uploads to `models/memory/79cbff1e617b319a/` (same version string and layout as the source, so
-   the bytes are provably the pinned ones), with `Cache-Control: public, max-age=31536000, immutable` and a `sha256` metadata value per object.
-   It keeps identical existing objects, refuses to replace different ones, then re-downloads every object from the public URL with
-   `Origin: https://privatelocal.chat` and checks bytes, CORS and content type. Exit code 0 means all good.
-4. Check by hand what the script only prints: `Cross-Origin-Resource-Policy`. The app is cross-origin isolated (COEP `require-corp`). The
-   worker fetches with CORS, which is enough, but if the existing model rules do not add `cross-origin-resource-policy: cross-origin`, add it
-   to the response-header transform in `provision-cdn.py` (the same rule that sets `no-store` on weights) so any non-CORS load also works.
-   `.wasm` must come back as `application/wasm`. Range requests are not needed for this set.
-5. Do not publish the source set's `rerank/` files: the app never fetches them.
+| File | What it pins |
+|---|---|
+| `ops/cloudflare/model-cdn-manifest.json` | All 308 data files of the nine families (key, size, SHA-256, URL on the shared CDN); the four `.wasm` entries keep their old address and are app-served. Infra's retention reads it as PLC's list of pinned revisions. |
+| `ops/cloudflare/pinned-model-catalog.json` | The upstream revisions and hashes the app catalogue was generated from. |
+| `ops/cloudflare/gguf-models.json` | The wllama models (Qwen3.5-2B, LFM2.5, Granite, SmolLM2): source, files, prefix, licence, load context and sampling. |
+| `ops/cloudflare/voice-models.json` | The read-aloud voices (Kitten, Kokoro). |
+| `ops/cloudflare/memory-models.json` | The search model: the six `embed/` data files and the two app-served `runtime/` files. |
+| `ops/cloudflare/licenses/` | The licence texts published beside each model. |
 
-## Task 2: point the app at the CDN (done)
+`tests/publish-files.test.mjs`, `tests/embedding-ort-pin.test.mjs` and `tests/models-catalog.test.mjs` check these files (hashes, sizes, unique
+prefixes, no foreign hosts, the version the app uses).
 
-`EMBEDDING_ASSET_HOST` in `chat/embedding/embedding-config.mjs` is `https://assets.privatelocal.chat/models/memory/`; the Privacy page, the Updates entry and
-`docs/EMBEDDINGS.md` say the same, and `tests/e2e/ivr-semantic.e2e.mjs` proves the real model loads from the project host and that a reload
-makes no request to it (Cache API).
+## Publishing a model (the shared tool)
 
-## Task 3: stop depending on other hosts for models
-
-**Done (split stage 4).** The catalogue defaults used to name Hugging Face and `raw.githubusercontent.com` and were overridden at run time by `local-models.js`. They are now the configured model source (`app-config.json`, `docs/APP-CONFIG.md`), the override is gone, `docs/evidence/split/model-urls-baseline.json` records every address the app requests (all on one host), and the Privacy page no longer says the defaults point elsewhere.
-
-## Keeping our own copy
-
-Every model file is pinned by size and SHA-256, and the published objects on `assets.privatelocal.chat` are the record. Keep a verified local copy of the files too, laid out like the bucket (`models/<name>/<revision>/...`), so any model can be published again from it:
+Publishing is done with the shared tool `/cosmoshot/tools/ops/cdn_publish.py` (devops, T585; read the section "Shared CDN publish, verify, roll back" in
+`/cosmoshot/tools/ops/README.md`). It reports by default and writes only with `--apply`; every write is a conditional create, a different object at an
+existing key is refused, it refuses code (`.wasm`, `.js`, ...), and `publish --apply` reads every object back over the public URL.
 
 ```sh
-python3 ops/cloudflare/publish-gguf.py <key> --dry-run --source file:///path/to/models/<name>/<revision>/
+# put the files in a local folder laid out as the family's version folder, with the upstream licence text
+/usr/bin/python3 /cosmoshot/tools/ops/cdn_publish.py publish --project plc --family models/Foo-Q4 --revision REV --source-dir DIR \
+    --source-url URL --license-name Apache-2.0 --license-file LICENSE.txt [--version-dir resolve] [--refresh-catalog]   # report
+... same command with --apply                                                                                          # write and verify
+/usr/bin/python3 /cosmoshot/tools/ops/cdn_publish.py verify --family models/Foo-Q4 --revision REV [--quick] [--version-dir resolve]
+/usr/bin/python3 /cosmoshot/infra/cloudflare/cdn_verify.py            # infra's check of every published version
 ```
 
-The dry run reads every file from that folder, checks it against its pin, and uploads nothing. The licence texts the publisher writes next to each model are in `ops/cloudflare/licenses/`.
+Adding another model: (1) get the files, check each against the upstream pin you computed yourself, and describe the set in the matching pin file above
+(`gguf-models.json`, `voice-models.json`, or a new entry in `memory-models.json`'s style); (2) publish it with the command above; (3) add it to
+`runtime/providers/catalog-data.mjs` and a tier in `runtime/providers/catalog.mjs`, a short note in `TIER_NOTES` (`chat/models/models-view.mjs`), the
+Privacy page and the Updates feed in the site layer; (4) refresh `model-cdn-manifest.json` for the new files (the tool does not do this: see the
+T677 report); (5) prove it with a real download (`node work/check-new-models.mjs <tier> <origin>`, which writes `docs/evidence/model-<tier>-cdn-check.json`).
 
-## Adding another language model (the recipe used for LFM2.5 and Granite)
+## Layout convention
 
-1. Describe it in `ops/cloudflare/gguf-models.json` (source host, per-file size and SHA-256, destination prefix, licence file, load context and sampling). For models already published, `sourceBase` is the published folder on `assets.privatelocal.chat`. For a new model, pass `--source` with the folder that holds your files: an `https://` address or a `file://` folder.
-2. `python3 ops/cloudflare/publish-gguf.py <key> --dry-run`, then without `--dry-run` (needs boto3 and the operator token; a throw-away venv works). It refuses to replace a different object.
-3. `python3 ops/cloudflare/update-catalog-index.py` adds it to the public `models/catalog.json` index and to `model-cdn-manifest.json`.
-4. Add it to `runtime/providers/catalog-data.mjs` and a tier in `runtime/providers/catalog.mjs`, a short note in `TIER_NOTES` (`chat/models/models-view.mjs`) (the model menus and Settings > Models list every catalogue tier on their own), the Privacy page and the Updates feed.
-5. Prove it with a real download: `node work/check-new-models.mjs <tier> <origin>` (download, verify, load, generate, unload, remove; writes `docs/evidence/model-<tier>-cdn-check.json`).
-
-## Adding any other immutable file set (the recipe for speech models)
-
-`publish-files.py` is the general form of `publish-gguf.py`: same download, size and SHA-256 check, refusal to replace a different object,
-`sha256` metadata, `manifest.json` and `LICENSE.txt`, and read-back over the public URL (bytes, CORS, content type).
-
-1. Describe the set in `ops/cloudflare/voice-models.json` (prefix `models/<Name>/<pinned commit>/`, `sourceBase`, per-file path, size and
-   SHA-256 that you computed yourself from a fresh download, licence name, licence file under `ops/cloudflare/licenses/`).
-2. `python3 ops/cloudflare/publish-files.py <key> --dry-run` (downloads and hash-checks only, needs no credentials), then without `--dry-run`.
-3. Add the key to `VOICE_IDS` in `update-catalog-index.py` and run it to list the set in `models/catalog.json`.
-4. `tests/publish-files.test.mjs` validates the manifest (hashes, sizes, unique prefix, no foreign hosts).
-
-First entry: `kitten_nano_int8` = KittenML/kitten-tts-nano-0.8-int8 at commit `84781d74e29ee25217551556398b42f80593a813` (3 files, 27,649,561 bytes,
-Apache-2.0 weights). Its phonemizer dependency, espeak-ng, is GPL-3.0 and is shipped separately, not in this set. Dry run on 2026-11-02:
-all three files matched their pinned size and SHA-256; nothing was uploaded.
-
-Second entry: `kokoro_q8` = onnx-community/Kokoro-82M-v1.0-ONNX at commit `1939ad2a8e416c0acfeecc08a694d14ef25f2231`, prefix
-`models/Kokoro-82M-v1.0-ONNX-q8/<commit>/` (12 files, 96,542,690 bytes: the q8 `onnx/model_quantized.onnx`, tokenizer, config and eight voices).
-Paths in a set may be nested (`onnx/...`, `voices/...`): the publisher creates the parent directories and uses the full relative path as the
-object key. Weights are Apache-2.0; the licence file also carries the model card's data notice (Koniwa CC BY 3.0 and SIWIS CC BY 4.0 audio), and
-the eSpeak NG phonemizer (GPL-3.0) ships separately inside the app. Not uploaded yet; dry run only.
-
-## Layout convention for anything new (speech models later)
-
-* `models/<family>/<pinned revision or content hash>/<files>`: one immutable directory per version; a changed byte is a new path. Existing
-  families: `models/Qwen3.5-9B-*-MLC/resolve/<commit>/`, `models/Qwen3.5-2B/<revision>/`, `models/memory/<hash>/`. Suggested for later:
-  `models/tts/<name>/<revision>/` and `models/stt/<name>/<revision>/`.
-* Pin every file by SHA-256 in the repository (a manifest or `pinned-model-catalog.json`), and check it in the publisher and, where files are
-  large, in the app.
-* Ship the upstream LICENSE next to each model. Add the model to `models/catalog.json` and the Privacy page's downloads table in the same change.
-* Never overwrite an object. CORS must allow `https://privatelocal.chat` and the dev origin; weights (`.gguf`, `.bin`) get `no-store` from the
-  existing transform so the offline copy is the app's own; everything else is `immutable`.
+* `models/<family>/<pinned revision or content hash>/<files>`: one immutable directory per version; a changed byte is a new path. Existing families:
+  `models/Qwen3.5-9B-*-MLC/resolve/<commit>/`, `models/Qwen3.5-2B/<revision>/`, `models/memory/<hash>/`, and one folder per other model.
+* Pin every file by SHA-256 in this repository and in the app where files are large. Ship the upstream LICENSE next to each model.
+* Never overwrite an object. CORS is open (`*`) with `Cross-Origin-Resource-Policy: cross-origin`; weights (`.gguf`, `.bin`) get `no-store` so the offline
+  copy is the app's own; everything else is `immutable`.
 * Large files are kept by the app in OPFS or the Cache API, not in the service worker precache.
+* Keep a verified local copy of the files too, laid out like the bucket, so any model can be published again from it.
 
-## Done means
+## History
 
-All objects verified over the public URL; the app reads the search model from `assets.privatelocal.chat`; the Privacy page, Updates entry,
-`docs/EMBEDDINGS.md` and the debt list say the same; the dev site shows Roberta matching speech with the model served from the project CDN.
+Until 2026-11-17 the files were published to the project's own bucket `privatelocalchat-assets` (`assets.privatelocal.chat`) with scripts in
+`ops/cloudflare/` (a provisioning script, `publish-gguf.py`, `publish-files.py`, `publish-embedding.py`, a server-side copy, a catalogue updater and
+`verify-cdn.py`); the search model went there on 2026-11-02 and the LFM2.5, Granite and SmolLM2 models on 2026-11-02 and 2026-11-03, each downloaded
+from its source, checked against its pinned SHA-256, uploaded unchanged and read back. Those scripts are deleted; their data (the pins) is in the
+files above and in git history. Retirement of the old host: `/cosmoshot/infra/docs/RETIREMENT-RUNBOOK-PLC.md`, board tasks T673, T674 and T677.

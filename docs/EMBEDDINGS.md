@@ -28,9 +28,9 @@ The set is served from this project's own content-addressed asset host (see `cha
 
     https://cdn.aiofourown.com/models/memory/79cbff1e617b319a/
 
-It was published on 2026-11-02 with `ops/cloudflare/publish-embedding.py`, which checks every file against the SHA-256 values below before
-uploading and re-downloads each object from the public URL afterwards. The host sends CORS `*`, which the worker's CORS-mode fetches need under
-this site's cross-origin isolation (COEP `require-corp`); it sends no `Cross-Origin-Resource-Policy` header, like the language-model files. The
+It was first published on 2026-11-02 to the project's old bucket, and on 2026-11-17 its data files were published to the shared CDN (without the two
+`runtime/` files, which are code and are served by the app). The pins are in `ops/cloudflare/memory-models.json`. The host sends CORS `*`, which the worker's CORS-mode fetches
+need under this site's cross-origin isolation (COEP `require-corp`), and `Cross-Origin-Resource-Policy: cross-origin`. The
 version is the first 16 hex digits of the SHA-256 of every file's path and hash, so a changed byte is a new path and the objects are immutable.
 
 | Asset | Licence | Size | SHA-256 |
@@ -63,18 +63,18 @@ requests: they are plain GETs of fixed file names. The Cache API keeps the files
 With Data saver on, the model is not downloaded and Roberta stays lexical (`embedder.state === "unavailable"`, `embedder.error` says why).
 The host sees an ordinary file download (IP address, user agent), as with any other asset.
 
-## Moving the files to the project's own asset host
+## Publishing the files
 
-The task is written up in `docs/CDN-POPULATION.md` and `ops/cloudflare/publish-embedding.py` does the upload and verification. You cannot publish from a coding session (no credentials), but the move is mechanical:
+The files are on the shared CDN (`models/memory/79cbff1e617b319a/`, the six `embed/` files plus infra's `MANIFEST.json`). To publish a new version, put the
+`embed/` files in a local folder, check each SHA-256 against `ops/cloudflare/memory-models.json` (a new version needs a new entry there and a new content-addressed
+version string), and publish with the shared tool (`docs/CDN-POPULATION.md`):
 
-1. Download the files of the set: `embed/` (six files) from the URL above, and `manifest.json`. (A data-only host gets `embed/` only: `publish-embedding.py --data-only`. The `runtime/` files are the app's own, see above.) Check each SHA-256
-   against `manifest.json` and the table above.
-2. Upload them to R2 under a content-addressed prefix on `assets.privatelocal.chat`, for example `models/memory/<version>/embed/...` and
-   `models/memory/<version>/` (for a data-only host, without `runtime/`). Easiest and safest: keep the SAME version string and layout (`models/memory/79cbff1e617b319a/`), so the
-   bytes are provably the ones above. Publish with the immutable header `Cache-Control: public, max-age=31536000, immutable`, never overwrite an
-   object (`docs/OPERATIONS.md`), and verify each object over its public URL.
-3. The host must answer `Access-Control-Allow-Origin: *` and `Cross-Origin-Resource-Policy: cross-origin` (the app is cross-origin isolated).
-   Content types: `.json` application/json, `.onnx` and `.onnx_data` application/octet-stream, `.wasm` application/wasm, `.mjs` text/javascript.
+    /usr/bin/python3 /cosmoshot/tools/ops/cdn_publish.py publish --project plc --family models/memory --revision <version> --source-dir <folder> \
+        --source-url <where the files came from> --license-name Apache-2.0 --license-file <LICENSE> --apply
+
+The tool refuses code, so the `runtime/` files cannot be published; they are the app's own (see above). The host must answer
+`Access-Control-Allow-Origin: *` and `Cross-Origin-Resource-Policy: cross-origin` (the app is cross-origin isolated); content types: `.json` application/json,
+`.onnx` and `.onnx_data` application/octet-stream.
 4. Change `EMBEDDING_ASSET_HOST` (and `EMBEDDING_ASSET_VERSION` if the set changed) in `chat/embedding/embedding-config.mjs`. Nothing else: the worker
    gets the base from the page. The data files are NOT in the service worker's precache (they are too big and are kept by the Cache API instead); the
    ONNX Runtime files are served by the app and are on demand too (`tests/offline-precache.test.mjs`).

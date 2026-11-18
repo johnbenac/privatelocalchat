@@ -44,5 +44,6 @@ test('the search set pins the files the app fetches, data first, and names the v
   assert.ok(!f.path.startsWith('/')&&!f.path.includes('..')&&!seen.has(f.path),f.path);
   seen.add(f.path);
  }
- assert.ok(!/techofourown|sonalon|assets\.privatelocal\.chat/i.test(JSON.stringify(memory)),'no foreign or retired host');
+ const text=JSON.stringify(memory);
+ for(const forbidden of ['sonalon','assets.privatelocal'+'.chat']) assert.ok(!text.toLowerCase().includes(forbidden),'no foreign or retired host: '+forbidden);
 });

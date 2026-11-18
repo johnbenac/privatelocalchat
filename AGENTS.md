@@ -2,7 +2,7 @@
 
 ## What this is
 
-Private Local Chat: a static, no-framework browser app (WebGPU/WASM local LLMs, or an explicitly chosen OpenAI-compatible API). `origin` (the GitLab group `cosmoshot`) is the home; the `github` remote (`johnbenac/privatelocalchat`) is for publishing only: the deploy workflows in `.github/workflows/` run from there, so do not push to it unless asked. Cloudflare Pages serves the app, the programme's shared data CDN (`cdn.aiofourown.com`, R2 bucket `cosmoshot-cdn`, T587) serves model files; `assets.privatelocal.chat` (R2 `privatelocalchat-assets`) still serves the same files and is the fallback. This repo is **not** deployed via the homelab/Flux/Caddy stack described in the global instructions.
+Private Local Chat: a static, no-framework browser app (WebGPU/WASM local LLMs, or an explicitly chosen OpenAI-compatible API). `origin` (the GitLab group `cosmoshot`) is the home; the `github` remote (`johnbenac/privatelocalchat`) is for publishing only: the deploy workflows in `.github/workflows/` run from there, so do not push to it unless asked. Cloudflare Pages serves the app, the programme's shared data CDN (`cdn.aiofourown.com`, R2 bucket `cosmoshot-cdn`, T587) serves model files; `assets.privatelocal.chat` (R2 `privatelocalchat-assets`) is retired and redirects `/models/*` there since 2026-11-17 (T674, T677). Publish with `/cosmoshot/tools/ops/cdn_publish.py`; the pins are in `ops/cloudflare/*.json`. This repo is **not** deployed via the homelab/Flux/Caddy stack described in the global instructions.
 
 ## Commands
 
