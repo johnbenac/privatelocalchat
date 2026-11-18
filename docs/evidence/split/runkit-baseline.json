@@ -8,7 +8,7 @@
   "SOURCE_DATE_EPOCH": "0",
   "SITE_DIR": ""
  },
- "fileCount": 230,
+ "fileCount": 231,
  "files": {
   "404.html": {
    "bytes": 101,
@@ -107,8 +107,8 @@
    "sha256": "4f104609324189c39f279c75a7eedf8c3cb3cdb9d2fa9caad375931e94db83d8"
   },
   "releases/0000000000000000000000000000000000000000/chat/assistant/assistant.mjs": {
-   "bytes": 23153,
-   "sha256": "fc0567ce5683621ce7cc38e520f7480ed3875408f3604c20ec82e3440d924cc0"
+   "bytes": 24441,
+   "sha256": "f7c9b828352d4f28f7bad58b641bba5fc0d498d4100adb1301fe777764f4d8c6"
   },
   "releases/0000000000000000000000000000000000000000/chat/assistant/prefs-store.mjs": {
    "bytes": 9864,
@@ -290,6 +290,10 @@
    "bytes": 21972,
    "sha256": "fba55f72d834d3263b82792ef27c0133236030cf5b7b9e2aaac0225f4d3a1034"
   },
+  "releases/0000000000000000000000000000000000000000/chat/presentation/backup-looks.mjs": {
+   "bytes": 2930,
+   "sha256": "d5794b7473a3d88c3bd06675e7425ca118e64a10eb1682ce01c395a9b3e92f40"
+  },
   "releases/0000000000000000000000000000000000000000/chat/presentation/explain.mjs": {
    "bytes": 4688,
    "sha256": "bcdf3c79607987838d4bb60281e6419c8cc92ef24ea274d24ed818dacc54b1dd"
@@ -439,8 +443,8 @@
    "sha256": "e13cd2c356ef465cb652a3726d6d2f68c8a6ec7df7c5013b3ef78f0c528be761"
   },
   "releases/0000000000000000000000000000000000000000/chat/transfer/backups.mjs": {
-   "bytes": 5154,
-   "sha256": "db0ca887c760facd7be5b5354cd2bffcfb30b69e179590e10039c2251d8dc1c0"
+   "bytes": 5665,
+   "sha256": "06c03672c0ef2304ad8eab6407772fc2998ff36c019176403fcc83eb526e76cc"
   },
   "releases/0000000000000000000000000000000000000000/chat/transfer/exports.mjs": {
    "bytes": 3103,
@@ -667,8 +671,8 @@
    "sha256": "54ab05c4b23c2e2ca8e7e698a5d2a156e4305fc08d3db4862869d9ae40c6344b"
   },
   "releases/0000000000000000000000000000000000000000/release.json": {
-   "bytes": 31129,
-   "sha256": "89b69a4840c9cb187a4408af6b2f9b3fc714093fb8eea22454e4ff34e9309364"
+   "bytes": 31285,
+   "sha256": "a8edf05acfecbb429d39831f4464be2999a25a9bfc09c170b0cc2060b726fab3"
   },
   "releases/0000000000000000000000000000000000000000/runtime/auto-load.mjs": {
    "bytes": 565,
@@ -923,8 +927,8 @@
    "sha256": "802e46c9e6bf5a295ed08ff9debdd12d3d5c3b6f16d898ffac0ed6a7b40b06f4"
   },
   "sw.js": {
-   "bytes": 22684,
-   "sha256": "25e4985b567efec5c8a4a2c9311e655bda80d0643a09bdbea0829de2e9eee595"
+   "bytes": 22772,
+   "sha256": "6c0404ac507ab6ce2272fc31b81f3d245bf5eb811f4290388299e7e6f3a6442a"
   },
   "version.json": {
    "bytes": 170,

@@ -7,7 +7,7 @@ People keep files outside the browser: the chat history file, the passphrase-pro
 | File | Format | Written by |
 | --- | --- | --- |
 | `chat-history.json` | `plc-history/1`: `{ format, exportedAt, app, threads }` (before it, a bare list, still read) | Settings, Transfer chats, Export saved conversations |
-| `*.encrypted.json` | `plc-encrypted-backup/1`, holding a `plc-backup/1` (chats, projects, memory, presets, preferences, optionally documents) | Protected backup |
+| `*.encrypted.json` | `plc-encrypted-backup/1`, holding a `plc-backup/1` (chats, projects, memory, presets, kept character looks (an optional `looks` section, added with `plc.presentations.v1`; a reader that does not know it ignores it), preferences, optionally documents) | Protected backup |
 | `private-local-chat-settings.json`, transfer links | `plc-settings-transfer/2` (`/1` was never written; earlier links and files are read as the legacy forms) | Transfer settings |
 
 `chat/transfer/file-formats.mjs` is the table (`FILE_FORMATS`: the number this build writes, the first number ever written, and the name used in messages). A file names its format as `name/N`; the history file and the backup also name the build that wrote them (`app.version`, `app.commit`).

@@ -14,6 +14,7 @@ import { createPresentationPreview } from "../presentation/preview.mjs";
 import { loadValidator } from "../presentation/reader.mjs";
 import { createPresentationKeeper, MAX_KEPT } from "../presentation/keeper.mjs";
 import { createLookUi } from "../presentation/look-ui.mjs";
+import { looksForBackup, idMapForRestore, looksToRestore } from "../presentation/backup-looks.mjs";
 import { mergeBackupPresets } from "./preset-candidate.mjs";
 
 export function createAssistant(host) {
@@ -93,11 +94,24 @@ export function createAssistant(host) {
     if (!(items || []).some(p => p?.name && p.prompt)) return { ok: true, added: 0 };
     const done = await presetStore.mutate(list => {
       const merged = mergeBackupPresets(list, items, () => 'preset-' + generateThreadId());
-      return merged.added ? { list: merged.list, result: merged.added } : { result: 0 };
+      // which backup preset became which new preset, so its kept look can follow it (restoreLooks); a preset whose name the person already has is skipped and gets nothing
+      return merged.added ? { list: merged.list, result: { added: merged.added, idMap: idMapForRestore(list, merged.list, items) } } : { result: { added: 0, idMap: new Map() } };
     });
-    if (!done.ok) { presetFailure(done); return { ok: false, added: 0 }; }
+    if (!done.ok) { presetFailure(done); return { ok: false, added: 0, idMap: new Map() }; }
     adoptPresets(done.list); renderPresetOptions(currentThread());
-    return { ok: true, added: done.result };
+    return { ok: true, added: done.result.added, idMap: done.result.idMap };
+  }
+  /** The kept looks of the person's own presets, for a full backup: { preset id: record } (only looks that can be used). */
+  const looksForBackupNow = () => looksForBackup(customPresets, id => keeper.peek(id));
+  /** Put a backup's looks back on the presets that restore just added (idMap: old id -> new id). Each record is checked again when it is kept. Returns how many were kept. */
+  async function restoreLooks(looks, idMap) {
+    let kept = 0;
+    for (const [presetId, record] of looksToRestore(looks, idMap)) {
+      const r = await keeper.keep(presetId, record);
+      if (r.ok && r.result?.status === 'saved') kept++;
+      else if (r.ok && r.result?.status === 'full') { showToast('Some character looks from the backup were not kept: ' + MAX_KEPT + ' looks are already kept.'); break; }
+    }
+    return kept;
   }
   document.getElementById('importPresetBtn')?.addEventListener('click', () => presetImport.chooseFile());
   // a Cosmogenitor character package is only PREVIEWED: nothing is added or saved (chat/presentation/preview.mjs, board T444). The shared validator is loaded when a package is opened.
@@ -258,5 +272,5 @@ export function createAssistant(host) {
     return true;
   });
   events.on('prompt:ready', retool);
-  return { get memory() { return memory; }, get customPresets() { return customPresets; }, addMemory, restorePresets, openPreferences, openPresetFromAddress:() => presetImport.openFromAddress() };
+  return { get memory() { return memory; }, get customPresets() { return customPresets; }, addMemory, restorePresets, looksForBackup: looksForBackupNow, restoreLooks, openPreferences, openPresetFromAddress:() => presetImport.openFromAddress() };
 }

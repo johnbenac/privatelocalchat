@@ -15,6 +15,8 @@ export function createBackups(host) {
       threads: host.threads().filter(t => !t.temporary), folders: host.folders(), memory: assistant.memory, presets: assistant.customPresets,
       prefs: { instructions: prefs.instructions || '', enterSends: prefs.enterSends, voiceURI: prefs.voiceURI, speechRate: prefs.speechRate }
     };
+    const looks = assistant.looksForBackup(); // kept character looks of the person's own presets; left out when there are none, so a backup without any is as it was
+    if (Object.keys(looks).length) backup.looks = looks;
     if (includeDocs) {
       const { store } = await host.loadDocModules();
       backup.docs = (await store.all()).filter(d => !d.temporary).map(({ chunks, ...rest }) => rest);
@@ -38,7 +40,12 @@ export function createBackups(host) {
     if (!skip.has('folders')) saveFolders();
     if (!skip.has('memory')) (extras.memory?.items || []).forEach(i => { if (i?.text && addMemory(i.text)) added++; });
     // presets are put back by the assistant under the same lock every other preset change takes (a name already among yours is skipped, each added one gets a new id)
-    if (!skip.has('presets')) added += (await assistant.restorePresets(extras.presets)).added;
+    if (!skip.has('presets')) {
+      const restored = await assistant.restorePresets(extras.presets);
+      added += restored.added;
+      // a kept look follows its preset to the id the restore gave it (a preset the person already had is never given a look)
+      if (extras.looks && restored.idMap?.size) added += await assistant.restoreLooks(extras.looks, restored.idMap);
+    }
     // preferences (instructions, Enter sends, voice, reading speed): what is not set here is taken from the backup, what the person chose here is kept (chat/transfer/prefs-restore.mjs).
     // Written by the preferences store under its lock; when that cannot be done nothing is written and this says so. The page redraws what shows a changed preference when the store levels it.
     if (!skip.has('prefs')) {
