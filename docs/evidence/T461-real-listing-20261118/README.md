@@ -10,3 +10,10 @@ Result (`result.json`, script `check.mjs`): the box showed title, version r1 and
 **Limits, said plainly:** one run, Chromium, a script drove it (no person); the link was made by PLC's encoder, not by a discovery page; the `page` field was a stand-in (the CDN manifest address) because the inspect page does not exist yet;
 the licence in the link (`AGPL-3.0-only`) was read from the file's LICENSE.txt by the script; ferry-clerk r1 was not run; not Safari; no offline test. This file is in a repository, not at a public address, so it is not the `evidence` address a
 discovery entry in state `tested` needs.
+
+## Second check, with the live feed (2026-11-18 16:59 UTC)
+
+After Cosmogenitor published their feed (https://cosmogenitor.com/discovery/v2.json) and two inspect pages, the same route was run on production for BOTH presets using the feed's own values (`check-live-feed.mjs`,
+`result-live-feed.json`): the feed is accepted by aiofourown's validator; each file's size and SHA-256 equal the entry; the inspect page loads and says Declared (never Tested); in PLC the box shows the entry's name, version and
+size with the inspect page as its link; a file one byte short is refused; the right file matches, reaches the review box, and Add adds the preset. Limits: one run, Chromium, a script drove it, the link was built by PLC's encoder from the feed
+(aiofourown's page does not exist yet), the feed is not yet registered with aiofourown, not Safari, no offline test.
