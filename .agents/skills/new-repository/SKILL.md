@@ -71,7 +71,8 @@ In `/cosmoshot/<name>`: `git init -b main`, then:
 - Messages and the message hook reach a session by its folder's team. A new folder is in no team, so put a `program.json`
   at the repository root naming the owner by board name: `{"owner": "<owning team>"}` (for example `aiofourown`); it is
   committed with the repository, and no request to devops is needed. An unknown owner or a broken file gives no team and
-  breaks nothing. Board notices go by the task's `who`, not by folder.
+  breaks nothing. Board notices go by the task's `who`, not by folder. Send with `--from <that team's cosmo-msg name>`, never
+  an invented sender: replies go to the sender name, and only a team name can receive them.
 - Names are matched as plain string prefixes: do not name a repository as an extension of another (`xxx-site`, `xxx2`) unless it
   should belong to `xxx`: `privatelocalchat-site` is in the `plc` project and team because of its prefix.
 
