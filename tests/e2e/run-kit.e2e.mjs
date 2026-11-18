@@ -12,7 +12,7 @@ async function variant(target,port,run){
   const h=await launch({port,serviceWorkers:'allow'});
   const requests=[];
   try{
-    await h.page.route(/^https:\/\/assets\.privatelocal\.chat\//,route=>{requests.push(route.request().url());route.fulfill({status:200,body:'these bytes are not the model',headers:{'access-control-allow-origin':'*','cross-origin-resource-policy':'cross-origin','content-type':'application/octet-stream'}});});
+    await h.page.route(/^https:\/\/cdn\.aiofourown\.com\//,route=>{requests.push(route.request().url());route.fulfill({status:200,body:'these bytes are not the model',headers:{'access-control-allow-origin':'*','cross-origin-resource-policy':'cross-origin','content-type':'application/octet-stream'}});});
     await run(h,requests);
     assert(!h.errors.filter(e=>!/Failed to load resource|Download|download|integrity|hash|checksum|mismatch|stalled/i.test(e)).length,target+': page errors: '+h.errors.join(' | '));
     ok(target+' served by serve.mjs: all checks');
@@ -50,7 +50,7 @@ try{
     assert(requests.length===0,'runkit: nothing is requested before the notice is answered');
     await h.page.click('.app-dialog button:has-text("Download")');
     await until(()=>requests.length>0);
-    assert(requests.length>0&&requests.every(u=>u.startsWith('https://assets.privatelocal.chat/models/')),'runkit: a model download asks the configured source: '+requests.slice(0,2));
+    assert(requests.length>0&&requests.every(u=>u.startsWith('https://cdn.aiofourown.com/models/')),'runkit: a model download asks the configured source: '+requests.slice(0,2));
     await h.page.evaluate(()=>window.localModels.cancelDownload());
     // the server goes away: the copy still opens, Help opens its own page, and a page that does not exist opens the app
     h.web.kill();await new Promise(r=>setTimeout(r,600));

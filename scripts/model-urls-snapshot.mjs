@@ -10,7 +10,7 @@ if(args[0]!=='record'){console.error('Usage: model-urls-snapshot.mjs record [--o
 const out=args.includes('--out')?args[args.indexOf('--out')+1]:BASELINE;
 // The sources exactly as local-models.js builds them today (before the configuration exists): the project's CDN for the 9B builds and the Qwen 2B shards.
 const {resolveSources}=await import('../runtime/providers/catalog.mjs');
-const base='https://assets.privatelocal.chat/models/';
+const base='https://cdn.aiofourown.com/models/';
 const variants={q4f16_1:'c7c5d3f5a81e37b8facbb72970940a1b131314a8',q4f32_1:'f8f042bfb68cb88573af4c8e0ef9b1a26bef4ad0'};
 const webllm=Object.fromEntries(Object.entries(variants).map(([v,r])=>[v,base+'Qwen3.5-9B-'+v+'-MLC/resolve/'+r+'/']));
 // T587: the two WebLLM libraries are served by the app (webllmLibBase is not overridden), recorded as app:<path>.

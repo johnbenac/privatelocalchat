@@ -26,7 +26,7 @@ cannot load.
 
 The set is served from this project's own content-addressed asset host (see `chat/embedding/embedding-config.mjs`):
 
-    https://assets.privatelocal.chat/models/memory/79cbff1e617b319a/
+    https://cdn.aiofourown.com/models/memory/79cbff1e617b319a/
 
 It was published on 2026-11-02 with `ops/cloudflare/publish-embedding.py`, which checks every file against the SHA-256 values below before
 uploading and re-downloads each object from the public URL afterwards. The host sends CORS `*`, which the worker's CORS-mode fetches need under

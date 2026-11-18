@@ -10,7 +10,7 @@ import path from 'node:path';
 const {launch,assert}=await import('./harness.mjs');
 const ok=n=>console.log('PASS '+n);
 
-const DEFAULT_ROOT='https://assets.privatelocal.chat/models/';
+const DEFAULT_ROOT='https://cdn.aiofourown.com/models/';
 const OTHER_ROOT='https://models.example.org/m/';
 const dir=mkdtempSync(path.join(tmpdir(),'plc-sources-'));
 const overrideFile=path.join(dir,'app-config.json');
@@ -24,7 +24,7 @@ async function variant(name,env,port,run){
   const h=await launch({port});
   const requests=[];
   try{
-    await h.page.route(/^https:\/\/(assets\.privatelocal\.chat|models\.example\.org)\//,route=>{requests.push(route.request().url());route.fulfill({status:200,body:'these bytes are not the model',headers:{'access-control-allow-origin':'*','cross-origin-resource-policy':'cross-origin','content-type':'application/octet-stream'}});});
+    await h.page.route(/^https:\/\/(cdn\.aiofourown\.com|models\.example\.org)\//,route=>{requests.push(route.request().url());route.fulfill({status:200,body:'these bytes are not the model',headers:{'access-control-allow-origin':'*','cross-origin-resource-policy':'cross-origin','content-type':'application/octet-stream'}});});
     await h.page.waitForFunction(()=>window.__plcBooted===true&&Boolean(window.plcShell),null,{timeout:30000});
     await run(h.page,requests,h);
     assert(!h.errors.filter(e=>!/Failed to load resource|Download|download|integrity|hash|checksum|mismatch|stalled/i.test(e)).length,name+': page errors: '+h.errors.join(' | '));
@@ -49,7 +49,7 @@ try{
     assert(await page.locator('.app-dialog:has-text("Where the models come from")').count()===0,'no notice on our own site');
     assert(!await installed(page),'wrong bytes were not accepted as the model');
     const row=await sourceRow(page);
-    assert(/Private Local Chat project CDN \(assets\.privatelocal\.chat\)/.test(row)&&!/set by whoever runs this copy/.test(row)&&/checked against its published size and SHA-256/.test(row),'the Model source row says what is in use: '+row);
+    assert(/Private Local Chat project CDN \(cdn\.aiofourown\.com\)/.test(row)&&!/set by whoever runs this copy/.test(row)&&/checked against its published size and SHA-256/.test(row),'the Model source row says what is in use: '+row);
     assert(!row.includes(LINE),'no "updated by whoever hosts it" line on a build with our site identity: '+row);
   });
 
@@ -57,7 +57,7 @@ try{
     await startDownload(page);
     assert(await noticeShown(page),'the model-source notice appears before the download');
     const text=await page.locator('.app-dialog').innerText();
-    assert(/assets\.privatelocal\.chat/.test(text)&&/config\/app-config\.json/.test(text)&&/Model source/.test(text),'it names the host and where to set another source: '+text);
+    assert(/cdn\.aiofourown\.com/.test(text)&&/config\/app-config\.json/.test(text)&&/Model source/.test(text),'it names the host and where to set another source: '+text);
     await page.waitForTimeout(2500);
     assert(requests.length===0,'nothing is requested while the notice is open: '+requests.length);
     await page.click('.app-dialog button:has-text("Download")');

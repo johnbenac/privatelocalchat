@@ -99,8 +99,8 @@
    "sha256": "04b05d4a150448453450721451e58769b53b3ea4a9d9bf51321ce8159c667f8d"
   },
   "index.html": {
-   "bytes": 79466,
-   "sha256": "9c82e79cc0e822df77834bfc2b127747efd4753d8d242352ebb8c6197a6838b1"
+   "bytes": 79460,
+   "sha256": "79dede73dce1104619cc30d94326f73d789b093f02fd657bbb9e858313378c18"
   },
   "manifest.webmanifest": {
    "bytes": 633,

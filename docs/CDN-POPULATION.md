@@ -1,5 +1,7 @@
 # Populating the CDN (task for an agent or operator with Cloudflare access)
 
+> **T587 (2026-11-17): the shipped model source is the shared CDN `https://cdn.aiofourown.com/models/`** (R2 bucket `cosmoshot-cdn`, run by infra; data only, no `.wasm`). The files below were copied server-side with their hashes checked, and the search set was published without its two runtime files. PLC pins every file itself (`ops/cloudflare/model-cdn-manifest.json`). `assets.privatelocal.chat` still serves the same files. The rest of this page describes how they were first published to that host.
+>
 > ## DONE (2026-11-02): the search model is on the project CDN
 >
 > **T587 (2026-11-17):** the two executable files of this set (`runtime/ort-wasm-simd-threaded.wasm` and `.mjs`) are no longer fetched from the CDN: the app serves them itself

@@ -5,7 +5,7 @@ import { TIERS, TIER_ORDER, tierFiles, loadConfigFor, isWllamaTier, isTinyTier, 
 import { pickTier } from "../runtime/auto-tier.mjs";
 import manifest from "../ops/cloudflare/gguf-models.json" with { type: "json" };
 
-const CDN = "https://assets.privatelocal.chat/models/";
+const CDN = "https://cdn.aiofourown.com/models/";
 
 test("LFM2.5 and Granite are catalogued tiers served only from the project CDN", () => {
   assert.deepEqual(TIER_ORDER, ["default", "light", "lfm", "granite", "mini", "nano"]);

@@ -104,7 +104,7 @@ test("the Kokoro manifest is valid, pins the named files and the commit lives in
   const model = KOKORO_Q8_MANIFEST.files[0];
   assert.equal(model.bytes, 92361116);
   assert.equal(model.sha256, "fbae9257e1e05ffc727e951ef9b9c98418e6d79f1c9b6b13bd59f5c9028a1478");
-  assert.equal(KOKORO_Q8_BASE_URL, `https://assets.privatelocal.chat/models/Kokoro-82M-v1.0-ONNX-q8/${KOKORO_Q8_COMMIT}/`);
+  assert.equal(KOKORO_Q8_BASE_URL, `https://cdn.aiofourown.com/models/Kokoro-82M-v1.0-ONNX-q8/${KOKORO_Q8_COMMIT}/`);
   assert.ok(KOKORO_Q8_MANIFEST.files.filter((f) => f.role === "voice").every((f) => f.bytes === 522240));
 });
 test("the pinned tokenizer fixture matches the manifest checksum", () => {

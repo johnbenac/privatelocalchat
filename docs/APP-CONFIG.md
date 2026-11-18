@@ -8,7 +8,7 @@ The app does not name where its model files come from. A configuration says so, 
 
   ```
   { "format": "plc-app-config/1",
-    "modelSources": [ { "id": "project-cdn", "label": "Private Local Chat project CDN", "base": "https://assets.privatelocal.chat/models/" } ] }
+    "modelSources": [ { "id": "project-cdn", "label": "Private Local Chat project CDN", "base": "https://cdn.aiofourown.com/models/" } ] }
   ```
 
 - **`config/app-config.json`**: an operator's choices, outside the tracked tree (an upgrade never writes it). If present, its `modelSources` **replace** the shipped list whole; they are never merged entry by entry. `APP_CONFIG_OVERRIDE` names a different file for a build: unset means `./config/app-config.json` if it exists, empty means none, and a path that does not exist is an error.
@@ -37,7 +37,7 @@ A source decides where bytes come from, never what they are. Every model file an
 
 ## Existing downloads
 
-Downloaded files are cached on the device by their address. The default addresses are unchanged by this configuration (`docs/evidence/split/model-urls-baseline.json` records all 310: 308 downloads and the two app-served libraries), so nobody downloads again. An operator who changes the source downloads again from the new one.
+Downloaded files are cached on the device by their address. The shipped default root moved from `assets.privatelocal.chat` to `cdn.aiofourown.com` in T587 (2026-11-17, no users yet), so a copy that had downloaded from the old root downloads again once; before that the default addresses were unchanged by this configuration (`docs/evidence/split/model-urls-baseline.json` records all 310: 308 downloads and the two app-served libraries), so nobody downloads again. An operator who changes the source downloads again from the new one.
 
 ## Site identity
 

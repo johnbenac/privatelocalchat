@@ -29,7 +29,7 @@ function disagreement(manifest, base = baselineFiles()) {
 test('every address and pin of the baseline is in the manifest, and the manifest has nothing else', async () => {
   const manifest = await buildModelsManifest();
   assert.equal(manifest.format, MODELS_FORMAT);
-  assert.equal(manifest.root, 'https://assets.privatelocal.chat/models/');
+  assert.equal(manifest.root, 'https://cdn.aiofourown.com/models/');
   assert.equal(disagreement(manifest), null);
   const distinct = new Set(baselineFiles().map((f) => f.url)).size;
   assert.equal(distinct, 308, 'the baseline names 308 distinct download addresses');
