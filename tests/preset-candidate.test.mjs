@@ -159,3 +159,20 @@ test('limits are counted in UTF-16 code units, so a producer must count the same
   assert.equal(parsePresetCandidate(text({ name: 'A', prompt: 'B', id: emoji.repeat(101) })).ok, false, '101 emoji are 202 units, over the 200 limit');
   assert.equal(parsePresetCandidate(text({ name: 'A', prompt: 'B', id: emoji.repeat(100) })).ok, true);
 });
+
+test('a name on one line also refuses the Unicode line and paragraph separators (T452 review remark)', () => {
+  for (const sep of [' ', ' ', '\n', '\r']) {
+    const r = parsePresetCandidate(text({ name: 'A' + sep + 'B', prompt: 'B' }));
+    assert.equal(r.ok, false, JSON.stringify(sep)); assert.equal(r.code, 'bad-field');
+  }
+  assert.equal(parsePresetCandidate(text({ name: 'A B', prompt: 'line one line two\nline three' })).ok, true, 'the instructions may keep line breaks');
+});
+
+test('U+2028 and U+2029 are refused anywhere in a name, including where trim() would have removed them (T452 draft 5)', () => {
+  for (const sep of [' ', ' ']) for (const name of [sep + 'A', 'A' + sep, ' ' + sep + 'A ' + sep + ' ', sep, 'A' + sep + 'B']) {
+    const r = parsePresetCandidate(text({ name, prompt: 'B' }));
+    assert.equal(r.ok, false, JSON.stringify(name)); assert.equal(r.code, 'bad-field');
+    assert.equal(checkPresetName(name).ok, false, 'the review box applies the same rule: ' + JSON.stringify(name));
+  }
+  assert.equal(parsePresetCandidate(text({ name: 'A', prompt: 'x y' })).ok, true, 'the instructions may contain them');
+});

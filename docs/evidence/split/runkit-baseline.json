@@ -115,8 +115,8 @@
    "sha256": "2dbce7845cef5dcc278eca81e2825e1267c66f2f2d9e1cd0a8a20c6aaabc2291"
   },
   "releases/0000000000000000000000000000000000000000/chat/assistant/preset-candidate.mjs": {
-   "bytes": 11127,
-   "sha256": "db7f4705b8ab56ccae7262cd4f5a848fc9cc890cc9be22d7bab94e6c6b42abe9"
+   "bytes": 11296,
+   "sha256": "0dc756637c47ec3a0d1ef2835eb78ebcdfff55d4daebc99c12db197f6b363af3"
   },
   "releases/0000000000000000000000000000000000000000/chat/assistant/preset-import.mjs": {
    "bytes": 8189,
@@ -636,7 +636,7 @@
   },
   "releases/0000000000000000000000000000000000000000/release.json": {
    "bytes": 28150,
-   "sha256": "e824b2efb4de07b59178c4898a4d9da6e2661d25ffed27b4e6c30f00118a1cd5"
+   "sha256": "c5d895ea34efd0af488988b253579c859d101b1a5cd441147c3acb502c548c7f"
   },
   "releases/0000000000000000000000000000000000000000/runtime/auto-load.mjs": {
    "bytes": 565,

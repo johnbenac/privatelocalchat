@@ -89,6 +89,10 @@ async function run({ repeat, killAt, staged, storage = 'atomic', locks = 'broker
     record.deadlock = !finished;
     if (!finished) for (const a of others) if (a.exited === null) process.kill(-a.pid, 'SIGKILL'); // our own stuck scratch actors only
     await Promise.all(actors.map(a => a.exit));
+    // The broker learns of the victim's death when its event loop reads the closed socket. When the victim was last in the queue, every other actor had already finished and
+    // nothing needed the lock freed, so without this wait a busy machine can close the broker first and the disconnect is never logged (a race in the test, not in the store).
+    // A soft wait: it never throws, so a lock that really is never freed is still reported by violations() below.
+    if (victim && locks === 'broker' && !leak) { const end = Date.now() + 10000; while (Date.now() < end && !broker.events.some(e => e.kind === 'free' && e.pid === victim.pid && e.cause === 'disconnect')) await wait(5); }
   } catch (error) {
     fs.rmSync(dir, { recursive: true, force: true }); throw error;
   } finally {

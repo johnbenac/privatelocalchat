@@ -27,6 +27,7 @@ const shown = (key) => '“' + String(key).replace(/[^\p{L}\p{N}_$.\- ]/gu, '?')
 export function checkPresetName(value) {
   if (typeof value !== 'string') return refuse('bad-field', 'The preset name must be text.');
   if (BAD_TEXT.test(value)) return refuse('bad-text', 'The preset name has characters that cannot be shown safely.');
+  if (/[\u2028\u2029]/.test(value)) return refuse('bad-field', 'The preset name must be on one line.'); // tested before trimming: trim() would remove one at either end
   const name = value.trim();
   if (!name) return refuse('missing', 'The preset has no name.');
   if (/[\r\n]/.test(name)) return refuse('bad-field', 'The preset name must be on one line.');

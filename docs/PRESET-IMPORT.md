@@ -21,7 +21,7 @@ Exactly three fields, as JSON text:
 
 | Field | Rule |
 | --- | --- |
-| `name` | text, required, one line, 1 to 120 characters after trimming (counted in UTF-16 code units, as JavaScript counts: an emoji outside the basic plane counts as 2) |
+| `name` | text, required, one line (no line feed, carriage return, U+2028 or U+2029), 1 to 120 characters after trimming (counted in UTF-16 code units, as JavaScript counts: an emoji outside the basic plane counts as 2) |
 | `prompt` | text, required, not blank, at most 8,000 characters (UTF-16 code units, as above); kept exactly as sent (no trimming) |
 | `id` | text, optional, at most 200 characters (UTF-16 code units). Only shown as "where it came from". It is **never** this device's id and never overwrites anything |
 
