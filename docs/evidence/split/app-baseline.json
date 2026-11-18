@@ -8,7 +8,7 @@
   "SOURCE_DATE_EPOCH": "0",
   "SITE_DIR": ""
  },
- "fileCount": 201,
+ "fileCount": 204,
  "files": {
   "404.html": {
    "bytes": 101,
@@ -603,8 +603,8 @@
    "sha256": "c5772e879f6bc50dadfcfbd55a1044748652fb18da69ca50978546dcb0c67b63"
   },
   "releases/0000000000000000000000000000000000000000/release.json": {
-   "bytes": 26651,
-   "sha256": "c494ca722214a6551de2b6c515afd39dcdda820d9b1dadf6d716219b40e638bc"
+   "bytes": 27213,
+   "sha256": "e6fc4a2aa5edaddb1a3727767b98006d5c67a39cb8824dde70c6a3ddd7f6ecc6"
   },
   "releases/0000000000000000000000000000000000000000/runtime/auto-load.mjs": {
    "bytes": 565,
@@ -671,8 +671,8 @@
    "sha256": "958f956658832eb8af63dcefe995bfba85f7d23b65944792ac986480c51325a8"
   },
   "releases/0000000000000000000000000000000000000000/runtime/providers/catalog.mjs": {
-   "bytes": 18124,
-   "sha256": "e63357303253cc068e500b8acd78a60ba8b42a60f12bc30b83f5517e4e291ee7"
+   "bytes": 18709,
+   "sha256": "3cd2e426494e13e60e6b606a148ffc5c259d047d5b610cb797b64e696f6347a7"
   },
   "releases/0000000000000000000000000000000000000000/runtime/providers/client.mjs": {
    "bytes": 13412,
@@ -766,6 +766,18 @@
    "bytes": 11726,
    "sha256": "87935f332472db09253871326ef23d5d6a45f4fd2e6c96772f72052866dfab0d"
   },
+  "releases/0000000000000000000000000000000000000000/runtime/providers/vendor/webllm/libs/Qwen3.5-9B-q4f16_1_cs1k-webgpu.wasm": {
+   "bytes": 7488165,
+   "sha256": "84fc5ef675ea0d8770deaf9a53e81fd663299a69d3cf66e94243914779f9877f"
+  },
+  "releases/0000000000000000000000000000000000000000/runtime/providers/vendor/webllm/libs/Qwen3.5-9B-q4f32_1_cs1k-webgpu.wasm": {
+   "bytes": 7347353,
+   "sha256": "c2f196c4bd3ee6fae01d2e234d3bcfe356aac66ae15cfe0a34e8d2ecb9ada579"
+  },
+  "releases/0000000000000000000000000000000000000000/runtime/providers/vendor/webllm/libs/README.md": {
+   "bytes": 1070,
+   "sha256": "dfd7e144bc9f65b1743f0399d2f96e068b5cc585faca696a95e2b3d6d0c54173"
+  },
   "releases/0000000000000000000000000000000000000000/runtime/providers/vendor/webllm/web-llm-0.2.86.js": {
    "bytes": 6817091,
    "sha256": "4c9772f6973eb03b2499c2128a71a2f9cfb542321dc4ef01a66de4a9f376c66f"
@@ -807,8 +819,8 @@
    "sha256": "802e46c9e6bf5a295ed08ff9debdd12d3d5c3b6f16d898ffac0ed6a7b40b06f4"
   },
   "sw.js": {
-   "bytes": 19999,
-   "sha256": "43e2f21b31be26478761038f63f211f8df4052fe2607fc0230fa1c6d09405916"
+   "bytes": 20351,
+   "sha256": "a5968a19bc22abd39e2b50d27c6dad668b7923cddb02ea39a5bdfb4492c32342"
   },
   "version.json": {
    "bytes": 170,
