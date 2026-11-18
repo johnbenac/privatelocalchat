@@ -1,0 +1,40 @@
+{
+ "when": "2026-11-18T17:27:18.865Z",
+ "good": {
+  "bytes": 58815,
+  "sha256": "a21761ebba6b6c2718b6b8104bda6b0bd1bc70f677e967fe96433c4c2b77d3e7"
+ },
+ "missingPortrait": {
+  "bytes": 57707,
+  "sha256": "2a7982031d2ccd14c475a70a271afc906f5fdaad0265091da7a1b27ce300289b"
+ },
+ "checks": [
+  "preview of the real export names Harbour Clerk and offers the look; nothing is added by previewing",
+  "Add as a preset with this look: one preset, its look kept (folio, sea, both pictures)",
+  "choosing the preset shows the strip with both pictures",
+  "a conversation: the agent's reply panel follows the palette",
+  "the withheld-portrait export: the character is kept as a plain preset, its look is refused and not kept",
+  "nothing left the page except to the test's own fake provider; no page errors"
+ ],
+ "previewText": "Preview character package\n✕\n\nThis is only a preview. Nothing is added, saved or applied to any chat, and nothing is sent anywhere. The package gives no code, tools, memory or network access.\n\nHarbour Clerk\n\nAn imagined harbour-office clerk who keeps the tide tables and the day book and answers from the page in front of them.\n\nHarbour Clerk\n\nA message from this character would be drawn like this.\n\nShow with the app's own look insteadAdd as a preset with this look…\nLayout: folio (page-like: the character's material set as a document, with the conversation beside it)\nPalette: sea (cool, blue-green). The app draws it with its own colours.\nThe package describes the look as: A folio page on a sea-",
+ "record": {
+  "layout": "folio",
+  "palette": "sea",
+  "reducedMotion": true,
+  "images": [
+   {
+    "role": "portrait",
+    "mediaType": "image/png",
+    "size": 818,
+    "license": "CC0-1.0"
+   },
+   {
+    "role": "background",
+    "mediaType": "image/png",
+    "size": 2647,
+    "license": "CC0-1.0"
+   }
+  ]
+ },
+ "refusalText": "Preview character package\n✕\n\nThis is only a preview. Nothing is added, saved or applied to any chat, and nothing is sent anywhere. The package gives no code, tools, memory or network access.\n\nHarbour Clerk\n\nAn imagined harbour-office clerk who keeps the tide tables and the day book and answers from the page in front of them.\n\nHarbour Clerk\n\nA message from this character would be drawn like this.\n\nAdd as a preset…\nThis package's look is not used; the app's own look is shown.\nThis look needs a picture that cannot be used. The package does not contain the checked file for “asset:harbour-clerk-portrait”. The app's own look is used instead; the character itself is still in the package.\nOther part"
+}
