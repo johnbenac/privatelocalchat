@@ -1,6 +1,6 @@
 // The character presentation view model (T444). Inputs are built here in the exact shapes of Cosmogenitor's T415 definitions
-// (authored:presentation-v1, authored:media-v1); their fixture files are not copied into PLC. A test against the real neri and bex bundles
-// belongs to the step that vendors the authored-profiles package (T705).
+// (authored:presentation-v1, authored:media-v1). Their real first packages run through it in presentation-real-packages.test.mjs;
+// the real validator (T705) is not wired in yet.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {buildPresentationView,buildCharacterPresentation,LAYOUTS,PALETTES,IMAGE_TYPES,MAX_IMAGE_BYTES} from '../chat/presentation/view-model.mjs';
