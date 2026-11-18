@@ -51,3 +51,13 @@ The storage was empty before (no presets, no kept looks) and was emptied again a
 
 So the check that shipped in 7a98e27 (stored pictures hashed again before drawing) works in real Safari as it does in Chromium.
 Limits: one machine, one Safari version, one run; the record was written into storage by the script, not kept through the preview and Add buttons (that path was run in Chromium); no touch, keyboard or narrow-width check here; no offline test.
+
+## 320 px layout and a focus audit, real Safari (2026-11-18, about 14:10 EST)
+
+Same Mac, Safari 27.0, production (commit 7090a3b at the time), one run, my own marked tab, a script drove it. The viewport of a desktop window cannot be set to 320 px without changing the owner's window, so the app was loaded in a
+same-origin frame 320 px wide inside my tab (its media queries and layout see 320 px), with the good Harbour Clerk look kept and its preset chosen (the build script is `tamper-check-build.mjs`). Storage was empty before and emptied afterwards.
+
+- **Layout at 320 px:** no horizontal overflow (document scroll width 320, no element past either edge), the message box (274 px wide) and the "+" button (36 px) are inside the view, the look strip is 320 px wide and shows the sea palette with both pictures loaded. The send button is absent while the box is empty (by design: `body.shell .message-form:not(.has-text) #sendBtn { display: none }`); I did not type a message in this run.
+- **Focus audit (a script, not keystrokes):** 48 visible focusable controls, every one has an accessible name, none smaller than 24 x 24 px, no positive tabindex; the first controls in order are "Open sidebar", "Conversation title", the conversation field, "Temporary chat", "Chat options".
+
+Limits, plainly: this is NOT a keyboard test. A script cannot press keys in Safari over this channel, so tab order as actually walked, Space and Enter operation, and whether a focus ring is visible were not checked (a script-set focus on the message box reported no outline, which proves nothing because `:focus-visible` rules may not apply to script focus). A frame is not a 320 px window or a phone: no touch, no real narrow viewport, one machine, one run, no offline test. The keyboard behaviour stays covered by the Chromium suites only.
