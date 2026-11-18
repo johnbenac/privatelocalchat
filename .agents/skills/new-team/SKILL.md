@@ -15,9 +15,11 @@ for a long time by an agent of its own. There are three separate lists, each wit
 | --- | --- | --- | --- |
 | Board `who` (owner names) | who owns a task, who wrote a note; shown as a disc and a filter | 15, fixed in code | taskboard: a code change and a release |
 | Message team (`/cosmoshot/tools/msg/teams.json`) | the inbox for `cosmo-msg`, board notices and the message hook, by folder prefix | one entry per folder | devops, on a board task |
-| Project (board project, memory store, skills project file) | where tasks are grouped and which memory a session reads and writes | 6 | taskboard (board project: code and seed) and memory (store) |
+| Project (board project, memory store, skills project file) | where tasks are grouped and which memory a session reads and writes | 6 | taskboard (board project: code, seed, a startup migration and a release) and memory (store) |
 
-A folder may map to an existing team, and several folders may map to one team. A team name is not a project.
+A folder may map to an existing team, and several folders may map to one team. A team name is not a project. The board name is the
+canonical one; `cosmo-msg` maps it where it differs (`simulator` to `simulation`, `brand` and `aiofourown` to `branding`, `planner` to
+`claude`), in one place, `BOARD_TO_MSG` in `/cosmoshot/tools/msg/cosmo_msg.py`.
 
 ## Level 1: a small place (the usual case)
 
@@ -29,10 +31,13 @@ if the repository needs messages, a line in `teams.json` mapping its folder to t
 A team is something that works on its own and must be addressed: it has a `who` name, an inbox and an agent.
 
 1. Ask on the board why the existing teams cannot hold the work. If the work is for a while and then done, it is Level 1.
-2. Board name: ask taskboard on a board task. It is a code and release change; the API refuses a name outside the list, so never
-   write an invented name in a task, a note or `X-Actor`.
-3. Message team: ask devops to add the folder prefix to `/cosmoshot/tools/msg/teams.json` with the same name (note the two
-   lists already differ in places, for example `simulator` on the board and `simulation` in `cosmo-msg`: say which you mean).
+2. Board name: open a board task owned by taskboard saying why the existing teams cannot hold the work, the name, two-letter
+   initials, a colour preference, the `cosmo-msg` destination and the repositories. Taskboard decides; John is not needed unless
+   the work is short-lived (then it is Level 1). It is a code and release change (owners.py, the page's owner table, the API list);
+   the API refuses a name outside the list and there is no free-text owner, so never write an invented name in a task, a note
+   or `X-Actor`.
+3. Message team: a repository gets it from a `program.json` with its owner (see `new-repository`); ask devops to add the
+   team's own folder prefix to `/cosmoshot/tools/msg/teams.json` and its board name to the mapping if the name differs.
 4. Skills: list the team's repositories in the `repositories` of the project file the team belongs to, in
    `/cosmoshot/skills/sources/projects/<project>.json` (`program.json` if it has no project of its own).
 5. Memory: a team under the `program` project needs nothing more. Tell its first session to read `cosmo-mem read program
@@ -46,8 +51,10 @@ A project has its own memory store and its own board project. It is rare: the pr
 1. Memory store: a new folder in `/cosmoshot/memory` with an `_index.md`, and its entry in `stores.json` (name, description,
    and the `access` lines: its own project writes it and reads `program`; `program` reads and writes it). The memory agent does this;
    run `cosmo-mem verify` afterwards.
-2. Board project: taskboard adds it in code and seed and releases; an unknown project id is refused by the API.
-3. Folder prefix: devops adds it to `/cosmoshot/tools/projects.json` (the longest prefix wins) so a session there gets that
+2. Board project: a board task owned by taskboard, as in Level 2 and naming the memory store. Taskboard adds it in code, seed, a
+   startup migration (seed.json loads only into an empty database), the page's project mark and colours, the default owner, and
+   releases. An unknown project id is refused by the API.
+3. Folder prefix: devops adds it to `/cosmoshot/tools/projects.json` (the longest plain string prefix wins, not a path component) so a session there gets that
    project's memory.
 4. Skills: a new `/cosmoshot/skills/sources/projects/<project>.json` with its id, `memory_project`, the stores and access, and its
    repositories (copy `plc.json`).

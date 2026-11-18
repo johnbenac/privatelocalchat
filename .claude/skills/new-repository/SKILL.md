@@ -38,6 +38,7 @@ In `/cosmoshot/<name>`: `git init -b main`, then:
 - `LICENSE` (the programme default is AGPL-3.0: copy it from `/cosmoshot/model-runtime`), `README.md`.
 - `AGENTS.md` (a few lines: what this is, the owner, the commands) and `CLAUDE.md` containing exactly `@AGENTS.md`. Do not
   write the "Working in the Cosmoshot programme" block yourself: step 4 fills it.
+- `program.json` with `{"owner": "<owning team>"}`, so its sessions get that team's messages (step 4).
 - `docs/HOUSING.md`: where the repository lives, what is kept out of git, where its second copy is, and what a fresh clone needs.
 - `PROVENANCE.md` and `THIRD-PARTY-NOTICES.md` if you bring in outside code, with each licence.
 - Large or unversioned files go in `/cosmoshot/store/<name>/` (a link to the big disk), with a second copy under
@@ -67,9 +68,12 @@ In `/cosmoshot/<name>`: `git init -b main`, then:
   many repositories at once, and never edit the managed block by hand.
 - A repository under `/cosmoshot` is in the `program` memory project unless devops adds a path prefix for it in
   `/cosmoshot/tools/projects.json`; a small place stays there.
-- Messages and board notices reach a session by the folder's team in `/cosmoshot/tools/msg/teams.json`. A new folder is in
-  no team, so its sessions hear nothing. Ask devops on the board to add `"/cosmoshot/<name>": "<owning team>"` (several folders
-  may map to one team): no new name is needed.
+- Messages and the message hook reach a session by its folder's team. A new folder is in no team, so put a `program.json`
+  at the repository root naming the owner by board name: `{"owner": "<owning team>"}` (for example `aiofourown`); it is
+  committed with the repository, and no request to devops is needed. An unknown owner or a broken file gives no team and
+  breaks nothing. Board notices go by the task's `who`, not by folder.
+- Names are matched as plain string prefixes: do not name a repository as an extension of another (`xxx-site`, `xxx2`) unless it
+  should belong to `xxx`: `privatelocalchat-site` is in the `plc` project and team because of its prefix.
 
 ## 5. If it publishes or goes public
 
@@ -83,4 +87,6 @@ In `/cosmoshot/<name>`: `git init -b main`, then:
     git -C /cosmoshot/<name> status -sb        # level with origin, clean apart from .commitlintrc.cjs and .gitlint
     git -C /cosmoshot/<name> remote -v         # origin is the ssh:// cosmoshot URL
     ls /media/Vivarium/cosmoshot/<name>        # the second copy of the store exists (easy to forget)
+    cat /cosmoshot/<name>/program.json         # the owner is a board team name
     ls /cosmoshot/<name>/.claude/skills        # the skills arrived (after the rollout)
+
