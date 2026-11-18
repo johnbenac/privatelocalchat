@@ -1,7 +1,7 @@
 # Previewing a character package
 
 Board task T444 (objective O133). A **character package** is a Cosmogenitor `cosmogenitor/bundle/0` file made with the authored-profiles definitions
-(owner: Cosmogenitor; the shared validator is `vendor/authored-profiles`, package `authored-profiles` 1.0.0, pinned in `vendor.lock.json`). This page says what PLC does with one.
+(owner: Cosmogenitor; the shared validator is `vendor/authored-profiles`, package `authored-profiles` 1.1.0, pinned in `vendor.lock.json`; the app loads only its neutral entry, see "Which builds have it"). This page says what PLC does with one.
 Nothing here stores, applies or sends anything: choosing a look and keeping it in conversations is a later task (T706).
 
 ## How a person uses it
