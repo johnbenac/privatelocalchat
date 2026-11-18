@@ -16,7 +16,7 @@ The plan and its reasons are in `docs/PRESENTATION-CHOICE-PLAN.md`; this page sa
 ## What is stored, and the guarantees
 
 - One local storage key, `plc.presentations.v1` (class `user`, format 1): a map from preset id to a record (`chat/presentation/record.mjs`): layout and palette NAMES (closed lists), the pictures as base64 with their
-  text alternative, author, licence, media type, size and SHA-256, the person's choices, and where it came from. At most 8 looks (`MAX_KEPT`), each at most about 350 KB (T415's inline caps). Through `appLocal`, so the encrypted
+  text alternative, author, licence, media type, size and SHA-256, the person's choices, and where it came from. At most 8 looks (`MAX_KEPT`). The PICTURES are capped (64 KiB each and 256 KiB in total as decoded bytes, `RECORD_LIMITS`, which is about 349,528 base64 characters); the record has no byte cap of its own and adds metadata (each alt, author and licence up to 8,192 characters). Only subject-scope aspects are read; a context-scope presentation is not used. Through `appLocal`, so the encrypted
   vault, a read-only tab and "newer data is left alone" apply (`docs/DATA-HANDLING.md`).
 - Every read checks the record again (`checkRecord`): anything damaged, hand-edited or written by a newer version shows the default look and is **left exactly as stored**; the store carries such entries through every write
   untouched and never overwrites a newer version's entry.

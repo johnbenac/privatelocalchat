@@ -24,8 +24,7 @@ header and the agent's messages are drawn from that choice; without a preset, a 
    message). It reuses the shape of `chat/assistant/preset-store.mjs` and its tests, not a new idea.
 5. **One renderer for the default and for an imported look.** The default look becomes the "neutral" description the view model already returns. The header strip and the agent's message bubbles are drawn from a
    description by one function; with no record the description is neutral and the drawing is today's drawing. The controls that say who is speaking, stop, leave, host and privacy are not part of what it draws.
-6. **Scope.** Subject scope applies to that agent's messages and the header; context scope (a scene) is read and kept but only its palette and background are used, behind the header strip, never behind the
-   message text (text stays on a solid panel, so contrast never depends on a picture).
+6. **Scope.** Subject scope applies to that agent's messages and the header. **Context scope (a scene) is NOT used:** `chat/presentation/open-bundle.mjs` reads only an aspect whose scope is `subject` (or has none); a context-scope presentation is listed as an unused part. (An earlier version of this note said a scene's palette and background would be read and kept; the code never did, and this note was corrected on 2026-11-18 after Cosmogenitor's plan review.) Text stays on a solid panel, so contrast never depends on a picture.
 7. **Backups.** A full backup carries the records beside the presets (same section, so restore goes through the preset lock and the same checks). A settings file carries none. A history file carries none.
 
 ## Two releases (docs/DATA-COMPATIBILITY.md)
