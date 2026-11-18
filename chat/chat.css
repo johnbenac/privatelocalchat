@@ -195,3 +195,30 @@ html.splashing #app { visibility: hidden; animation: lock-reveal 0s 8s forwards;
 .pkg-note { color: var(--color-text); }
 .pkg-other summary { cursor: pointer; }
 @media (max-width: 420px) { .pkg-card, .pkg-card[data-layout="dialogue"] { flex-direction: column; align-items: stretch; } .pkg-card .pkg-portrait { width: min(100%, 144px); } }
+
+/* A kept character look in the conversation (chat/presentation/look-ui.mjs, T706). Names only come from the package; every colour is PLC's, and the agent's message sits on a solid panel with
+   the panel's text colour on everything inside it, so a picture, a link or a code block can never lower the contrast. Nothing here touches the person's messages, the header, the composer or any control. */
+.look-strip, .messages[data-look-palette] { --pkg-bg: var(--color-surface-alt); --pkg-fg: var(--color-text); --pkg-accent: var(--color-link); }
+.look-strip[data-palette="dusk"], .messages[data-look-palette="dusk"] { --pkg-bg: #2a2230; --pkg-fg: #f6ede4; --pkg-accent: #e9b872; }
+.look-strip[data-palette="paper"], .messages[data-look-palette="paper"] { --pkg-bg: #f6f3ec; --pkg-fg: #1f1d1a; --pkg-accent: #7a5c2e; }
+.look-strip[data-palette="sea"], .messages[data-look-palette="sea"] { --pkg-bg: #0f3b44; --pkg-fg: #eaf6f5; --pkg-accent: #8fd6d0; }
+.look-strip { position: relative; display: flex; align-items: center; gap: 12px; padding: 8px 14px; background: var(--pkg-bg); color: var(--pkg-fg); border-bottom: 3px solid var(--pkg-accent); overflow: hidden; min-height: 48px; }
+.look-strip[hidden] { display: none; }
+.look-strip .look-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .35; pointer-events: none; }
+.look-strip .look-portrait { position: relative; width: 40px; height: 40px; border-radius: 8px; border: 2px solid var(--pkg-accent); background: var(--pkg-bg); object-fit: cover; flex: none; }
+.look-strip .look-name { position: relative; font-weight: 600; padding: 2px 8px; border-radius: 6px; background: var(--pkg-bg); color: var(--pkg-fg); overflow-wrap: anywhere; }
+.look-strip[data-layout="folio"] { flex-direction: row-reverse; justify-content: flex-end; }
+.messages[data-look-palette] .message.assistant { background: var(--pkg-bg); color: var(--pkg-fg); border-left: 4px solid var(--pkg-accent); }
+.messages[data-look-palette] .message.assistant :is(.speaker, .message-body, .message-body *, .message-meta, .message-model, .badge) { color: inherit; }
+.messages[data-look-palette] .message.assistant :is(pre, code) { background: rgba(127, 127, 127, .28); }
+.messages[data-look-palette] .message.assistant a { text-decoration: underline; }
+.messages[data-look-layout="folio"] .message.assistant { border-left: 0; border-top: 4px solid var(--pkg-accent); }
+.look-controls-host { margin: 6px 0; }
+.look-controls-host[hidden] { display: none; }
+.look-controls { border: 1px solid var(--color-border-strong); border-radius: 8px; padding: 8px 12px; margin: 0; }
+.look-controls legend { font-weight: 600; padding: 0 6px; }
+.look-toggle { display: inline-flex; align-items: center; gap: 6px; margin: 2px 12px 2px 0; }
+.look-parts { display: flex; flex-wrap: wrap; margin: 4px 0; }
+.look-facts { margin: 6px 0; padding-left: 1.2rem; }
+.look-facts li { overflow-wrap: anywhere; }
+@media (max-width: 420px) { .look-strip { flex-wrap: wrap; } }

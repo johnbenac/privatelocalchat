@@ -6,7 +6,7 @@
 //
 // Run this on the commit that becomes a release (or on an extracted release tag, with --release and --commit) and commit the folder it writes. tests/e2e/data-upgrade.e2e.mjs then loads every folder, oldest first, into the build under
 // test and checks that nothing the person had is missing or changed (docs/DATA-COMPATIBILITY.md).
-import {mkdirSync,writeFileSync,mkdtempSync,existsSync} from 'node:fs';
+import {mkdirSync,writeFileSync,mkdtempSync,existsSync,readFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {execFileSync} from 'node:child_process';
@@ -63,6 +63,14 @@ try{
   await plusItem('Instructions for this chat');
   await page.fill('#systemPromptInput','Talk like a pirate.');await page.click('#savePresetBtn');
   await page.fill('.app-dialog input','Pirate');await page.click('.app-dialog button:has-text("Save preset")');
+  // a character package from Cosmogenitor, added as a preset WITH its look (chat/presentation, board T706): this is what writes plc.presentations.v1, so a snapshot of a build that writes it exists
+  const lantern=readFileSync(new URL('../tests/fixtures/presentation/lantern-keeper.bundle.json',import.meta.url),'utf8');
+  {const [chooser]=await Promise.all([page.waitForEvent('filechooser'),page.click('#previewCharacterBtn')]);await chooser.setFiles({name:'lantern-keeper.json',mimeType:'application/json',buffer:Buffer.from(lantern)});}
+  await page.waitForSelector('.app-dialog:has-text("Preview character package")');
+  await page.click('.pkg-character button:has-text("Add as a preset with this look")');
+  await page.waitForSelector('.app-dialog:has-text("Review preset")');await page.click('.app-dialog .dialog-actions .primary');
+  await page.waitForFunction(()=>/Look kept for/.test(document.body.innerText),null,{timeout:15000});
+  await page.waitForFunction(()=>!document.querySelector('.app-dialog'),null,{timeout:10000});
   await page.fill('#messageInput','an unsent draft about the snapshot');
   await page.waitForTimeout(1500);
   await settle().catch(()=>{});
@@ -88,14 +96,14 @@ try{
   assert(JSON.stringify(vaultProbe.docs)===JSON.stringify(plainProbe.docs),'the documents read back the same with the vault on');
 
   const text=JSON.stringify(plain);
-  for(const needle of ['Lisbon','Travel','launch notes','pirate','favourite colour','Pirate'])assert(text.toLowerCase().includes(needle.toLowerCase()),'the scenario did not create: '+needle);
+  for(const needle of ['Lisbon','Travel','launch notes','pirate','favourite colour','Pirate','Lantern Keeper','asset:lantern-portrait','plc.presentations.v1'])assert(text.toLowerCase().includes(needle.toLowerCase()),'the scenario did not create: '+needle);
   assert(plainProbe.docs.length===1,'one document');assert(JSON.parse(JSON.stringify(plainProbe.local.chatThreads)).length>=3,'at least three chats');
   assert(!JSON.stringify(vault.storage).includes('Lisbon'),'nothing readable in the vault snapshot');
 
   mkdirSync(folder,{recursive:true});
   // the format of every key as the capturing build understood it (older builds have no table: a key named ...vN is format N, anything else format 1)
   const formats=await page.evaluate(async()=>{const {KEY_CLASSES}=await import(window.plcApp.moduleBase()+'chat/vault/key-classes.mjs');return Object.fromEntries(Object.entries(KEY_CLASSES).filter(([,i])=>['user','setting'].includes(i.class)).map(([k,i])=>[k,i.format??(/\.v(\d+)$/.exec(k)?Number(/\.v(\d+)$/.exec(k)[1]):1)]));});
-  const meta={format:'plc-data-snapshot/1',release,commit,commitFull,capturedAt:new Date().toISOString().slice(0,10),app:await page.evaluate(()=>window.APP_BUILD),formats,scenario:'two chats (one with a document), a project, a pinned chat, memory, a preset, an unsent draft; then the encrypted vault',projection:plainProbe.projection};
+  const meta={format:'plc-data-snapshot/1',release,commit,commitFull,capturedAt:new Date().toISOString().slice(0,10),app:await page.evaluate(()=>window.APP_BUILD),formats,scenario:'two chats (one with a document), a project, a pinned chat, memory, a preset, a character package added as a preset with its look, an unsent draft; then the encrypted vault',projection:plainProbe.projection};
   writeFileSync(join(folder,'meta.json'),JSON.stringify(meta,null,1)+'\n');
   writeFileSync(join(folder,'plain.json'),JSON.stringify(plain,null,1)+'\n');
   writeFileSync(join(folder,'vault.json'),JSON.stringify(vault,null,1)+'\n');

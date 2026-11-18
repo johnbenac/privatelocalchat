@@ -18,6 +18,33 @@ test('every palette name has a rule, with readable text and a visible accent',()
     assert.ok(ratio(v.accent,v.bg)>=3,name+': accent contrast '+ratio(v.accent,v.bg).toFixed(2));
   }
 });
+test('the strip and the agent\'s message panels have the same palettes, with the same readable colours',()=>{
+  const sets=(re)=>Object.fromEntries(PALETTES.map((name)=>{const m=css.match(new RegExp(re.replaceAll('NAME',name)+'\\s*\\{([^}]*)\\}'));assert.ok(m,'a rule for palette '+name+' in '+re);
+    return [name,Object.fromEntries([...m[1].matchAll(/--pkg-(bg|fg|accent):\s*(#[0-9a-fA-F]{6})/g)].map((x)=>[x[1],x[2]]))];}));
+  const card=sets('\\.pkg-card\\[data-palette="NAME"\\]'),strip=sets('\\.look-strip\\[data-palette="NAME"\\], \\.messages\\[data-look-palette="NAME"\\]');
+  for(const name of PALETTES){
+    assert.ok(strip[name].bg&&strip[name].fg&&strip[name].accent,name+' sets all three colours in the conversation');
+    assert.deepEqual(strip[name],card[name],name+': the conversation uses exactly the colours the preview shows');
+    assert.ok(ratio(strip[name].fg,strip[name].bg)>=4.5,name+': text contrast in the conversation '+ratio(strip[name].fg,strip[name].bg).toFixed(2));
+  }
+  for(const n of [...css.matchAll(/data-look-palette="([a-z-]+)"/g)].map((m)=>m[1]))assert.ok(PALETTES.includes(n),'unknown palette in the stylesheet: '+n);
+});
+/** Selectors of one rule, split at commas that are not inside parentheses (so :is(a, b) stays one). */
+const splitSelectors=(rule)=>{const out=[];let depth=0,cur='';for(const ch of rule){if(ch==='(')depth++;if(ch===')')depth--;if(ch===','&&depth===0){out.push(cur.trim());cur='';}else cur+=ch;}if(cur.trim())out.push(cur.trim());return out;};
+test('the conversation styling touches only the agent\'s messages and the new strip, never the person\'s messages, the composer or a control',()=>{
+  const block=css.slice(css.indexOf('/* A kept character look in the conversation')).replace(/\/\*[\s\S]*?\*\//g,'');
+  const rules=block.split('}').map((r)=>r.split('{')).filter((p)=>p.length===2&&p[0].trim()&&!p[0].trim().startsWith('@media')).map(([sel,body])=>({selectors:splitSelectors(sel.trim()),body:body.trim()}));
+  assert.ok(rules.length>=12,'read '+rules.length+' rules');
+  for(const {selectors,body} of rules) for(const sel of selectors){
+    assert.ok(/^\.look-/.test(sel)||/^\.messages\[data-look-(palette|layout)/.test(sel),'selector outside the look: '+sel);
+    if(sel.startsWith('.messages[')){
+      const onlyVariables=body.split(';').map((d)=>d.trim()).filter(Boolean).every((d)=>d.startsWith('--pkg-'));
+      assert.ok(onlyVariables||/\.message\.assistant/.test(sel),'a rule on the message area that sets more than colour variables and is not about the agent\'s messages: '+sel+' { '+body.slice(0,60));
+    }
+  }
+  assert.ok(!/\.message\.user|message-form|composer|(^|\s)button/.test(rules.flatMap((r)=>r.selectors).filter((x)=>x.startsWith('.messages[')).join(' ')),'nothing for the person\'s message, the composer or a button');
+  assert.ok(!/animation|transition|@keyframes/.test(block),'no motion');
+});
 test('every layout name has a rule, and there is no rule for a name the view model does not accept',()=>{
   for(const name of LAYOUTS) assert.match(css,new RegExp('\\.pkg-card\\[data-layout="'+name+'"\\]'),name);
   const named=[...css.matchAll(/data-layout="([a-z-]+)"/g)].map((m)=>m[1]);

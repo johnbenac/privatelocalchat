@@ -12,6 +12,8 @@ import { createPresetStore, editPresetChange } from "./preset-store.mjs";
 import { createPresetImport } from "./preset-import.mjs";
 import { createPresentationPreview } from "../presentation/preview.mjs";
 import { loadValidator } from "../presentation/reader.mjs";
+import { createPresentationKeeper, MAX_KEPT } from "../presentation/keeper.mjs";
+import { createLookUi } from "../presentation/look-ui.mjs";
 import { mergeBackupPresets } from "./preset-candidate.mjs";
 
 export function createAssistant(host) {
@@ -27,6 +29,7 @@ export function createAssistant(host) {
   // of what is stored, one change, a write checked by reading it back. There is no whole-list writer any more: `customPresets` is only this tab's copy of what was last read or written.
   const presetStore = createPresetStore({ storage: appLocal, key: PRESETS_KEY, isReadOnly: () => app.readOnly });
   const adoptPresets = list => { customPresets = list; };
+  let look = null; // the kept-look view (chat/presentation/look-ui.mjs), created below once the keeper exists
   // text of an edit that was refused (a newer version of the preset was stored first, or the save failed), kept in memory so the next Edit of that preset starts from it
   const rejectedEdits = new Map();
   const presetFailure = outcome => showToast(outcome.message || 'The preset could not be saved.');
@@ -59,13 +62,14 @@ export function createAssistant(host) {
     presetSelect.appendChild(new Option('No preset', ''));
     allPresets().forEach(p => presetSelect.appendChild(new Option(p.name, p.id)));
     presetSelect.value = thread?.presetId && allPresets().some(p => p.id === thread.presetId) ? thread.presetId : '';
+    look?.render(thread?.presetId && allPresets().some(p => p.id === thread.presetId) ? thread.presetId : null);
   }
   presetSelect.addEventListener('change', () => {
     const thread = currentThread(); if (!thread) return;
     const preset = allPresets().find(p => p.id === presetSelect.value);
     if (preset) { thread.presetId = preset.id; thread.systemPrompt = preset.prompt; systemPromptInput.value = preset.prompt; }
     else delete thread.presetId;
-    saveThreads(); showToast(preset ? 'Preset “' + preset.name + '” applied to this chat' : 'Preset cleared');
+    saveThreads(); look?.render(preset ? preset.id : null); showToast(preset ? 'Preset “' + preset.name + '” applied to this chat' : 'Preset cleared');
   });
   document.getElementById('savePresetBtn').addEventListener('click', async () => {
     const thread = currentThread(); const prompt = systemPromptInput.value.trim();
@@ -97,9 +101,24 @@ export function createAssistant(host) {
   }
   document.getElementById('importPresetBtn')?.addEventListener('click', () => presetImport.chooseFile());
   // a Cosmogenitor character package is only PREVIEWED: nothing is added or saved (chat/presentation/preview.mjs, board T444). The shared validator is loaded when a package is opened.
-  // A Cosmogenitor character package is only PREVIEWED: nothing is added or saved (chat/presentation/preview.mjs, board T444). The shared validator (its neutral entry, chat/presentation/reader.mjs)
-  // is loaded when a package is opened.
-  const presentationPreview = createPresentationPreview({ el, openAppDialog, showToast, loadValidator });
+  // Kept character looks (chat/presentation/keeper.mjs owns the key): one per preset, attached when a package's character is added as a preset, shown in the conversation by look-ui.mjs.
+  const keeper = createPresentationKeeper({ storage: appLocal, isReadOnly: () => app.readOnly, onChange: () => look?.render(currentThread()?.presetId || null) });
+  look = createLookUi({ el, keeper, showToast, strip: document.getElementById('lookStrip'), messagesEl: document.getElementById('messages'), controlsEl: document.getElementById('lookControls'), confirm: (...a) => window.plcDialogs.confirm(...a) });
+  // A Cosmogenitor character package is previewed first (chat/presentation/preview.mjs, board T444); only "Add as a preset" changes anything, and it goes through the preset review box.
+  // The shared validator (its neutral entry, chat/presentation/reader.mjs) is loaded when a package is opened.
+  const presentationPreview = createPresentationPreview({
+    el, openAppDialog, showToast, loadValidator,
+    addAsPreset: (character, record) => presetImport.reviewResult(character.preset, 'package', {
+      note: record ? 'The look from the package (its layout, palette and pictures) is kept with this preset too. You can turn it off or remove it later, under “Instructions for this chat”.' : 'The package has no look that can be used, so only the character\u2019s text is added.',
+      after: async (preset) => {
+        if (!record) return;
+        const r = await keeper.keep(preset.id, record);
+        showToast(r.ok && r.result?.status === 'saved' ? 'Look kept for “' + preset.name + '”.'
+          : r.ok && r.result?.status === 'full' ? 'The preset was added, but ' + MAX_KEPT + ' looks are already kept. Remove one first, then add this character again.'
+          : (r.message || 'The preset was added, but its look could not be kept.'));
+      }
+    })
+  });
   document.getElementById('previewCharacterBtn')?.addEventListener('click', () => presentationPreview.chooseFile());
   // another tab changed the saved presets: show them here too (the list is read again; nothing is written)
   window.addEventListener('storage', event => {
@@ -186,6 +205,7 @@ export function createAssistant(host) {
             const done = await presetStore.mutate(list => ({ list: list.filter(x => x.id !== p.id) }));
             if (!done.ok) { presetFailure(done); return; }
             adoptPresets(done.list); renderPresets(); renderPresetOptions(currentThread());
+            keeper.remove(p.id); // the look goes with its preset (a newer version's entry is left alone)
           });
           row.append(edit, del);
         }

@@ -68,6 +68,15 @@
       "since": "v0.8.0"
     },
     {
+      "key": "plc.presentations.v1",
+      "store": "localStorage",
+      "class": "user",
+      "owner": "chat/presentation/keeper.mjs",
+      "note": "the look (layout, palette, pictures) a person chose to keep for a preset, one record per preset id",
+      "format": 1,
+      "since": "v0.74.0"
+    },
+    {
       "key": "plc.memory.v1",
       "store": "localStorage",
       "class": "user",
@@ -382,6 +391,7 @@
       "chat/history/history-io.mjs",
       "chat/list/conversation-list.mjs",
       "chat/lock/lock.mjs",
+      "chat/presentation/keeper.mjs",
       "chat/provider/provider-settings.mjs",
       "chat/shell/registry.mjs",
       "chat/shell/shell.mjs",

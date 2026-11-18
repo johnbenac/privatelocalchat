@@ -12,18 +12,20 @@ export function createPresetImport(host) {
   const tell = host.alert || ((title, message) => window.plcDialogs.alert(title, message));
   let reviewing = null; // the open review box: a second one is not stacked on it
 
-  async function review(candidate, origin) {
+  async function review(candidate, origin, extra = {}) { // extra: { note?: text shown in the box, after?: async (preset, list) run only after the person pressed Add and the preset was saved }
     if (reviewing && !reviewing.closed) { showToast('Finish or cancel the preset you are reviewing first.'); return; }
     const root = el('div', 'preset-review');
     const note = el('p', 'muted', 'Nothing has been added yet. Adding creates a new preset on this device; it is not applied to any chat, and nothing is sent anywhere.');
-    const source = el('p', 'muted', 'Read from ' + (origin === 'link' ? 'a link' : 'a file') + (candidate.sourceId ? '. Its own id (“' + candidate.sourceId.slice(0, 60) + '”) is not used: this device gives it a new one.' : '.'));
+    const source = el('p', 'muted', 'Read from ' + (origin === 'link' ? 'a link' : origin === 'package' ? 'a character package' : 'a file') + (candidate.sourceId ? '. Its own id (“' + candidate.sourceId.slice(0, 60) + '”) is not used: this device gives it a new one.' : '.'));
     const nameId = 'presetReviewName', textId = 'presetReviewText';
     const nameLabel = el('label', null, 'Preset name'); nameLabel.htmlFor = nameId;
     const nameInput = el('input'); nameInput.type = 'text'; nameInput.id = nameId; nameInput.value = candidate.name; nameInput.maxLength = PRESET_LIMITS.nameChars; nameInput.autocomplete = 'off';
     const textLabel = el('label', null, 'Instructions (exactly as they will be saved)'); textLabel.htmlFor = textId;
     const text = el('textarea'); text.id = textId; text.readOnly = true; text.value = candidate.prompt; text.rows = 10;
     const status = el('p', 'preset-review-status'); status.setAttribute('role', 'status'); status.setAttribute('aria-live', 'polite');
-    root.append(note, source, nameLabel, nameInput, textLabel, text, status);
+    root.append(note, source);
+    if (typeof extra.note === 'string' && extra.note) root.append(el('p', 'muted', extra.note));
+    root.append(nameLabel, nameInput, textLabel, text, status);
 
     let adding = false;
     let offeredSeparate = false; // the button said "Keep as a separate preset" the last time the box was drawn: only then is a click that explicit answer
@@ -69,6 +71,7 @@ export function createPresetImport(host) {
           h.close();
           onAdded(outcome.result.preset, outcome.list);
           showToast('Preset “' + outcome.result.preset.name + '” added. Choose it under “Instructions for this chat” to use it.');
+          if (typeof extra.after === 'function') { try { await extra.after(outcome.result.preset, outcome.list); } catch { /* the preset is added either way */ } }
         } }
       ]
     });
@@ -79,10 +82,10 @@ export function createPresetImport(host) {
   }
 
   /** A result from parsePresetCandidate / readPresetFragment: review it, or say why not (the box is the only thing that can add). */
-  async function reviewResult(result, origin) {
+  async function reviewResult(result, origin, extra) {
     if (!result) return false;
     if (!result.ok) { await tell('Preset not added', result.message); return false; }
-    await review(result.candidate, origin);
+    await review(result.candidate, origin, extra);
     return true;
   }
 

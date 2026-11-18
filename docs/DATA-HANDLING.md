@@ -23,7 +23,7 @@ Files attached to a chat or added to the document library are kept in the Indexe
 
 ### Memory, presets, preferences and settings
 
-- Memory items and custom presets are each a local storage key. So are the preferences (standing instructions, how Enter sends, the time of the last export), the choice between on-device and a connected provider, the chosen on-device model and the chosen voice.
+- Memory items and custom presets are each a local storage key. A **character look** a person chose to keep for a preset (its layout and palette names, its pictures, who made them and under what licence, and the person's choices) is one more local storage key, `plc.presentations.v1`, one record per preset; the pictures are inside it. It never leaves the device, it is in the vault when the vault is on, and removing the look or the preset deletes it. So are the preferences (standing instructions, how Enter sends, the time of the last export), the choice between on-device and a connected provider, the chosen on-device model and the chosen voice.
 - The provider settings are in session storage: the endpoint, the model, the format and the theme (`chatConfig`), the provider's model list (`chatModels`) and the API keys (`chatEndpointTokens`).
 
 ### The API key
@@ -70,7 +70,7 @@ Browsers offer to clear the site data of an address. In current browsers that re
 | `user` | what the person wrote or chose to keep (chats, drafts, memory, documents, API keys): goes into the vault |
 | `vault` | the encrypted store itself: nothing in it is readable without the passphrase |
 
-**Keys in local and session storage (31)**
+**Keys in local and session storage (32)**
 
 | Key | Where | Class | What it holds | Format | First release |
 | --- | --- | --- | --- | --- | --- |
@@ -94,6 +94,7 @@ Browsers offer to clear the site data of an address. In current browsers that re
 | `plc.offlineHint.v1` | local storage | `plain` | the offline hint was shown | 1 | v0.37.0 |
 | `plc.pendingToken.v1` | session storage | `transient` | a settings link waiting for the person's choice | 1 | v0.13.0 |
 | `plc.prefs.v1` | local storage | `setting` | composer preferences; the theme is the one value the lock screen would like to read | 1 | v0.8.0 |
+| `plc.presentations.v1` | local storage | `user` | the look (layout, palette, pictures) a person chose to keep for a preset, one record per preset id | 1 | v0.74.0 |
 | `plc.presets.v1` | local storage | `user` | the person's own prompt presets | 1 | v0.8.0 |
 | `plc.shell.collapsed` | local storage | `plain` | side panel open or closed | 1 | v0.15.0 |
 | `plc.shell.pins.v1` | local storage | `user` | pinned items; may name chats | 1 | v0.15.0 |
@@ -121,7 +122,7 @@ Browsers offer to clear the site data of an address. In current browsers that re
 | OPFS model and voice files | `device` | runtime/providers/, chat/voice/voice-engine.mjs |
 | throw-away IndexedDB probe databases | `plain` | chat/connection/connection-glue.mjs, chat/connection/private-mode.mjs |
 
-35 source files read or write browser storage; the list is in `files.list` of docs/evidence/encryption/storage-inventory.json.
+36 source files read or write browser storage; the list is in `files.list` of docs/evidence/encryption/storage-inventory.json.
 <!-- data-handling:storage:end -->
 
 ## 2. What the app sends over the network
@@ -343,7 +344,7 @@ The vault is optional and is off unless the person turns it on. The design is in
 The key table in `chat/vault/key-classes.mjs` gives every storage key a class. The classes `user`, `setting` and `transient` go into the vault when it is on; `plain` and `test` keys and the device stores do not. In plain words, the vault holds:
 
 - saved chats, each sealed under a key of its own, and documents, each under a key of its own;
-- memory, presets, drafts, folders, pins and preferences;
+- memory, presets, kept character looks, drafts, folders, pins and preferences;
 - the choices of mode, model and voice;
 - the provider settings and the API keys (the keys only if "Remember my API keys" is on);
 - the short-lived items of a tab (the unsent text kept across an update, a settings link waiting for its password).

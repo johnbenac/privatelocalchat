@@ -3,13 +3,16 @@
 // and keeping a look in conversations is a later task (T706).
 //   createPresentationPreview(host) returns { chooseFile, showResult }
 //
-// host: el, openAppDialog, showToast, loadValidator() -> Promise<{ openAuthored }> (the shared validator is loaded only when a package is opened), alert(title, message) (defaults to
-//       window.plcDialogs.alert), urls ({ create(blob), revoke(url) }, defaults to URL.createObjectURL / revokeObjectURL; tests replace it)
+// host: el, openAppDialog, showToast, loadValidator() -> Promise<{ openAuthored, projectPLCPreset }> (the shared validator is loaded only when a package is opened), alert(title, message) (defaults to
+//       window.plcDialogs.alert), urls ({ create(blob), revoke(url) }, defaults to URL.createObjectURL / revokeObjectURL; tests replace it),
+//       addAsPreset?(character, record|null) -> opens PLC's own preset review for the character's plain text; when the person adds it, the look in `record` is kept for that preset
+//       (the button is drawn only when this is given and the character has a preset)
 //
 // What reaches the page from a package is only: its text (written as text, never as markup), a layout and a palette that are in PLC's closed lists (they pick a stylesheet rule that
 // PLC owns), and picture bytes that the validator checked against their SHA-256 and that PLC checked are a PNG, WebP or JPEG within the size bound. A package never supplies CSS, HTML,
 // a colour, a font or script. The controls that say who is speaking, stop, leave, host and privacy are not drawn here at all.
 import { MAX_PACKAGE_CHARS, openPresentationBundle } from "./open-bundle.mjs";
+import { makeRecord } from "./record.mjs";
 import { LAYOUT_MEANING, PALETTE_MEANING, explainOmission, explainOpenFailure, explainRefusal } from "./explain.mjs";
 
 const ROLE_WORD = Object.freeze({ portrait: "Picture", background: "Background" });
@@ -56,6 +59,15 @@ export function createPresentationPreview(host) {
     box.addEventListener("change", () => applyLook(!box.checked));
     applyLook(true);
 
+    if (typeof host.addAsPreset === "function") {
+      const made = makeRecord({ character, assetBytes });
+      const record = made.ok ? made.record : null;
+      if (character.preset && character.preset.ok) {
+        const add = el("button", "primary", record ? "Add as a preset with this look…" : "Add as a preset…"); add.type = "button";
+        add.addEventListener("click", () => { const handle = showing; if (handle) handle.close(); host.addAsPreset(character, record); });
+        section.appendChild(add);
+      } else if (character.preset) section.appendChild(el("p", "pkg-note", "This character cannot be added as a preset: " + character.preset.message));
+    }
     const facts = el("ul", "pkg-facts");
     if (view.usesDefault) facts.appendChild(el("li", null, view.refused ? "This package's look is not used; the app's own look is shown." : "This package does not carry a look; the app's own look is shown."));
     if (view.layout) facts.appendChild(el("li", null, "Layout: " + view.layout + " (" + LAYOUT_MEANING[view.layout] + ")"));
@@ -91,8 +103,8 @@ export function createPresentationPreview(host) {
   async function open(text) {
     let result;
     try {
-      const { openAuthored } = await host.loadValidator();
-      result = await openPresentationBundle(text, { openAuthored });
+      const { openAuthored, projectPLCPreset } = await host.loadValidator();
+      result = await openPresentationBundle(text, { openAuthored, projectPLCPreset });
     } catch { result = { ok: false, reason: "unavailable", message: "The character package reader could not be loaded, so nothing was opened." }; }
     return showResult(result);
   }

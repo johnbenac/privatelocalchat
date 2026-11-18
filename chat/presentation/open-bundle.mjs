@@ -10,13 +10,15 @@
 //
 // Result
 //   { ok: false, reason, code?, message }   the file could not be used at all (the whole package is refused, e.g. one changed byte, which the validator refuses as a whole)
-//   { ok: true, characters: [{ id, label, summary, view, otherAspects }], assetBytes, omissions }
+//   { ok: true, characters: [{ id, label, summary, view, otherAspects, preset }], assetBytes, omissions }
+//     preset        when projectPLCPreset is passed: { ok: true, candidate } (the character's plain text as PLC's own preset reader accepts it: same limits and refusals as an imported preset file) or { ok: false, message }
 //     view          the description from buildPresentationView for that character's own presentation (it may be the neutral default with a named refusal; the character is still listed)
 //     otherAspects  the definition ids of the character's other parts; this module does not use them for presentation, and the preview names them rather than hiding them
 //     assetBytes    Map(assetId -> Uint8Array) for the images a view actually shows (verified by the validator), for the preview to draw
 //     omissions     things this module itself left out: more characters than MAX_CHARACTERS
 
 import { buildPresentationView } from "./view-model.mjs";
+import { parsePresetCandidate } from "../assistant/preset-candidate.mjs";
 
 /** A package file larger than this is refused before it is parsed (T415 inline assets are far smaller; the validator has its own bounds too). */
 export const MAX_PACKAGE_CHARS = 2 * 1024 * 1024;
@@ -27,7 +29,18 @@ const isObject = (v) => v !== null && typeof v === "object" && !Array.isArray(v)
 const refuse = (reason, extra = {}) => Object.freeze({ ok: false, reason, ...extra });
 const plain = (value, max) => (typeof value === "string" ? value.slice(0, max) : null);
 
-export async function openPresentationBundle(text, { openAuthored } = {}) {
+/** The character's plain preset through the shared projection and then PLC's own preset reader, so a package can never put in a preset what a preset file could not. */
+function presetFor(subject, opened, projectPLCPreset) {
+  if (typeof projectPLCPreset !== "function") return null;
+  let projected;
+  try { projected = projectPLCPreset(opened.document, opened.registry, { subjectId: subject.id }); } catch { return Object.freeze({ ok: false, message: "This character cannot be made into a preset." }); }
+  const value = projected?.value;
+  if (!isObject(value)) return Object.freeze({ ok: false, message: "This character cannot be made into a preset." });
+  const read = parsePresetCandidate(JSON.stringify({ id: value.id, name: value.name, prompt: value.prompt }));
+  return read.ok ? Object.freeze({ ok: true, candidate: Object.freeze({ ...read.candidate }) }) : Object.freeze({ ok: false, message: read.message });
+}
+
+export async function openPresentationBundle(text, { openAuthored, projectPLCPreset } = {}) {
   if (typeof openAuthored !== "function") throw new TypeError("openPresentationBundle needs the validator: { openAuthored }");
   if (typeof text !== "string" || !text.trim()) return refuse("not-a-package", { message: "This is not a character package." });
   if (text.length > MAX_PACKAGE_CHARS) return refuse("too-large", { message: "This file is too large to be a character package." });
@@ -65,6 +78,7 @@ export async function openPresentationBundle(text, { openAuthored } = {}) {
     }
     characters.push({
       id: plain(subject.id, 200), label: plain(subject.label, 200), summary: plain(subject.summary, 2000),
+      preset: presetFor(subject, opened, projectPLCPreset),
       view: buildPresentationView({ presentation: own.presentation, media: own.media, assets, scope: "subject" }),
       otherAspects: Object.freeze([...new Set(others)].sort())
     });

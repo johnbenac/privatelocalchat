@@ -94,3 +94,29 @@ test('the result is frozen and opening does not change the input', async () => {
   assert.equal(text, before);
   assert.ok(Object.isFrozen(r) && Object.isFrozen(r.characters) && Object.isFrozen(r.characters[0]) && Object.isFrozen(r.characters[0].otherAspects));
 });
+
+import {projectPLCPreset} from '../vendor/authored-profiles/neutral/index.mjs';
+const openWithPreset=(text)=>openPresentationBundle(text,{openAuthored,projectPLCPreset});
+
+test('each real character gets a plain preset, read by PLC\'s own preset reader (same limits as an imported file)',async()=>{
+  for(const [n,label] of [['lantern-keeper','Lantern Keeper'],['ferry-clerk','Ferry Clerk']]){
+    const r=await openWithPreset(raw(n));const c=r.characters[0];
+    assert.equal(c.preset.ok,true,n);
+    assert.equal(c.preset.candidate.name,label);assert.match(c.preset.candidate.prompt,/^Portray /);assert.equal(c.preset.candidate.sourceId,'cosmogenitor:subject:'+n);
+    assert.ok(Object.isFrozen(c.preset)&&Object.isFrozen(c.preset.candidate));
+  }
+  assert.equal((await open(raw('lantern-keeper'))).characters[0].preset,null,'no preset is made unless the projection is passed in');
+});
+
+test('a character whose projection is refused, odd or too long gives a plain reason and never a preset',async()=>{
+  const fakeOpen=async()=>({document:{subjects:[{id:'s',label:'S',aspects:[]}],assets:[]},registry:{},inlineBytes:new Map()});
+  const cases=[[()=>{throw new Error('x');},/cannot be made into a preset/],[()=>null,/cannot be made into a preset/],[()=>({value:'x'}),/cannot be made into a preset/],
+    [()=>({value:{id:'a',name:'N',prompt:'p'.repeat(8001)}}),/longer than 8000/],[()=>({value:{id:'a',name:'N\nM',prompt:'p'}}),/one line/],[()=>({value:{id:'a',name:'N',prompt:'  '}}),/no instructions/],
+    [()=>({value:{id:'a',name:'N',prompt:'p',apiKey:'k'}}),null]];
+  for(const [proj,pattern] of cases){
+    const r=await openPresentationBundle('{}',{openAuthored:fakeOpen,projectPLCPreset:proj});
+    const p=r.characters[0].preset;
+    if(pattern===null){assert.equal(p.ok,true,'only id, name and prompt are taken from the projection');assert.deepEqual(Object.keys(p.candidate).sort(),['name','prompt','sourceId']);continue;}
+    assert.equal(p.ok,false);assert.match(p.message,pattern);assert.ok(!('candidate' in p));
+  }
+});
