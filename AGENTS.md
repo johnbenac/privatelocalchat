@@ -113,7 +113,7 @@ plc:
 [[intermittent-9b-installer-issue-left]] — John's decision 2026-11-18 to leave the rare 130-of-131 file failure of the 9B install; what is in place (model-runtime 1.0.0 refetch, 1.0.1 detail) and when to reopen.
 [[preset-import-and-standalone-qualification]] — Checked T465/T34/T519 delivery, evidence limits, and unfinished bounded T222/T418 orchestration.
 [[real-device-access-iphone-and-mac]] — How to reach and drive the shared iPhone 15 Pro (boiler usbmux forward plus pymobiledevice3) and the networked Mac's Safari (ssh port 2222): commands, pitfalls, what only John can do.
-[5/6 entries shown; cosmo-mem read plc _index.md]
+[5/7 entries shown; cosmo-mem read plc _index.md]
 
 program:
 [[what-this-project-is]] — What Cosmoshot is and the near-term objectives for it.
@@ -121,10 +121,11 @@ program:
 [[conversation-archive-api-query]] — The Chat Cleave API schema location and supported GET search query fields.
 [[conversation-archive-search-location]] — The shared Chat Cleave helper for searching imported conversations and its source contract.
 [[how-memory-is-kept]] — Where to find memory access, safe writes and sync, instruction rollout, and dream validation contracts.
+[[plc-nano-verification-driver]] — Link to the nano generation driver and recipe
 [[shared-cdn-design-location]] — Design document for the shared cdn.aiofourown.com endpoint.
 [[sonalon-phase-evidence-location]] — The host directory for Sonalon browser-study evidence and the phase-five record pointers.
 [[tools-ingress-path-ownership]] — Relay, executors, and tools in '/cosmoshot/tools'.
-[8/28 entries shown; cosmo-mem read program _index.md]
+[9/29 entries shown; cosmo-mem read program _index.md]
 ```
 
 
