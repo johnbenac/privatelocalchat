@@ -133,7 +133,7 @@ The app's on-device features need a secure context: https, or http://localhost o
 
 ## Licence and source
 
-Private Local Chat is free software under the GNU General Public License. \`LICENSE\` is the licence text, \`THIRD-PARTY-NOTICES.md\` lists the components and their licences, and \`SOURCE.txt\` says where the source of this exact build is and how to rebuild it.
+Private Local Chat is free software under the GNU Affero General Public License. \`LICENSE\` is the licence text, \`THIRD-PARTY-NOTICES.md\` lists the components and their licences, and \`SOURCE.txt\` says where the source of this exact build is and how to rebuild it.
 `;
 }
 

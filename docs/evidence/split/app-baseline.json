@@ -15,12 +15,12 @@
    "sha256": "6e2ce07360188a9a9a2a48f16d76378816bec0532b413fee38762e05c69e2a3e"
   },
   "LICENSE": {
-   "bytes": 35149,
-   "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+   "bytes": 34523,
+   "sha256": "0d96a4ff68ad6d4b6f1f30f713b18d5184912ba8dd389f86aa7710db079abcb0"
   },
   "THIRD-PARTY-NOTICES.md": {
-   "bytes": 9522,
-   "sha256": "66f894c1685669f8b0db48eaa0e91f830205e85cc9d9bb661e30069ac0a1ec97"
+   "bytes": 9853,
+   "sha256": "9e0bd19de4565608d9fef9f703390d8cd04f29c0d5fb143d8663817b339f137f"
   },
   "_headers": {
    "bytes": 598,
