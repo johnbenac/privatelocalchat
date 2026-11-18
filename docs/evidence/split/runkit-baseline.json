@@ -227,8 +227,8 @@
    "sha256": "51939c0d5c8febbec3510fd977a94dff2f6247c99a5e2f3a2944c14888ce6e4c"
   },
   "releases/0000000000000000000000000000000000000000/chat/embedding/embedding-config.mjs": {
-   "bytes": 1693,
-   "sha256": "94e6deb9835a074abf757c54bc9cb2448958226003ca8ef0b49251548b8b2b21"
+   "bytes": 1701,
+   "sha256": "2995f5d201ac5c2fd03a9a212bf4bd19bacc04d7655a9fee37e8cf98c0ecae57"
   },
   "releases/0000000000000000000000000000000000000000/chat/embedding/embedding-model.mjs": {
    "bytes": 540,
@@ -632,7 +632,7 @@
   },
   "releases/0000000000000000000000000000000000000000/release.json": {
    "bytes": 27983,
-   "sha256": "a5d457b973f33aa5bafae3764d19fe1351494ba69fb1d400f4c780b4b72f3ef3"
+   "sha256": "3ff9b2455fc3e6a2fb82560bcbee29452e7b73c8d4e18fda7ee64eb523f33d24"
   },
   "releases/0000000000000000000000000000000000000000/runtime/auto-load.mjs": {
    "bytes": 565,

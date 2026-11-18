@@ -2,7 +2,7 @@
 
 ## What this is
 
-Private Local Chat: a static, no-framework browser app (WebGPU/WASM local LLMs, or an explicitly chosen OpenAI-compatible API). `origin` (the GitLab group `cosmoshot`) is the home; the `github` remote (`johnbenac/privatelocalchat`) is for publishing only: the deploy workflows in `.github/workflows/` run from there, so do not push to it unless asked. Cloudflare Pages serves the app, the programme's shared data CDN (`cdn.aiofourown.com`, R2 bucket `cosmoshot-cdn`, T587) serves model files; `assets.privatelocal.chat` (R2 `privatelocalchat-assets`) still serves the same files and is the fallback. This repo is **not** deployed via the homelab/Flux/Caddy stack described in the global instructions.
+Private Local Chat: a static, no-framework browser app (WebGPU/WASM local LLMs, or an explicitly chosen OpenAI-compatible API). `origin` (the GitLab group `cosmoshot`) is the home; the `github` remote (`johnbenac/privatelocalchat`) is for publishing only: the deploy workflows in `.github/workflows/` run from there, so do not push to it unless asked. Cloudflare Pages serves the app, the programme's shared data CDN (`cdn.aiofourown.com`, R2 bucket `cosmoshot-cdn`, T587) serves model files; `assets.privatelocal.chat` (R2 `privatelocalchat-assets`) is retired and redirects `/models/*` there since 2026-11-17 (T674, T677). Publish with `/cosmoshot/tools/ops/cdn_publish.py`; the pins are in `ops/cloudflare/*.json`. This repo is **not** deployed via the homelab/Flux/Caddy stack described in the global instructions.
 
 ## Commands
 
@@ -119,8 +119,7 @@ program:
 [[conversation-archive-search-location]] — The shared Chat Cleave helper for searching imported conversations and its source contract.
 [[how-memory-is-kept]] — Where to find memory access, safe writes and sync, instruction rollout, and dream validation contracts.
 [[sonalon-phase-evidence-location]] — The host directory for Sonalon browser-study evidence and the phase-five record pointers.
-[[any-one-lane-is-enough]] — The standing bar that any one of Claude Code, Codex or opencode on the local router must be able to run Cosmoshot, and the routing-policy mechanism that chooses lanes.
-[7/19 entries shown; cosmo-mem read program _index.md]
+[6/19 entries shown; cosmo-mem read program _index.md]
 ```
 
 

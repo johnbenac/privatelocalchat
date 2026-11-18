@@ -28,7 +28,7 @@ test('dev network denial preserves cached navigation and blocks misses, CDN and 
  assert.equal((await w.mode(true)).enabled,true);const before=w.network.length;
  assert.equal(await(await w.fetch(origin+'/?reopen=1',{navigate:true})).text(),'cached shell');
  assert.equal(await(await w.fetch(origin+'/runtime.js')).text(),'cached runtime');
- for(const [url,options]of [[origin+'/uncached',{}],['https://assets.privatelocal.chat/uncached',{}],[origin+'/api/debug/receiver',{method:'POST'}]])assert.equal((await w.fetch(url,options)).type,'error');
+ for(const [url,options]of [[origin+'/uncached',{}],['https://cdn.aiofourown.com/uncached',{}],[origin+'/api/debug/receiver',{method:'POST'}]])assert.equal((await w.fetch(url,options)).type,'error');
  assert.equal(w.network.length,before);
 });
 

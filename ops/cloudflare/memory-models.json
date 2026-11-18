@@ -1,0 +1,71 @@
+{
+  "memory_search": {
+    "prefix": "models/memory/79cbff1e617b319a/",
+    "version": "79cbff1e617b319a",
+    "licenseName": "Apache-2.0 (embed/), MIT (runtime/)",
+    "note": "The small search model for Roberta (topic matching by meaning): MongoDB/mdbr-leaf-ir int8 ONNX, unchanged, plus the ONNX Runtime Web files it needs. The runtime/ files are code and are served by the app; the shared data CDN holds embed/ only (T587, 2026-11-17).",
+    "licenseText": "Small search model for Private Local Chat (Roberta's topic matching). embed/: MongoDB/mdbr-leaf-ir, revision 4262131b32c3182bd06e67e92ae69d7bd66e0c5c, Apache-2.0, int8 ONNX unchanged. runtime/: ONNX Runtime Web 1.26.0-dev.20260416-b7804b056c, MIT, unchanged. Files are immutable; a changed byte is a new version path.\n",
+    "model": {
+      "id": "MongoDB/mdbr-leaf-ir",
+      "sourceRevision": "4262131b32c3182bd06e67e92ae69d7bd66e0c5c",
+      "totalBytes": 23890100
+    },
+    "runtime": {
+      "name": "ONNX Runtime Web",
+      "version": "1.26.0-dev.20260416-b7804b056c",
+      "license": "MIT"
+    },
+    "files": [
+      {
+        "path": "embed/config.json",
+        "bytes": 829,
+        "sha256": "258407cfa27c7e1e502a9c312abebb4f5241bf226972ffc366287f370a3567f1",
+        "type": "application/json"
+      },
+      {
+        "path": "embed/tokenizer.json",
+        "bytes": 711661,
+        "sha256": "da0e79933b9ed51798a3ae27893d3c5fa4a201126cef75586296df9b4d2c62a0",
+        "type": "application/json"
+      },
+      {
+        "path": "embed/tokenizer_config.json",
+        "bytes": 1529,
+        "sha256": "46ac231e9b955a8af80fc7f23a0ecc65b524f1df84a02c2c82cbca354fb207b4",
+        "type": "application/json"
+      },
+      {
+        "path": "embed/special_tokens_map.json",
+        "bytes": 732,
+        "sha256": "5aa43c2f985a25296d5a5ce621c2f77376ca8091a47993c492fd5460b895b140",
+        "type": "application/json"
+      },
+      {
+        "path": "embed/onnx/model_quantized.onnx",
+        "bytes": 220597,
+        "sha256": "8c08cb4ecc00bad721b117a85738c537ceb9b85b3eedc52d9c6906fddaa55718",
+        "type": "application/octet-stream"
+      },
+      {
+        "path": "embed/onnx/model_quantized.onnx_data",
+        "bytes": 22954752,
+        "sha256": "e77ea96a124230e23e5bac8e26c3ffe5410154973d8635673fa0220b06c13f8b",
+        "type": "application/octet-stream"
+      },
+      {
+        "path": "runtime/ort-wasm-simd-threaded.wasm",
+        "bytes": 12942611,
+        "sha256": "f4f290847a4df02d0b93cdbf39b4b0e71acefbe80573e7e6b9342a7abd7b290a",
+        "type": "application/wasm",
+        "appServed": true
+      },
+      {
+        "path": "runtime/ort-wasm-simd-threaded.mjs",
+        "bytes": 24180,
+        "sha256": "5f2cd914554830762579c372d0211614c1e3f40ab3f6c0cfcf0900343229071d",
+        "type": "text/javascript",
+        "appServed": true
+      }
+    ]
+  }
+}

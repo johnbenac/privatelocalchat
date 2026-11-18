@@ -4,7 +4,7 @@ Chat with Qwen3.5 on your device, or explicitly choose an OpenAI-compatible API 
 
 - Production: https://privatelocal.chat — `main` branch
 - Development: https://dev.privatelocal.chat — `dev` branch
-- Models: https://assets.privatelocal.chat/models/catalog.json
+- Models: downloaded on demand from the configured model source (`docs/APP-CONFIG.md`), each file checked against a pinned SHA-256
 - Feedback: https://github.com/johnbenac/privatelocalchat/issues/new/choose
 
 Choose **On this device**, select a model, press **Download model**. The download retries automatically and loads the model when complete. After reopening a completed session, use **Load model** to load its saved files. The smaller Qwen3.5-2B download is about 1.20 GB. Qwen3.5-9B is about 5.06 GB and requires substantially more GPU memory. Model size is separate from working memory. Both runtimes require WebGPU, and the 2B runtime also requires shader-f16; supported browser/device combinations must be confirmed by the release acceptance checks.

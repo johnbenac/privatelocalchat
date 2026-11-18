@@ -76,7 +76,7 @@ export async function buildModelsManifest() {
     const voices = {};
     for (const [id, files] of Object.entries(urls.voices)) voices[id] = relative(files, root, 'voice ' + id);
     // The embedding configuration names where its set is (a content-addressed folder) but pins no file: neither a list nor sizes nor hashes are in the code,
-    // so there is nothing true to put here. ops/cloudflare/publish-embedding.py holds the set at publishing time only.
+    // so there is nothing true to put here. ops/cloudflare/memory-models.json holds the set's pins for publishing only.
     return {format: MODELS_FORMAT, root, tiers, voices, embedding: []};
   } finally { globalThis.APP_CONFIG = saved; }
 }

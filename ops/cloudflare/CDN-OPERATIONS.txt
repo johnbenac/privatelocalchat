@@ -1,49 +1,30 @@
-Private Local Chat model CDN
+Private Local Chat model CDN: operations
 
-Public origin: https://assets.privatelocal.chat
-R2 bucket: privatelocalchat-assets
-Model catalogue: https://assets.privatelocal.chat/models/catalog.json
+CURRENT (since 2026-11-17, T587/T674/T677)
 
-The catalogue contains the exact pinned Qwen3.5-9B WebLLM q4f16_1
-and q4f32_1 artifacts (including their matching WASM model libraries), plus
-the Qwen3.5-2B text-only Q4_0 GGUF build (13 shards). These are two model
-sizes, with two GPU variants of the 9B model. No model conversion is done.
-Model downloads total 11,319,524,538 bytes across 275 objects; the largest
-object is 508,559,360 bytes, below the standard CDN cache object ceiling.
+The app's models come from the programme's shared data CDN, https://cdn.aiofourown.com (R2 bucket cosmoshot-cdn), which infra runs. It holds data
+only (no .wasm). Publish with /cosmoshot/tools/ops/cdn_publish.py (publish, verify, status, rollback, set-current, catalog; read the section "Shared CDN
+publish, verify, roll back" in /cosmoshot/tools/ops/README.md) and check every published version with /cosmoshot/infra/cloudflare/cdn_verify.py.
+Header rules, retention and backup: /cosmoshot/infra/docs/CDN-DESIGN.md. Catalogue: https://cdn.aiofourown.com/catalog.json.
 
-provision-cdn.py provisions the R2 bucket, public custom domain, GET/HEAD
-CORS with byte-range response headers, the host-specific cache rule, and a
-response-header transform preventing duplicate browser HTTP weight storage.
-It does not change application hosting, apex DNS or redirect configuration.
+What stays in this folder is PLC's own data, the record of what the app asks for:
+  model-cdn-manifest.json      every pinned data file of the nine families (key, size, SHA-256, URL on the shared CDN)
+  pinned-model-catalog.json    the upstream revisions and hashes the app catalogue was generated from
+  gguf-models.json, voice-models.json, memory-models.json   the pins of the wllama models, the voices and the search model
+  licenses/                    the licence texts published beside each model
+  cdn-inventory.json, model-object-verification.json          older records, not maintained
 
-publish-models.py reads the project token from its private local file,
-derives S3 credentials in memory, and sends them to the trusted Europe
-host over SSH stdin. Credentials are never written to deployment output.
-The host uses installed Python 3/boto3, and the existing europe-ssh helper.
-It copies pinned model objects server-side from a private operator-specified bucket, then reads
-every destination byte and verifies all SHA-256 values. Source objects are
-read only. Different existing immutable destination content is refused.
-The final log includes a VERIFICATION_JSON record with the full proof.
-A recorded verification checkpoint can resume checks already completed
-against these exact immutable object keys and the pinned manifest.
+RETIRED BUCKET (record only, not maintained)
 
-verify-cdn.py verifies public config/WASM hashes, WASM MIME types, CORS from
-https://privatelocal.chat, HTTP 206 ranges for large BIN/GGUF shards, and a
-Cloudflare CDN cache HIT, including weight responses carrying no-store.
-Its output is public-cdn-verification.json.
+Until 2026-11-17 the files were served from the project's own R2 bucket privatelocalchat-assets at https://assets.privatelocal.chat (account and
+zone ids in cdn-state.json; its last public check is public-cdn-verification.json, 2026-11-02). That host now redirects /models/* to the shared CDN
+(applied 2026-11-17 22:10 EST by infra on PLC's written word on T674); *.wasm and /models/catalog.json stay on it. Infra removes the old objects only on
+PLC's written word on T677, after a hash-verified copy (retirement runbook: /cosmoshot/infra/docs/RETIREMENT-RUNBOOK-PLC.md).
 
-Model paths carry pinned source revisions with one-year immutable edge
-caching. A late response-header transform sets Cache-Control: no-store on
-.gguf and .bin weights without changing edge caching. The application keeps
-the intentional offline copy in OPFS or explicit CacheStorage; no-store
-prevents an additional ordinary HTTP cache copy. Config and WASM responses
-retain public, max-age=31536000, immutable. Publish a new revision to change
-a model. models/catalog.json is a discovery index with a one-hour TTL.
-Previously cached browser copies are not retroactively removed by this rule.
+The scripts that provisioned, filled and checked that bucket (provision-cdn.py, publish-models.py, publish-gguf.py, publish-files.py,
+publish-embedding.py, update-catalog-index.py, verify-cdn.py, migrate-hosting.py) were deleted in T677 because the shared tool does the same job; they are
+in git history (see commit "refactor(ops): delete the old publishers, keep only PLC's pin data" and its parent).
 
-Base-model Apache-2.0 LICENSE files accompany all model directories.
-models/README.txt and pinned-model-catalog.json record model provenance.
-Matching model libraries originate in mlc-ai/binary-mlc-llm-libs (Apache-2.0).
-Application inference engines are a separate app deployment concern.
-Public model delivery permits any CORS origin, including production and dev;
-no credentials or conversation content are needed to fetch these assets.
+The old bucket's rules, for the record: weights (.gguf, .bin) carried Cache-Control no-store so the app's own OPFS or Cache API copy is the only
+offline copy; everything else was public, max-age=31536000, immutable; CORS allowed any origin with Range; model paths carried pinned source revisions.
+Apache-2.0 LICENSE files accompanied the Qwen model directories; the matching WebLLM libraries came from mlc-ai/binary-mlc-llm-libs (Apache-2.0).

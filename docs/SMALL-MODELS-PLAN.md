@@ -17,7 +17,7 @@ The smallest model was 901 MB (Granite 4.0 H 1B), the 2B Qwen is 1.2 GB. The S8+
 | SmolLM2-360M-Instruct Q4_0 | 230 MB | about 5 tok/s | correct, terse; slower than Granite 350M at the same size, so not added |
 | **Granite 4.0 H 350M Q4_K_M** | 223 MB | about 12 tok/s | correct and short on all four questions |
 
-- **Two tiers:** `mini` = Granite 4.0 H 350M (try first), `nano` = SmolLM2-135M (smallest, weakest; for when storage is the limit). Both are single files, published unchanged from IBM's and bartowski's repositories at pinned commits (`ops/cloudflare/gguf-models.json`, `publish-gguf.py`), served from `assets.privatelocal.chat`, listed in `models/catalog.json`.
+- **Two tiers:** `mini` = Granite 4.0 H 350M (try first), `nano` = SmolLM2-135M (smallest, weakest; for when storage is the limit). Both are single files, published unchanged from IBM's and bartowski's repositories at pinned commits (pins in `ops/cloudflare/gguf-models.json`; published with the shared tool, `docs/CDN-POPULATION.md`), served from the shared CDN (first from `assets.privatelocal.chat`, retired 2026-11-17), listed in the CDN's `/catalog.json`.
 - **Policy change in `runtime/auto-tier.mjs`:** the tiny tiers may run on the processor on iPhone/iPad and with 2 GB of memory; the 2B and 1B models still may not. A phone with no usable graphics card now starts with `mini`; a desktop without one keeps `light`; a person's choice and an already downloaded model keep their place. The backend (processor or card) is decided per model (`tierBackend`).
 
 ## Results
