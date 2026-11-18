@@ -48,6 +48,7 @@ for(const [target,extra] of [['app',{}],['runkit',{}],['site',{SITE_DIR:'tests/f
 
 test('the page wires the button unconditionally and has no feature flag',()=>{
   const src=readFileSync('chat/assistant/assistant.mjs','utf8');
-  assert.match(src,/createPresentationPreview\(\{ el, openAppDialog, showToast, loadValidator \}\)/);
+  assert.match(src,/createPresentationPreview\(\{\s*el, openAppDialog, showToast, loadValidator,/,'the reader is always passed in');
+  assert.match(src,/getElementById\('previewCharacterBtn'\)\?\.addEventListener\('click', \(\) => presentationPreview\.chooseFile\(\)\)/,'the button is always wired');
   assert.ok(!/PLC_FEATURES|typeof loadValidator/.test(src));
 });

@@ -138,7 +138,7 @@ try{
  assert(await page.locator('.pkg-character button:has-text("Add as a preset…")').count()===1&&await page.locator('.pkg-character button:has-text("with this look")').count()===0,'a package whose look is refused offers only the plain preset');
  await page.click('.pkg-character button:has-text("Add as a preset…")');await dialog('Review preset').waitFor();
  assert(/only the character.s text is added/.test(await dialog('Review preset').innerText()),'the box says only the text is added');
- await page.click('.app-dialog .dialog-actions .primary');await page.waitForFunction(()=>/added/.test(document.body.innerText));
+ await page.click('.app-dialog .dialog-actions .primary');await page.waitForFunction(()=>JSON.parse(localStorage.getItem('plc.presets.v1')||'[]').some(p=>p.name==='Ferry Clerk'),null,{timeout:10000});await page.waitForTimeout(500); // the preset is saved; give the (absent) look the time it would need
  assert((await presets()).some(p=>p.name==='Ferry Clerk')&&JSON.stringify(await kept())==='{}','the preset is added and no look is kept');
  ok('a package whose look is refused still gives the plain preset, with no look kept');
 

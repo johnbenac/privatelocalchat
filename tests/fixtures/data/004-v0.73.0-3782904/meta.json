@@ -1,0 +1,35 @@
+{
+ "format": "plc-data-snapshot/1",
+ "release": "v0.73.0",
+ "commit": "3782904",
+ "commitFull": "3782904a6ac47fb79eb8c91cebee3ee4d8185103",
+ "capturedAt": "2026-11-18",
+ "app": {
+  "version": "2.0.0",
+  "commit": "3782904a6ac47fb79eb8c91cebee3ee4d8185103",
+  "branch": "main",
+  "environment": "release",
+  "builtAt": "2026-11-18T10:18:37.817Z"
+ },
+ "formats": {
+  "chatThreads": 1,
+  "plc.activeThread.v1": 1,
+  "plc.drafts.v1": 1,
+  "plc.prefs.v1": 1,
+  "plc.folders.v1": 1,
+  "plc.presets.v1": 1,
+  "plc.presentations.v1": 1,
+  "plc.memory.v1": 1,
+  "plc.modelMemory.v1": 1,
+  "plc.voice.v2": 2,
+  "plc.voice.v1": 1,
+  "plc.inferenceMode.v1": 1,
+  "plc.models.v1": 1,
+  "plc.shell.pins.v1": 1,
+  "chatConfig": 1,
+  "chatModels": 1,
+  "chatEndpointTokens": 1
+ },
+ "scenario": "two chats (one with a document), a project, a pinned chat, memory, a preset, a character package added as a preset with its look, an unsent draft; then the encrypted vault",
+ "projection": 1
+}
