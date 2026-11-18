@@ -1,7 +1,7 @@
 import './helpers/install-app-config.mjs'; // the model sources the build writes into the page (docs/APP-CONFIG.md)
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {pickTier,lightBackend,tierBackend,cpuBackendSupport,gpuRunsLight} from '../runtime/auto-tier.mjs';
+import {pickTier,lightBackend,tierBackend,cpuBackendSupport,gpuRunsLight} from '../runtime/providers/auto-tier.mjs';
 import {wasmSupport} from '../runtime/providers/capability-probe.mjs';
 import {loadConfigFor} from '../runtime/providers/catalog.mjs';
 import {createModelHost} from '../runtime/providers/model-host.mjs';
@@ -98,7 +98,7 @@ test('where the browser\'s file storage cannot be opened, the smallest model is 
 // ---- a small iPhone gets the tiny model, whatever its iOS (the 11 Pro on iOS 27 reports a working WebGPU and used to be given the 1.2 GB model) ----
 const APPLE=(maxBufferSize)=>({webgpu:{available:true,hasApi:true,shaderF16:true,isFallbackAdapter:false,adapter:{vendor:'apple'},maxBufferSize},wasm:WASM,deviceMemoryGB:null});
 test('an iPhone with about 4 GB (buffer limit one sixth of 4 GiB) starts with the tiny model on its processor, with or without WebGPU',async()=>{
- const {appleMemoryEstimateGB,lowMemoryApple}=await import('../runtime/auto-tier.mjs');
+ const {appleMemoryEstimateGB,lowMemoryApple}=await import('../runtime/providers/auto-tier.mjs');
  const small=APPLE(715827880);
  assert.equal(appleMemoryEstimateGB(small),4);assert.equal(lowMemoryApple(small),true);
  assert.deepEqual(pickTier({env:small,userAgent:IPHONE}),{tier:'mini',backend:'cpu',reason:'low-memory-phone'});
@@ -108,7 +108,7 @@ test('an iPhone with about 4 GB (buffer limit one sixth of 4 GiB) starts with th
  assert.equal(pickTier({env:{...small,webgpu:{available:false}},userAgent:IPHONE}).tier,'mini');
 });
 test('a bigger iPhone, an iPad, a Mac and an Android phone are not moved by this rule',async()=>{
- const {appleMemoryEstimateGB}=await import('../runtime/auto-tier.mjs');
+ const {appleMemoryEstimateGB}=await import('../runtime/providers/auto-tier.mjs');
  const big=APPLE(1073741824);
  assert.equal(appleMemoryEstimateGB(big),null,'the 1 GiB class cannot be told apart, so it is not guessed');
  assert.equal(pickTier({env:big,userAgent:IPHONE}).tier,'light');

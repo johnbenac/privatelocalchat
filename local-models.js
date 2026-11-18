@@ -2,7 +2,7 @@ import {createDownloadRecovery} from './runtime/download-recovery.mjs';
 import {shouldAutoLoad} from './runtime/auto-load.mjs';
 import {explainGpu} from './runtime/gpu-help.mjs';
 import {createPreparer} from './runtime/prepare.mjs';
-import {cpuBackendSupport,gpuRunsLight} from './runtime/auto-tier.mjs';
+import {cpuBackendSupport,gpuRunsLight} from './runtime/providers/auto-tier.mjs';
 import {createOfflineStatusProbe} from './runtime/offline-status.mjs';
 import {createModelHost} from './runtime/providers/model-host.mjs';
 import {gatherEnv} from './runtime/providers/capability-probe.mjs';

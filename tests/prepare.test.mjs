@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {pickTier,isMobileDevice} from '../runtime/auto-tier.mjs';
+import {pickTier,isMobileDevice} from '../runtime/providers/auto-tier.mjs';
 import {progressOf,createPreparer} from '../runtime/prepare.mjs';
 const GPU={webgpu:{available:true,shaderF16:true},deviceMemoryGB:8};
 const IPHONE='Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Safari/604.1',DESK='Mozilla/5.0 (X11; Linux x86_64) Chrome/140.0';

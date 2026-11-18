@@ -19,7 +19,7 @@ import { createProvider, openPort } from "./client.mjs";
 import { TIERS, TIER_ORDER, VARIANT_INFO, DEFAULT_VARIANT, chooseWebllmVariant, resolveSources, tierFiles, loadConfigFor, isWllamaTier } from "./catalog.mjs";
 import { gatherEnv } from "./capability-probe.mjs";
 import { classifyEngineError } from "./errors.mjs";
-import { lightBackend, tierBackend } from "../auto-tier.mjs";
+import { lightBackend, tierBackend } from "./auto-tier.mjs";
 import { appLocal } from "../../chat/vault/vault-store.mjs";
 
 const SETTINGS_KEY = "plc.models.v1";

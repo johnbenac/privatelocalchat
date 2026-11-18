@@ -2,7 +2,7 @@ import './helpers/install-app-config.mjs'; // the model sources the build writes
 import test from "node:test";
 import assert from "node:assert/strict";
 import { TIERS, TIER_ORDER, tierFiles, loadConfigFor, isWllamaTier, isTinyTier, resolveSources, OFFICIAL_SOURCES } from "../runtime/providers/catalog.mjs";
-import { pickTier } from "../runtime/auto-tier.mjs";
+import { pickTier } from "../runtime/providers/auto-tier.mjs";
 import manifest from "../ops/cloudflare/gguf-models.json" with { type: "json" };
 
 const CDN = "https://cdn.aiofourown.com/models/";
