@@ -120,12 +120,12 @@ program:
 [[concept-systems-plugin-path-and-loading]] — Where the Concept Systems plugin lives and the command that loads it in Claude Code.
 [[conversation-archive-api-query]] — The Chat Cleave API schema location and supported GET search query fields.
 [[conversation-archive-search-location]] — The shared Chat Cleave helper for searching imported conversations and its source contract.
+[[host-fact-evidence-contract]] — Host facts and native execution evidence
 [[how-memory-is-kept]] — Where to find memory access, safe writes and sync, instruction rollout, and dream validation contracts.
 [[plc-nano-verification-driver]] — Link to the nano generation driver and recipe
 [[shared-cdn-design-location]] — Design document for the shared cdn.aiofourown.com endpoint.
 [[sonalon-phase-evidence-location]] — The host directory for Sonalon browser-study evidence and the phase-five record pointers.
-[[tools-ingress-path-ownership]] — Relay, executors, and tools in '/cosmoshot/tools'.
-[9/29 entries shown; cosmo-mem read program _index.md]
+[9/34 entries shown; cosmo-mem read program _index.md]
 ```
 
 
