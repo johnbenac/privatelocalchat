@@ -59,6 +59,25 @@
       "path": "runtime/providers",
       "tree_sha256": "2d357f5e3aa74720f23d6529b8e2ab6600fb677c88210f98a55c1bca4f1d2f77",
       "version": "1.0.0"
+    },
+    {
+      "files": {
+        "LICENSE": "0d96a4ff68ad6d4b6f1f30f713b18d5184912ba8dd389f86aa7710db079abcb0",
+        "README.md": "38e098942dc422c57065b6120f3bc7ab3701dd91ff19f1ef585ba49aefdbce39",
+        "VENDORING.md": "b0a21fb9e7ad8778031276d7e6d11c2802492cdb88e9e266851bc7792d29ff9d",
+        "vendor_check.py": "c949eea2a3935c0a763de43685f6b8e452448bf4adada27767bb6b4473cf8145"
+      },
+      "license": "AGPL-3.0",
+      "name": "vendor-check",
+      "owner": "devops",
+      "package": {
+        "file": "vendor-check-1.0.0.tar.gz",
+        "sha256": "d6faf4b1054d8505a13a3cd823b96ff7d247bfc772e4ca3067af0bfb009e4fc5",
+        "type": "generic"
+      },
+      "path": "tools/vendor-check",
+      "tree_sha256": "2c3af34ae9d88dca9226e51a7e71bea7df8cffea5a72d494c779a0e4dc85cd72",
+      "version": "1.0.0"
     }
   ],
   "schema": "aiofourown-vendor-lock/1"
