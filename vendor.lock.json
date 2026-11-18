@@ -4,7 +4,7 @@
       "files": {
         "adapters/mock.mjs": "324dc12052489883f65c0795719fda75674b3c4271fa76c762b2079c2967c304",
         "adapters/webgpu.mjs": "1bef792ac631b65f7e28d2c151db7f6dea77b0e9d4b0f85141e995827da415c3",
-        "adapters/webllm.mjs": "68e9c2bab30aa75c269dde1c71c3e95726653b78c4c58f3f5dc9f8aebc9b08e1",
+        "adapters/webllm.mjs": "be3642522bc449fc42d651d2c77eca60909eafc27e424977a50ddb8f2bf5f814",
         "adapters/wllama.mjs": "5bb1d1260afd54eac14201d5fad7ebc3673c15a061324fa7e8c3788afe0572d7",
         "app-config.mjs": "71f41d87b848fe582ca5a4156520cd176d1b5633acab5b45e0854dd9a0a41ca3",
         "auto-tier.mjs": "266345693d831bc3a054bfdb3cde7266cf5d33b90c711efd90bcef3b9d01fb84",
@@ -52,13 +52,13 @@
       "name": "model-runtime",
       "owner": "plc",
       "package": {
-        "file": "model-runtime-1.0.0.tar.gz",
-        "sha256": "9a092b42ee5f03f4b3a20560d9b5c7b4c5b74f7b16befe211ffdd4085a9fe510",
+        "file": "model-runtime-1.0.1.tar.gz",
+        "sha256": "24cfad43a103c17453b032d96d3270a048e2bc1365d0a06d9e12fae1b1b327ef",
         "type": "generic"
       },
       "path": "runtime/providers",
-      "tree_sha256": "2d357f5e3aa74720f23d6529b8e2ab6600fb677c88210f98a55c1bca4f1d2f77",
-      "version": "1.0.0"
+      "tree_sha256": "7309c213cea437d9cc5e3eed588052fec53e48bd80567f5c388667b45e441e39",
+      "version": "1.0.1"
     },
     {
       "files": {
