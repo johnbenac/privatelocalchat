@@ -1587,6 +1587,6 @@
  },
  "embedding": {
   "modelBase": "https://assets.privatelocal.chat/models/memory/79cbff1e617b319a/",
-  "wasmBase": "https://assets.privatelocal.chat/models/memory/79cbff1e617b319a/runtime/"
+  "wasmBase": "app:chat/vendor/embedding/ort/"
  }
 }

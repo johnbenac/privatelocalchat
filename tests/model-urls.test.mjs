@@ -23,7 +23,8 @@ test('every default address is under the configured root: no other host is named
   const all=[...Object.values(urls.tiers).flatMap(t=>Object.values(t)).flat(),...Object.values(urls.voices).flat()].map(f=>f.url);
   assert.ok(all.length>250);
   for(const u of all)assert.ok(u.startsWith(ROOT),u);
-  assert.ok(urls.embedding.modelBase.startsWith(ROOT)&&urls.embedding.wasmBase.startsWith(ROOT));
+  assert.ok(urls.embedding.modelBase.startsWith(ROOT));
+  assert.equal(urls.embedding.wasmBase,'app:chat/vendor/embedding/ort/','the ONNX Runtime files are served by the app, not by the model source');
 });
 
 test('an operator source changes where files come from and nothing else: same paths, same sizes, same SHA-256', async () => {

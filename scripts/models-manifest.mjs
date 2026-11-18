@@ -36,7 +36,9 @@ export async function collectModelUrls({effectiveSources, fresh = ''} = {}) {
     'kitten-tts-nano-0.8-int8': KITTEN_NANO_MANIFEST.files.map((f) => ({url: KITTEN_NANO_BASE_URL + f.name, bytes: f.bytes, sha256: f.sha256})).sort(byUrl),
     'kokoro-82m-v1.0-q8': KOKORO_Q8_MANIFEST.files.map((f) => ({url: KOKORO_Q8_BASE_URL + f.path, bytes: f.bytes, sha256: f.sha256})).sort(byUrl)
   };
-  return {tiers, voices, embedding: {modelBase: embedding.EMBEDDING_MODEL_BASE, wasmBase: embedding.EMBEDDING_WASM_BASE}};
+  // the ONNX Runtime files are code: the app serves them itself, so they are recorded as a path inside the app, not an address of the model source
+  const wasm = embedding.EMBEDDING_WASM_BASE;
+  return {tiers, voices, embedding: {modelBase: embedding.EMBEDDING_MODEL_BASE, wasmBase: 'app:' + wasm.slice(wasm.indexOf('chat/vendor/'))}};
 }
 
 const byPath = (a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0);

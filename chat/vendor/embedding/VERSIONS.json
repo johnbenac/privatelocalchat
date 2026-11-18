@@ -4,5 +4,10 @@
   "onnxruntimeWeb": "1.26.0-dev.20260416-b7804b056c",
   "onnxruntimeLicense": "MIT",
   "model": "MongoDB/mdbr-leaf-ir",
-  "modelLicense": "Apache-2.0"
+  "modelLicense": "Apache-2.0",
+  "onnxruntimeFiles": {
+    "ort/ort-wasm-simd-threaded.wasm": { "bytes": 12942611, "sha256": "f4f290847a4df02d0b93cdbf39b4b0e71acefbe80573e7e6b9342a7abd7b290a" },
+    "ort/ort-wasm-simd-threaded.mjs": { "bytes": 24180, "sha256": "5f2cd914554830762579c372d0211614c1e3f40ab3f6c0cfcf0900343229071d" }
+  },
+  "onnxruntimeFilesNote": "ONNX Runtime Web (MIT), the plain CPU SIMD build, copied unchanged from the set models/memory/79cbff1e617b319a/runtime/ and served by the app itself because the shared CDN holds data only"
 }
