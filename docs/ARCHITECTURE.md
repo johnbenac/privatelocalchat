@@ -54,7 +54,7 @@ index.html              host page: boot, chat core, glue
 local-models.js         the chat model controller (window.localModels)
 conversation-messages.mjs  how a thread becomes the messages sent to a model
 runtime/                model hosting, downloads, memory manager, voice advice
-runtime/providers/      the on-device model runtimes (WebLLM, wllama) behind one client; vendor/ holds the pinned runtimes and the two WebLLM model libraries (served by the app, not the model source)
+runtime/providers/      the on-device model runtimes (WebLLM, wllama) behind one client; a read-only copy of the package model-runtime (vendor.lock.json), changed only in /cosmoshot/model-runtime; vendor/ holds the pinned runtimes and the two WebLLM model libraries (served by the app, not the model source)
 chat/                   features, one folder each (below); the files left at the top are shared by several:
                         context, crypto, dialogs, events, icons, markdown, search, storage-check, stream, threads, tools, and the stylesheets (page.css is the page's own)
 chat/voice/             speech, the voice engines (Kitten, Kokoro), voice choice, voice notes and recorder, playback, text preparation, voice-session logic
