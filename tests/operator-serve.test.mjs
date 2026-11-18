@@ -116,7 +116,7 @@ test('config/app-config.json replaces the APP_CONFIG script exactly as the build
   const plainHead = await fetch(c.url('/'), {method: 'HEAD'});
   const plainEtag = plainHead.headers.get('etag');
   put(path.join(c.root, 'config', 'app-config.json'), OWN);
-  const mod = await module_(c.appDir, c.commit, 'runtime/config/app-config.mjs');
+  const mod = await module_(c.appDir, c.commit, 'runtime/providers/app-config.mjs');
   const shippedElement = `<script>window.APP_CONFIG=${JSON.stringify({format: 'plc-app-config/1', modelSources: [{id: 'shipped', label: 'Shipped', base: SHIPPED['1.0.0']}], overridden: false})};</script>`;
   assert.ok(shippedPage.includes(shippedElement));
   const element = appElement(mod, [{id: 'shipped', label: 'Shipped', base: SHIPPED['1.0.0']}], OWN);

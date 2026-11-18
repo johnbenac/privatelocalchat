@@ -1,5 +1,5 @@
 // Generated from the pinned manifests (ops/cloudflare/pinned-model-catalog.json). The generator is not in this repository, so a change is made by hand here and in that manifest together.
-// `dir` is where a model's files are under the configured model source (runtime/config/app-config.mjs): <name>/<revision>/.
+// `dir` is where a model's files are under the configured model source (runtime/providers/app-config.mjs): <name>/<revision>/.
 export const CATALOG_DATA = {
  "webllmQwen35_9b": {
   "q4f16_1": {

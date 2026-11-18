@@ -25,7 +25,7 @@ export function buildFiles(commit) {
     'assets/main.js': Buffer.from(`// build ${commit}\nexport const commit = '${commit}';\n`),
     'assets/data.bin': Buffer.from(Array.from({length: 600}, (_, i) => (i * 31 + commit.charCodeAt(0)) % 251)),
     'sub/dir/notes.txt': Buffer.from('notes of ' + commit + '\n'),
-    'runtime/config/app-config.mjs': real('runtime/config/app-config.mjs'),
+    'runtime/providers/app-config.mjs': real('runtime/providers/app-config.mjs'),
     'chat/site/site-links.mjs': real('chat/site/site-links.mjs')
   };
 }

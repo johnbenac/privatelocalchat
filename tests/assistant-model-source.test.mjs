@@ -3,7 +3,7 @@ import './helpers/install-app-config.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {buildAppConfig,appConfig} from '../runtime/config/app-config.mjs';
+import {buildAppConfig,appConfig} from '../runtime/providers/app-config.mjs';
 import {sourceLabelAndHost} from '../chat/models/source-notice.mjs';
 import {NODES} from '../chat/roberta/ivr-content.mjs';
 

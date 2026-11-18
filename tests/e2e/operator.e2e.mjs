@@ -109,7 +109,7 @@ const hashFiles = (page, commit, files) => page.evaluate(async ({commit, files})
   for (const f of files) { const r = await fetch(`/releases/${commit}/${f}`); const d = await crypto.subtle.digest('SHA-256', await r.arrayBuffer()); out.push({f, status: r.status, sha: [...new Uint8Array(d)].map((x) => x.toString(16).padStart(2, '0')).join('')}); }
   return out;
 }, {commit, files});
-const ownFiles = ['chat/stream.mjs', 'runtime/config/app-config.mjs'];
+const ownFiles = ['chat/stream.mjs', 'runtime/providers/app-config.mjs'];
 const releaseJson = async (commit) => { const r = await fetch(`${origin}/releases/${commit}/release.json`); assert.equal(r.status, 200, `/releases/${commit}/release.json is served`); return r.json(); };
 async function loadsItsOwnFiles(page, commit, what) {
   const pins = Object.fromEntries((await releaseJson(commit)).files.map((f) => [f.path, f.sha256]));

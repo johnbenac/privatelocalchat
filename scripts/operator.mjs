@@ -583,7 +583,7 @@ async function importFrom(appDir, commit, file) {
 }
 
 async function checkOperatorFiles(root, current, problems, notes) {
-  for (const [name, validator, module, file] of [['app-config.json', 'checkAppConfig', 'runtime/config/app-config.mjs'], ['site.json', 'checkSiteJson', 'chat/site/site-links.mjs']].map(([n, v, m]) => [n, v, m, at(root, 'config', n)])) {
+  for (const [name, validator, module, file] of [['app-config.json', 'checkAppConfig', 'runtime/providers/app-config.mjs'], ['site.json', 'checkSiteJson', 'chat/site/site-links.mjs']].map(([n, v, m]) => [n, v, m, at(root, 'config', n)])) {
     if (!exists(file)) continue;
     let raw;
     try { raw = JSON.parse(fs.readFileSync(file, 'utf8')); } catch (error) { problems.push(`config/${name} is not valid JSON (${error.message})`); continue; }

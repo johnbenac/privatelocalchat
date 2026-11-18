@@ -5,7 +5,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {collectModelUrls,BASELINE} from './links/model-urls.mjs';
-import {buildAppConfig} from '../runtime/config/app-config.mjs';
+import {buildAppConfig} from '../runtime/providers/app-config.mjs';
 
 const DEFAULTS=JSON.parse(readFileSync(new URL('../app-config.json',import.meta.url),'utf8'));
 const {format,note,...baseline}=JSON.parse(readFileSync(BASELINE,'utf8'));

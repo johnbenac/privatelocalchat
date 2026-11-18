@@ -6,7 +6,7 @@
 import { rowParts, renderRowText } from "./model-row.mjs";
 import { buildOfflineSection } from "./offline-section.mjs";
 import { siteLinks } from "../site/site-links.mjs";
-import { appConfig } from "../../runtime/config/app-config.mjs";
+import { appConfig } from "../../runtime/providers/app-config.mjs";
 import { sourceLabelAndHost } from "../models/source-notice.mjs";
 import { languageRows, voiceRows, otherRows, stateLine, toggleAction, ACTION_LABEL, sizeText } from "../models/models-view.mjs";
 

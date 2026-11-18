@@ -2,7 +2,7 @@
 //
 // It is shown when the active source is the shipped default (the project's content delivery network) and the copy has no site identity in its manifest, so no address of ours is compared
 // with the page's. It is shown once. Whoever runs a copy can use their own source by setting it in config/app-config.json; the Model source row in Settings, Models says what is in use.
-import { appConfig } from "../../runtime/config/app-config.mjs";
+import { appConfig } from "../../runtime/providers/app-config.mjs";
 import { siteLinks } from "../site/site-links.mjs";
 
 export const NOTICE_KEY = "plc.modelSourceNotice.v1";

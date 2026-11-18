@@ -3,7 +3,7 @@ import './helpers/install-app-config.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {CONFIG_FORMAT,validBase,checkAppConfig,readSources,buildAppConfig,appConfig} from '../runtime/config/app-config.mjs';
+import {CONFIG_FORMAT,validBase,checkAppConfig,readSources,buildAppConfig,appConfig} from '../runtime/providers/app-config.mjs';
 
 const DEFAULTS=JSON.parse(readFileSync(new URL('../app-config.json',import.meta.url),'utf8'));
 const mine={modelSources:[{id:'mine',label:'My models',base:'https://models.example.org/m'}]};

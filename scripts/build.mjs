@@ -5,7 +5,7 @@ import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {buildPublicSite,loadSiteConfig,checkSiteConfig,siteConfigScript} from './public-site.mjs';
 import {checkSiteJson,normalizedSiteLinks} from '../chat/site/site-links.mjs';
-import {buildAppConfig} from '../runtime/config/app-config.mjs';
+import {buildAppConfig} from '../runtime/providers/app-config.mjs';
 import {CATALOG_DATA} from '../runtime/providers/catalog-data.mjs';
 import {resolveTarget} from './targets.mjs';
 import {toPagesHeaders} from './headers.mjs';
@@ -33,7 +33,7 @@ if(siteJsonPath&&existsSync(siteJsonPath)){
  if(problems.length)throw new Error('The site manifest '+path.relative(root,siteJsonPath)+' has problems:\n - '+problems.join('\n - '));
  siteJson=normalizedSiteLinks(raw);
 }else siteJson=normalizedSiteLinks(undefined);
-// What the app is configured with (runtime/config/app-config.mjs, docs/APP-CONFIG.md): the shipped defaults in app-config.json, with an operator's config/app-config.json replacing the model sources
+// What the app is configured with (runtime/providers/app-config.mjs, docs/APP-CONFIG.md): the shipped defaults in app-config.json, with an operator's config/app-config.json replacing the model sources
 // when there is one. APP_CONFIG_OVERRIDE names that file: unset means ./config/app-config.json if it exists, empty means none, and a path that does not exist is an error.
 const configEnv=process.env.APP_CONFIG_OVERRIDE;
 const overridePath=configEnv===''?null:path.resolve(root,configEnv??'config/app-config.json');

@@ -13,7 +13,7 @@ import {ensureSourceNotice} from './chat/models/source-notice.mjs';
 await bootVault();
 
 const $ = id => document.getElementById(id);
-// Where the model files come from is the configured model source (runtime/config/app-config.mjs, docs/APP-CONFIG.md); the catalog reads it, so there is nothing to pass here.
+// Where the model files come from is the configured model source (runtime/providers/app-config.mjs, docs/APP-CONFIG.md); the catalog reads it, so there is nothing to pass here.
 const host = createModelHost({});
 /* DEV_DIAGNOSTICS_START */
 window.__plcDebugModelHost=host;
