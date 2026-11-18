@@ -125,7 +125,7 @@ program:
 [[plc-nano-verification-driver]] — Link to the nano generation driver and recipe
 [[shared-cdn-design-location]] — Design document for the shared cdn.aiofourown.com endpoint.
 [[sonalon-phase-evidence-location]] — The host directory for Sonalon browser-study evidence and the phase-five record pointers.
-[9/34 entries shown; cosmo-mem read program _index.md]
+[9/37 entries shown; cosmo-mem read program _index.md]
 ```
 
 
