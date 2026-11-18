@@ -32,7 +32,8 @@ const settle=()=>new Promise(r=>setTimeout(r,5));
 
 test('the model location is stated once, in the config, and the worker gets it in its init message',async()=>{
  assert.equal(EMBEDDING_MODEL_BASE,EMBEDDING_ASSET_HOST+EMBEDDING_ASSET_VERSION+'/');
- assert.equal(EMBEDDING_WASM_BASE,EMBEDDING_MODEL_BASE+'runtime/');
+ assert.match(EMBEDDING_WASM_BASE,/\/chat\/vendor\/embedding\/ort\/$/,'the ONNX Runtime files are the app\'s own, next to the worker');
+ assert.ok(!EMBEDDING_WASM_BASE.startsWith(EMBEDDING_ASSET_HOST),'code is never fetched from the model source (the shared CDN holds data only)');
  const f=fakeWorkers();
  const e=createEmbedder({createWorker:f.create,saveData:false});
  await e.ready();

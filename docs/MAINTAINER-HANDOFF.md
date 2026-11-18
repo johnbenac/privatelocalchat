@@ -8,7 +8,7 @@ This is the practical starting point for a maintainer with access to the GitHub 
 | --- | --- | --- |
 | Development | `dev` | [dev.privatelocal.chat](https://dev.privatelocal.chat), Pages project `privatelocalchat-dev` |
 | Production | `main` | [privatelocal.chat](https://privatelocal.chat), Pages project `privatelocalchat` |
-| Model distribution | Versioned R2 objects and app catalogue | [assets.privatelocal.chat](https://assets.privatelocal.chat/models/catalog.json), R2 bucket `privatelocalchat-assets` |
+| Model distribution | Versioned R2 objects and app catalogue; the shipped model source is `https://cdn.aiofourown.com/models/` (T587), the old host below still serves the same files | [assets.privatelocal.chat](https://assets.privatelocal.chat/models/catalog.json), R2 bucket `privatelocalchat-assets` |
 
 The repository is [johnbenac/privatelocalchat](https://github.com/johnbenac/privatelocalchat). `privatelocal.chat` is canonical; `privatelocalchat.com` redirects to it. GitHub also hosts [feedback](https://github.com/johnbenac/privatelocalchat/issues/new/choose). GitHub Pages does not host the app.
 

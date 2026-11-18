@@ -11,7 +11,9 @@ import {buildModelsManifest, modelsManifestText, MODELS_FORMAT} from '../scripts
 import {BASELINE} from './links/model-urls.mjs';
 
 const baseline = JSON.parse(readFileSync(BASELINE, 'utf8'));
-const baselineFiles = () => [...Object.values(baseline.tiers).flatMap((t) => Object.values(t)).flat(), ...Object.values(baseline.voices).flat()];
+const allBaselineFiles = () => [...Object.values(baseline.tiers).flatMap((t) => Object.values(t)).flat(), ...Object.values(baseline.voices).flat()];
+// The WebLLM libraries (code) ship inside the app, recorded as app:<path>: they are not downloaded, so they are not in models.json (T587).
+const baselineFiles = () => allBaselineFiles().filter((f) => !f.url.startsWith('app:'));
 const manifestFiles = (m) => [...Object.values(m.tiers).flat(), ...Object.values(m.voices).flat(), ...m.embedding];
 const key = (f, root) => `${f.url ?? root + f.path} ${f.bytes} ${f.sha256}`;
 
@@ -27,10 +29,11 @@ function disagreement(manifest, base = baselineFiles()) {
 test('every address and pin of the baseline is in the manifest, and the manifest has nothing else', async () => {
   const manifest = await buildModelsManifest();
   assert.equal(manifest.format, MODELS_FORMAT);
-  assert.equal(manifest.root, 'https://assets.privatelocal.chat/models/');
+  assert.equal(manifest.root, 'https://cdn.aiofourown.com/models/');
   assert.equal(disagreement(manifest), null);
   const distinct = new Set(baselineFiles().map((f) => f.url)).size;
-  assert.equal(distinct, 310, 'the baseline names 310 distinct addresses');
+  assert.equal(distinct, 308, 'the baseline names 308 distinct download addresses');
+  assert.deepEqual(allBaselineFiles().filter((f) => f.url.startsWith('app:')).map((f) => f.url).sort(), ['app:runtime/providers/vendor/webllm/libs/Qwen3.5-9B-q4f16_1_cs1k-webgpu.wasm', 'app:runtime/providers/vendor/webllm/libs/Qwen3.5-9B-q4f32_1_cs1k-webgpu.wasm']);
   assert.equal(manifestFiles(manifest).length, distinct);
   assert.deepEqual(Object.keys(manifest.tiers), Object.keys(baseline.tiers));
   assert.deepEqual(Object.keys(manifest.voices), Object.keys(baseline.voices));

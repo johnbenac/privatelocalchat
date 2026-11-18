@@ -22,14 +22,14 @@ test('local inference gates API requests and supports cancellation',async()=>{
  assert.match(bridge,/call.done/);assert.match(bridge,/attempt-completed/);
  assert.doesNotMatch(bridge,/fetch\([^)]*chat\/completions/);
 });
-test('both GPU variants and GGUF use only pinned project CDN assets below cache ceiling',()=>{
- const base='https://assets.privatelocal.chat/models/';
+test('both GPU variants and GGUF use only pinned project CDN assets below cache ceiling (the two WebLLM libraries ship in the app)',()=>{
+ const base='https://cdn.aiofourown.com/models/';
  const variants={q4f16_1:'c7c5d3f5a81e37b8facbb72970940a1b131314a8',q4f32_1:'f8f042bfb68cb88573af4c8e0ef9b1a26bef4ad0'};
  const webllm=Object.fromEntries(Object.entries(variants).map(([v,r])=>[v,base+'Qwen3.5-9B-'+v+'-MLC/resolve/'+r+'/']));
- const {sources}=resolveSources({webllmModelBase:webllm,webllmLibBase:webllm,wllamaModelBase:base+'Qwen3.5-2B/15852e8c16360a2fea060d615a32b45270f8a8fc/'});
+ const {sources}=resolveSources({webllmModelBase:webllm,wllamaModelBase:base+'Qwen3.5-2B/15852e8c16360a2fea060d615a32b45270f8a8fc/'});
  const files=[...tierFiles('default',sources,'q4f16_1'),...tierFiles('default',sources,'q4f32_1'),...tierFiles('light',sources)];
  assert.equal(files.length,275);
- for(const f of files){assert.equal(new URL(f.url).hostname,'assets.privatelocal.chat');assert.match(f.sha256,/^[a-f0-9]{64}$/);assert.ok(f.bytes<512_000_000);}
+ for(const f of files){if(f.scope==='webllm/wasm'){assert.match(f.url,/\/runtime\/providers\/vendor\/webllm\/libs\/Qwen3\.5-9B-q4f(16|32)_1_cs1k-webgpu\.wasm$/);}else assert.equal(new URL(f.url).hostname,'cdn.aiofourown.com');assert.match(f.sha256,/^[a-f0-9]{64}$/);assert.ok(f.bytes<512_000_000);}
  assert.equal(chooseWebllmVariant({webgpu:{available:true,shaderF16:true}}),'q4f16_1');
  assert.equal(chooseWebllmVariant({webgpu:{available:true,shaderF16:false}}),'q4f32_1');
  assert.equal(chooseWebllmVariant({webgpu:{available:false}}),null);

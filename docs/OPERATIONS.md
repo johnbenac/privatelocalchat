@@ -10,7 +10,7 @@ Repository Actions secrets are `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` a
 
 ## Models
 
-The R2 bucket is `privatelocalchat-assets`, exposed at `assets.privatelocal.chat`. See `ops/cloudflare/CDN-OPERATIONS.txt` and the tracked provisioning/publication scripts. Models are immutable, versioned objects. Upload new versions at new keys, verify every size and SHA-256, then update the application catalogue. Keep older versions available for older deployed apps.
+The app's shipped model source is the programme's shared data CDN `cdn.aiofourown.com` (T587; it holds data only, no `.wasm`). The older R2 bucket `privatelocalchat-assets`, exposed at `assets.privatelocal.chat`, still serves the same files. See `ops/cloudflare/CDN-OPERATIONS.txt` and the tracked provisioning/publication scripts. Models are immutable, versioned objects. Upload new versions at new keys, verify every size and SHA-256, then update the application catalogue. Keep older versions available for older deployed apps.
 
 Model objects use one-year immutable edge caching; the discovery catalogue uses a one-hour TTL. A response-header transform sends `Cache-Control: no-store` for `.gguf` and `.bin` weights, preventing a second ordinary browser HTTP copy beside the downloader's explicit offline storage. Config and WASM responses retain immutable browser caching. Standard edge caching has a 512 MB object ceiling. The current largest model shard is 508,559,360 bytes. Public CORS supports GET, HEAD, and byte ranges. The model downloader owns persistent model storage; the service worker caches the app/runtime shell and never deletes model caches.
 

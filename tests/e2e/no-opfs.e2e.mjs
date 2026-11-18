@@ -30,7 +30,7 @@ try{
  ok('with OPFS unusable the model is kept in the Cache API, loads and answers ("'+a.replace(/\s+/g,' ')+'")');
  // OPFS works again at the next launch (the failure was "transient"): the model saved in the Cache API is still found and used, not downloaded again
  await context.unroute('**/runtime/providers/adapters/wllama.mjs');
- let downloaded=0;page.on('request',r=>{if(/assets\.privatelocal\.chat\/models\//.test(r.url())&&/\.gguf/.test(r.url()))downloaded++;});
+ let downloaded=0;page.on('request',r=>{if(/cdn\.aiofourown\.com\/models\//.test(r.url())&&/\.gguf/.test(r.url()))downloaded++;});
  await page.reload();await page.waitForFunction(()=>window.localModels?.state?.device&&window.localModels.supported!==undefined,null,{timeout:60000});
  await page.evaluate(()=>window.localModels.inspectAll());
  assert(await page.evaluate(()=>window.localModels.state.tiers.nano.install.ok),'with OPFS working again the model saved earlier is still found');

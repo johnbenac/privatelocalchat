@@ -1,6 +1,12 @@
 # Populating the CDN (task for an agent or operator with Cloudflare access)
 
+> **T587 (2026-11-17): the shipped model source is the shared CDN `https://cdn.aiofourown.com/models/`** (R2 bucket `cosmoshot-cdn`, run by infra; data only, no `.wasm`). The files below were copied server-side with their hashes checked, and the search set was published without its two runtime files. PLC pins every file itself (`ops/cloudflare/model-cdn-manifest.json`). `assets.privatelocal.chat` still serves the same files. The rest of this page describes how they were first published to that host.
+>
 > ## DONE (2026-11-02): the search model is on the project CDN
+>
+> **T587 (2026-11-17):** the two executable files of this set (`runtime/ort-wasm-simd-threaded.wasm` and `.mjs`) are no longer fetched from the CDN: the app serves them itself
+> (`chat/vendor/embedding/ort/`, pinned in `chat/vendor/embedding/VERSIONS.json`), because the shared CDN is data-only. `publish-embedding.py --data-only` publishes the
+> set without them (8 objects, 23,891,541 bytes; dry run verified).
 >
 > `ops/cloudflare/publish-embedding.py` uploaded all 10 objects (36,858,671 bytes) to `models/memory/79cbff1e617b319a/` and verified each over
 > the public URL (bytes, CORS, content type). The app now reads it from `https://assets.privatelocal.chat/models/memory/`; Task 2 below is done
@@ -9,6 +15,8 @@
 **Rule:** every model file the app downloads, of any kind (language, search, and later speech-to-text and text-to-speech), is served from one
 host: `https://assets.privatelocal.chat` (R2 bucket `privatelocalchat-assets`, provisioned by `ops/cloudflare/provision-cdn.py`; see
 `ops/cloudflare/CDN-OPERATIONS.txt`). The app does not depend on another project's storage or on Hugging Face / GitHub at run time (split stage 4: the models come from the configured model source, `docs/APP-CONFIG.md`).
+
+**Data only (T587):** executable files do not belong on the CDN. The two WebLLM model libraries (`*-webgpu.wasm`) are served by the app from `runtime/providers/vendor/webllm/libs/` (`docs/RUNTIMES.md`); the copies already on `assets.privatelocal.chat` stay there, unused by the app, and are not copied to the shared CDN. The search set's `runtime/ort-wasm-simd-threaded.{wasm,mjs}` are the other two such files (not changed here).
 
 ## State on 2026-11-02
 

@@ -6,6 +6,7 @@ import {createHash} from 'node:crypto';
 import {buildPublicSite,loadSiteConfig,checkSiteConfig,siteConfigScript} from './public-site.mjs';
 import {checkSiteJson,normalizedSiteLinks} from '../chat/site/site-links.mjs';
 import {buildAppConfig} from '../runtime/config/app-config.mjs';
+import {CATALOG_DATA} from '../runtime/providers/catalog-data.mjs';
 import {resolveTarget} from './targets.mjs';
 import {toPagesHeaders} from './headers.mjs';
 const LICENCE_FILES=['LICENSE','THIRD-PARTY-NOTICES.md'];
@@ -67,6 +68,11 @@ if(productionNative.compilerControl){
 for(const [file,pin] of Object.entries(productionNative.files)){
  const bytes=await readFile(path.join(out,releasePath,'runtime/providers/vendor/wllama/v1q',file));
  if(bytes.length!==pin.bytes||createHash('sha256').update(bytes).digest('hex')!==pin.sha256)throw new Error('Production runtime checksum mismatch: '+file);
+}
+// The WebLLM model libraries (.wasm, code) are served by the app, not by the model source; each must be the pinned file (docs/RUNTIMES.md).
+for(const variant of Object.values(CATALOG_DATA.webllmQwen35_9b)){
+ const bytes=await readFile(path.join(out,releasePath,'runtime/providers/vendor/webllm/libs',variant.lib.path));
+ if(bytes.length!==variant.lib.bytes||createHash('sha256').update(bytes).digest('hex')!==variant.lib.sha256)throw new Error('WebLLM library checksum mismatch: '+variant.lib.path);
 }
 let html=await readFile(path.join(out,'index.html'),'utf8');
 const appBuildScript='<script>window.APP_BUILD='+JSON.stringify(build)+';</script>';
@@ -143,7 +149,7 @@ await writeFile(path.join(out,'_headers'),toPagesHeaders()); // the rules are in
 }
 const NOT_SHELL_ROOT_FILES=['_headers','_worker.js','_redirects','_routes.json'];
 const shell=[];
-async function walk(dir){for(const ent of await readdir(dir,{withFileTypes:true})){const p=path.join(dir,ent.name);if(ent.isDirectory())await walk(p);else if(!(dir===out&&NOT_SHELL_ROOT_FILES.includes(ent.name))&&!(dir===out&&LICENCE_FILES.includes(ent.name))&&!/\/chat\/vendor\/voice\//.test('/'+path.relative(out,p).split(path.sep).join('/')))shell.push('/'+path.relative(out,p).split(path.sep).join('/'));}}
+async function walk(dir){for(const ent of await readdir(dir,{withFileTypes:true})){const p=path.join(dir,ent.name);if(ent.isDirectory())await walk(p);else if(!(dir===out&&NOT_SHELL_ROOT_FILES.includes(ent.name))&&!(dir===out&&LICENCE_FILES.includes(ent.name))&&!/\/chat\/vendor\/(voice|embedding\/ort)\//.test('/'+path.relative(out,p).split(path.sep).join('/')))shell.push('/'+path.relative(out,p).split(path.sep).join('/'));}}
 await walk(out);
 let template=await readFile('scripts/service-worker.js','utf8');
 if(!targetInfo.devTooling)template=template.replace(/\/\* DEV_DIAGNOSTICS_START \*\/[\s\S]*?\/\* DEV_DIAGNOSTICS_END \*\//g,'');

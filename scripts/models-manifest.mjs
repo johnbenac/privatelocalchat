@@ -11,6 +11,8 @@ import {pathToFileURL} from 'node:url';
 import {buildAppConfig} from '../runtime/config/app-config.mjs';
 
 export const MODELS_FORMAT = 'plc-models/1';
+/** Prefix of an address that is not a download: the file ships inside the app (docs/RUNTIMES.md). It is not part of models.json. */
+export const APP_SERVED = 'app:';
 const shippedConfig = () => buildAppConfig(JSON.parse(readFileSync(new URL('../app-config.json', import.meta.url), 'utf8')));
 
 /**
@@ -25,7 +27,9 @@ export async function collectModelUrls({effectiveSources, fresh = ''} = {}) {
   const {KOKORO_Q8_MANIFEST, KOKORO_Q8_BASE_URL} = await import('../chat/voice/voice-manifest-kokoro.mjs' + fresh);
   const embedding = await import('../chat/embedding/embedding-config.mjs' + fresh);
   const sources = effectiveSources;
-  const pin = (f) => ({url: f.url, bytes: f.bytes, sha256: f.sha256});
+  // A file the app serves itself (the WebLLM libraries, code) is written as app:<path in the release>, so the record does not depend on where the copy runs.
+  const appDir = new URL('../runtime/providers/vendor/webllm/libs/', import.meta.url).href;
+  const pin = (f) => ({url: f.url.startsWith(appDir) ? APP_SERVED + 'runtime/providers/vendor/webllm/libs/' + f.url.slice(appDir.length) : f.url, bytes: f.bytes, sha256: f.sha256});
   const byUrl = (a, b) => (a.url < b.url ? -1 : a.url > b.url ? 1 : 0);
   const tiers = {};
   for (const tier of catalog.TIER_ORDER) {
@@ -36,7 +40,9 @@ export async function collectModelUrls({effectiveSources, fresh = ''} = {}) {
     'kitten-tts-nano-0.8-int8': KITTEN_NANO_MANIFEST.files.map((f) => ({url: KITTEN_NANO_BASE_URL + f.name, bytes: f.bytes, sha256: f.sha256})).sort(byUrl),
     'kokoro-82m-v1.0-q8': KOKORO_Q8_MANIFEST.files.map((f) => ({url: KOKORO_Q8_BASE_URL + f.path, bytes: f.bytes, sha256: f.sha256})).sort(byUrl)
   };
-  return {tiers, voices, embedding: {modelBase: embedding.EMBEDDING_MODEL_BASE, wasmBase: embedding.EMBEDDING_WASM_BASE}};
+  // the ONNX Runtime files are code: the app serves them itself, so they are recorded as a path inside the app, not an address of the model source
+  const wasm = embedding.EMBEDDING_WASM_BASE;
+  return {tiers, voices, embedding: {modelBase: embedding.EMBEDDING_MODEL_BASE, wasmBase: 'app:' + wasm.slice(wasm.indexOf('chat/vendor/'))}};
 }
 
 const byPath = (a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0);
@@ -45,6 +51,7 @@ const byPath = (a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0);
 function relative(files, root, where) {
   const seen = new Map();
   for (const f of files) {
+    if (f.url.startsWith(APP_SERVED)) continue; // it ships in the app, there is nothing to fetch
     if (!f.url.startsWith(root)) throw new Error(`${where}: ${f.url} is not under the model root ${root}`);
     const p = f.url.slice(root.length);
     const old = seen.get(p);

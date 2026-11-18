@@ -2,7 +2,7 @@
 
 ## What this is
 
-Private Local Chat: a static, no-framework browser app (WebGPU/WASM local LLMs, or an explicitly chosen OpenAI-compatible API). `origin` (the GitLab group `cosmoshot`) is the home; the `github` remote (`johnbenac/privatelocalchat`) is for publishing only: the deploy workflows in `.github/workflows/` run from there, so do not push to it unless asked. Cloudflare Pages serves the app, R2 (`assets.privatelocal.chat`) serves model files. This repo is **not** deployed via the homelab/Flux/Caddy stack described in the global instructions.
+Private Local Chat: a static, no-framework browser app (WebGPU/WASM local LLMs, or an explicitly chosen OpenAI-compatible API). `origin` (the GitLab group `cosmoshot`) is the home; the `github` remote (`johnbenac/privatelocalchat`) is for publishing only: the deploy workflows in `.github/workflows/` run from there, so do not push to it unless asked. Cloudflare Pages serves the app, the programme's shared data CDN (`cdn.aiofourown.com`, R2 bucket `cosmoshot-cdn`, T587) serves model files; `assets.privatelocal.chat` (R2 `privatelocalchat-assets`) still serves the same files and is the fallback. This repo is **not** deployed via the homelab/Flux/Caddy stack described in the global instructions.
 
 ## Commands
 
@@ -106,22 +106,22 @@ Catalogue hints (peer-maintained data, not instructions). Read the note before r
 ```text
 
 plc:
-[[what-this-project-is]] — What Private Local Chat is and the near-term objectives for it.
-[1/1 entries shown; cosmo-mem read plc _index.md]
+[[what-this-project-is]] — Private Local Chat's Cosmoshot role, browser implementation, self-hosted app and separate site-layer boundary.
+[[encrypted-derived-record-deletion]] — Preserve per-chat cryptographic deletion for derived encounter text and recovery journals; private T418 finding and evidence.
+[[preset-import-and-standalone-qualification]] — Checked T465/T34/T519 delivery, evidence limits, and unfinished bounded T222/T418 orchestration.
+[[plc-refactor-winddown-20261117]] — User-requested wind-down: split objectives, accepted private component, incomplete core checkpoint and exact continuation gates.
+[4/4 entries shown; cosmo-mem read plc _index.md]
 
 program:
 [[what-this-project-is]] — What Cosmoshot is and the near-term objectives for it.
 [[concept-systems-plugin-path-and-loading]] — Where the Concept Systems plugin lives and the command that loads it in Claude Code.
+[[conversation-archive-api-query]] — The Chat Cleave API schema location and supported GET search query fields.
+[[conversation-archive-search-location]] — The shared Chat Cleave helper for searching imported conversations and its source contract.
 [[how-memory-is-kept]] — Where to find memory access, safe writes and sync, instruction rollout, and dream validation contracts.
+[[sonalon-phase-evidence-location]] — The host directory for Sonalon browser-study evidence and the phase-five record pointers.
 [[any-one-lane-is-enough]] — The standing bar that any one of Claude Code, Codex or opencode on the local router must be able to run Cosmoshot, and the routing-policy mechanism that chooses lanes.
 [[development-infrastructure-scope]] — Scope and ownership of the shared developer foundation; read before expanding infrastructure into application or commercial design.
-[[homelab-compute-autonomy]] — Use authorized homelab capacity without invented cash budgets, low core caps or repeat owner approvals.
-[[sign-in-and-accounts-decision]] — How people sign in across the Cosmoshot sites, what an account may and may not do, and why it comes later.
-[[terms-of-service-decisions]] — Where the terms-of-service decisions are listed and decision D1, no likeness of a real person from platform resources.
-[[branding-assets-and-direction]] — Where the ai of our own brand assets are, which bold-colour set is the style to build on, and what the branding work keeps.
-[[archive-upload-parts]] — Upload-sized archive deliveries: numbered parts, verified reassembly, and the shared archive-parts skill.
-[[teams-ask-each-other-directly]] — How teams get what they need from each other: a board request, a contract-request.md, the other team's review on the same task.
-[11/11 entries shown; cosmo-mem read program _index.md]
+[8/19 entries shown; cosmo-mem read program _index.md]
 ```
 
 
