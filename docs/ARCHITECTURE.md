@@ -75,7 +75,7 @@ chat/context/           the context meter and the summary divider
 chat/storage/           the Storage and backups screen and the backup reminder
 chat/connection/        whether the app is online, and one sentence for everything that needs a connection
 chat/shell/             the app shell: rail, panel, Settings page and pickers
-chat/presentation/      how a character's presentation (layout, palette, portrait, background, attribution) is described for display: `view-model.mjs` (a pure view model, no DOM or storage) and `open-bundle.mjs` (opens a package through the shared validator, which is passed in, and describes each character); the file route, the preview, storage and rendering are the next tasks (T444, T706)
+chat/presentation/      how a character's presentation (layout, palette, portrait, background, attribution) is described for display: `view-model.mjs` and `open-bundle.mjs` (pure: the look of one character, and opening a package through the shared validator, which is passed in), `explain.mjs` (plain sentences), `preview.mjs` (the preview box) and `reader.mjs` (where the validator comes from; empty in a copy made for others). Preview only: storage and rendering in conversations are the next task (T706). See `docs/CHARACTER-PACKAGE-PREVIEW.md`
 chat/site/              where the pages of the site that serves this copy are (the site manifest); the app links to our pages only through it
 chat/vendor/            bundled third-party code (voice worker, embedding worker, pdf.js, qr)
 ops/                    publishing and build tooling for models and workers (not shipped)

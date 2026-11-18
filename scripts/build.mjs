@@ -57,6 +57,11 @@ if(developmentNative?.compilerControl)build.developmentRuntime={nativeBuildId:de
 const releasePath='releases/'+commit;
 await mkdir(path.join(out,releasePath),{recursive:true});
 for(const item of ['local-models.js','local-models.css','conversation-messages.mjs','chat','runtime']) await rename(path.join(out,item),path.join(out,releasePath,item));
+// The vendored authored-profiles package (vendor/authored-profiles, read-only, pinned in vendor.lock.json) holds tests, examples and fixtures too: only the modules the app loads, and its licence, are shipped.
+const AUTHORED_PROFILES_RUNTIME=['LICENSE','authored-profiles/index.mjs','authored-profiles/authored.mjs','authored-profiles/definitions.mjs','authored-profiles/receiving-definitions.mjs','src/core/content.mjs','src/core/content-schema.mjs','src/core/bundles.mjs','src/core/consumer-projections.mjs','src/core/providers.mjs'];
+const withCharacterPackages=targetInfo.target==='site'; // a copy made for others carries nothing of ours (tests/neutrality.test.mjs): the validator names other projects and hosts, so only our own deployment ships it
+if(withCharacterPackages)for(const file of AUTHORED_PROFILES_RUNTIME){const to=path.join(out,releasePath,'vendor','authored-profiles',file);await mkdir(path.dirname(to),{recursive:true});await cp(path.join('vendor','authored-profiles',file),to);}
+if(!withCharacterPackages)await writeFile(path.join(out,releasePath,'chat','presentation','reader.mjs'),'// A copy made for others carries no character package reader (scripts/build.mjs, tests/presentation-build.test.mjs).\nexport const loadValidator = null;\n');
 // Both branch builds start from the pinned production runtime. Dev overlays it below.
 const productionNative=JSON.parse(await readFile('runtime/providers/production-runtime.json','utf8'));
 if(productionNative.developmentDiagnostics!==false)throw new Error('Production runtime must exclude development instrumentation');

@@ -171,3 +171,27 @@ html.splashing #app { visibility: hidden; animation: lock-reveal 0s 8s forwards;
 .lock-skip, .lock-never { min-height: var(--plc-control-min, 44px); }
 .lock-never { font-size: 0.85rem; opacity: 0.8; }
 .lock-disclaimer { margin: 0.5rem 0 0; font-size: 0.78rem; line-height: 1.4; color: var(--color-muted-text); }
+
+/* Character package preview (chat/presentation/preview.mjs). A package supplies only a palette NAME and a layout NAME; every colour below is PLC's. The message sits on a solid panel,
+   so its contrast never depends on a package's picture. tests/presentation-style.test.mjs checks the contrast of every palette. */
+.pkg-preview .pkg-character { margin: 14px 0 18px; padding-bottom: 12px; border-bottom: 1px solid var(--color-border); }
+.pkg-preview .pkg-character:last-of-type { border-bottom: 0; }
+.pkg-preview h3 { margin: 0 0 4px; }
+.pkg-card { --pkg-bg: var(--color-surface-alt); --pkg-fg: var(--color-text); --pkg-accent: var(--color-link); position: relative; overflow: hidden; display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start; padding: 14px; margin: 8px 0; border: 1px solid var(--color-border-strong); border-radius: 10px; background: var(--pkg-bg); color: var(--pkg-fg); }
+.pkg-card[data-palette="dusk"]  { --pkg-bg: #2a2230; --pkg-fg: #f6ede4; --pkg-accent: #e9b872; }
+.pkg-card[data-palette="paper"] { --pkg-bg: #f6f3ec; --pkg-fg: #1f1d1a; --pkg-accent: #7a5c2e; }
+.pkg-card[data-palette="sea"]   { --pkg-bg: #0f3b44; --pkg-fg: #eaf6f5; --pkg-accent: #8fd6d0; }
+.pkg-card .pkg-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .45; pointer-events: none; }
+.pkg-card .pkg-portrait { position: relative; width: min(100%, 144px); height: auto; border-radius: 8px; border: 2px solid var(--pkg-accent); background: var(--pkg-bg); }
+.pkg-card .pkg-turn { position: relative; flex: 1 1 14rem; min-width: 0; padding: 10px 12px; border-radius: 8px; background: var(--pkg-bg); color: var(--pkg-fg); border-left: 4px solid var(--pkg-accent); overflow-wrap: anywhere; }
+.pkg-card .pkg-turn p { margin: 4px 0 0; }
+.pkg-card[data-layout="dialogue"] { flex-direction: row; }
+.pkg-card[data-layout="folio"] { flex-direction: column; align-items: stretch; }
+.pkg-card[data-layout="folio"] .pkg-portrait { width: min(100%, 220px); }
+.pkg-card[data-layout="folio"] .pkg-turn { border-left: 0; border-top: 4px solid var(--pkg-accent); }
+.pkg-toggle { display: inline-flex; align-items: center; gap: 6px; margin: 2px 0 6px; }
+.pkg-facts { margin: 6px 0; padding-left: 1.2rem; }
+.pkg-facts li { margin: 3px 0; overflow-wrap: anywhere; }
+.pkg-note { color: var(--color-text); }
+.pkg-other summary { cursor: pointer; }
+@media (max-width: 420px) { .pkg-card, .pkg-card[data-layout="dialogue"] { flex-direction: column; align-items: stretch; } .pkg-card .pkg-portrait { width: min(100%, 144px); } }
