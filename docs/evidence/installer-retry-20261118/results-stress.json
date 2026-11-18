@@ -1,0 +1,26 @@
+{
+ "what": "Stress test of the shipped WebLLM installer (runtime/providers/adapters/webllm.mjs, model-runtime 1.0.0 as in production 2bbb17e) on 131 synthetic files served by synth-server.mjs: 1 config of 2,361 bytes in scope webllm/config and 130 files of 0.2 to 8 MB in scope webllm/model, 541,002,361 bytes, installed three at a time exactly as the 9B install does, all three cache scopes cleared before each repeat. Harness: stress-harness.js. Scripted calls, not a user gesture.",
+ "date": "2026-11-18",
+ "safari_27_0_mac": {
+  "repeats": 50,
+  "ok": 50,
+  "refetched": 0,
+  "errors": 0,
+  "retryEvents": 0,
+  "fetchedBytesExact": true,
+  "ms_min": 9720,
+  "ms_max": 10366,
+  "note": "storage.estimate() for the origin read 42.4 GB used of a 164.9 GB quota after the run and did not drop after deleting every cache (OPFS empty): lazy accounting"
+ },
+ "chromium_on_disk_profile": {
+  "repeats": 100,
+  "ok": 100,
+  "refetched": 0,
+  "errors": 0,
+  "retryEvents": 0,
+  "fetchedBytesExact": true,
+  "ms_min": 3268,
+  "ms_max": 4314
+ },
+ "not_shown": "Whether the 130-of-131 state occurs at 5 GB scale or under quota pressure: 541 MB total was used. 150 repeats of this size never lost a file, so volume, quota or a timing pattern specific to the real CDN files are the remaining suspects. Left alone by John (2026-11-18)."
+}
