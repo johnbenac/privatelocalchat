@@ -86,6 +86,9 @@ In `/cosmoshot/<name>`: `git init -b main`, then:
 
 - A package is published with `/cosmoshot/tools/ops/forge_package.py` by the owner; consumers pin the exact version and its
   SHA-256 (`VENDORING.md`).
+- An application the programme will serve to others follows the delivery contract: a neutral app plus a separate site layer, a fixed
+  attribution block and a shared neutrality scan (`cosmo-mem read program neutral-app-and-site-layer-contract.md`; shared
+  tooling in `/cosmoshot/delivery-tooling`). John decides which applications are shared; do not assume it.
 - A public mirror is listed in `/cosmoshot/tools/ops/forge-mirrors.json` and mirrored by devops; note it in `docs/HOUSING.md`.
 - `cyberplanetary-*` repositories also push to the Forge (see `commit-rules`).
 
