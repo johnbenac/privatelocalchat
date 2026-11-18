@@ -34,7 +34,8 @@
     "DATA-HANDLING.md"
    ],
    "why": "The project's own repository, where releases and bug reports are published (the maintainer's account is part of its address, shown as a link or as the link's text).",
-   "match": "(?:github\\.com/)?johnbenac/privatelocalchat"
+   "match": "(?:github\\.com/)?johnbenac/privatelocalchat",
+   "userVisible": true
   },
   {
    "rule": "people-and-addresses",
@@ -126,7 +127,8 @@
     "DATA-HANDLING.md"
    ],
    "why": "The data handling document must say who serves the shipped default model source, because an operator has to know it (docs/DATA-HANDLING.md, section 2).",
-   "match": "cdn\\.aiofourown\\.com"
+   "match": "cdn\\.aiofourown\\.com",
+   "userVisible": true
   },
   {
    "rule": "our-hosts",
@@ -134,7 +136,8 @@
     "DATA-HANDLING.md"
    ],
    "why": "The data handling document names the shipped default model source host; it says that this host is replaceable by one setting.",
-   "match": "cdn\\.aiofourown\\.com"
+   "match": "cdn\\.aiofourown\\.com",
+   "userVisible": true
   },
   {
    "rule": "runtime-third-party-hosts",
@@ -142,7 +145,8 @@
     "DATA-HANDLING.md"
    ],
    "why": "The generated table of hosts that the vendored libraries' files name; the document says none of them is contacted by the app (not yet proven by a request log, board T740).",
-   "match": "cdn\\.jsdelivr\\.net"
+   "match": "cdn\\.jsdelivr\\.net",
+   "userVisible": true
   },
   {
    "rule": "community-and-social",
@@ -150,7 +154,8 @@
     "DATA-HANDLING.md"
    ],
    "why": "The same generated table: a host a vendored library's own text names, which the app does not contact.",
-   "match": "linkedin\\.com"
+   "match": "linkedin\\.com",
+   "userVisible": true
   }
  ],
  "allowedHosts": [

@@ -236,12 +236,12 @@ export async function scan({roots, rules, exceptions, requireAttribution = true,
     hashes = loaded.map;
   }
   const seen = new Set();
-  const report = (root, rel, id, match, kind, token = match) => {
+  const report = (root, rel, id, match, visible, token = match) => {
     const index = ex.findIndex((e) => e.rule === id && matchesAny(e.paths, rel) && (e.match === undefined || new RegExp(e.match).test(token)));
     if (index >= 0) {
       used.add(index);
-      if (id === 'other-app-names' && kind && !ex[index].userVisible) {
-        const msg = `${root} ${rel}: "${match}" names another project in text a person reads; its exception needs userVisible: true and a reason Brand reads`;
+      if (visible && !ex[index].userVisible) { // a match in text a person reads (the scope rule of the rule file): its exception must say so, and Brand reads the reason
+        const msg = `${root} ${rel}: "${match}" (${id}) is in text a person reads; its exception needs userVisible: true and a reason Brand reads`;
         if (!seen.has(msg)) { seen.add(msg); out.problems.push(msg); }
       }
       return;
@@ -259,13 +259,14 @@ export async function scan({roots, rules, exceptions, requireAttribution = true,
       const ext = path.extname(rel).toLowerCase();
       if (ba && hashes && (ba.extensions || []).includes(ext)) {
         const known = hashes.get(sha256(bytes));
-        if (known) report(root, rel, 'brand-asset', `identical to the brand asset ${known}`, null);
-        else if ((ba.pathNames || []).includes(baseName(rel))) report(root, rel, 'brand-asset-name', `a file named like a brand asset (${baseName(rel)})`, null);
+        if (known) report(root, rel, 'brand-asset', `identical to the brand asset ${known}`, false);
+        else if ((ba.pathNames || []).includes(baseName(rel))) report(root, rel, 'brand-asset-name', `a file named like a brand asset (${baseName(rel)})`, false);
       }
       if (bytes.subarray(0, 8192).includes(0)) continue; // binary: not read as text
       let text = bytes.toString('utf8');
       if (rel === 'attribution.json') { try { record = JSON.parse(text); } catch { out.problems.push(`${root} attribution.json is not valid JSON`); } }
       const kind = visibleKind(rel, visibleFiles);
+      let readable = null; const visibleHas = (str) => (kind ? (readable ??= visibleText(kind, text)).includes(str) : false); // is this matched text one of the pieces a person reads?
       const spans = regionFiles.has(rel) && !recordFiles.has(rel) ? attributionRegions(rel, text) : [];
       if (spans.length) regionsByFile[rel] = spans;
       for (const s of compiled) {
@@ -276,7 +277,7 @@ export async function scan({roots, rules, exceptions, requireAttribution = true,
           if (recordFiles.has(rel)) continue;
           for (const span of spans) subject = subject.replace(span.raw, ' ');
         }
-        for (const m of subject.matchAll(s.re)) report(root, rel, s.id, m[0], s.scope === 'visible' || kind ? kind : null, tokenAround(subject, m.index, m[0].length));
+        for (const m of subject.matchAll(s.re)) report(root, rel, s.id, m[0], s.scope === 'visible' || visibleHas(m[0]), tokenAround(subject, m.index, m[0].length));
       }
       if (knownHosts) for (const m of text.matchAll(HOST)) {
         const host = m[1].toLowerCase();

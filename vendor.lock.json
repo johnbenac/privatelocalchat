@@ -94,9 +94,9 @@
         "README.md": "a2b8061449621c5153f337ceb53a4d4456c77f6586d7c8086035825d5e7a8760",
         "attribution/attribution.py": "98c8130eda27eeca82c184b8135c77bad10146b23fe7ad1d944f513ce2359738",
         "attribution/tests/test_attribution.py": "fd3fa068dc3d7f9394e98a748c604b64bd5ad48feb3954b7b65dc79ec871a357",
-        "docs/HOUSING.md": "cb00dc7d26b274f60d1ca733c3115655ab56099a6ef7278a67459f2e33b304c6",
-        "scan/neutrality.mjs": "909b993e4ea3479c34cf75c3befb864817f7d192ee1e676c7ea2e68abfee1805",
-        "scan/tests/neutrality.test.mjs": "dd89be29f18b90bb55bb20fcff827d98ed44c40bd5165f54bfa7b6f38b2d98d6",
+        "docs/HOUSING.md": "e49b5f06e22aac9cf90d7370fc5b9bbbebcc98e6dd5e0e8fbee49dda0425d6a4",
+        "scan/neutrality.mjs": "c24e546b4e5f5f3d41cac577315126c958988fd55042e34ec3b4838281dc8fa4",
+        "scan/tests/neutrality.test.mjs": "a72070ab9a82144908df248620e09a76360692b0849021a9f4d0539f0d13db44",
         "validator/site-manifest.mjs": "425f04f0c3fb7717c13051899a482eb53a91d0a86f2b7a09773e039c2de4e4d2",
         "validator/tests/site-manifest.test.mjs": "afb2909dd161cf25bf63fd87a03e403c6e048b88f09856701304e1ca0b35b909"
       },
@@ -104,13 +104,13 @@
       "name": "delivery-tooling",
       "owner": "devops",
       "package": {
-        "file": "delivery-tooling-1.2.1.tar.gz",
-        "sha256": "ecb893798ea7fed415e67da5bf99263c45daf856d246dd170b68264c04590023",
+        "file": "delivery-tooling-1.3.0.tar.gz",
+        "sha256": "9d08f4542a7e6d37ef4c7a41c2230e6a694ad6b50df8a28e1d8ec67533706013",
         "type": "generic"
       },
       "path": "tools/delivery-tooling",
-      "tree_sha256": "62e657c56b41ad6e1c4a49ec52460156a0f969424554887fbdef0a16cc96872a",
-      "version": "1.2.1"
+      "tree_sha256": "2ccc1f52ba70d279bd216ef16821688e357f7df35d53001adf4b5ec659d27834",
+      "version": "1.3.0"
     },
     {
       "files": {

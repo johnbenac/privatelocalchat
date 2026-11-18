@@ -109,7 +109,7 @@ test('NOTICE.md, SOURCE.txt and attribution.json are exempt for the family name 
 
 test('exceptions: a used one passes, an unused one fails, one outside its paths does not apply', async () => {
   const tree = {'help/index.html': '<p>Run from files.ours.example</p>', 'a.js': 'x'};
-  const base = {rule: 'our-hosts', paths: ['help/index.html'], why: 'the page names the hosted copy'};
+  const base = {rule: 'our-hosts', paths: ['help/index.html'], why: 'the page names the hosted copy', userVisible: true}; // the page text is read by a person, so the exception says so
   assert.deepEqual((await run(tree, ex({exceptions: [base]}))).problems, []);
   assert.ok(has((await run({'a.js': 'x'}, ex({exceptions: [base]}))).problems, 'matches nothing'), 'unused fails');
   assert.ok(has((await run({'other.html': 'files.ours.example'}, ex({exceptions: [base]}))).problems, 'matches the rule "our-hosts"'), 'outside its paths is a hit');
@@ -135,6 +135,21 @@ test('match is judged on the token around each match, never on the line: two URL
   assert.equal(tokenAround('see (https://x.example/p) now', 6, 9), 'https://x.example/p');
   assert.equal(tokenAround('<a href="mailto:a@b.c">', 3, 8), 'href="mailto:a@b.c', 'the matched text is kept whole; the token grows from its edges and stops at a quote, bracket or space');
   assert.equal(tokenAround('x "https://a.example/b" y', 4, 9), 'https://a.example/b', 'the quote before and after ends it');
+});
+
+test('any exception that covers a match in text a person reads needs userVisible: true; a match in code or data does not', async () => {
+  const e = {rule: 'our-hosts', paths: ['*.html', '*.md', '*.js', '*.json'], why: 'the page names the hosted copy'};
+  const files = {'page.html': '<p>Run it from https://files.ours.example/x</p>', 'doc.md': 'Hosted at files.ours.example', 'code.js': 'const u = "https://files.ours.example/x";', 'data.json': '{"u":"https://files.ours.example/x"}',
+    'script.html': '<script>const u = "https://files.ours.example/x";</script>'};
+  const flagged = (r) => r.problems.filter((p) => p.includes('needs userVisible')).map((p) => p.split(' ')[1].replace(/:$/, ''));
+  const without = await run(files, ex({exceptions: [e]}));
+  assert.deepEqual(flagged(without).sort(), ['doc.md', 'page.html'], 'only the two files whose matched text a person reads need the flag: ' + without.problems.join('|'));
+  const withFlag = await run(files, ex({exceptions: [{...e, userVisible: true}]}));
+  assert.deepEqual(withFlag.problems, [], 'with userVisible: true nothing fails: ' + withFlag.problems.join('|'));
+  const attr = await run({'about.html': '<a href="https://files.ours.example/x" title="Open">link</a>'}, ex({exceptions: [{...e, paths: ['about.html']}]}));
+  assert.deepEqual(attr.problems, [], 'an address in href is not one of the visible attributes');
+  const alt = await run({'about.html': '<img alt="see files.ours.example" src="x.png">'}, ex({exceptions: [{...e, paths: ['about.html']}]}));
+  assert.ok(has(alt.problems, 'needs userVisible'), 'alt text is read by a person: ' + alt.problems.join('|'));
 });
 
 test('an exception for another project\'s name on text a person reads needs userVisible: true', async () => {
