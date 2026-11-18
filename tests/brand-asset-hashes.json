@@ -1,0 +1,417 @@
+{
+ "about": "The SHA-256 of every file in Brand's packet manifests (aiofourown and cosmogenitor packets), copied here so the scan can match a renamed brand asset without reading outside this repository (tests/neutrality.test.mjs). Source: /cosmoshot/brand/*/packets/*/manifest.json on 2026-11-18. Refresh it when Brand publishes a packet.",
+ "files": [
+  {
+   "path": "aiofourown/packets/0.1.0/CHANGELOG.md",
+   "sha256": "274ea4d809a9d5881c738b3f128681a4ef4a353718d6aa102995abe5fbcd5aef"
+  },
+  {
+   "path": "aiofourown/packets/0.1.0/PROVENANCE.md",
+   "sha256": "b5b73e0a6d146524b9641364290c2a5a0ba86314347ade4ef0198aa0b648e408"
+  },
+  {
+   "path": "aiofourown/packets/0.1.0/README.md",
+   "sha256": "2db6262a535a4abdf4b5b4cc700cefe331f991e6a76703e350e62a4c0bcd5f9d"
+  },
+  {
+   "path": "aiofourown/packets/0.1.0/fonts/Fraunces-LICENSE.txt",
+   "sha256": "75ef9886033a61ca4fe1e3a9c48dc1c20dd53131ab375c933c5cf84e6a9cdf6c"
+  },
+  {
+   "path": "aiofourown/packets/0.1.0/fonts/Fraunces.woff2",
+   "sha256": "c8b994b2bac615eaf1b6931f21bff0a64b7f0d4f8e3d1ccf53ba37f29193e4c2"
+  },
+  {
+   "path": "aiofourown/packets/0.1.0/fonts/Inter-Bold.woff2",
+   "sha256": "5a16270f81e4d4c0cca1884443e66177dd1f02457c8715daeaff14beeb3e7664"
+  },
+  {
+   "path": "aiofourown/packets/0.1.0/fonts/Inter-LICENSE.txt",
+   "sha256": "781ffde332be9bdb6ccc527e6ccd6d6a586f3960c2d598b5580b8c7d1ae53d66"
+  },
+  {
+   "path": "aiofourown/packets/0.1.0/fonts/Inter-Regular.woff2",
+   "sha256": "b84b9125cd2faf8570ca146cf102d09ab2ef5edbacd8aa09e5d91397bd53501b"
+  },
+  {
+   "path": "aiofourown/packets/0.1.0/fonts/Inter-SemiBold.woff2",
+   "sha256": "62f914aa46c9e0fe653bc6dff0c54ddddfa92fa9f4f7d2d49f8fe66e7144ea60"
+  },
+  {
+   "path": "aiofourown/packets/0.1.0/logos/favicon.svg",
+   "sha256": "e2ce9243bdfb36c7a32ab53812d4809c93b0659b83c1248682c4b6b7c1452873"
+  },
+  {
+   "path": "aiofourown/packets/0.1.0/logos/legacy-favicon.svg",
+   "sha256": "6528db8e81411b2cf21c20ae2913ea54f052f3936231ec27e7484d83dfc611e1"
+  },
+  {
+   "path": "aiofourown/packets/0.1.0/logos/mark.svg",
+   "sha256": "e2ce9243bdfb36c7a32ab53812d4809c93b0659b83c1248682c4b6b7c1452873"
+  },
+  {
+   "path": "aiofourown/packets/0.1.0/logos/wordmark-dark.svg",
+   "sha256": "a5b5893c16b93171eb3beccfe6e88ed6094eb52938b9e2d76ad373af7046cdb2"
+  },
+  {
+   "path": "aiofourown/packets/0.1.0/logos/wordmark-light.svg",
+   "sha256": "a9d85738dd102385d264731e126e2b347826b560e029dfa56525bebb9bf47d1a"
+  },
+  {
+   "path": "aiofourown/packets/0.1.0/templates/article.html",
+   "sha256": "7d285133c80392bef71925f1a161b42e77d07888fb7011f37e40b60338d68a95"
+  },
+  {
+   "path": "aiofourown/packets/0.1.0/templates/index.html",
+   "sha256": "4208657e5c1b3c18c7d23769ea54f58b08a516bd16a96f5a2f1663f4e6555583"
+  },
+  {
+   "path": "aiofourown/packets/0.1.0/templates/pages.css",
+   "sha256": "c05b2588504e5f132d8228564eecc2af077a3eff22ebc047ad0bdb3ac52585f4"
+  },
+  {
+   "path": "aiofourown/packets/0.1.0/tokens.css",
+   "sha256": "e177f2830c080317612afa08f95e7473b6d7414fa11955b1e087b66ab8815edf"
+  },
+  {
+   "path": "aiofourown/packets/0.1.0/usage.md",
+   "sha256": "0250ca35a22135cfed8208ba9c399981a04c7b6428e5635b4d9e7c3668cda9b9"
+  },
+  {
+   "path": "aiofourown/packets/1.0.0/CHANGELOG.md",
+   "sha256": "f3b59b462397cd96897f32ae6e496adfabb3374f504bcc11b1e2c0304ed59aeb"
+  },
+  {
+   "path": "aiofourown/packets/1.0.0/PROVENANCE.md",
+   "sha256": "c42c7208f1d270deec462da7470f96fc5fd84b1890619922336acc808edf4c70"
+  },
+  {
+   "path": "aiofourown/packets/1.0.0/README.md",
+   "sha256": "a6ed894268ea6b45ea921035bdd2aff6074f3e456d30c88b78f8143e1099a080"
+  },
+  {
+   "path": "aiofourown/packets/1.0.0/fonts/Fraunces-LICENSE.txt",
+   "sha256": "75ef9886033a61ca4fe1e3a9c48dc1c20dd53131ab375c933c5cf84e6a9cdf6c"
+  },
+  {
+   "path": "aiofourown/packets/1.0.0/fonts/Fraunces.woff2",
+   "sha256": "c8b994b2bac615eaf1b6931f21bff0a64b7f0d4f8e3d1ccf53ba37f29193e4c2"
+  },
+  {
+   "path": "aiofourown/packets/1.0.0/fonts/Inter-Bold.woff2",
+   "sha256": "5a16270f81e4d4c0cca1884443e66177dd1f02457c8715daeaff14beeb3e7664"
+  },
+  {
+   "path": "aiofourown/packets/1.0.0/fonts/Inter-LICENSE.txt",
+   "sha256": "781ffde332be9bdb6ccc527e6ccd6d6a586f3960c2d598b5580b8c7d1ae53d66"
+  },
+  {
+   "path": "aiofourown/packets/1.0.0/fonts/Inter-Regular.woff2",
+   "sha256": "b84b9125cd2faf8570ca146cf102d09ab2ef5edbacd8aa09e5d91397bd53501b"
+  },
+  {
+   "path": "aiofourown/packets/1.0.0/fonts/Inter-SemiBold.woff2",
+   "sha256": "62f914aa46c9e0fe653bc6dff0c54ddddfa92fa9f4f7d2d49f8fe66e7144ea60"
+  },
+  {
+   "path": "aiofourown/packets/1.0.0/logos/favicon.svg",
+   "sha256": "e2ce9243bdfb36c7a32ab53812d4809c93b0659b83c1248682c4b6b7c1452873"
+  },
+  {
+   "path": "aiofourown/packets/1.0.0/logos/legacy-favicon.svg",
+   "sha256": "6528db8e81411b2cf21c20ae2913ea54f052f3936231ec27e7484d83dfc611e1"
+  },
+  {
+   "path": "aiofourown/packets/1.0.0/logos/mark.svg",
+   "sha256": "e2ce9243bdfb36c7a32ab53812d4809c93b0659b83c1248682c4b6b7c1452873"
+  },
+  {
+   "path": "aiofourown/packets/1.0.0/logos/wordmark-dark.svg",
+   "sha256": "a5b5893c16b93171eb3beccfe6e88ed6094eb52938b9e2d76ad373af7046cdb2"
+  },
+  {
+   "path": "aiofourown/packets/1.0.0/logos/wordmark-light.svg",
+   "sha256": "a9d85738dd102385d264731e126e2b347826b560e029dfa56525bebb9bf47d1a"
+  },
+  {
+   "path": "aiofourown/packets/1.0.0/templates/article.html",
+   "sha256": "f87a042ec03c91e1ce0d0ad4eeb152dd8fe4855bd4b67a9dc422000dba7f6126"
+  },
+  {
+   "path": "aiofourown/packets/1.0.0/templates/index.html",
+   "sha256": "0afb68c7c4433771369dfa22445a2e58715845cb702471229c11cf1746d4abeb"
+  },
+  {
+   "path": "aiofourown/packets/1.0.0/templates/pages.css",
+   "sha256": "065af4df5365995964db948dcad7eb3c75200a7daead058b97a72ae3527ff242"
+  },
+  {
+   "path": "aiofourown/packets/1.0.0/tokens.css",
+   "sha256": "e177f2830c080317612afa08f95e7473b6d7414fa11955b1e087b66ab8815edf"
+  },
+  {
+   "path": "aiofourown/packets/1.0.0/usage.md",
+   "sha256": "684b06ae470665406fe869117aee7e85fa15bfa6c78f4931789a4d051fe2a373"
+  },
+  {
+   "path": "aiofourown/packets/1.1.0/ACCEPTANCE.md",
+   "sha256": "9cb1aa959b9ab0ff7caede769ba53332e5dd477da6dd5a336deb88f7c29289b7"
+  },
+  {
+   "path": "aiofourown/packets/1.1.0/ASSET-INTAKE.md",
+   "sha256": "384228724c38956b2c451cdd5531f62d291ad92d73e1b8daae95fd42b17f44bc"
+  },
+  {
+   "path": "aiofourown/packets/1.1.0/CHANGELOG.md",
+   "sha256": "33526365a5baa0db23c5f6bf5b4c283edbe07c5343057f89c4fde863361a55d7"
+  },
+  {
+   "path": "aiofourown/packets/1.1.0/PROVENANCE.md",
+   "sha256": "a7c3b16ce221237d8c0a6ed1c45168ca1df4b993026b07b0299a909759b8ef8b"
+  },
+  {
+   "path": "aiofourown/packets/1.1.0/README.md",
+   "sha256": "a733d8fcdaafbf2d232ed174c5ddf417f83409990307beb0b11d6c8a62729bcc"
+  },
+  {
+   "path": "aiofourown/packets/1.1.0/fonts/Fraunces-LICENSE.txt",
+   "sha256": "75ef9886033a61ca4fe1e3a9c48dc1c20dd53131ab375c933c5cf84e6a9cdf6c"
+  },
+  {
+   "path": "aiofourown/packets/1.1.0/fonts/Fraunces.woff2",
+   "sha256": "c8b994b2bac615eaf1b6931f21bff0a64b7f0d4f8e3d1ccf53ba37f29193e4c2"
+  },
+  {
+   "path": "aiofourown/packets/1.1.0/fonts/Inter-Bold.woff2",
+   "sha256": "5a16270f81e4d4c0cca1884443e66177dd1f02457c8715daeaff14beeb3e7664"
+  },
+  {
+   "path": "aiofourown/packets/1.1.0/fonts/Inter-LICENSE.txt",
+   "sha256": "781ffde332be9bdb6ccc527e6ccd6d6a586f3960c2d598b5580b8c7d1ae53d66"
+  },
+  {
+   "path": "aiofourown/packets/1.1.0/fonts/Inter-Regular.woff2",
+   "sha256": "b84b9125cd2faf8570ca146cf102d09ab2ef5edbacd8aa09e5d91397bd53501b"
+  },
+  {
+   "path": "aiofourown/packets/1.1.0/fonts/Inter-SemiBold.woff2",
+   "sha256": "62f914aa46c9e0fe653bc6dff0c54ddddfa92fa9f4f7d2d49f8fe66e7144ea60"
+  },
+  {
+   "path": "aiofourown/packets/1.1.0/guidance/claims.md",
+   "sha256": "1a71b3366baef01e4fdf538f99880af8903c2b66c199c94ea9f8ba66dee69d14"
+  },
+  {
+   "path": "aiofourown/packets/1.1.0/guidance/profile-matrix.json",
+   "sha256": "3cdbfc1b6528efe6362cfb14594a2b96a65d851fc3b94668342435e0d7501031"
+  },
+  {
+   "path": "aiofourown/packets/1.1.0/guidance/profile-matrix.md",
+   "sha256": "9c973c9ab04578f8a46c5835a929ddb1927b1fdd4eddffedf5c7754937169f32"
+  },
+  {
+   "path": "aiofourown/packets/1.1.0/guidance/receiving-checklist.md",
+   "sha256": "613eac4f2719ed54a198c7e26b2a04583ed0811b57492936999e1f1b0a626e34"
+  },
+  {
+   "path": "aiofourown/packets/1.1.0/guidance/terminology.md",
+   "sha256": "5be3b85388ac669c89b6546e0a75b86a7cc73ba0b3e994b30b1e6246035f7f66"
+  },
+  {
+   "path": "aiofourown/packets/1.1.0/logos/favicon.svg",
+   "sha256": "e2ce9243bdfb36c7a32ab53812d4809c93b0659b83c1248682c4b6b7c1452873"
+  },
+  {
+   "path": "aiofourown/packets/1.1.0/logos/legacy-favicon.svg",
+   "sha256": "6528db8e81411b2cf21c20ae2913ea54f052f3936231ec27e7484d83dfc611e1"
+  },
+  {
+   "path": "aiofourown/packets/1.1.0/logos/mark.svg",
+   "sha256": "e2ce9243bdfb36c7a32ab53812d4809c93b0659b83c1248682c4b6b7c1452873"
+  },
+  {
+   "path": "aiofourown/packets/1.1.0/logos/wordmark-dark.svg",
+   "sha256": "a5b5893c16b93171eb3beccfe6e88ed6094eb52938b9e2d76ad373af7046cdb2"
+  },
+  {
+   "path": "aiofourown/packets/1.1.0/logos/wordmark-light.svg",
+   "sha256": "a9d85738dd102385d264731e126e2b347826b560e029dfa56525bebb9bf47d1a"
+  },
+  {
+   "path": "aiofourown/packets/1.1.0/templates/article.html",
+   "sha256": "f87a042ec03c91e1ce0d0ad4eeb152dd8fe4855bd4b67a9dc422000dba7f6126"
+  },
+  {
+   "path": "aiofourown/packets/1.1.0/templates/discover.html",
+   "sha256": "d890e7a01036fb5cdc38404e6dec0e9bbbf81e89aa496744f1bcd55c26e8c89d"
+  },
+  {
+   "path": "aiofourown/packets/1.1.0/templates/guidance.css",
+   "sha256": "802d5f49b30c0807afb5fb1dd97b36c497ebc6def95042330c090abc2553c357"
+  },
+  {
+   "path": "aiofourown/packets/1.1.0/templates/index.html",
+   "sha256": "0afb68c7c4433771369dfa22445a2e58715845cb702471229c11cf1746d4abeb"
+  },
+  {
+   "path": "aiofourown/packets/1.1.0/templates/pages.css",
+   "sha256": "065af4df5365995964db948dcad7eb3c75200a7daead058b97a72ae3527ff242"
+  },
+  {
+   "path": "aiofourown/packets/1.1.0/templates/receiver-preview.html",
+   "sha256": "08af89c22ae8da4ed341fa66ad1d0d48da43618db3e798d6e26add392a0b112c"
+  },
+  {
+   "path": "aiofourown/packets/1.1.0/templates/resource.html",
+   "sha256": "9695223ce83b335b2f3a174caea2f06d603419cd4f1466f468e948a2aa337956"
+  },
+  {
+   "path": "aiofourown/packets/1.1.0/templates/states.html",
+   "sha256": "9aab7f23498dbb31e4c46c9e769caa4d69c42582b11819581966347fd04b84f5"
+  },
+  {
+   "path": "aiofourown/packets/1.1.0/tokens.css",
+   "sha256": "e177f2830c080317612afa08f95e7473b6d7414fa11955b1e087b66ab8815edf"
+  },
+  {
+   "path": "aiofourown/packets/1.1.0/usage.md",
+   "sha256": "b4daeda63d0b8b1d0ef2353d03989ec211a45a048f12d4efea82fd76cbaf85cc"
+  },
+  {
+   "path": "cosmogenitor/packets/0.1.0/CHANGELOG.md",
+   "sha256": "9377d6020ed74b24caf4ea5be943adb2543afed29d7d06cb0765644ee69a3b2a"
+  },
+  {
+   "path": "cosmogenitor/packets/0.1.0/PROVENANCE.md",
+   "sha256": "15dd8ce593ef5b2e4901b8f374ef132c5ca61e4ba4bb0651baff97a07cc0d573"
+  },
+  {
+   "path": "cosmogenitor/packets/0.1.0/README.md",
+   "sha256": "681ff4fd07ecf12aceea9c68ab2033b1c990a5d6efce1b83dd2d8113c5141546"
+  },
+  {
+   "path": "cosmogenitor/packets/0.1.0/fonts/editorial-italic.woff2",
+   "sha256": "16fa77fb37d92ab3bfbac96972fb693d256adca636b98735a309dbad51272401"
+  },
+  {
+   "path": "cosmogenitor/packets/0.1.0/fonts/editorial.woff2",
+   "sha256": "7acf44e62f778dd5ad731e75ab9b84f9b2540a2b99e0a5d45f8e9109b12d7b2a"
+  },
+  {
+   "path": "cosmogenitor/packets/0.1.0/fonts/inter-license.txt",
+   "sha256": "781ffde332be9bdb6ccc527e6ccd6d6a586f3960c2d598b5580b8c7d1ae53d66"
+  },
+  {
+   "path": "cosmogenitor/packets/0.1.0/fonts/interface.woff2",
+   "sha256": "210c8482bcb02a6d524de7979b0bb0e7077a918b808fdcd70259e1153c8154f6"
+  },
+  {
+   "path": "cosmogenitor/packets/0.1.0/fonts/noto-license.txt",
+   "sha256": "075f91382875da1c4b491f1facf2586f55448705133264d98ce15cab6211b125"
+  },
+  {
+   "path": "cosmogenitor/packets/0.1.0/logos/favicon.svg",
+   "sha256": "fe0caeacbf785d7f47ecd508811e08f72cda8871f001b95725e943c46958705e"
+  },
+  {
+   "path": "cosmogenitor/packets/0.1.0/logos/mark.svg",
+   "sha256": "fe0caeacbf785d7f47ecd508811e08f72cda8871f001b95725e943c46958705e"
+  },
+  {
+   "path": "cosmogenitor/packets/0.1.0/logos/wordmark-dark.svg",
+   "sha256": "ddedec79166eadcb79e4a786393552aaf6f83612d711ae0049d6629e83ac0c8f"
+  },
+  {
+   "path": "cosmogenitor/packets/0.1.0/logos/wordmark-light.svg",
+   "sha256": "9541d0347123657119e9b461b84496c088a8c971b8592d77e78b5416c00ff9e5"
+  },
+  {
+   "path": "cosmogenitor/packets/0.1.0/templates/index.html",
+   "sha256": "2454474bb75340fd2abe6e93038175b8dd21a8326adcd12acf72eeb3a6371975"
+  },
+  {
+   "path": "cosmogenitor/packets/0.1.0/templates/pages.css",
+   "sha256": "89c4c6258ed43502118ae690bb07eaf637fced117ca24fdc8ae0e56b46c71040"
+  },
+  {
+   "path": "cosmogenitor/packets/0.1.0/templates/workflow.html",
+   "sha256": "bbd0027c1810c19f4f62d5cbbe9f017d4669a5941e5455a19200dddc425739f6"
+  },
+  {
+   "path": "cosmogenitor/packets/0.1.0/tokens.css",
+   "sha256": "03b31048ee4d3e1a530342578ef897d1bca0fe9e58454a88a370321d51a67d71"
+  },
+  {
+   "path": "cosmogenitor/packets/0.1.0/usage.md",
+   "sha256": "11fe058bb0ecb29f85532cd992f53fcf47deb8dbdfe020ad53586f8050f8e2c9"
+  },
+  {
+   "path": "cosmogenitor/packets/1.0.0/CHANGELOG.md",
+   "sha256": "f3e52df3a05884df63fafd627a199352ff0c1a5db9277eee7f64fd9931429652"
+  },
+  {
+   "path": "cosmogenitor/packets/1.0.0/PROVENANCE.md",
+   "sha256": "dbf83f924b9bce7eb8931b6da67deea0ad9b8987845897c6c8caf95ff20a4e56"
+  },
+  {
+   "path": "cosmogenitor/packets/1.0.0/README.md",
+   "sha256": "bf5c5c4a5be443d2e612f91882660abf2fc0c8cb3cdcea227ea34bcdc96a1b95"
+  },
+  {
+   "path": "cosmogenitor/packets/1.0.0/fonts/editorial-italic.woff2",
+   "sha256": "16fa77fb37d92ab3bfbac96972fb693d256adca636b98735a309dbad51272401"
+  },
+  {
+   "path": "cosmogenitor/packets/1.0.0/fonts/editorial.woff2",
+   "sha256": "7acf44e62f778dd5ad731e75ab9b84f9b2540a2b99e0a5d45f8e9109b12d7b2a"
+  },
+  {
+   "path": "cosmogenitor/packets/1.0.0/fonts/inter-license.txt",
+   "sha256": "781ffde332be9bdb6ccc527e6ccd6d6a586f3960c2d598b5580b8c7d1ae53d66"
+  },
+  {
+   "path": "cosmogenitor/packets/1.0.0/fonts/interface.woff2",
+   "sha256": "210c8482bcb02a6d524de7979b0bb0e7077a918b808fdcd70259e1153c8154f6"
+  },
+  {
+   "path": "cosmogenitor/packets/1.0.0/fonts/noto-license.txt",
+   "sha256": "075f91382875da1c4b491f1facf2586f55448705133264d98ce15cab6211b125"
+  },
+  {
+   "path": "cosmogenitor/packets/1.0.0/logos/favicon.svg",
+   "sha256": "fe0caeacbf785d7f47ecd508811e08f72cda8871f001b95725e943c46958705e"
+  },
+  {
+   "path": "cosmogenitor/packets/1.0.0/logos/mark.svg",
+   "sha256": "fe0caeacbf785d7f47ecd508811e08f72cda8871f001b95725e943c46958705e"
+  },
+  {
+   "path": "cosmogenitor/packets/1.0.0/logos/wordmark-dark.svg",
+   "sha256": "ddedec79166eadcb79e4a786393552aaf6f83612d711ae0049d6629e83ac0c8f"
+  },
+  {
+   "path": "cosmogenitor/packets/1.0.0/logos/wordmark-light.svg",
+   "sha256": "9541d0347123657119e9b461b84496c088a8c971b8592d77e78b5416c00ff9e5"
+  },
+  {
+   "path": "cosmogenitor/packets/1.0.0/templates/index.html",
+   "sha256": "dbd01e7b0934bab2097bc97727e1910a12adf78060ac249b5c7b50c7c945b778"
+  },
+  {
+   "path": "cosmogenitor/packets/1.0.0/templates/pages.css",
+   "sha256": "a540bee51c072ca733969cb92755ded54ae82070d67c0fd1c62fe4b9934510e8"
+  },
+  {
+   "path": "cosmogenitor/packets/1.0.0/templates/workflow.html",
+   "sha256": "3701b5c942b857d811e24bd312e5d454765b36372f334bfd64af1828c3d4d9cc"
+  },
+  {
+   "path": "cosmogenitor/packets/1.0.0/tokens.css",
+   "sha256": "03b31048ee4d3e1a530342578ef897d1bca0fe9e58454a88a370321d51a67d71"
+  },
+  {
+   "path": "cosmogenitor/packets/1.0.0/usage.md",
+   "sha256": "b91b3a404506565ba2d8b14e8fc1c2f60fd7612901f7387a1d065f043b8bce32"
+  }
+ ]
+}

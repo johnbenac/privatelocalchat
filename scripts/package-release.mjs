@@ -189,7 +189,11 @@ export async function releaseEntries({target, version, commit, epoch, workDir = 
     add('README.md', readmeText({version, target}));
     add('LICENSE', readFileSync(path.join(root, 'LICENSE')));
     add('THIRD-PARTY-NOTICES.md', readFileSync(path.join(root, 'THIRD-PARTY-NOTICES.md')));
-    add('SOURCE.txt', sourceText({version, target, commit, epoch}));
+    // The attribution block of the build (docs/DELIVERY.md) leads SOURCE.txt, and attribution.json sits beside it, so the download says where it came from before anything else; our own words follow it.
+    const notice = entries.find((e) => e.name === `${folder}/app/NOTICE.md`), record = entries.find((e) => e.name === `${folder}/app/attribution.json`);
+    if (!notice || !record) throw new Error('The build has no NOTICE.md and attribution.json: the attribution step of scripts/build.mjs did not run');
+    add('attribution.json', record.data);
+    add('SOURCE.txt', Buffer.concat([notice.data, Buffer.from('\n' + sourceText({version, target, commit, epoch}))]));
     add('models.json', modelsManifestText(await buildModelsManifest()));
     if (existsSync(path.join(root, 'scripts/compat.mjs'))) {
       const compat = execFileSync('node', ['scripts/compat.mjs', '--version', version, '--commit', commit], {cwd: root, encoding: 'utf8'});

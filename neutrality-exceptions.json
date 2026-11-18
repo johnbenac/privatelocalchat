@@ -1,0 +1,257 @@
+{
+ "format": "neutrality-exceptions/1",
+ "application": "Private Local Chat",
+ "productNames": [
+  "private\\s*local\\.?\\s*chat"
+ ],
+ "visibleFiles": [],
+ "exceptions": [
+  {
+   "rule": "family-name",
+   "paths": [
+    "index.html"
+   ],
+   "why": "The shipped default model source (https://cdn.aiofourown.com/models/), written into window.APP_CONFIG from app-config.json. It is disclosed in docs/DATA-HANDLING.md and the model-source notice and changeable by one setting (config/app-config.json), so it is a permanent exception with no until.",
+   "match": "cdn\\.aiofourown\\.com/models/"
+  },
+  {
+   "rule": "our-hosts",
+   "paths": [
+    "index.html"
+   ],
+   "why": "The same default model source: disclosed (docs/DATA-HANDLING.md, the model-source notice) and replaceable by one setting (config/app-config.json).",
+   "match": "cdn\\.aiofourown\\.com/models/"
+  },
+  {
+   "rule": "people-and-addresses",
+   "paths": [
+    "index.html",
+    "about/index.html",
+    "help/index.html",
+    "releases/*/chat/shell/shell.mjs",
+    "SOURCE.txt",
+    "operator.mjs",
+    "DATA-HANDLING.md"
+   ],
+   "why": "The project's own repository, where releases and bug reports are published (the maintainer's account is part of its address, shown as a link or as the link's text).",
+   "match": "(?:github\\.com/)?johnbenac/privatelocalchat"
+  },
+  {
+   "rule": "people-and-addresses",
+   "paths": [
+    "releases/*/chat/vendor/voice/*.LEGAL.txt"
+   ],
+   "why": "The licence notice that goes with the voice worker names the project's repository, where the complete corresponding source of the voice worker is offered (a licence requirement).",
+   "match": "johnbenac/privatelocalchat"
+  },
+  {
+   "rule": "mailto-link",
+   "paths": [
+    "releases/*/chat/transfer/transfer-ui.mjs"
+   ],
+   "why": "The injection point of the site layer: the link is built only from site.supportEmail, which a neutral build does not have, so no address is shown. It is code that decides how to build a link, not a contact address of ours.",
+   "match": "mailto:"
+  },
+  {
+   "rule": "other-app-names",
+   "paths": [
+    "releases/*/chat/assistant/assistant.mjs",
+    "releases/*/chat/assistant/preset-candidate.mjs",
+    "releases/*/chat/presentation/*.mjs"
+   ],
+   "why": "Code comments that say where a character package or a preset handoff comes from: Cosmogenitor is a technical input, the producer of the packages this copy can read. No string shown to a person names it: where the app shows a picture's author it prints the package's own author field from the data, never as a recommendation, a promotion or a link.",
+   "userVisible": false
+  },
+  {
+   "rule": "other-app-names",
+   "paths": [
+    "THIRD-PARTY-NOTICES.md"
+   ],
+   "why": "A notice that names the vendored component authored-profiles and its registry package, with its licence; a licence-required statement, not text about the app.",
+   "userVisible": false
+  },
+  {
+   "rule": "other-app-names",
+   "paths": [
+    "releases/*/vendor/authored-profiles/**"
+   ],
+   "why": "The vendored component's own identifiers (package ids and format names, read-only, pinned in vendor.lock.json); not text a person reads.",
+   "userVisible": false
+  },
+  {
+   "rule": "runtime-third-party-hosts",
+   "paths": [
+    "releases/*/chat/vendor/embedding/worker.js",
+    "releases/*/runtime/providers/vendor/wllama/v1q/wllama.js"
+   ],
+   "why": "A vendored library's built-in fallback address. Not reached by the code: the app always gives the wasm location itself (chat/embedding/embedder.mjs; runtime/providers/adapters/wllama.mjs). A request log that proves it is still to be added (board T740), so this is not yet proven.",
+   "match": "cdn\\.jsdelivr\\.net"
+  },
+  {
+   "rule": "community-and-social",
+   "paths": [
+    "releases/*/runtime/providers/vendor/webllm/web-llm-0.2.86.js"
+   ],
+   "why": "The vendored WebLLM library's own text names a social site; it is third-party library text and no link is shown by the app.",
+   "match": "linkedin\\.com"
+  },
+  {
+   "rule": "brand-asset-name",
+   "paths": [
+    "brand/favicon.svg",
+    "brand/wordmark-light.svg",
+    "brand/wordmark-dark.svg"
+   ],
+   "why": "The application's own mark (layer A): it shares a generic file name with the family's packet assets, but its hash differs from every packet asset."
+  },
+  {
+   "rule": "family-name",
+   "paths": [
+    "models.json"
+   ],
+   "why": "The shipped default model source, listed so that fetch-models can fetch the files from it (docs/APP-CONFIG.md); the same disclosed, replaceable default as in index.html.",
+   "match": "cdn\\.aiofourown\\.com/models/"
+  },
+  {
+   "rule": "our-hosts",
+   "paths": [
+    "models.json"
+   ],
+   "why": "The same default model source, listed so that fetch-models can fetch the files from it.",
+   "match": "cdn\\.aiofourown\\.com/models/"
+  },
+  {
+   "rule": "family-name",
+   "paths": [
+    "DATA-HANDLING.md"
+   ],
+   "why": "The data handling document must say who serves the shipped default model source, because an operator has to know it (docs/DATA-HANDLING.md, section 2).",
+   "match": "cdn\\.aiofourown\\.com"
+  },
+  {
+   "rule": "our-hosts",
+   "paths": [
+    "DATA-HANDLING.md"
+   ],
+   "why": "The data handling document names the shipped default model source host; it says that this host is replaceable by one setting.",
+   "match": "cdn\\.aiofourown\\.com"
+  },
+  {
+   "rule": "runtime-third-party-hosts",
+   "paths": [
+    "DATA-HANDLING.md"
+   ],
+   "why": "The generated table of hosts that the vendored libraries' files name; the document says none of them is contacted by the app (not yet proven by a request log, board T740).",
+   "match": "cdn\\.jsdelivr\\.net"
+  },
+  {
+   "rule": "community-and-social",
+   "paths": [
+    "DATA-HANDLING.md"
+   ],
+   "why": "The same generated table: a host a vendored library's own text names, which the app does not contact.",
+   "match": "linkedin\\.com"
+  }
+ ],
+ "allowedHosts": [
+  {
+   "hosts": [
+    "cdn.aiofourown.com"
+   ],
+   "paths": [
+    "index.html"
+   ],
+   "why": "The shipped default model source (see the allowed our-domain entry)."
+  },
+  {
+   "hosts": [
+    "cdn.aiofourown.com"
+   ],
+   "paths": [
+    "models.json"
+   ],
+   "why": "The shipped default model source, listed so that fetch-models can fetch from it."
+  },
+  {
+   "hosts": [
+    "local",
+    "127.0.0.1",
+    "localhost"
+   ],
+   "paths": [
+    "serve.mjs",
+    "README.md"
+   ],
+   "why": "This computer: the address the bundled server listens on and the instructions give."
+  },
+  {
+   "hosts": [
+    "fsf.org",
+    "www.gnu.org"
+   ],
+   "paths": [
+    "LICENSE"
+   ],
+   "why": "Addresses in the text of the GNU General Public License."
+  },
+  {
+   "hosts": [
+    "datashare.ed.ac.uk"
+   ],
+   "paths": [
+    "THIRD-PARTY-NOTICES.md"
+   ],
+   "why": "The address a dataset's licence notice gives."
+  },
+  {
+   "hosts": [
+    "www.debian.org",
+    "dejavu-fonts.github.io"
+   ],
+   "paths": [
+    "brand/WORDMARK_FONT_LICENSE.txt"
+   ],
+   "why": "Addresses in the font licence text."
+  },
+  {
+   "hosts": [
+    "paulmillr.com"
+   ],
+   "paths": [
+    "releases/*/runtime/providers/vendor/noble-hashes/*/LICENSE"
+   ],
+   "why": "The author's address in a vendored library's licence."
+  },
+  {
+   "hosts": [
+    "api.github.com"
+   ],
+   "paths": [
+    "operator.mjs"
+   ],
+   "why": "The public release list, asked only by --check --online."
+  },
+  {
+   "hosts": [
+    "api.github.com"
+   ],
+   "paths": [
+    "DATA-HANDLING.md"
+   ],
+   "why": "The document says that --check --online asks this public release list and nothing else."
+  },
+  {
+   "hosts": [
+    "forge.aiofourown.com"
+   ],
+   "paths": [
+    "NOTICE.md",
+    "SOURCE.txt",
+    "attribution.json",
+    "about/index.html",
+    "help/index.html"
+   ],
+   "why": "The source URL of the attribution block (the programme forge, where the source of this build is offered): the one place a neutral build names our forge."
+  }
+ ]
+}

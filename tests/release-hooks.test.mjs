@@ -29,15 +29,15 @@ test('prepare writes the two zips, compat.json and SHA256SUMS, and the checksums
 });
 
 test('negative control: zips that carry something the rules forbid stop the release before SHA256SUMS exists', () => {
-  const config = JSON.parse(readFileSync('tests/neutrality.config.json', 'utf8'));
-  config.strings.push({id: 'forbidden-for-this-test', pattern: 'Private Local Chat', why: 'every build says this'});
+  const rules = JSON.parse(readFileSync('tests/neutrality-rules.json', 'utf8'));
+  rules.strings.push({id: 'forbidden-for-this-test', layer: 'C', severity: 'fail', scope: 'all', pattern: 'Private Local Chat', flags: '', why: 'every build says this'});
   const file = path.join(scratch, 'strict.json');
-  writeFileSync(file, JSON.stringify(config));
+  writeFileSync(file, JSON.stringify(rules));
   const out = path.join(scratch, 'assets-refused');
-  const run = hooks(['prepare', '--version', VERSION, '--commit', HEAD, '--out', out, '--neutrality-config', file]);
+  const run = hooks(['prepare', '--version', VERSION, '--commit', HEAD, '--out', out, '--rules', file]);
   assert.notEqual(run.status, 0);
   assert.match(run.stderr, /The release zips are not fit to publish/);
-  assert.match(run.stderr, /matches the string "forbidden-for-this-test"/);
+  assert.match(run.stderr, /matches the rule "forbidden-for-this-test"/);
   assert.ok(!existsSync(path.join(out, 'SHA256SUMS')), 'nothing is listed as publishable');
 });
 

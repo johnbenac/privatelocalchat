@@ -1,6 +1,6 @@
 # The site layer
 
-The app is open source. The site that serves it at privatelocal.chat is not part of it: its pages, its manifests and its announcements are a **site layer**, kept in a private repository, `johnbenac/privatelocalchat-site`, licensed to nobody. This document is the contract between the two. It names nothing that is in the private repository except by role.
+The app is open source. The site that serves it at privatelocal.chat is not part of it: its pages, its manifests and its announcements are a **site layer**, kept in a private repository, `johnbenac/privatelocalchat-site`, licensed to nobody. This document is the contract between the two. What every build also carries (the attribution block) and how a copy is scanned for what is ours is in `docs/DELIVERY.md`. It names nothing that is in the private repository except by role.
 
 ## The site directory
 

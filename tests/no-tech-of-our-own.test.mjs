@@ -6,9 +6,9 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {execFileSync} from 'node:child_process';
 
-// The neutrality test names it on purpose: it is the list of what a copy of the app must not carry (tests/neutrality.config.json).
+// The neutrality test names it on purpose: it is the list of what a copy of the app must not carry (tests/neutrality-rules.json).
 // So does the neutrality test of the vendored authored-profiles package (read-only, pinned in vendor.lock.json, never shipped): it copies PLC's list of what its neutral entry must not name.
-const SELF = new Set(['tests/no-tech-of-our-own.test.mjs', 'tests/publish-files.test.mjs', 'tests/neutrality.config.json', 'tests/neutrality.test.mjs', 'vendor/authored-profiles/tests/neutral.test.mjs']);
+const SELF = new Set(['tests/no-tech-of-our-own.test.mjs', 'tests/publish-files.test.mjs', 'tests/neutrality-rules.json', 'tests/neutrality.test.mjs', 'vendor/authored-profiles/tests/neutral.test.mjs']);
 const PATTERN = /techofourown|tech of our own/i;
 
 test('no tracked file names Tech of Our Own', () => {

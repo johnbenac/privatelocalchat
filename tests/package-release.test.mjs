@@ -63,7 +63,7 @@ for (const target of ['app', 'runkit']) {
     const names = entries.map((e) => e[0]);
     assert.ok(names.every((n) => n.startsWith(folder)), 'everything is inside one folder');
     const top = new Set(names.map((n) => n.slice(folder.length).split('/')[0]));
-    const expectedTop = [...RELEASE_TOOLS, ...RELEASE_DOCS, 'README.md', 'LICENSE', 'THIRD-PARTY-NOTICES.md', 'SOURCE.txt', 'compat.json', 'models.json', 'app'];
+    const expectedTop = [...RELEASE_TOOLS, ...RELEASE_DOCS, 'README.md', 'LICENSE', 'THIRD-PARTY-NOTICES.md', 'SOURCE.txt', 'attribution.json', 'compat.json', 'models.json', 'app'];
     assert.deepEqual([...top].sort(), [...expectedTop].sort(), 'the top level of the zip is the tools and documents listed, and the app');
     for (const name of ['app/index.html', 'app/sw.js', 'app/_headers', 'app/version.json', 'app/manifest.webmanifest']) assert.ok(names.includes(folder + name), name + ' is missing');
     assert.deepEqual(names, [...names].sort((x, y) => Buffer.compare(Buffer.from(x), Buffer.from(y))));

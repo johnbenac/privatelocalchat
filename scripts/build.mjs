@@ -10,6 +10,8 @@ import {CATALOG_DATA} from '../runtime/providers/catalog-data.mjs';
 import {resolveTarget} from './targets.mjs';
 import {toPagesHeaders} from './headers.mjs';
 const LICENCE_FILES=['LICENSE','THIRD-PARTY-NOTICES.md'];
+// Where the source of a build is offered: the project's repository on the programme forge (the per-release archive URL is used by a release; the repository root is valid for every commit).
+const SOURCE_URL='https://forge.aiofourown.com/programme/privatelocalchat';
 const root=process.cwd(), out=path.resolve(root,process.env.BUILD_OUT_DIR||'dist'); // BUILD_OUT_DIR is for tests that must not touch dist/
 if(out===root||!out.startsWith(root+path.sep))throw new Error('The build output must be a folder inside the repository');
 // Release configuration (support address, discussion space, ...). Nothing is assumed: every value is null until the owner verifies it.
@@ -134,6 +136,20 @@ const rootLastmod=process.env.SOURCE_DATE_EPOCH?buildTime().toISOString().slice(
 const publicSite=siteDir?await buildPublicSite({siteDir,outDir:out,releasePath,config:siteConfig,rootLastmod,origin:siteJson.site?siteJson.site.url.replace(/\/$/,''):null}):{urls:[],pages:[]}; // the app target has no pages
 // The licence documents are published at /LICENSE and /THIRD-PARTY-NOTICES.md (AGPL text and source offer; see docs/PUBLIC-SITE.md).
 for(const file of LICENCE_FILES)await cp(file,path.join(out,file));
+// The attribution block (docs/DELIVERY.md): every build says where it came from, in the shared format of the delivery tooling (tools/delivery-tooling, vendored, read-only): NOTICE.md and attribution.json at the
+// root, and the same record as a paragraph in the neutral About and Help pages. It comes from the build's own data (the version, the full commit); no setting renames the app or removes it.
+{
+ const python=process.env.PYTHON||(existsSync('/usr/bin/python3')?'/usr/bin/python3':'python3');
+ const fragment=path.join(out,'.attribution.html');
+ execFileSync(python,['tools/delivery-tooling/attribution/attribution.py','write',out,'--name','Private Local Chat','--version',build.version,'--commit',commit,'--licence','AGPL-3.0-only','--source',SOURCE_URL,'--html',fragment],{stdio:'pipe'});
+ const block=await readFile(fragment,'utf8');await rm(fragment);
+ for(const page of ['about','help']){
+  const file=path.join(out,page,'index.html');
+  if(!existsSync(file))continue; // a site layer that has no such page; its own pages say it their way
+  const text=await readFile(file,'utf8');
+  if(text.includes('<!--attribution-->'))await writeFile(file,text.replace(/<!--attribution-->[\s\S]*?<!--\/attribution-->/,()=>'<!--attribution-->'+block.trim()+'<!--/attribution-->'));
+ }
+}
 await writeFile(path.join(out,'404.html'),'<!doctype html><title>Not found</title><h1>Page not found</h1><a href="/">Open Private Local Chat</a>');
 await writeFile(path.join(out,'version.json'),JSON.stringify(build,null,2)+'\n');
 await writeFile(path.join(out,'manifest.webmanifest'),JSON.stringify({name:'PrivateLocal.Chat',short_name:'PrivateLocal',description:'Free AI chat on your device. Choose a supported model, keep on-device conversations local, or connect a provider when you choose.',start_url:'/',scope:'/',display:'standalone',background_color:'#F6F8FB',theme_color:'#F6F8FB',categories:['productivity','utilities'],icons:[{src:'/brand/app-icon-192.png',sizes:'192x192',type:'image/png',purpose:'any'},{src:'/brand/app-icon-512.png',sizes:'512x512',type:'image/png',purpose:'any'},{src:'/brand/app-icon-maskable-512.png',sizes:'512x512',type:'image/png',purpose:'maskable'}]}));

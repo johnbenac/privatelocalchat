@@ -3,7 +3,7 @@
 //
 //   node scripts/release-hooks.mjs notes   --version X.Y.Z --commit SHA [--last-tag vA.B.C]
 //       prints the "Upgrading" section of the notes (and nothing else) on standard output
-//   node scripts/release-hooks.mjs prepare --version X.Y.Z --commit SHA [--out release-assets] [--neutrality-config FILE]
+//   node scripts/release-hooks.mjs prepare --version X.Y.Z --commit SHA [--out release-assets] [--rules FILE]
 //       writes the release assets into --out: the two zips, compat.json and SHA256SUMS, and refuses to finish unless the zips pass the zip test and carry nothing of ours
 //
 // Anything it says about its work goes to standard error: the notes command's standard output is the text that becomes part of the release notes.
@@ -15,7 +15,7 @@ import {pathToFileURL, fileURLToPath} from 'node:url';
 import {TARGETS, packageRelease, writeSums, folderName, zipName, REPOSITORY} from './package-release.mjs';
 import {buildCompat, toJson} from './compat.mjs';
 import {upgradingSection} from './release-notes-upgrading.mjs';
-import {loadConfig, inventoryHosts, scanDirectory, evaluate} from './neutrality.mjs';
+import {plcScan, RULES_FILE} from './delivery-scan.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const say = (text) => process.stderr.write(text + '\n');
@@ -40,13 +40,11 @@ export async function notes({version, commit, lastTag, gh}) {
   return upgradingSection(current, previousCompat(lastTag, {gh}));
 }
 
-/** Unpacks each zip and scans it with the neutrality rules. Returns the problems, empty when the zips are clean. */
-export async function checkZips({out, version, neutralityConfig}) {
-  const config = await loadConfig(neutralityConfig);
-  const known = await inventoryHosts(path.join(root, config.inventory));
+/** Unpacks each zip and scans it with the shared neutrality rules and this application's exceptions. Returns the problems, empty when the zips are clean. */
+export async function checkZips({out, version, rulesFile = RULES_FILE}) {
   const holder = mkdtempSync(path.join(tmpdir(), 'plc-zipcheck-'));
   try {
-    const results = [], problems = [];
+    const roots = [], problems = [];
     for (const target of TARGETS) {
       const zip = path.join(out, zipName(version, target));
       const test = spawnSync('unzip', ['-tq', zip], {encoding: 'utf8'});
@@ -55,20 +53,20 @@ export async function checkZips({out, version, neutralityConfig}) {
       mkdirSync(dir);
       execFileSync('unzip', ['-q', zip, '-d', dir]);
       const folder = path.join(dir, folderName(version, target));
-      results.push(await scanDirectory(path.join(folder, 'app'), config, known));
-      results.push(await scanDirectory(folder, {...config, skipPaths: [...(config.skipPaths || []), 'app/**']}, known));
+      roots.push(path.join(folder, 'app'), folder); // the build, and the files beside it with app/ left out
     }
-    // an allow entry that only a neighbouring file uses is a problem of the config, not of the zips; only what was found in the zips counts here
-    problems.push(...evaluate(results, config).filter((line) => !/is not used by anything scanned/.test(line)));
+    const result = await plcScan({roots, rulesFile, skipPaths: ['app/**']});
+    // an exception that only a neighbouring file uses is a problem of the config (tests/neutrality.test.mjs checks it over every output), not of these zips
+    problems.push(...result.problems.filter((line) => !/matches nothing that was scanned/.test(line)));
     return problems;
   } finally { rmSync(holder, {recursive: true, force: true}); }
 }
 
-export async function prepare({version, commit, out, neutralityConfig}) {
+export async function prepare({version, commit, out, rulesFile}) {
   rmSync(out, {recursive: true, force: true});
   for (const target of TARGETS) say('Packed ' + (await packageRelease({target, version, commit, outDir: out})));
   writeFileSync(path.join(out, 'compat.json'), toJson(await buildCompat({version, commit})));
-  const problems = await checkZips({out, version, neutralityConfig});
+  const problems = await checkZips({out, version, rulesFile});
   if (problems.length) throw new Error('The release zips are not fit to publish:\n' + problems.join('\n'));
   for (const line of await writeSums(out)) say(line);
   say(`Release assets for v${version} are in ${out}: ${readdirSync(out).sort().join(', ')}`);
@@ -80,7 +78,7 @@ async function cli(args) {
   const version = opt('version'), commit = opt('commit');
   if (!['notes', 'prepare'].includes(command) || !version || !commit) { console.error('Usage: release-hooks.mjs notes|prepare --version X.Y.Z --commit SHA [...]'); return 2; }
   if (command === 'notes') { process.stdout.write(await notes({version, commit, lastTag: opt('last-tag'), gh: process.env.RELEASE_GH || 'gh'})); return 0; }
-  await prepare({version, commit, out: path.resolve(opt('out') || 'release-assets'), neutralityConfig: path.resolve(opt('neutrality-config') || path.join(root, 'tests/neutrality.config.json'))});
+  await prepare({version, commit, out: path.resolve(opt('out') || 'release-assets'), rulesFile: path.resolve(opt('rules') || RULES_FILE)});
   return 0;
 }
 

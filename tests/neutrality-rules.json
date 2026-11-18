@@ -1,0 +1,489 @@
+{
+ "format": "neutrality-rules/1",
+ "about": "The shared rule set for what a neutral build (the app without our brand layer) must not carry and must carry. Layers B (the family's identity) and C (the publisher's service) are maintained by Brand; every change is read by Brand. Prose and reasons: docs/neutral-build-brand-and-scan-20261118.md. Shaped like PLC's plc-neutrality/1 (id, pattern, flags, why) so the shared engine can load it; each application adds its own productNames, ownDomains, allowed and allowedHosts in its own config. Severity 'fail' fails the scan from day one; 'warn' is reported and reviewed by a person. scope 'all' = every text file; scope 'visible' = text a person reads (HTML text nodes, titles, alt text, markdown, txt, UI string tables), where the engine can tell, else 'all'.",
+ "version": "0.3.2",
+ "layers": {
+  "A": "the app's own identity (kept)",
+  "B": "the family's identity (never in a neutral build)",
+  "C": "the publisher's service (never in a neutral build)"
+ },
+ "attributionPaths": [
+  "NOTICE.md",
+  "SOURCE.txt",
+  "attribution.json",
+  "README.md",
+  "about/index.html",
+  "help/index.html"
+ ],
+ "hostsWeRun": [
+  "aiofourown.com",
+  "cdn.aiofourown.com",
+  "forge.aiofourown.com",
+  "write.aiofourown.com",
+  "privatelocal.chat",
+  "sonalon.com",
+  "cosmogenitor.com",
+  "cyberplanetary.org",
+  "write.cyberplanetary.org",
+  "blog.cyberplanetary.org",
+  "benac.dev",
+  "cosmoshot.benac.dev",
+  "gitlab.benac.dev",
+  "infra.benac.dev",
+  "devs.benac.dev",
+  "registry.benac.dev",
+  "llm.benac.dev"
+ ],
+ "strings": [
+  {
+   "id": "family-name",
+   "layer": "B",
+   "severity": "fail",
+   "scope": "all",
+   "pattern": "ai[\\s_-]*of[\\s_-]*our[\\s_-]*own|aiofourown",
+   "flags": "i",
+   "why": "The parent's name in any spelling (spaced, hyphenated, joined). Allowed only in attributionPaths, in the one fixed attribution block. The existing PLC rule matched only the joined form."
+  },
+  {
+   "id": "programme-internal-name",
+   "layer": "B",
+   "severity": "fail",
+   "scope": "all",
+   "pattern": "cosmoshot",
+   "flags": "i",
+   "why": "The programme's internal name appears in no public build. No allow-list."
+  },
+  {
+   "id": "other-app-names",
+   "layer": "B",
+   "severity": "fail",
+   "scope": "all",
+   "pattern": "private\\s*local\\.?\\s*chat|sonalon|cosmogenitor|cyberplanetary",
+   "flags": "i",
+   "why": "Another family project's name is family navigation. The application's own name comes from its productNames setting and is exempt; any other use is an allow-list entry by path with a reason (userVisible:true needs a reason Brand reads)."
+  },
+  {
+   "id": "our-hosts",
+   "layer": "C",
+   "severity": "fail",
+   "scope": "all",
+   "pattern": "(?<![a-z0-9-])(?:[a-z0-9-]+\\.)*(?:aiofourown\\.com|privatelocal\\.chat|sonalon\\.com|cosmogenitor\\.com|cyberplanetary\\.org|benac\\.dev)(?![a-z0-9-])|[a-z0-9-]+\\.pages\\.dev|[a-z0-9-]+\\.workers\\.dev|cdn-cgi/",
+   "flags": "",
+   "why": "Every host we run. Allowed only: the source URL of the attribution block; a disclosed, changeable default listed with a reason and, if temporary, an until. Lower case only: hosts are lower case, and the product name PrivateLocal.Chat is not a host."
+  },
+  {
+   "id": "people-and-addresses",
+   "layer": "C",
+   "severity": "fail",
+   "scope": "all",
+   "pattern": "john\\s*benac|johnbenac|johnb(?![a-z])|johnny",
+   "flags": "i",
+   "why": "The maintainer's names. Real people's names only in licence-required notices (allow-list by path with a reason). The project's own repository path is allowed by path. (mailto links are the separate rule mailto-link.)"
+  },
+  {
+   "id": "mailto-link",
+   "layer": "C",
+   "severity": "fail",
+   "scope": "all",
+   "pattern": "href\\s*=\\s*[\"']mailto:|\\]\\(\\s*mailto:",
+   "flags": "i",
+   "why": "An actual mailto link (an HTML href or a markdown link): a support or contact address is the publisher's. The string 'mailto:' inside code that decides how to render someone else's link is not a link of ours and does not match."
+  },
+  {
+   "id": "email-address",
+   "layer": "C",
+   "severity": "warn",
+   "scope": "all",
+   "pattern": "[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}",
+   "flags": "i",
+   "why": "An e-mail address: a support address is layer C. Licence and copyright texts carry author addresses legitimately: allow by path with a reason."
+  },
+  {
+   "id": "internal-leak",
+   "layer": "C",
+   "severity": "fail",
+   "scope": "all",
+   "pattern": "/cosmoshot/|\\bcentroid\\b|\\bboiler\\b|\\bveriton\\b|homelab|cosmo-(?:mem|msg)|Co-Authored-By|Claude-Session|(?<![a-z0-9])claude\\.ai(?![a-z0-9])|(?:^|[\\s\"'/])\\.claude/|AGENTS\\.md|CLAUDE\\.md",
+   "flags": "i",
+   "why": "Internal machines, tools, agent files and commit trailers. A download never carries development tooling."
+  },
+  {
+   "id": "board-identifier",
+   "layer": "C",
+   "severity": "warn",
+   "scope": "visible",
+   "pattern": "(?<![A-Za-z0-9])(?:T[0-9]{3,4}|O[0-9]{2,3})(?![A-Za-z0-9])",
+   "flags": "",
+   "why": "Planning-board ids in prose. Warn: short codes occur in code and data legitimately."
+  },
+  {
+   "id": "board-reference",
+   "layer": "C",
+   "severity": "fail",
+   "scope": "all",
+   "pattern": "\\bboard\\s+[TO][0-9]{2,4}\\b|\\bobjective\\s+O[0-9]{2,3}\\b",
+   "flags": "i",
+   "why": "A planning-board reference in shipped text or code comments (found in PLC's neutral build: 'board T444'). Internal process, never public."
+  },
+  {
+   "id": "tracking",
+   "layer": "C",
+   "severity": "fail",
+   "scope": "all",
+   "pattern": "cloudflareinsights|google-analytics|googletagmanager|googleanalytics|plausible\\.io|posthog|matomo|mixpanel|segment\\.(?:com|io)|hotjar|amplitude\\.com|sentry\\.io|datadoghq|newrelic|fullstory|clarity\\.ms|\\bgtag\\(|\\bfbq\\(|beacon\\.min\\.js",
+   "flags": "i",
+   "why": "Analytics, tracking and third-party error reporting. A neutral build collects nothing and contacts none."
+  },
+  {
+   "id": "runtime-third-party-hosts",
+   "layer": "C",
+   "severity": "fail",
+   "scope": "all",
+   "pattern": "fonts\\.googleapis\\.com|fonts\\.gstatic\\.com|cdn\\.jsdelivr\\.net|unpkg\\.com|cdnjs\\.cloudflare\\.com|use\\.typekit\\.net|ajax\\.googleapis\\.com",
+   "flags": "i",
+   "why": "Fonts and scripts fetched at run time from a third party. A neutral build loads nothing it does not ship (a licence text naming such a host is an allow-list entry)."
+  },
+  {
+   "id": "community-and-social",
+   "layer": "C",
+   "severity": "fail",
+   "scope": "all",
+   "pattern": "discord\\.gg|discord\\.com/invite|(?<![a-z0-9.-])x\\.com/|twitter\\.com|linkedin\\.com|facebook\\.com|instagram\\.com|bsky\\.app|mastodon\\.|youtube\\.com|youtu\\.be|t\\.me/|reddit\\.com|substack\\.com|patreon\\.com|ko-fi\\.com|buymeacoffee",
+   "flags": "i",
+   "why": "Support, community and social links are the publisher's. A neutral build points to the source repository and nothing else."
+  },
+  {
+   "id": "brand-tokens",
+   "layer": "B",
+   "severity": "fail",
+   "scope": "all",
+   "pattern": "--aoo-|AOO Display|AOO Sans",
+   "flags": "",
+   "why": "The packet's namespaced tokens and font family names: the family's visual identity."
+  },
+  {
+   "id": "brand-palette",
+   "layer": "B",
+   "severity": "warn",
+   "scope": "all",
+   "pattern": "#(?:F4ECDF|16142E|F8F1E5|F9B52B|7C5CFF|FF6B4A|17B9A7|33257C|B9A7FF)(?![0-9A-Fa-f])",
+   "flags": "i",
+   "why": "The family palette. May coincide innocently; a person reviews. A neutral build uses plain colours."
+  },
+  {
+   "id": "brand-typefaces",
+   "layer": "B",
+   "severity": "warn",
+   "scope": "all",
+   "pattern": "font-family[^;}\"']*\\bFraunces\\b|\\bFraunces[-.]",
+   "flags": "i",
+   "why": "The family's display face. A neutral build uses system fonts; an app that needs a face says why in its allow-list."
+  },
+  {
+   "id": "voice-claims",
+   "layer": "C",
+   "severity": "warn",
+   "scope": "visible",
+   "pattern": "\\b(?:official(?:ly)?|verified|certified|endorsed|trusted by|supported by)\\b",
+   "flags": "i",
+   "why": "Claims of a relationship or standing we do not have for someone else's copy."
+  },
+  {
+   "id": "voice-promises",
+   "layer": "C",
+   "severity": "warn",
+   "scope": "visible",
+   "pattern": "\\bwe (?:collect|store|never|guarantee|promise)\\b|\\bguarantee[sd]?\\b|military-grade|bank-level|private by design|secure by design|\\bsovereign\\b",
+   "flags": "i",
+   "why": "Promises and absolutes about privacy, security or hosting; and 'sovereign' about a product (it is only said about people, in our own statements of purpose). Visible text only: licence texts that 'guarantee your freedom' are not ours (allow by path)."
+  },
+  {
+   "id": "voice-hype",
+   "layer": "C",
+   "severity": "warn",
+   "scope": "visible",
+   "pattern": "revolutionary|AI-powered|powered by AI|\\bmagic(?:al)?\\b|\\bseamless(?:ly)?\\b|best-in-class|world-class|game-changing|next-generation",
+   "flags": "i",
+   "why": "Hype. The voice is plain and concrete."
+  },
+  {
+   "id": "voice-marketing",
+   "layer": "C",
+   "severity": "warn",
+   "scope": "visible",
+   "pattern": "\\bcontact us\\b|\\bjoin us\\b|\\bsubscribe to\\b|\\bnewsletter\\b|\\bfollow us\\b|\\bsign up\\b|\\bcoming soon\\b|\\broadmap\\b",
+   "flags": "i",
+   "why": "Marketing, community and plans: the publisher's voice, or a feature that is not in this build."
+  },
+  {
+   "id": "evidence-words",
+   "layer": "C",
+   "severity": "warn",
+   "scope": "visible",
+   "pattern": "\\b(?:free|live|available|compatible|safe|secure)\\b",
+   "flags": "i",
+   "why": "Unqualified evidence words (packet rule: nothing is called these without its own evidence). The licence phrase 'free software' and technical uses are allowed by path with a reason."
+  },
+  {
+   "id": "no-white-label-switch",
+   "layer": "B",
+   "severity": "fail",
+   "scope": "all",
+   "pattern": "\"(?:brandName|appName|whiteLabel|white_label|hideAttribution|hide_attribution|customLogo|customBranding)\"\\s*:",
+   "flags": "i",
+   "why": "No setting, option or manifest field may rename the app or hide the attribution block."
+  }
+ ],
+ "binaryAssets": {
+  "why": "Brand marks, icons and fonts are matched by SHA-256 against the packet manifests, so renamed copies are caught, including binaries a text scan cannot read. Every file path and hash in these manifests is a brand asset; a match fails the scan unless the application's allow-list names it with a reason.",
+  "manifestGlobs": [
+   "/cosmoshot/brand/aiofourown/packets/*/manifest.json",
+   "/cosmoshot/brand/cosmogenitor/packets/*/manifest.json"
+  ],
+  "extensions": [
+   ".png",
+   ".jpg",
+   ".jpeg",
+   ".webp",
+   ".gif",
+   ".ico",
+   ".svg",
+   ".woff",
+   ".woff2",
+   ".ttf",
+   ".otf",
+   ".mp4",
+   ".webm",
+   ".m4a",
+   ".mp3",
+   ".wav"
+  ],
+  "pathNames": [
+   "wordmark-light.svg",
+   "wordmark-dark.svg",
+   "favicon.svg",
+   "legacy-favicon.svg",
+   "mark.svg",
+   "social.png",
+   "apple-touch-icon.png",
+   "icon-192.png",
+   "icon-512.png"
+  ]
+ },
+ "mustContain": [
+  {
+   "id": "attribution-notice",
+   "paths": [
+    "NOTICE.md",
+    "SOURCE.txt"
+   ],
+   "anyOf": true,
+   "checks": [
+    {
+     "id": "title-line",
+     "pattern": "^# .+ \\S+",
+     "flags": "m",
+     "why": "A title line: the app name and version."
+    },
+    {
+     "id": "from-line",
+     "pattern": "^from ai of our own\\s*$",
+     "flags": "m",
+     "why": "The attribution phrase, plain text, lower case, no logo, no link."
+    },
+    {
+     "id": "commit-line",
+     "pattern": "^Built from commit [0-9a-f]{40}\\s*$",
+     "flags": "m",
+     "why": "The full 40-character commit."
+    },
+    {
+     "id": "licence-line",
+     "pattern": "^Licen[cs]e: [A-Za-z0-9.+-]+(?: [A-Za-z0-9.+-]+)*\\s*$",
+     "flags": "m",
+     "why": "The licence by SPDX id."
+    },
+    {
+     "id": "source-line",
+     "pattern": "^Source: https://(?:forge\\.aiofourown\\.com/programme/|cdn\\.aiofourown\\.com/[a-z0-9-]+/source/)\\S+\\s*$",
+     "flags": "m",
+     "why": "The source: the forge repository or the per-build archive the build metadata names (the URL names the build id or the commit)."
+    }
+   ]
+  },
+  {
+   "id": "attribution-record",
+   "paths": [
+    "attribution.json"
+   ],
+   "requiredJsonFields": [
+    "name",
+    "version",
+    "commit",
+    "licence",
+    "source"
+   ],
+   "why": "One record that the scan and the About page read."
+  },
+  {
+   "id": "licence-file",
+   "paths": [
+    "LICENSE"
+   ],
+   "why": "The licence text ships."
+  },
+  {
+   "id": "about-has-block",
+   "pathsIfExist": [
+    "about/index.html",
+    "help/index.html"
+   ],
+   "pattern": "from ai of our own",
+   "why": "If the target has an About or Help page it carries the block."
+  }
+ ],
+ "rules": {
+  "noAddressWithoutManifest": "For the app and runkit targets no canonical, Open Graph, structured data, sitemap, robots or feed may carry an address (PLC's rule, kept).",
+  "unusedExceptionFails": true,
+  "exceptionShape": {
+   "string": "rule id",
+   "paths": [
+    "globs"
+   ],
+   "why": "required",
+   "userVisible": "true when the path is text a person reads; needs a reason Brand reads",
+   "until": "task id or date for a temporary exception"
+  },
+  "scanTargets": [
+   "app",
+   "runkit",
+   "released archive"
+  ]
+ },
+ "visibleScopeNote": "scope 'visible' means: text a person reads. For HTML, the text nodes, title, alt and aria-label text with scripts and styles removed; for .md and .txt the whole file; never LICENSE*, THIRD-PARTY*, NOTICE licence sections or vendor/ trees (those are allow-listed by path).",
+ "attributionExemption": {
+  "why": "The attribution block necessarily names us and our forge. The exemption is narrow so it cannot hide anything else.",
+  "paths": [
+   "NOTICE.md",
+   "SOURCE.txt",
+   "attribution.json",
+   "README.md",
+   "about/index.html",
+   "help/index.html"
+  ],
+  "exemptRules": [
+   "family-name",
+   "our-hosts"
+  ],
+  "onlyFor": [
+   "the line 'from ai of our own'",
+   "the Source: URL (or the link in the About region) matching the source-line pattern in mustContain"
+  ],
+  "notFor": "any other text in those files: a second mention of our name or a second host in NOTICE.md, README.md, about or help is still a failure; the app's own product name is exempt through productNames, not through this."
+ },
+ "stability": {
+  "format": "neutrality-rules/1 is frozen: field names in this file will not be renamed or removed. Changes are additive (new optional fields, new rules). A breaking change bumps the format to neutrality-rules/2 with a migration note and Brand tells the engine's owner first. The rules' contents (which patterns exist) change with `version`; the engine prints the version it ran.",
+  "readBy": "the shared scan engine (PLC extraction into /cosmoshot/delivery-tooling, T736/T740); devops vendors the file; Brand maintains layers B and C and reads every diff"
+ },
+ "visibleScope": {
+  "html": {
+   "textNodes": "every text node outside script, style and template; noscript content counts",
+   "attributes": [
+    "alt",
+    "title",
+    "aria-label",
+    "aria-description",
+    "placeholder",
+    "value (on input type=submit|button|reset and on button)",
+    "content (on meta name=description, meta property=og:title|og:description|og:image:alt, meta name=twitter:title|twitter:description)"
+   ],
+   "elements": [
+    "title"
+   ],
+   "jsonLd": "string values of name, headline, description and alternateName in application/ld+json blocks (a neutral build should have none that carries an address)"
+  },
+  "json": "manifest.webmanifest and similar web manifests: the string values of name, short_name and description",
+  "wholeFile": [
+   "*.md",
+   "*.txt",
+   "README*",
+   "NOTICE*",
+   "CHANGELOG*",
+   "SOURCE.txt"
+  ],
+  "neverVisible": [
+   "LICENSE*",
+   "COPYING*",
+   "THIRD-PARTY*",
+   "*.LEGAL.txt",
+   "licenses/**",
+   "vendor/**",
+   "node_modules/**",
+   "*.map"
+  ],
+  "appProvided": "an application lists further UI string tables in its own exceptions file under `visibleFiles` (globs); JS and JSON files are not visible by default (too noisy), and text only in code comments is covered by the scope-all rules, not the voice lint",
+  "note": "supersedes visibleScopeNote"
+ },
+ "attributionRegions": {
+  "why": "In about, help and README the family-name and our-hosts exemption applies only inside the attribution region, so a second mention elsewhere still fails.",
+  "html": [
+   "an element with class=\"attribution\"",
+   "or the region between <!--attribution--> and <!--/attribution-->"
+  ],
+  "markdownAndText": "the lines from 'from ai of our own' through the 'Source:' line, contiguous",
+  "mustEqualRecord": "the region's name, version, commit, licence and source must equal attribution.json (the engine checks this itself)"
+ },
+ "engineCalls": {
+  "attribution": "The engine CALLS `python3 /cosmoshot/delivery-tooling/attribution/attribution.py check DIR_OR_ARCHIVE` (or the vendored copy) and uses its exit code and message for NOTICE.md, SOURCE.txt and attribution.json. One implementation of the narrow exemption; the engine does not reimplement it in Node. The engine itself handles only the HTML and markdown regions above (about, help, README) and must treat a missing attribution.py as a failure, never as a pass."
+ },
+ "exceptionsFile": {
+  "name": "neutrality-exceptions.json in each application's repository",
+  "format": "neutrality-exceptions/1",
+  "shape": {
+   "format": "neutrality-exceptions/1",
+   "application": "the application's own name",
+   "productNames": [
+    "regexes for the application's own product names; removed from the text before the other-app-names rule runs"
+   ],
+   "visibleFiles": [
+    "optional globs of UI string tables to treat as visible"
+   ],
+   "exceptions": [
+    {
+     "rule": "a rule id from the shared file",
+     "paths": [
+      "globs relative to the build root"
+     ],
+     "why": "required, plain words",
+     "userVisible": "true if the matched text is read by a person; needs a reason Brand reads; default false",
+     "until": {
+      "task": "T### (the task that removes it)",
+      "by": "YYYY-MM-DD (an upper bound, at most 90 days ahead)"
+     },
+     "match": "optional regex tested against the TOKEN that contains each individual match (the maximal run of characters around it that are not whitespace, quotes, angle brackets or parentheses; for a URL, the whole URL). Every match is judged on its own token, never on its line: a second mention in the same line, or anywhere in a minified one-line file, is a separate match and still fails unless its own token satisfies the regex. Example: 'cdn\\\\.aiofourown\\\\.com/models/' covers the token 'https://cdn.aiofourown.com/models/' and not another URL on the same line."
+    }
+   ],
+   "allowedHosts": [
+    {
+     "hosts": [
+      "host names"
+     ],
+     "paths": [
+      "globs"
+     ],
+     "why": "required"
+    }
+   ]
+  },
+  "rules": [
+   "a path-scoped exception without a why fails",
+   "an exception that matches nothing fails the scan",
+   "an exception with until.by in the past FAILS the scan",
+   "an exception with until needs both task and by; a bare task id or a bare date is invalid",
+   "every exception with until is reported at every run, whether or not it matches (an 'until' list at the end of the output)",
+   "name-only brand asset matches (the binaryAssets.pathNames check) are warnings; an application's own mark that shares a generic file name (favicon.svg, wordmark-light.svg) and whose hash differs from every packet asset is listed as an exception with that why (layer A); a hash match is always a failure unless the application names the file",
+   "a default that points at our infrastructure and is disclosed on one page and changeable by one setting is a PERMANENT exception with no 'until'; 'until' is only for a default that cannot yet be changed",
+   "exception matching is per match, not per line (see `match`): this keeps an exception from masking other mentions in a minified or single-line file"
+  ]
+ }
+}
