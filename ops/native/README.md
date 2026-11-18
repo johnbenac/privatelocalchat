@@ -162,7 +162,7 @@ Rebuild with the pinned Emscripten 4.0.20 toolchain in a new isolated directory:
 
 ```sh
 python3 ops/native/build-debug-runtime.py \
-  --manifest ops/native/production-runtime.json \
+  --manifest runtime/providers/production-runtime.json \
   --source /path/to/pinned/wllama \
   --toolchain /path/to/emscripten-4.0.20/install \
   --node /path/to/node \
