@@ -6,7 +6,7 @@
 // vectors that match speech to intents before any language model is loaded.
 
 import { siteLinks } from "../site/site-links.mjs";
-import { appConfig } from "../../runtime/config/app-config.mjs";
+import { appConfig } from "../../runtime/providers/app-config.mjs";
 import { sourceLabelAndHost } from "../models/source-notice.mjs";
 export const ROBOT_NAME = "Roberta";
 export const ROBOT_TAGLINE = "The robot for Private Local Chat";

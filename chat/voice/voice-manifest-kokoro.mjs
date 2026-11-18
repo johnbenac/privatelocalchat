@@ -2,7 +2,7 @@
 // against these sizes and SHA-256 values before use. A changed byte is a new manifest, never an edit in place.
 //
 // `name` is the flat file name in the origin's private storage; `path` is where the file lives under the base URL.
-import { appConfig } from "../../runtime/config/app-config.mjs";
+import { appConfig } from "../../runtime/providers/app-config.mjs";
 
 
 /** The Hugging Face revision the hosted copy is keyed by. ONE place. */

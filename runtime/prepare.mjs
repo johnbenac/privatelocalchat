@@ -1,6 +1,6 @@
 // Get an on-device model ready for a message: choose a model, download it if needed, load it, and report progress as it goes.
 // The person never has to know the steps. Built on the model host and the download recovery, which do the real work.
-import { pickTier } from "./auto-tier.mjs";
+import { pickTier } from "./providers/auto-tier.mjs";
 
 /** What is happening right now, in terms a progress display can show. s: model-host state, r: download-recovery state. */
 export function progressOf(s, r = {}) {

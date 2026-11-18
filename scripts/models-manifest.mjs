@@ -8,7 +8,7 @@
 import {readFileSync, writeFileSync} from 'node:fs';
 import path from 'node:path';
 import {pathToFileURL} from 'node:url';
-import {buildAppConfig} from '../runtime/config/app-config.mjs';
+import {buildAppConfig} from '../runtime/providers/app-config.mjs';
 
 export const MODELS_FORMAT = 'plc-models/1';
 /** Prefix of an address that is not a download: the file ships inside the app (docs/RUNTIMES.md). It is not part of models.json. */
@@ -69,7 +69,7 @@ export async function buildModelsManifest() {
     const fresh = '?models-manifest';
     const catalog = await import('../runtime/providers/catalog.mjs' + fresh);
     const urls = await collectModelUrls({effectiveSources: catalog.resolveSources(null).sources, fresh});
-    const {appConfig} = await import('../runtime/config/app-config.mjs');
+    const {appConfig} = await import('../runtime/providers/app-config.mjs');
     const root = appConfig().modelRoot();
     const tiers = {};
     for (const [tier, variants] of Object.entries(urls.tiers)) tiers[tier] = relative(Object.values(variants).flat(), root, 'tier ' + tier);

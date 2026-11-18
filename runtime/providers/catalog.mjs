@@ -2,10 +2,10 @@
 // Decision row 65 (plan/DECISIONS.md): default = WebLLM + Qwen3.5-9B (q4f16_1 where the GPU has shader-f16, q4f32_1 where it does not,
 // chosen by the capability probe, not by device class); light = wllama retained-v1q + Qwen3.5-2B Q4_0. No other model is offered.
 //
-// Where the files come from is the configured model source (runtime/config/app-config.mjs, docs/APP-CONFIG.md): a root that holds <name>/<revision>/<files>. A test may point a tier at another
+// Where the files come from is the configured model source (runtime/providers/app-config.mjs, docs/APP-CONFIG.md): a root that holds <name>/<revision>/<files>. A test may point a tier at another
 // origin with `resolveSources(overrides)`: that is an explicit, visible setting (the manager shows "source: override <origin>"), never a fallback. Every file is checked against the pin here.
 import { CATALOG_DATA } from "./catalog-data.mjs";
-import { appConfig } from "../config/app-config.mjs";
+import { appConfig } from "./app-config.mjs";
 
 const MiB = 1 << 20;
 const W = CATALOG_DATA.webllmQwen35_9b;

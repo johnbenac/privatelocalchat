@@ -25,7 +25,7 @@ const APP_FORMAT = 'plc-app-config/1';
 
 // What each operator file is checked with and where it goes in the page. The modules are the release's own, so a file is judged by the build that will use it.
 const KINDS = [
-  {name: 'app', file: ['config', 'app-config.json'], module: 'runtime/config/app-config.mjs', script: APP_SCRIPT, global: 'window.APP_CONFIG'},
+  {name: 'app', file: ['config', 'app-config.json'], module: 'runtime/providers/app-config.mjs', script: APP_SCRIPT, global: 'window.APP_CONFIG'},
   {name: 'site', file: ['config', 'site.json'], module: 'chat/site/site-links.mjs', script: SITE_SCRIPT, global: 'window.SITE_LINKS'}
 ];
 

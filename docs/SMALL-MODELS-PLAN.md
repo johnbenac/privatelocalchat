@@ -18,7 +18,7 @@ The smallest model was 901 MB (Granite 4.0 H 1B), the 2B Qwen is 1.2 GB. The S8+
 | **Granite 4.0 H 350M Q4_K_M** | 223 MB | about 12 tok/s | correct and short on all four questions |
 
 - **Two tiers:** `mini` = Granite 4.0 H 350M (try first), `nano` = SmolLM2-135M (smallest, weakest; for when storage is the limit). Both are single files, published unchanged from IBM's and bartowski's repositories at pinned commits (pins in `ops/cloudflare/gguf-models.json`; published with the shared tool, `docs/CDN-POPULATION.md`), served from the shared CDN (first from `assets.privatelocal.chat`, retired 2026-11-17), listed in the CDN's `/catalog.json`.
-- **Policy change in `runtime/auto-tier.mjs`:** the tiny tiers may run on the processor on iPhone/iPad and with 2 GB of memory; the 2B and 1B models still may not. A phone with no usable graphics card now starts with `mini`; a desktop without one keeps `light`; a person's choice and an already downloaded model keep their place. The backend (processor or card) is decided per model (`tierBackend`).
+- **Policy change in `runtime/providers/auto-tier.mjs`:** the tiny tiers may run on the processor on iPhone/iPad and with 2 GB of memory; the 2B and 1B models still may not. A phone with no usable graphics card now starts with `mini`; a desktop without one keeps `light`; a person's choice and an already downloaded model keep their place. The backend (processor or card) is decided per model (`tierBackend`).
 
 ## Results
 
@@ -29,7 +29,7 @@ The smallest model was 901 MB (Granite 4.0 H 1B), the 2B Qwen is 1.2 GB. The S8+
   - The app used to blame memory ("the default model needs about 6 GB"); `runtime/providers/errors.mjs` now classifies it as "storage unavailable" (`tests/storage-unavailable.test.mjs`).
   - **Fallback storage** (`runtime/providers/cache-api-backend.mjs`, `tests/cache-api-backend.test.mjs`, `tests/e2e/no-opfs.e2e.mjs`): when OPFS cannot be opened, wllama's cache manager uses the Cache API. It hands back the same Blob while the runtime re-opens the source file and lets go of it after the load.
   - **What fits:** the 223 MB Granite 350M downloaded and passed its checksum but froze the page while loading (twice, once at the very end of the download): the device is at its memory limit with a model that size in memory. The **105 MB SmolLM2-135M downloaded, loaded and answered**, and the real first-run flow (send "hi", change nothing) answered "Hello! I'm here to help you with any math or science-related questions…" in 22 s.
-  - **Rule:** the device probe records whether OPFS can be opened (`env.opfs`); with no usable graphics card and OPFS unavailable the picker defaults to `nano` (`runtime/auto-tier.mjs`, `tests/cpu-backend.test.mjs`, `tests/opfs-probe.test.mjs`). A person's choice and a saved model keep their place; where OPFS works the phone still gets `mini`.
+  - **Rule:** the device probe records whether OPFS can be opened (`env.opfs`); with no usable graphics card and OPFS unavailable the picker defaults to `nano` (`runtime/providers/auto-tier.mjs`, `tests/cpu-backend.test.mjs`, `tests/opfs-probe.test.mjs`). A person's choice and a saved model keep their place; where OPFS works the phone still gets `mini`.
 
 ## To do
 

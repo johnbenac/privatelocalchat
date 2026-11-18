@@ -5,7 +5,7 @@ import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {buildPublicSite,loadSiteConfig,checkSiteConfig,siteConfigScript} from './public-site.mjs';
 import {checkSiteJson,normalizedSiteLinks} from '../chat/site/site-links.mjs';
-import {buildAppConfig} from '../runtime/config/app-config.mjs';
+import {buildAppConfig} from '../runtime/providers/app-config.mjs';
 import {CATALOG_DATA} from '../runtime/providers/catalog-data.mjs';
 import {resolveTarget} from './targets.mjs';
 import {toPagesHeaders} from './headers.mjs';
@@ -33,7 +33,7 @@ if(siteJsonPath&&existsSync(siteJsonPath)){
  if(problems.length)throw new Error('The site manifest '+path.relative(root,siteJsonPath)+' has problems:\n - '+problems.join('\n - '));
  siteJson=normalizedSiteLinks(raw);
 }else siteJson=normalizedSiteLinks(undefined);
-// What the app is configured with (runtime/config/app-config.mjs, docs/APP-CONFIG.md): the shipped defaults in app-config.json, with an operator's config/app-config.json replacing the model sources
+// What the app is configured with (runtime/providers/app-config.mjs, docs/APP-CONFIG.md): the shipped defaults in app-config.json, with an operator's config/app-config.json replacing the model sources
 // when there is one. APP_CONFIG_OVERRIDE names that file: unset means ./config/app-config.json if it exists, empty means none, and a path that does not exist is an error.
 const configEnv=process.env.APP_CONFIG_OVERRIDE;
 const overridePath=configEnv===''?null:path.resolve(root,configEnv??'config/app-config.json');
@@ -41,7 +41,7 @@ if(configEnv&&!existsSync(overridePath))throw new Error('APP_CONFIG_OVERRIDE nam
 const readJson=async(file,what)=>{try{return JSON.parse(await readFile(file,'utf8'));}catch(error){throw new Error(what+' is not valid JSON: '+error.message);}};
 const appConfigData=buildAppConfig(await readJson(path.resolve(root,'app-config.json'),'app-config.json'),overridePath&&existsSync(overridePath)?await readJson(overridePath,'The operator configuration'):null);
 await rm(out,{recursive:true,force:true});await mkdir(out,{recursive:true});
-for(const p of ['index.html','local-models.js','local-models.css','conversation-messages.mjs','chat','runtime','brand']) await cp(p,path.join(out,p),{recursive:true});
+for(const p of ['index.html','local-models.js','local-models.css','conversation-messages.mjs','chat','runtime','brand']) await cp(p,path.join(out,p),{recursive:true,filter:(src)=>!src.endsWith(path.join('runtime','providers','production-runtime.json'))});
 const pkg=JSON.parse(await readFile('package.json','utf8'));
 const commit=process.env.GITHUB_SHA || execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
 const branch=targetInfo.branch;
@@ -58,7 +58,7 @@ const releasePath='releases/'+commit;
 await mkdir(path.join(out,releasePath),{recursive:true});
 for(const item of ['local-models.js','local-models.css','conversation-messages.mjs','chat','runtime']) await rename(path.join(out,item),path.join(out,releasePath,item));
 // Both branch builds start from the pinned production runtime. Dev overlays it below.
-const productionNative=JSON.parse(await readFile('ops/native/production-runtime.json','utf8'));
+const productionNative=JSON.parse(await readFile('runtime/providers/production-runtime.json','utf8'));
 if(productionNative.developmentDiagnostics!==false)throw new Error('Production runtime must exclude development instrumentation');
 if(productionNative.compilerControl){
  const control=JSON.parse(await readFile(productionNative.compilerControl.receipt,'utf8'));

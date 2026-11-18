@@ -2,7 +2,7 @@ import {createDownloadRecovery} from './runtime/download-recovery.mjs';
 import {shouldAutoLoad} from './runtime/auto-load.mjs';
 import {explainGpu} from './runtime/gpu-help.mjs';
 import {createPreparer} from './runtime/prepare.mjs';
-import {cpuBackendSupport,gpuRunsLight} from './runtime/auto-tier.mjs';
+import {cpuBackendSupport,gpuRunsLight} from './runtime/providers/auto-tier.mjs';
 import {createOfflineStatusProbe} from './runtime/offline-status.mjs';
 import {createModelHost} from './runtime/providers/model-host.mjs';
 import {gatherEnv} from './runtime/providers/capability-probe.mjs';
@@ -13,8 +13,8 @@ import {ensureSourceNotice} from './chat/models/source-notice.mjs';
 await bootVault();
 
 const $ = id => document.getElementById(id);
-// Where the model files come from is the configured model source (runtime/config/app-config.mjs, docs/APP-CONFIG.md); the catalog reads it, so there is nothing to pass here.
-const host = createModelHost({});
+// Where the model files come from is the configured model source (runtime/providers/app-config.mjs, docs/APP-CONFIG.md); the catalog reads it, so there is nothing to pass here.
+const host = createModelHost({settings:appLocal});
 /* DEV_DIAGNOSTICS_START */
 window.__plcDebugModelHost=host;
 let diagnosticsStarted;
