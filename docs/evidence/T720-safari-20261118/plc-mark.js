@@ -1,0 +1,1 @@
+window.__beforeReload='marked-'+Date.now();sessionStorage.setItem('offlineTestMark',window.__beforeReload);try{localStorage.setItem('plc.presets.v1',JSON.stringify([{id:'preset-t720',name:'T720 probe',prompt:'offline probe'}]));}catch(e){}window.__beforeReload
