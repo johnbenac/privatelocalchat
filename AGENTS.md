@@ -119,8 +119,7 @@ program:
 [[conversation-archive-search-location]] — The shared Chat Cleave helper for searching imported conversations and its source contract.
 [[how-memory-is-kept]] — Where to find memory access, safe writes and sync, instruction rollout, and dream validation contracts.
 [[sonalon-phase-evidence-location]] — The host directory for Sonalon browser-study evidence and the phase-five record pointers.
-[[any-one-lane-is-enough]] — The standing bar that any one of Claude Code, Codex or opencode on the local router must be able to run Cosmoshot, and the routing-policy mechanism that chooses lanes.
-[7/19 entries shown; cosmo-mem read program _index.md]
+[6/19 entries shown; cosmo-mem read program _index.md]
 ```
 
 
