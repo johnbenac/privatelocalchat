@@ -45,6 +45,11 @@ async function measure(files, { onProgress, signal } = {}) {
   return actual;
 }
 
+/** What the browser says about its storage right now (usage and quota in bytes), or null when it says nothing: recorded when a file goes missing, so a repeat names its own cause. */
+async function storageSnapshot() {
+  try { const e = await globalThis.navigator?.storage?.estimate?.(); return e ? { usage: e.usage ?? null, quota: e.quota ?? null } : null; } catch { return null; }
+}
+
 async function inspect({ files }, hooks = {}) {
   const t0 = performance.now();
   const actual = await measure(files, hooks);
@@ -139,10 +144,11 @@ async function install({ files, parallel = 3, verifyHash = true, deep = false },
   // A file whose download finished and was stored can still be absent from this check (T520: real Safari 27.0 ended with 130 of 131 files, the
   // missing one a 2 KB config, cause unknown). Fetch exactly those files once more, each at most once, through the same checks: a checksum or size
   // failure here still throws and is never hidden, and a file that is still missing afterwards fails the install as before.
-  let refetched = 0;
+  let refetched = 0; let refetchDetail = null;
   if (!after.ok && after.missing.length && !signal?.aborted) {
     const again = files.filter((f) => after.missing.includes(f.path));
-    report({ phase: "install", refetchMissing: again.map((f) => f.path) });
+    refetchDetail = { files: again.map((f) => ({ path: f.path, bytes: f.bytes, scope: f.scope })), storage: await storageSnapshot(), filesStored: after.okFiles, filesTotal: after.files };
+    report({ phase: "install", refetchMissing: again.map((f) => f.path), refetchDetail });
     await mapLimit(again, parallel, async (f) => {
       if (signal?.aborted) throw Object.assign(new Error("cancelled"), { name: "AbortError" });
       await fetchFile(f);
@@ -150,8 +156,8 @@ async function install({ files, parallel = 3, verifyHash = true, deep = false },
     refetched = again.length;
     after = await inspect({ files }, { signal });
   }
-  if (!after.ok) throw Object.assign(new Error(`cache-incomplete after install: ${after.missing.length} missing, ${after.bad.length} bad`), { code: "cache-corrupt", detail: { missing: after.missing.slice(0, 20), bad: after.bad.slice(0, 20) } });
-  return { ...after, fetchedBytes: fetched, keptBytes: plan.bytesKept, replaced: plan.deleteFirst, filesFetched: plan.todo.length, refetched };
+  if (!after.ok) throw Object.assign(new Error(`cache-incomplete after install: ${after.missing.length} missing, ${after.bad.length} bad`), { code: "cache-corrupt", detail: { missing: after.missing.slice(0, 20), bad: after.bad.slice(0, 20), refetchDetail, storage: await storageSnapshot() } });
+  return { ...after, fetchedBytes: fetched, keptBytes: plan.bytesKept, replaced: plan.deleteFirst, filesFetched: plan.todo.length, refetched, refetchDetail };
 }
 
 export const storageOps = {
