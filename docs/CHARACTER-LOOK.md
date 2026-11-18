@@ -24,11 +24,10 @@ The plan and its reasons are in `docs/PRESENTATION-CHOICE-PLAN.md`; this page sa
   controls that must fail, are in `tests/presentation-crash.test.mjs`.
 - The conversation styling touches only the new strip and the agent's message panels (`tests/presentation-style.test.mjs` fails on any rule for the person's message, the composer or a control); the message sits on a solid
   panel and everything inside it takes the panel's text colour, so a picture, a link or a code block cannot lower contrast (4.5:1 checked for every palette). No animation.
-- A package supplies no CSS, HTML, colour, font or script and no authority; the pictures were verified against their SHA-256 when the package was opened.
+- A package supplies no CSS, HTML, colour, font or script and no authority; the pictures were verified against their SHA-256 when the package was opened, **and are hashed again each time a look is drawn** (`look-ui.mjs`): if any stored picture no longer has the checksum it was kept with (changed in place, same size), nothing of the look is drawn, the controls say so, the stored record is left exactly as it is, and the person can remove the look or add the character again.
 
 ## Not done yet (said plainly)
 
-- A kept look's pictures are not re-hashed on every read, only checked for form and size (`verifyRecordHashes` exists for the renderer to use).
 - Not tested: a real keyboard, 320 px reflow and iPhone in real Safari (the real-browser suite is Chromium).
 
 ## Tests

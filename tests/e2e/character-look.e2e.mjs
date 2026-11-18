@@ -112,6 +112,20 @@ try{
  await page.reload();await ready();await page.waitForSelector('#lookStrip:not([hidden])');
  ok('the look survives a reload; a damaged or newer record shows the default and is left alone');
 
+ // ---- a stored picture that no longer matches its checksum: the look is not drawn, the person is told, nothing is rewritten ----
+ await page.evaluate(([k,id])=>{const m=JSON.parse(localStorage.getItem(k));const img=m[id].images[0];const bin=atob(img.data);const last=bin.length-1;img.data=btoa(bin.slice(0,last)+String.fromCharCode(bin.charCodeAt(last)^1));localStorage.setItem(k,JSON.stringify(m));},[KEY,id]); // one byte of the picture changed in place: same size, still valid base64
+ const tampered=await page.evaluate(k=>localStorage.getItem(k),KEY);
+ await page.reload();await ready();await openInstructions();
+ await page.waitForSelector('#lookControls .look-warning',{timeout:10000});
+ assert(/no longer matches the checksum it was kept with/.test(await page.locator('#lookControls .look-warning').innerText()),'the person is told why the look is not shown');
+ assert(await page.locator('#lookStrip').isHidden()&&await page.getAttribute('#messages','data-look-palette')===null,'nothing of the look is drawn: no strip, no palette on the messages');
+ assert(await page.evaluate(k=>localStorage.getItem(k),KEY)===tampered&&(await presets()).length===1,'the stored record and the preset are left exactly as they were');
+ assert(await page.locator('#lookControls button:has-text("Remove look")').count()===1,'the person can still remove it');
+ await page.evaluate(([k,id,good])=>{localStorage.setItem(k,JSON.stringify(good));},[KEY,id,good]);
+ await page.reload();await ready();await page.waitForSelector('#lookStrip:not([hidden])',{timeout:10000});
+ assert(await page.locator('#lookControls .look-warning').count()===0,'with the picture intact the look is shown again and the warning is gone');
+ ok('a stored picture that no longer matches its checksum is not drawn, the person is told, and nothing is rewritten');
+
  // ---- remove, and removal leaves nothing behind ----
  await openInstructions(); // the section starts collapsed after a reload
  await page.click('#lookControls button:has-text("Remove look")');

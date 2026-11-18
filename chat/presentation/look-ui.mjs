@@ -10,10 +10,17 @@
 import { LAYOUT_MEANING, PALETTE_MEANING } from "./explain.mjs";
 
 const PARTS = [["portrait", "Picture"], ["background", "Background"], ["layout", "Layout"], ["palette", "Palette"]];
+/** "sha256:" + lower-case hex of the bytes (Web Crypto): what a record states for each picture. */
+export async function digestSha256(bytes) {
+  const out = new Uint8Array(await crypto.subtle.digest("SHA-256", bytes));
+  let hex = ""; for (const b of out) hex += b.toString(16).padStart(2, "0");
+  return "sha256:" + hex;
+}
 
-export function createLookUi({ el, keeper, showToast, strip, messagesEl, controlsEl, confirm, urls = { create: (b) => URL.createObjectURL(b), revoke: (u) => URL.revokeObjectURL(u) } }) {
+export function createLookUi({ el, keeper, showToast, strip, messagesEl, controlsEl, confirm, digest = digestSha256, urls = { create: (b) => URL.createObjectURL(b), revoke: (u) => URL.revokeObjectURL(u) } }) {
   let made = [];
   let saving = false;
+  let drawing = 0; // each render takes a number; a slow check of an earlier render must not draw over a later one
   const release = () => { for (const u of made) urls.revoke(u); made = []; };
 
   function clearScene() {
@@ -74,7 +81,12 @@ export function createLookUi({ el, keeper, showToast, strip, messagesEl, control
     controlsEl.replaceChildren(box); controlsEl.hidden = false;
   }
 
+  /** true when some picture of the description does not hash to what it states (or cannot be hashed); false when all do. */
+  async function verifyPictures(d) {
+    try { for (const image of d.images) if ((await digest(image.bytes)) !== image.sha256) return true; return false; } catch { return true; }
+  }
   function render(presetId) {
+    drawing++; // an earlier check still running must not draw after this render
     // A control the person is using is redrawn with the rest: put focus back on the same one, or a keyboard user would lose their place after every change.
     const focused = controlsEl.contains(document.activeElement) && document.activeElement.id ? document.activeElement.id : null;
     clearScene();
@@ -83,7 +95,15 @@ export function createLookUi({ el, keeper, showToast, strip, messagesEl, control
     if (!record) return;
     drawControls(presetId, record);
     const d = keeper.describe(presetId);
-    if (!d.usesDefault) drawStrip(d);
+    if (!d.usesDefault) {
+      // The look is drawn only if every picture still has the checksum it had when it was verified (a stored picture is not trusted just because its size is right).
+      const mine = ++drawing, box = controlsEl.firstChild;
+      verifyPictures(d).then((bad) => {
+        if (mine !== drawing) return;
+        if (bad) { release(); strip.hidden = true; box?.appendChild(el("p", "look-warning", "A picture of this look no longer matches the checksum it was kept with, so the look is not shown. Remove it, or add the character again.")); box?.querySelector(".look-warning")?.setAttribute("role", "status"); return; }
+        drawStrip(d);
+      });
+    } else drawing++;
     if (focused) { const again = controlsEl.querySelector('#' + focused); if (again && !again.disabled) again.focus(); }
   }
   return { render, release };

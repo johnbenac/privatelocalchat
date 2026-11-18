@@ -119,8 +119,8 @@
    "sha256": "5e2ffc8eadbddeaf3f3bc264d9f48b93224f750ec5f4362fd0216c1d5e3b9537"
   },
   "releases/0000000000000000000000000000000000000000/chat/assistant/resource-link.mjs": {
-   "bytes": 8733,
-   "sha256": "6136b93b0293520e23f95b40f60d2db8691c07efe4cc7e662526d27e69805a61"
+   "bytes": 8737,
+   "sha256": "3a648b72da8d530f0ec5c09c7bb824d36cea06b20ed7822a57650255c4ef7c2a"
   },
   "releases/0000000000000000000000000000000000000000/chat/assistant/resource-open.mjs": {
    "bytes": 5331,
@@ -303,8 +303,8 @@
    "sha256": "132c2e5fca5df9a07310029735ed0b4cd3c93de57bbb7c25513e26187ce3b9ac"
   },
   "releases/0000000000000000000000000000000000000000/chat/presentation/look-ui.mjs": {
-   "bytes": 6785,
-   "sha256": "cb4bec7f2bfb064bd2bc6e210f40eadde1c9d2d07bbd4cf9afb3239565e0a01d"
+   "bytes": 8295,
+   "sha256": "ed30b25149a463a5c3a9a3a039c5a7e7a5255d498d98bce5f8d7c939d21fc2ea"
   },
   "releases/0000000000000000000000000000000000000000/chat/presentation/open-bundle.mjs": {
    "bytes": 7005,
@@ -672,7 +672,7 @@
   },
   "releases/0000000000000000000000000000000000000000/release.json": {
    "bytes": 31593,
-   "sha256": "09081b7c121205b2b5e9b6452d60e167ceff1e79b8323ed4e8e3aeb43d75078c"
+   "sha256": "7a3569594a9af90d3bcbf241a4f0224f57fcf704dceb1af4455ca5d7d701efe4"
   },
   "releases/0000000000000000000000000000000000000000/runtime/auto-load.mjs": {
    "bytes": 565,
