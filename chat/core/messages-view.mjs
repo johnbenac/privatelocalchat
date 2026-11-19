@@ -108,6 +108,28 @@ export function createMessagesView(host) {
     }
   }
 
+  // Who said this, from the conversation records (chat/encounters/): data-attr-* on the bubble for every recorded or legacy message, and the speaker line / a short note only for someone
+  // other than the two local defaults or something worth saying (a derived text, a copy, kept earlier versions). The records are written by the save that follows a change, so
+  // refreshAttribution() runs again when that save is done.
+  function applyAttribution(div, thread, msg) {
+    const attr = !msg.notice && msg.role !== 'system' ? host.attribution?.(thread, msg) : null;
+    const speaker = div.querySelector(':scope > .speaker');
+    if (speaker) speaker.textContent = attr && !attr.isDefault ? attr.speakerName : msg.role === 'user' ? 'You' : msg.role === 'assistant' ? 'AI response' : 'Notice';
+    for (const k of Object.keys(div.dataset)) if (k.startsWith('attr')) delete div.dataset[k];
+    div.querySelector(':scope > .message-attribution')?.remove();
+    if (!attr) return;
+    for (const [k, v] of Object.entries(attr.data)) div.dataset['attr' + k.charAt(0).toUpperCase() + k.slice(1)] = v;
+    if (attr.notable && attr.text) {
+      const line = el('div', 'message-meta message-attribution', attr.text);
+      const after = div.querySelector(':scope > .speaker');
+      if (after) after.after(line); else div.prepend(line);
+    }
+  }
+  function refreshAttribution(thread) {
+    if (!thread || !host.attribution) return;
+    for (const msg of thread.messages) { const node = nodeFor(msg.id); if (node) applyAttribution(node, thread, msg); }
+  }
+
   function createMessageEl(thread, msg, index, lastIndex) {
     const S = STATUS();
     const isLast = index === lastIndex;
@@ -115,6 +137,7 @@ export function createMessagesView(host) {
     const div = el('div', 'message ' + msg.role + (streaming ? ' streaming' : '') + (msg.status === S.PREPARING ? ' preparing' : '') + (msg.excluded ? ' excluded' : ''));
     div.dataset.id = msg.id;
     div.appendChild(el('div', 'speaker', msg.role === 'user' ? 'You' : msg.role === 'assistant' ? 'AI response' : 'Notice'));
+    applyAttribution(div, thread, msg);
     if (msg.attachments?.length) {
       const chips = el('div', 'message-attachments');
       msg.attachments.forEach(a => chips.appendChild(el('span', 'chip', '📎 ' + a.name)));
@@ -272,5 +295,5 @@ export function createMessagesView(host) {
     if (document.hidden) run(); else requestAnimationFrame(run);
   }
 
-  return { jumpLatestBtn, get followLatest() { return followLatest; }, set followLatest(v) { followLatest = v; }, get prep() { return prep; }, set prep(v) { prep = v; }, get welcomeSetup() { return welcomeSetup; }, nearBottom, scrollToLatest, helpLink, helpAnchorFor, statusNote, buildPrepCard, fillBody, createMessageEl, compactActions, renderEmptyState, startWelcomeSetup, renderMessages, nodeFor, paintBubble, schedulePaint, generatingLabel, fmtBytes, fmtEta, ROBOT_NAME };
+  return { jumpLatestBtn, get followLatest() { return followLatest; }, set followLatest(v) { followLatest = v; }, get prep() { return prep; }, set prep(v) { prep = v; }, get welcomeSetup() { return welcomeSetup; }, nearBottom, scrollToLatest, helpLink, helpAnchorFor, statusNote, buildPrepCard, fillBody, createMessageEl, compactActions, renderEmptyState, startWelcomeSetup, renderMessages, nodeFor, paintBubble, schedulePaint, generatingLabel, fmtBytes, fmtEta, ROBOT_NAME, refreshAttribution };
 }

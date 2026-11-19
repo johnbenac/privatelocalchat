@@ -468,7 +468,7 @@
       const modulesAt = window.APP_BUILD?.commit ? '/releases/' + window.APP_BUILD.commit + '/' : '/';
       // the vault's modules are fetched together with the rest, so the start-up does not wait one more round trip for them
       const vaultModules = Promise.all([import(modulesAt + 'chat/vault/vault-store.mjs'), import(modulesAt + 'chat/vault/vault-control.mjs'), import(modulesAt + 'chat/documents/doc-store.mjs')]);
-      const [{ createDialogs }, { createLock }, { createCall }, { createModelServices }, { createEvents }, { createDocumentsUi }, { createDrafts }, { createVoiceUi }, { createAssistant }, { createRobertaGlue }, { createContextUi }, { createBackups }, { createStorageUi }, { createConversationList }, { createHistoryIo }, { createProviderSettings }, { createTransferGlue }, { createPageChrome }, { createMessagesView }, { createSender }, { createThreadState }, { createConnectionGlue }, { createPrefsStore }, { createCharactersUi }] = await Promise.all([import(modulesAt + 'chat/dialogs.mjs'), import(modulesAt + 'chat/lock/lock.mjs'), import(modulesAt + 'chat/call/call.mjs'), import(modulesAt + 'chat/models/services.mjs'), import(modulesAt + 'chat/events.mjs'), import(modulesAt + 'chat/documents/documents-ui.mjs'), import(modulesAt + 'chat/documents/drafts.mjs'), import(modulesAt + 'chat/voice/voice-ui.mjs'), import(modulesAt + 'chat/assistant/assistant.mjs'), import(modulesAt + 'chat/roberta/roberta-glue.mjs'), import(modulesAt + 'chat/context/context-ui.mjs'), import(modulesAt + 'chat/transfer/backups.mjs'), import(modulesAt + 'chat/storage/storage-ui.mjs'), import(modulesAt + 'chat/list/conversation-list.mjs'), import(modulesAt + 'chat/history/history-io.mjs'), import(modulesAt + 'chat/provider/provider-settings.mjs'), import(modulesAt + 'chat/transfer/transfer-glue.mjs'), import(modulesAt + 'chat/core/page-chrome.mjs'), import(modulesAt + 'chat/core/messages-view.mjs'), import(modulesAt + 'chat/core/sender.mjs'), import(modulesAt + 'chat/core/thread-state.mjs'), import(modulesAt + 'chat/connection/connection-glue.mjs'), import(modulesAt + 'chat/assistant/prefs-store.mjs'), import(modulesAt + 'chat/characters/characters-ui.mjs')]);
+      const [{ createDialogs }, { createLock }, { createCall }, { createModelServices }, { createEvents }, { createDocumentsUi }, { createDrafts }, { createVoiceUi }, { createAssistant }, { createRobertaGlue }, { createContextUi }, { createBackups }, { createStorageUi }, { createConversationList }, { createHistoryIo }, { createProviderSettings }, { createTransferGlue }, { createPageChrome }, { createMessagesView }, { createSender }, { createThreadState }, { createConnectionGlue }, { createPrefsStore }, { createCharactersUi }, { createEncounters }] = await Promise.all([import(modulesAt + 'chat/dialogs.mjs'), import(modulesAt + 'chat/lock/lock.mjs'), import(modulesAt + 'chat/call/call.mjs'), import(modulesAt + 'chat/models/services.mjs'), import(modulesAt + 'chat/events.mjs'), import(modulesAt + 'chat/documents/documents-ui.mjs'), import(modulesAt + 'chat/documents/drafts.mjs'), import(modulesAt + 'chat/voice/voice-ui.mjs'), import(modulesAt + 'chat/assistant/assistant.mjs'), import(modulesAt + 'chat/roberta/roberta-glue.mjs'), import(modulesAt + 'chat/context/context-ui.mjs'), import(modulesAt + 'chat/transfer/backups.mjs'), import(modulesAt + 'chat/storage/storage-ui.mjs'), import(modulesAt + 'chat/list/conversation-list.mjs'), import(modulesAt + 'chat/history/history-io.mjs'), import(modulesAt + 'chat/provider/provider-settings.mjs'), import(modulesAt + 'chat/transfer/transfer-glue.mjs'), import(modulesAt + 'chat/core/page-chrome.mjs'), import(modulesAt + 'chat/core/messages-view.mjs'), import(modulesAt + 'chat/core/sender.mjs'), import(modulesAt + 'chat/core/thread-state.mjs'), import(modulesAt + 'chat/connection/connection-glue.mjs'), import(modulesAt + 'chat/assistant/prefs-store.mjs'), import(modulesAt + 'chat/characters/characters-ui.mjs'), import(modulesAt + 'chat/encounters/encounters.mjs')]);
       // an encrypted vault, if the person made one, is unlocked before anything reads a saved setting (chat/vault/); the same answer gates local-models.js. Importing the other modules first is safe: none of them reads storage until it is created below.
       const [{ bootVault, appLocal, appSession, app: vaultApp }, { createVaultControl }, { docStore: vaultDocs }] = await vaultModules;
       await bootVault();
@@ -633,6 +633,7 @@
       function buildPreloadUrl(...a) { return threadState.buildPreloadUrl(...a); }
       function loadThreads(...a) { return threadState.loadThreads(...a); }
       function saveThreads(...a) { return threadState.saveThreads(...a); }
+      function persistThreads(...a) { return threadState.persist(...a); }
       function generateThreadId(...a) { return threadState.generateThreadId(...a); }
       function createThread(...a) { return threadState.createThread(...a); }
       function ensureThreadExists(...a) { return threadState.ensureThreadExists(...a); }
@@ -806,9 +807,19 @@
         window.setTimeout(() => URL.revokeObjectURL(url), 1000);
       }
 
+      // ---- attributed conversation records (chat/encounters/): every conversation save is one commit with its records; the facade is for later receivers ----
+      const encounters = createEncounters({
+        storage: appLocal, watch: [THREAD_KEY], threads: () => threads, normalizeThread: t => M.model.normalizeThread(t), newId: () => M.model.newId(), showToast,
+        onTranscriptChanged: t => { if (t.id === currentThreadId) messagesView.renderMessages(t, { keepScroll: true }); renderThreadList(); },   // a message a receiver added or a refused one taken back
+        onCommitted: () => messagesView.refreshAttribution(currentThread()),   // the records follow the save: bring the labels on screen up to date
+        isBlocked: () => vaultApp.blocked.includes(THREAD_KEY), isLedgerBlocked: () => vaultApp.blocked.includes('plc.encounters.v1'), isReadOnly: () => vaultApp.readOnly,
+        exclusiveWriter: () => vaultApp.exclusive === true,   // ONLY the shared vault's verified claim (supported && writer && !readOnly): never vault-on / not-read-only alone. Without it a vault-on page refuses persistent writes (vault-writer-unverified); no digest of vault payload is ever kept
+        vaultOn: () => Boolean(vaultApp.active)
+      });
       const messageDecorators = []; // later features add buttons/meta here: (thread, msg, index, ctx) => void
       // ---- the messages on screen (chat/core/messages-view.mjs) ----
       const messagesView = createMessagesView({
+        attribution: (thread, msg) => encounters.attribution(thread, msg),
         el, M: () => M, messagesEl, STATUS, gen: () => gen, currentThread, currentThreadId: () => currentThreadId, updateContextMeter: () => updateContextMeter, voiceUiApi: () => voiceUiApi,
         renderSources: (...a) => renderSources(...a), renderSummaryDivider: (...a) => renderSummaryDivider(...a), actionButton, messageDecorators, openProviderSettings, openAbout, showToast,
         clockText, copyText
@@ -863,8 +874,8 @@
 
       // ---- conversation list (chat/list/conversation-list.mjs) ----
       const convoList = createConversationList({
-        el, M: () => M, events, readJson, writeJson, threads: () => threads, currentThreadId: () => currentThreadId, clearCurrentThread: () => { currentThreadId = null; },
-        getThread, createThread, selectThread, renameThread, exportThreadMarkdown, buildPreloadUrl, saveThreads, generateThreadId, generation: () => gen, threadList, messageInput,
+        encounters, el, M: () => M, events, readJson, writeJson, threads: () => threads, currentThreadId: () => currentThreadId, clearCurrentThread: () => { currentThreadId = null; },
+        getThread, createThread, selectThread, renameThread, exportThreadMarkdown, buildPreloadUrl, saveThreads, persistThreads, generateThreadId, generation: () => gen, threadList, messageInput,
         createEmoji, actionButton, messageDecorators, messageActionHandlers, closeThreadMenu, placeMenu, openThreadMenu: () => chrome.openThreadMenu, updateThreadListMinHeight,
         promptDialog, confirmDialog, copyTextDialog, openAppDialog, showToast
       });
@@ -982,12 +993,13 @@
 
       // ---- threads and what the chat is ready to do (chat/core/thread-state.mjs) ----
       threadState = createThreadState({
+        encounters,
         s: {
           get threads() { return threads; }, set threads(v) { threads = v; },
           get currentThreadId() { return currentThreadId; }, set currentThreadId(v) { currentThreadId = v; },
           get generationBusy() { return generationBusy; }, get gen() { return gen; }
         },
-        M: () => M, drafts: () => drafts, threadTitleInput, systemPromptInput, messageInput, readJson, writeJson, THREAD_KEY, ACTIVE_THREAD_KEY, provider, sendBtn, chatNotice, updateModeBadge,
+        M: () => M, drafts: () => drafts, threadTitleInput, systemPromptInput, messageInput, readJson, writeJson, showToast, THREAD_KEY, ACTIVE_THREAD_KEY, provider, sendBtn, chatNotice, updateModeBadge,
         messageForm, closeThreadMenu, persistDraftNow, growComposer, events, closeSidebar, promptDialog, messagesView, renderThreadList: () => renderThreadList()
       });
 
@@ -998,7 +1010,7 @@
         get busy() { return generationBusy; }, set busy(v) { generationBusy = v; }
       };
       sender = createSender({
-        g: gstate, M: () => M, moduleBase, currentThreadId: () => currentThreadId, saveThreads, updateChatAvailability, updateSendButtonDisabled, getThread, STATUS, messagesView, providerName,
+        g: gstate, M: () => M, moduleBase, currentThreadId: () => currentThreadId, saveThreads, persistThreads, updateChatAvailability, updateSendButtonDisabled, getThread, STATUS, messagesView, providerName,
         events, modelLabel, provider, updateAuthGuidance, isAuthError, buildAuthErrorMessage, renderThreadList: () => renderThreadList(), CONTINUE_PROMPT, getChatState, triggerEndpointGuidance,
         messageInput, docsUi, currentThread, threadTitleInput, growComposer, persistDraftNow, authTokenFor, deriveChatCompletionsUrl, showToast, el, copyText, downloadText, messageActionHandlers, offline
       });
@@ -1039,8 +1051,8 @@
        */
       // ---- chat history in and out (chat/history/history-io.mjs) ----
       const historyIo = createHistoryIo({
-        el, M: () => M, moduleBase, threads: () => threads, setThreads: list => { threads = list; }, currentThreadId: () => currentThreadId, clearCurrentThread: () => { currentThreadId = null; },
-        prefs, savePrefs, saveThreads, getThread, ensureThreadExists, selectThread, renderThreadList: () => renderThreadList(), updateChatAvailability, loadCrypto: () => loadCrypto(),
+        encounters, el, M: () => M, moduleBase, threads: () => threads, setThreads: list => { threads = list; }, currentThreadId: () => currentThreadId, clearCurrentThread: () => { currentThreadId = null; },
+        prefs, savePrefs, saveThreads, persistThreads, getThread, ensureThreadExists, selectThread, renderThreadList: () => renderThreadList(), updateChatAvailability, loadCrypto: () => loadCrypto(),
         askPassphrase: (...a) => askPassphrase(...a), restoreExtras: (...a) => restoreExtras(...a), openAppDialog, confirmDialog, showToast, THREAD_KEY, ACTIVE_THREAD_KEY, importInput,
         threadTitleInput, systemPromptInput, messageInput, messagesEl
       });
@@ -1072,13 +1084,13 @@
         document.getElementById('newChatBtn').addEventListener('click', () => newThread());
         provider.restore();
         await applyConfigFromUrl();
-        loadThreads();
+        await loadThreads();
         // Check if URL contains chat data and create a thread accordingly
-        parseUrlParams();
+        await parseUrlParams();
         // a preset or character link only opens a review box (the address is not changed); adding is the person's click. A link naming both opens neither.
         if (characters.addressConflict()) characters.openFromAddress(); else { assistant.openPresetFromAddress(); characters.openFromAddress(); }
         assistant.openResourceFromAddress(); // a discovery page's link only opens a box that asks for the downloaded file; nothing is fetched or added
-        const ensuredId = ensureThreadExists();
+        const ensuredId = ensureThreadExists();   // synchronous: its id is returned at once (its save is queued)
         renderThreadList();
         // If a thread was created via URL params select it; otherwise pick the first existing
         const firstThreadWithId = threads.find(thread => thread && typeof thread.id === 'string' && thread.id);
@@ -1237,7 +1249,7 @@
       };
       const plcApp = {
         parts: shellParts, get models() { return window.localModels; }, dialogs: window.plcDialogs, build: window.APP_BUILD,
-        offline,
+        offline, encounters: encounters.facade,
         toast: (text, duration, action) => showToast(text, duration, action), // the shell's messages (a voice busy, a model error in Settings) had no toast before
         lock: { reminderOn: () => lock.reminderOn(), setReminder: on => lock.setReminder(on) },
         threads: () => threads, folders: () => convoList.folders(), currentThreadId: () => currentThreadId, currentThread: () => getThread(currentThreadId) || null,

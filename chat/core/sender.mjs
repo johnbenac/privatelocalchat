@@ -8,14 +8,14 @@
 import { buildApiRequest, readApiStream, errorDetail } from '../provider/api-formats.mjs';
 
 export function createSender(host) {
-  const { saveThreads, updateChatAvailability, updateSendButtonDisabled, getThread, STATUS, messagesView, providerName, renderMessages, events,
+  const { saveThreads, persistThreads: persist, updateChatAvailability, updateSendButtonDisabled, getThread, STATUS, messagesView, providerName, renderMessages, events,
     schedulePaint, modelLabel, provider, updateAuthGuidance, isAuthError, buildAuthErrorMessage, renderThreadList, CONTINUE_PROMPT, getChatState,
     triggerEndpointGuidance, messageInput, docsUi, currentThread, threadTitleInput, growComposer, persistDraftNow, authTokenFor,
     deriveChatCompletionsUrl, showToast, el, copyText, downloadText, messageActionHandlers, offline } = host;
   const g = host.g;
   let saveTimer = null;
-  const scheduleSave = () => { if (saveTimer) return; saveTimer = window.setTimeout(() => { saveTimer = null; saveThreads(); }, 800); };
-  const flushSave = () => { if (saveTimer) { window.clearTimeout(saveTimer); saveTimer = null; } saveThreads(); };
+  const scheduleSave = () => { if (saveTimer) return; saveTimer = window.setTimeout(async () => { saveTimer = null; try { await saveThreads(); } catch { /* save failure is reported via onResult */ } }, 800); };
+  const flushSave = async () => { if (saveTimer) { window.clearTimeout(saveTimer); saveTimer = null; } try { await saveThreads(); } catch { /* save failure is reported via onResult */ } };
 
   function setGenerating(on) {
     g.busy = on;
@@ -33,9 +33,10 @@ export function createSender(host) {
    */
   async function runReply(threadId, { mode = 'new', message = null } = {}) {
     const thread = getThread(threadId);
-    if (!thread || g.gen) return;
+    if (!thread || g.gen) return { ok: false, code: 'busy' };
     const S = STATUS();
     let msg = message, baseText = '';
+    const before = msg ? JSON.parse(JSON.stringify(msg)) : null, updatedBefore = thread.updatedAt;   // what an abandoned start puts back (this tab's memory only)
     if (mode === 'continue') baseText = msg.content;
     else if (mode === 'regenerate') host.M().model.beginNewVersion(msg);
     else if (mode === 'retry') { msg.content = ''; host.M().model.syncActiveVersion(msg); }
@@ -51,12 +52,24 @@ export function createSender(host) {
     generationStatus.textContent = needsPrep ? 'Getting on-device chat ready…' : window.localModels?.mode === 'local' ? messagesView.generatingLabel() : 'Waiting for ' + providerName() + '…';
     setGenerating(true);
     host.M().model.touch(thread);
-    saveThreads();
+    // The start of an answer is a mutation of the stored chat (a placeholder, a new version, a cleared answer). Nothing is dispatched to the model unless it was actually stored: a refused or
+    // conflicted start is taken back in this tab's memory (never written to storage) and the person is told.
+    let started; try { started = await persist(threadId, startWords[mode]); } catch { started = { saved: false }; }
+    if (!started.saved) {
+      if (mode === 'new') { const at = thread.messages.indexOf(msg); if (at >= 0) thread.messages.splice(at, 1); }
+      else { for (const k of Object.keys(msg)) delete msg[k]; Object.assign(msg, before); }
+      thread.updatedAt = updatedBefore;
+      messagesView.prep = null; g.gen = null; g.controller = null;
+      generationStatus.textContent = 'Not started. Nothing was sent to the model and nothing was changed.';
+      setGenerating(false);
+      if (threadId === host.currentThreadId()) messagesView.renderMessages(thread, { keepScroll: true });
+      return { ok: false, code: started.code || 'not-saved' };
+    }
     if (threadId === host.currentThreadId()) messagesView.renderMessages(thread, { keepScroll: false });
     events.emit('reply:start', thread, msg);
     const index = thread.messages.indexOf(msg);
     const join = next => (baseText && next && !/\s$/.test(baseText) && !/^\s/.test(next) && /[.!?:;,)\]]$/.test(baseText) && /^[\p{L}\p{N}]/u.test(next) ? ' ' : '');
-    let streamed = '';
+    let streamed = '', finished = { ok: true };
     const onText = full => {
       streamed = full;
       msg.content = baseText + join(full) + full;
@@ -137,13 +150,18 @@ export function createSender(host) {
       g.gen = null; g.controller = null;
       host.M().model.touch(thread);
       if (saveTimer) { window.clearTimeout(saveTimer); saveTimer = null; }
-      saveThreads();
+      let ended; try { ended = await persist(threadId, 'The answer is on screen but was not saved'); } catch { ended = { saved: false }; }
+      // an answer that could not be stored stays in this tab (the baseline did not move, so the next save of this chat tries again) and says so where the status is read
+      if (!ended.saved) generationStatus.textContent += ' It could not be saved yet; it is tried again with the next change.';
+      finished = { ok: true, saved: ended.saved };
       if (threadId === host.currentThreadId()) messagesView.renderMessages(thread, { keepScroll: true });
       setGenerating(false);
       renderThreadList();
       events.emit('reply:end', thread, msg);
     }
+    return finished;
   }
+  const startWords = { new: 'Your message was not answered', regenerate: 'The new answer was not started', retry: 'The retry was not started', continue: 'The continuation was not started' };
   let contextSources = [];
 
   async function buildInferenceMessages(thread, index, mode) {
@@ -167,9 +185,15 @@ export function createSender(host) {
     return out;
   }
 
+  // One send at a time: while this tab's own message is waiting for its save, a second press (or Enter) is ignored, so an unsent message can never be pushed twice.
+  let sending = false;
+  // The identity of a send whose outcome is UNKNOWN (the write may be stored, its acknowledgement failed). The retry of the SAME thread, words and attachments is the same message (same id and time),
+  // so a store that already holds it takes it as unchanged: no duplicate. Memory only: a reload forgets it (the stored message then simply shows in the chat, which the unknown sentence asks the person to check).
+  let pendingSend = null;
+  const attachmentKey = (list) => list.map((a) => a?.id ?? '').join('\u0001');
   async function handleSendMessage(event) {
     event.preventDefault();
-    if (g.gen) return;
+    if (g.gen || sending) return;
     const state = getChatState();
     if (!state.ready) {
       if (!state.hasEndpoint) triggerEndpointGuidance();
@@ -177,27 +201,53 @@ export function createSender(host) {
       return;
     }
     events.emit('send:before');
-    const text = messageInput.value.trim();
+    const typed = messageInput.value, text = typed.trim();
     if (!text && !docsUi.attachments.count()) { messageInput.focus(); return; }
     const thread = currentThread();
     if (!thread) return;
-    if (await events.intercept('send:intercept', text, thread)) return;
-    const extra = docsUi.attachments.count() ? { attachments: docsUi.attachments.take() } : {};
-    const userMessage = host.M().model.makeMessage('user', text, extra);
-    await events.emitAwait('prompt:ready', userMessage);
-    thread.messages.push(userMessage);
-    if (thread.messages.filter(m => m.role === 'user').length === 1 && host.M().model.hasDefaultTitle(thread)) {
-      thread.title = host.M().model.deriveTitle(text) || thread.title;
-      threadTitleInput.value = thread.title;
-    }
-    messageInput.value = '';
-    growComposer();
-    persistDraftNow(thread.id);
-    host.M().model.touch(thread);
-    saveThreads();
-    renderThreadList();
-    messagesView.renderMessages(thread);
-    await runReply(thread.id);
+    sending = true;
+    try {
+      if (await events.intercept('send:intercept', text, thread)) return;
+      // The person's input is NOT taken from the screen until the message is stored: the composer text, the attachments and the title stay as they are while the save is awaited,
+      // so a refusal has nothing to put back and newer typing is never overwritten.
+      const taken = docsUi.attachments.count() ? docsUi.attachments.take() : [];
+      const userMessage = host.M().model.makeMessage('user', text, taken.length ? { attachments: taken } : {});
+      const same = pendingSend && pendingSend.thread === thread.id && pendingSend.text === text && pendingSend.attachments === attachmentKey(taken);
+      if (same) { userMessage.id = pendingSend.id; userMessage.at = pendingSend.at; } else pendingSend = null;
+      await events.emitAwait('prompt:ready', userMessage);
+      const updatedBefore = thread.updatedAt, titleBefore = thread.title;
+      thread.messages.push(userMessage);
+      let derived = null;
+      if (thread.messages.filter(m => m.role === 'user').length === 1 && host.M().model.hasDefaultTitle(thread)) {
+        derived = host.M().model.deriveTitle(text) || null;
+        if (derived) { thread.title = derived; threadTitleInput.value = thread.title; }
+      }
+      host.M().model.touch(thread);
+       const outcome = await persist(thread.id, 'Your message was not sent');
+        pendingSend = (same && !outcome.saved) || outcome.unknown ? { thread: thread.id, text, attachments: attachmentKey(taken), id: userMessage.id, at: userMessage.at } : null;
+       if (!outcome.saved) {
+         // Only this send is taken back, in this tab's own memory (nothing is written to storage): the message by id, a title derived for it, the attachments it took. The composer was never cleared.
+
+
+         if (!outcome.unknown) { const at = thread.messages.indexOf(userMessage); if (at >= 0) thread.messages.splice(at, 1); }
+         if (derived && thread.title === derived) { thread.title = titleBefore; if (thread.id === host.currentThreadId()) threadTitleInput.value = titleBefore; }
+         thread.updatedAt = updatedBefore;
+         if (taken.length) docsUi.attachments.restore(taken);
+         if (thread.id === host.currentThreadId()) messagesView.renderMessages(thread, { keepScroll: true });
+         messageInput.focus();
+         return;
+       }
+      // stored: now (and only now) the composer lets go of the words that were sent, and only if it is still exactly what was sent. A composer that changed while the save was awaited
+      // (appended to, or Select All and replaced) is the person's newer text: it stays WHOLE. An equal prefix is not proof of what the person did, so nothing is sliced off it.
+      if (thread.id === host.currentThreadId()) {            // (the person may have opened another chat meanwhile: that chat's composer is not ours to touch)
+        if (messageInput.value === typed) messageInput.value = '';
+        growComposer();
+        persistDraftNow(thread.id);
+      }
+      renderThreadList();
+      messagesView.renderMessages(thread);
+      await runReply(thread.id);
+    } finally { sending = false; }
   }
 
   /** Send the conversation to the chosen engine and resolve with { text, finishReason }. */
@@ -253,28 +303,41 @@ export function createSender(host) {
     if (actions) actions.hidden = true;
     area.focus();
     cancel.addEventListener('click', () => messagesView.renderMessages(thread, { keepScroll: true }));
+    let saving = false;     // a second press while the edit is being stored does nothing (one edit, one resend)
     save.addEventListener('click', async () => {
       const text = area.value.trim();
-      if (!text) return;
-      const previous = host.M().model.editPrompt(thread, index, text);
-      if (!previous) return;
-      await events.emitAwait('prompt:ready', thread.messages[index]);
-      host.M().model.touch(thread);
-      saveThreads();
-      messagesView.renderMessages(thread);
-      const undo = async () => {
-        if (g.gen && g.gen.threadId === thread.id) { g.gen.controller.abort(); while (g.gen) await new Promise(r => window.setTimeout(r, 20)); }
-        host.M().model.undoEditPrompt(thread, index, previous);
+      if (!text || saving || g.gen) return;
+      saving = true; save.disabled = true;
+      try {
+        const updatedBefore = thread.updatedAt;
+        const previous = host.M().model.editPrompt(thread, index, text);
+        if (!previous) return;
         await events.emitAwait('prompt:ready', thread.messages[index]);
-        host.M().model.touch(thread); saveThreads(); renderThreadList();
-        if (thread.id === host.currentThreadId()) messagesView.renderMessages(thread);
-        showToast('Edit undone');
-      };
-      showToast('Prompt updated', 9000, { label: 'Undo', run: undo });
-      runReply(thread.id);
+        host.M().model.touch(thread);
+        const outcome = await persist(thread.id, 'Your edit was not saved or sent');
+        if (!outcome.saved) {
+          // taken back in this tab's memory only; the edit box stays open with the person's words, nothing is sent to the model
+          host.M().model.undoEditPrompt(thread, index, previous); thread.updatedAt = updatedBefore;
+          return;
+        }
+        messagesView.renderMessages(thread);
+        const undo = async () => {
+          if (g.gen && g.gen.threadId === thread.id) { g.gen.controller.abort(); while (g.gen) await new Promise(r => window.setTimeout(r, 20)); }
+          host.M().model.undoEditPrompt(thread, index, previous);
+          await events.emitAwait('prompt:ready', thread.messages[index]);
+          host.M().model.touch(thread);
+          const undone = await persist(thread.id, 'The undo was not saved');
+          renderThreadList();
+          if (thread.id === host.currentThreadId()) messagesView.renderMessages(thread);
+          showToast(undone.saved ? 'Edit undone' : 'Edit undone on screen only (not saved yet)');
+        };
+        showToast('Prompt updated', 9000, { label: 'Undo', run: undo });
+        runReply(thread.id);
+      } finally { saving = false; save.disabled = false; }
     });
   }
 
+  const changing = new Set();     // messages whose version / context change is being stored
   async function handleMessageAction(action, id, btn, node) {
     const thread = currentThread();
     if (!thread) return;
@@ -295,12 +358,30 @@ export function createSender(host) {
       case 'retry': if (!g.gen) runReply(thread.id, { mode: 'retry', message: msg }); break;
       case 'continue': if (!g.gen) runReply(thread.id, { mode: 'continue', message: msg }); break;
       case 'prev-version': case 'next-version':
-        if (host.M().model.selectVersion(msg, msg.versionIndex + (action === 'next-version' ? 1 : -1))) { saveThreads(); messagesView.renderMessages(thread, { keepScroll: true }); }
+        if (changing.has(msg.id)) break;                               // one change per message at a time: a second press while the first is being stored does nothing
+        { const OWN = ['versionIndex', 'content', 'status', 'error', 'errorKind'];   // the only fields a version selection changes: the only ones a refusal puts back
+          const was = OWN.map(k => [k, k in msg, msg[k] === undefined ? undefined : JSON.parse(JSON.stringify(msg[k]))]);   // their exact before-image, taken before the selection
+          if (host.M().model.selectVersion(msg, msg.versionIndex + (action === 'next-version' ? 1 : -1))) {
+            changing.add(msg.id); const chosen = msg.versionIndex;
+            messagesView.renderMessages(thread, { keepScroll: true });
+            let o; try { o = await persist(thread.id, 'The chosen version was not saved'); } catch { o = { saved: false }; } finally { changing.delete(msg.id); }
+            // a refused selection is taken back in this tab (never written); only if the message is still on the version this press chose (otherwise newer work is not overwritten)
+            // (newer fields of the message that this press did not touch, written meanwhile by anything else, are never erased)
+            if (!o.saved && msg.versionIndex === chosen && !g.gen) { for (const [k, had, v] of was) { if (had) msg[k] = v; else delete msg[k]; } }
+            if (!o.saved) messagesView.renderMessages(thread, { keepScroll: true });
+          } }
         break;
-      case 'toggle-context':
-        msg.excluded = !msg.excluded; if (!msg.excluded) delete msg.excluded;
-        saveThreads(); messagesView.renderMessages(thread, { keepScroll: true });
+      case 'toggle-context': {
+        if (changing.has(msg.id)) break;
+        const wasExcluded = Boolean(msg.excluded);
+        if (wasExcluded) delete msg.excluded; else msg.excluded = true;
+        const toggled = Boolean(msg.excluded);
+        changing.add(msg.id);
+        messagesView.renderMessages(thread, { keepScroll: true });
+        let o2; try { o2 = await persist(thread.id, 'The change was not saved'); } catch { o2 = { saved: false }; } finally { changing.delete(msg.id); }
+        if (!o2.saved) { if (Boolean(msg.excluded) === toggled) { if (wasExcluded) msg.excluded = true; else delete msg.excluded; } messagesView.renderMessages(thread, { keepScroll: true }); }
         break;
+      }
       default: if (messageActionHandlers[action]) await messageActionHandlers[action](thread, msg, btn, node);
     }
   }

@@ -44,16 +44,16 @@ export function createDrafts(host) {
     });
     pane.append(head, area, bar); document.body.appendChild(pane);
     let t = null;
-    area.addEventListener('input', () => { window.clearTimeout(t); t = window.setTimeout(() => { const th = host.currentThread(); if (!th) return; th.canvas = { text: area.value, updatedAt: Date.now() }; saveThreads(); }, 400); });
+    area.addEventListener('input', () => { window.clearTimeout(t); t = window.setTimeout(async () => { const th = host.currentThread(); if (!th) return; th.canvas = { text: area.value, updatedAt: Date.now() }; await saveThreads(); }, 400); });
     close.addEventListener('click', () => { pane.hidden = true; canvasBtn.setAttribute('aria-pressed', 'false'); canvasBtn.focus(); });
     pane.addEventListener('keydown', e => { if (e.key === 'Escape') close.click(); });
     canvas = { pane, area };
     return canvas;
   }
-  function openCanvas(text) {
+  async function openCanvas(text) {
     const c = ensureCanvas(), th = host.currentThread();
     c.area.value = text ?? th?.canvas?.text ?? '';
-    if (text != null && th) { th.canvas = { text, updatedAt: Date.now() }; saveThreads(); syncCanvasBtn(th); }
+    if (text != null && th) { th.canvas = { text, updatedAt: Date.now() }; await saveThreads(); syncCanvasBtn(th); }
     c.pane.hidden = false; canvasBtn.setAttribute('aria-pressed', 'true'); c.area.focus();
   }
   const canvasBtn = el('button', 'icon-btn'); canvasBtn.appendChild(createEmoji('📝')); canvasBtn.hidden = true; canvasBtn.type = 'button'; canvasBtn.id = 'canvasBtn'; canvasBtn.title = 'Draft editor for this chat';

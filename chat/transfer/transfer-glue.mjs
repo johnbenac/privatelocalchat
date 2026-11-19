@@ -123,20 +123,20 @@ export function createTransferGlue(host) {
    * created (without altering existing ones) and selected. The chat
    * remains disabled until the user configures an endpoint and model.
    */
-  function parseUrlParams() {
-    const params = new URLSearchParams(window.location.search);
-    const titleParam = params.get('title') || params.get('chat') || params.get('name');
-    const systemParam = params.get('system') || params.get('systemPrompt') || params.get('system_prompt');
-    const promptParam = params.get('prompt') || params.get('message') || params.get('msg');
-    // Only act if at least one parameter is present and no threads yet created via params
-    if (titleParam || systemParam || promptParam) {
-      // Create a new thread with provided values
-      const threadDetails = {
-        title: titleParam ? decodeURIComponent(titleParam) : 'New chat',
-        systemPrompt: systemParam ? decodeURIComponent(systemParam) : ''
-      };
-      const id = createThread(threadDetails);
-      host.setCurrentThreadId(id);
+   async function parseUrlParams() {
+     const params = new URLSearchParams(window.location.search);
+     const titleParam = params.get('title') || params.get('chat') || params.get('name');
+     const systemParam = params.get('system') || params.get('systemPrompt') || params.get('system_prompt');
+     const promptParam = params.get('prompt') || params.get('message') || params.get('msg');
+     // Only act if at least one parameter is present and no threads yet created via params
+     if (titleParam || systemParam || promptParam) {
+       // Create a new thread with provided values
+       const threadDetails = {
+         title: titleParam ? decodeURIComponent(titleParam) : 'New chat',
+         systemPrompt: systemParam ? decodeURIComponent(systemParam) : ''
+       };
+       const id = createThread(threadDetails);   // synchronous: the id is returned at once and is what is selected
+       host.setCurrentThreadId(id);
       const threadObj = getThread(id);
       // Insert into UI
       renderThreadList();

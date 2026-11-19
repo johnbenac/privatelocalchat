@@ -6,8 +6,9 @@
 // importInput, threadTitleInput, systemPromptInput, messageInput, messagesEl
 import { app as appStorage, appLocal } from "../vault/vault-store.mjs";
 import { refuseIfNewer, buildHistoryFile } from "../transfer/file-formats.mjs";
+import { outcomeOf, sentence } from "../encounters/save-outcome.mjs";
 export function createHistoryIo(host) {
-  const { el, prefs, savePrefs, saveThreads, getThread, ensureThreadExists, selectThread, renderThreadList, updateChatAvailability, loadCrypto,
+  const { el, prefs, savePrefs, saveThreads, persistThreads, getThread, ensureThreadExists, selectThread, renderThreadList, updateChatAvailability, loadCrypto,
     askPassphrase, restoreExtras, openAppDialog, confirmDialog, showToast, THREAD_KEY, ACTIVE_THREAD_KEY, importInput, threadTitleInput,
     systemPromptInput, messageInput, messagesEl } = host;
   function exportHistory() {
@@ -100,12 +101,23 @@ export function createHistoryIo(host) {
     wrap.append(mergeRow, replaceRow, backupRow, ...(hasExtras ? [extrasRow] : []), summary); update();
     openAppDialog({ title: 'Import ' + incoming.length + ' conversation' + (incoming.length === 1 ? '' : 's'), content: wrap, actions: [
       { label: 'Cancel' },
-      { label: 'Import', primary: true, run: () => {
+      { label: 'Import', primary: true, run: async () => {
         const replace = replaceRadio.checked;
         if (replace && backup.checked) exportHistory();
-        const result = host.M().model.mergeThreads(host.threads().filter(t => !t.temporary), incoming, { replace });
+        const before = host.threads(), existingIds = new Set(before.map(t => t.id));
+        const result = host.M().model.mergeThreads(before.filter(t => !t.temporary), incoming, { replace });
+        // imported messages are legacy: they carry no attribution of their own, and nothing in the file (names, roles, ids) grants any (chat/encounters/)
+        const importedIds = result.threads.filter(t => replace || !existingIds.has(t.id)).map(t => t.id);
+        host.encounters?.markImported(importedIds);
         host.setThreads(result.threads);
-        saveThreads();
+        const outcome = await persistThreads(replace ? [...existingIds, ...importedIds] : importedIds, 'The import was not saved');
+        if (!outcome.saved) {
+          // refused or in conflict: the list is put back as it was in this tab's memory (storage is not written), the hints made for it are dropped, nothing else of the backup is restored
+          host.setThreads(before);
+          host.encounters?.unmarkImported(importedIds);
+          renderThreadList();
+          return;
+        }
         const skip = heldExtras(), held = hasExtras && extrasBox.checked ? [...skip].filter(k => extras[k] !== undefined) : [];
         if (hasExtras && extrasBox.checked) restoreExtras(extras, { skip }).then(n => { if (n) showToast('Restored ' + n + ' more item' + (n === 1 ? '' : 's') + ' from the backup.'); });
         if (held.length) showToast('Not restored: ' + held.join(', ') + '. A newer version of the app saved those here, so this version leaves them as they are.', 8000);
@@ -131,14 +143,22 @@ export function createHistoryIo(host) {
     if (!confirmed) {
       return;
     }
-    host.setThreads([]);
-    host.clearCurrentThread();
-    try {
-      appLocal.removeItem(THREAD_KEY);
-      appLocal.removeItem(ACTIVE_THREAD_KEY);
-    } catch (err) {
-      console.warn('Unable to remove chat history from storage:', err);
-      saveThreads();
+    if (host.encounters) {
+      // one fenced step in the same lock as every conversation save: the records are cleared with the chats and no other tab can write the old history back
+      const cleared = await host.encounters.clearAll();
+      if (!cleared.ok) { showToast(sentence(outcomeOf(cleared), 'Chat history was not cleared'), 9000); return; }   // nothing was removed, the screen and the composer stay as they are
+      host.setThreads([]);
+      host.clearCurrentThread();
+    } else {
+      host.setThreads([]);
+      host.clearCurrentThread();
+      try {
+        appLocal.removeItem(THREAD_KEY);
+        appLocal.removeItem(ACTIVE_THREAD_KEY);
+      } catch (err) {
+        console.warn('Unable to remove chat history from storage:', err);
+        await saveThreads();
+      }
     }
     threadTitleInput.value = '';
     systemPromptInput.value = '';

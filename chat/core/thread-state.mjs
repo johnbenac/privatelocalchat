@@ -6,9 +6,10 @@
 //
 // host: s (threads, currentThreadId, generationBusy, gen as get / set), M(), drafts(), and the page capabilities named in the destructure below
 import { appLocal } from "../vault/vault-store.mjs";
+import { outcomeOf, sentence, warningSentence } from "../encounters/save-outcome.mjs";
 
 export function createThreadState(host) {
-  const { threadTitleInput, systemPromptInput, messageInput, readJson, writeJson, THREAD_KEY, ACTIVE_THREAD_KEY, provider, sendBtn, chatNotice, updateModeBadge, messageForm, closeThreadMenu, persistDraftNow, growComposer, events, closeSidebar, promptDialog, messagesView, renderThreadList } = host;
+  const { threadTitleInput, systemPromptInput, messageInput, readJson, writeJson, showToast, THREAD_KEY, ACTIVE_THREAD_KEY, provider, sendBtn, chatNotice, updateModeBadge, messageForm, closeThreadMenu, persistDraftNow, growComposer, events, closeSidebar, promptDialog, messagesView, renderThreadList } = host;
   const s = host.s;
   const { } = host;
   function buildPreloadUrl() {
@@ -24,21 +25,41 @@ export function createThreadState(host) {
     return query ? `${baseHref}?${query}` : baseHref;
   }
 
-  function loadThreads() {
-    const storedThreads = readJson(appLocal, THREAD_KEY, []);
+  async function loadThreads() {
+    if (host.encounters?.prepare) await host.encounters.prepare();   // finish an interrupted earlier commit under the lock BEFORE the screen reads the stored chats (a refusal still shows what is stored)
+    // ONE read of the stored chats: the screen is built from it and the same text is the baseline of every later save (no second read, no await between this read and init)
+    let raw = null; try { raw = appLocal.getItem(THREAD_KEY); } catch { raw = null; }
+    let storedThreads = []; try { storedThreads = raw == null || raw === '' ? [] : JSON.parse(raw); } catch { storedThreads = []; }
     const list = Array.isArray(storedThreads) ? storedThreads : [];
     s.threads = host.M().model.purgeExpired(list.map(t => host.M().model.normalizeThread(t)).filter(Boolean));
+    if (host.encounters) await host.encounters.init(raw);   // what storage held right now is what this tab's later saves are patched against
   }
 
-  // Temporary chats are never written down.
-  function saveThreads() {
-    return writeJson(appLocal, THREAD_KEY, s.threads.filter(t => !t.temporary));
+  // Temporary chats are never written down. Every save is one commit under the Web Lock "plc-encounters" (chat/encounters/thread-commit.mjs): this tab's changes are applied as a patch to
+  // the freshly stored chats, together with their conversation records, never as a whole-list overwrite.
+  // persist(ids, what) is the ONE place a save's result becomes an outcome (chat/encounters/save-outcome.mjs): saved only when the commit went through and none of the conversations `ids`
+  // (all, when omitted) is in conflict. When it was not saved the person is told, in the words of the action `what` ("Your message was not sent"), once per few seconds per wording, so an
+  // automatic save that keeps failing is not a stream of toasts. Nothing here ever writes storage back: a refused change is the caller's to take back in its own memory.
+  const toldAt = new Map();
+  function tellNotSaved(text) { const now = Date.now(); if ((toldAt.get(text) || 0) > now - 8000) return; toldAt.set(text, now); try { host.showToast(text, 9000); } catch { /* no screen */ } }
+  async function persist(ids = null, what = 'Your chat was not saved') {
+    let result;
+    if (host.encounters) result = await host.encounters.saveThreads();
+    else { const ok = writeJson(appLocal, THREAD_KEY, s.threads.filter(t => !t.temporary)); result = ok ? { ok: true, conflicts: [] } : { ok: false, code: 'threads-write-failed', message: 'This browser could not save your chats.' }; }
+    const outcome = outcomeOf(result, ids);
+    if (!outcome.saved) tellNotSaved(sentence(outcome, what));
+    else { const partial = warningSentence(outcome); if (partial) tellNotSaved(partial); }   // stored, but its records are incomplete: said plainly, the text is never restored or resent
+    return outcome;
   }
+  async function saveThreads(ids = null) { return (await persist(ids)).saved; }
 
   function generateThreadId() {
     return `${Date.now().toString(36)}-${Math.random().toString(16).slice(2, 10)}`;
   }
 
+  // SYNCHRONOUS, as it always was: the new conversation exists in this tab at once and its id is returned, so every caller (New chat, Temporary, URL parameters, deleting the last chat,
+  // the first start, an import into an empty list) selects it without waiting. Its persistence is queued through the same commit; whatever mutation or dispatch next depends on it awaits
+  // its own actual save result (a refused one is told there, and the new conversation is simply saved again with the next change).
   function createThread({ title = 'New chat', systemPrompt = '', messages = [], temporary = false } = {}) {
     const id = generateThreadId();
     const normalizedTitle = typeof title === 'string' ? title : 'New chat';
@@ -54,7 +75,7 @@ export function createThreadState(host) {
     };
     if (temporary) thread.temporary = true;
     s.threads.push(thread);
-    saveThreads();
+    persist(id, 'The new chat was not saved yet').catch(() => {});
     return id;
   }
 
@@ -68,11 +89,11 @@ export function createThreadState(host) {
 
   const getThread = id => s.threads.find(t => t.id === id);
   const currentThread = () => getThread(s.currentThreadId);
-  const updateThread = mutator => {
+  const updateThread = async mutator => {
     const thread = currentThread();
     if (!thread) return null;
     mutator(thread);
-    saveThreads();
+    await saveThreads(thread.id);
     return thread;
   };
 
@@ -241,8 +262,10 @@ export function createThreadState(host) {
     const currentName = thread.title && thread.title.trim() ? thread.title.trim() : 'Untitled';
     const newName = await promptDialog('Rename chat', 'Title', currentName);
     if (newName === null) return;
+    const previousTitle = thread.title;
     thread.title = newName.trim() || 'Untitled';
-    saveThreads();
+    const o = await persist(threadId, 'The new name was not saved');
+    if (!o.saved) thread.title = previousTitle;   // this tab's own copy goes back; nothing is written to storage
     renderThreadList();
     if (threadId === s.currentThreadId) {
       threadTitleInput.value = thread.title;
@@ -271,5 +294,5 @@ export function createThreadState(host) {
   }
 
   // ---- chat core: answers are rendered, streamed and controlled per message -----------------------------------
-  return { buildPreloadUrl, loadThreads, saveThreads, generateThreadId, createThread, ensureThreadExists, getThread, currentThread, updateThread, getChatState, updateSendButtonDisabled, updateChatNotice, updateChatAvailability, selectThread, renameThread, exportThreadMarkdown };
+  return { buildPreloadUrl, loadThreads, saveThreads, generateThreadId, createThread, ensureThreadExists, getThread, currentThread, updateThread, getChatState, updateSendButtonDisabled, updateChatNotice, updateChatAvailability, selectThread, renameThread, exportThreadMarkdown, persist };
 }

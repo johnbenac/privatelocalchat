@@ -17,6 +17,7 @@
       "owner": "chat/core/thread-state.mjs",
       "note": "every saved chat, rewritten whole on each save",
       "alsoIn": [
+        "chat/encounters/thread-commit.mjs",
         "index.html"
       ],
       "format": 1,
@@ -27,6 +28,9 @@
       "store": "localStorage",
       "class": "user",
       "owner": "index.html",
+      "alsoIn": [
+        "chat/encounters/thread-commit.mjs"
+      ],
       "note": "which chat is open (an id)",
       "format": 1,
       "since": "v0.6.0"
@@ -84,6 +88,19 @@
       "note": "the look (layout, palette, pictures) a person chose to keep for a preset, one record per preset id",
       "format": 1,
       "since": "v0.74.0"
+    },
+    {
+      "key": "plc.encounters.v1",
+      "store": "localStorage",
+      "class": "user",
+      "owner": "chat/encounters/encounters.mjs",
+      "note": "who said what in each conversation: encounters, participants and events (speaker, source, audience, modality, order, corrections, original text), written only under the Web Lock plc-encounters together with every conversation save; chatThreads keeps its format",
+      "alsoIn": [
+        "chat/encounters/ledger-store.mjs",
+        "index.html"
+      ],
+      "format": 1,
+      "since": "v0.66.0"
     },
     {
       "key": "plc.memory.v1",
@@ -368,6 +385,15 @@
       "note": "the encrypted header and log",
       "format": 1,
       "since": "v0.47.0"
+    },
+    {
+      "name": "plc-encounters-coord",
+      "store": "indexedDB",
+      "class": "plain",
+      "owner": "chat/encounters/coordination.mjs",
+      "note": "one record: the generation and SHA-256 digests of the last complete state of chatThreads and plc.encounters.v1 (no payload), the proof that a tab's view of them is fresh before it writes; removed while the vault is on",
+      "format": 1,
+      "since": "unreleased"
     }
   ],
   "vaultInternalKeys": [
@@ -406,6 +432,8 @@
       "chat/connection/private-mode.mjs",
       "chat/core/page-chrome.mjs",
       "chat/core/thread-state.mjs",
+      "chat/encounters/coordination.mjs",
+      "chat/encounters/encounters.mjs",
       "chat/documents/doc-store.mjs",
       "chat/history/history-io.mjs",
       "chat/list/conversation-list.mjs",

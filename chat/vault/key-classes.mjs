@@ -10,6 +10,7 @@ export const KEY_CLASSES = Object.freeze({
   "plc.folders.v1": { store: "local", class: "user", format: 1 },
   "plc.presets.v1": { store: "local", class: "user", format: 1 },
   "plc.presentations.v1": { store: "local", class: "user", format: 1 },
+  "plc.encounters.v1": { store: "local", class: "user", format: 1 },
   "plc.memory.v1": { store: "local", class: "user", format: 1 },
   "plc.characters.v1": { store: "local", class: "user", format: 1 },
   "plc.modelMemory.v1": { store: "local", class: "setting", format: 1 },

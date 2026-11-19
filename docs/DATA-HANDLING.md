@@ -83,6 +83,7 @@ Browsers offer to clear the site data of an address. In current browsers that re
 | `plc.downloadIntent.v1` | local storage | `plain` | a model download that should resume; about the device, not the person | 1 | v0.6.0 |
 | `plc.draft` | session storage | `transient` | composer text kept across the page reload that applies an update | 1 | v0.6.0 |
 | `plc.drafts.v1` | local storage | `user` | unsent composer text per chat | 1 | v0.8.0 |
+| `plc.encounters.v1` | local storage | `user` | who said what in each conversation: encounters, participants and events (speaker, source, audience, modality, order, corrections, original text), written only under the Web Lock plc-encounters together with every conversation save; chatThreads keeps its format | 1 | v0.66.0 |
 | `plc.folders.v1` | local storage | `user` | folder names and which chats are in them | 1 | v0.8.0 |
 | `plc.formats.v1` | local storage | `plain` | the highest format of each store any version has written here, so an older version leaves newer data alone | 1 | v0.57.0 |
 | `plc.inferenceMode.v1` | local storage | `setting` | on this device or a connected provider | 1 | v0.6.0 |
