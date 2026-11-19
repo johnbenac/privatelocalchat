@@ -39,7 +39,7 @@ export const RELEASE_TOOLS = [
 ];
 // The documents under docs/ that are copied into the zip root, one name per line, so that an operator who has only the zip has them.
 export const RELEASE_DOCS = [
-  'DATA-HANDLING.md'
+  'DATA-HANDLING.md', 'SELF-HOSTING.md'
 ];
 const VERSION = /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/;
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');

@@ -1,6 +1,6 @@
 # Running a copy of the app
 
-Private Local Chat is a static app: files and a few headers. Anything that serves files and sends the headers below can host it. Everything a person does with it stays in their browser, so running a copy never holds anyone's chats, documents or settings.
+Private Local Chat is a static app: files and a few headers. Anything that serves files and sends the headers below can host it. `SELF-HOSTING.md` is the one-page version of this document (what you need, the headers, what the app contacts, the licence), and it ships in every release archive. Everything a person does with it stays in their browser, so running a copy never holds anyone's chats, documents or settings.
 
 ## What you build
 

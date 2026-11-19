@@ -31,6 +31,13 @@ It comes from the build's own data (the version, the full commit). No setting re
 
 To scan by hand: `node tools/delivery-tooling/scan/neutrality.mjs --rules tests/neutrality-rules.json --exceptions neutrality-exceptions.json --manifests "$PWD/tests/brand-asset-hashes.json" dist`.
 
+## The self-hosting page and the clean-machine check
+
+`docs/SELF-HOSTING.md` is PLC's filled-in copy of the delivery tooling's self-hosting template, one page, and it ships in every release archive. The clean-machine check of the tooling
+(`selfhost/clean_machine_check.py`, delivery-tooling 1.4.0) was run on PLC's release archive on 2026-11-18: on a tar of the build folder `app/` the unpack, both attribution checks and the loopback serve of nine paths
+pass; the scan step reports only the six exceptions that cover files at the archive's top level (a release zip has the build inside `app/` beside tools and documents), and on the whole zip the check cannot
+yet match PLC's layout (the build is one folder down). PLC's own test scans the build and the zip's top level together, which is why it passes (`tests/neutrality.test.mjs`).
+
 ## Refreshing a pinned input
 
 - **The tooling**: devops publishes a new version; replace `tools/delivery-tooling/` with its files and run `vendor_check.py pin` (`/cosmoshot/tools/docs/VENDORING.md`); re-run the tests.

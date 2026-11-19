@@ -91,7 +91,7 @@ for (const target of ['app', 'runkit']) {
     assert.equal(text('LICENSE'), readFileSync('LICENSE', 'utf8'));
     assert.equal(text('THIRD-PARTY-NOTICES.md'), readFileSync('THIRD-PARTY-NOTICES.md', 'utf8'));
     for (const tool of RELEASE_TOOLS) assert.equal(text(tool), readFileSync(`scripts/${tool}`, 'utf8'), tool);
-    assert.deepEqual(RELEASE_DOCS, ['DATA-HANDLING.md']);
+    assert.deepEqual(RELEASE_DOCS, ['DATA-HANDLING.md', 'SELF-HOSTING.md']);
     for (const doc of RELEASE_DOCS) assert.equal(text(doc), readFileSync(`docs/${doc}`, 'utf8'), doc + ' in the zip is the file in docs/');
     assert.equal(text('models.json'), modelsManifestText(await buildModelsManifest()), 'models.json in the zip is the manifest the script builds');
     const compat = JSON.parse(text('compat.json'));

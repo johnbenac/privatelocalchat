@@ -31,7 +31,8 @@
     "releases/*/chat/shell/shell.mjs",
     "SOURCE.txt",
     "operator.mjs",
-    "DATA-HANDLING.md"
+    "DATA-HANDLING.md",
+    "SELF-HOSTING.md"
    ],
    "why": "The project's own repository, where releases and bug reports are published (the maintainer's account is part of its address, shown as a link or as the link's text).",
    "match": "(?:github\\.com/)?johnbenac/privatelocalchat",
@@ -156,6 +157,24 @@
    "why": "The same generated table: a host a vendored library's own text names, which the app does not contact.",
    "match": "linkedin\\.com",
    "userVisible": true
+  },
+  {
+   "rule": "family-name",
+   "paths": [
+    "SELF-HOSTING.md"
+   ],
+   "why": "The self-hosting document names, once, the shipped default model source in its 'What it contacts' table, as the template requires, with how to change it by one setting (docs/DATA-HANDLING.md says the same).",
+   "match": "cdn\\.aiofourown\\.com",
+   "userVisible": true
+  },
+  {
+   "rule": "our-hosts",
+   "paths": [
+    "SELF-HOSTING.md"
+   ],
+   "why": "The same single mention of the default model source host in the self-hosting document's 'What it contacts' table.",
+   "match": "cdn\\.aiofourown\\.com",
+   "userVisible": true
   }
  ],
  "allowedHosts": [
@@ -173,7 +192,8 @@
     "cdn.aiofourown.com"
    ],
    "paths": [
-    "models.json"
+    "models.json",
+    "SELF-HOSTING.md"
    ],
    "why": "The shipped default model source, listed so that fetch-models can fetch from it."
   },
@@ -185,7 +205,8 @@
    ],
    "paths": [
     "serve.mjs",
-    "README.md"
+    "README.md",
+    "SELF-HOSTING.md"
    ],
    "why": "This computer: the address the bundled server listens on and the instructions give."
   },
@@ -232,7 +253,8 @@
     "api.github.com"
    ],
    "paths": [
-    "operator.mjs"
+    "operator.mjs",
+    "SELF-HOSTING.md"
    ],
    "why": "The public release list, asked only by --check --online."
   },
