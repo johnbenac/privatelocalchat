@@ -109,12 +109,11 @@ program:
 [[host-fact-evidence-contract]] — Host facts and native execution evidence
 [[how-memory-is-kept]] — Where to find memory access, safe writes and sync, instruction rollout, and dream validation contracts.
 [[lipsync-core-plan-location]] — The lip-sync core plan is located at /cosmoshot/lipsync/docs/CORE-PLAN.md and contains research, licence, scope, order, and decisions.
-[[plc-nano-verification-driver]] — Link to the nano generation driver and recipe
 [[relay-named-exclusion-brutus-gpu]] — local:qwen3-8-27b-gsq-rco on brutus-gpu is a named exclusion in the relay router config.json; the recorded reason is its slow long-prompt latency.
 [[shared-cdn-design-location]] — Design document for the shared cdn.aiofourown.com endpoint.
 [[sonalon-phase-evidence-location]] — The host directory for Sonalon browser-study evidence and the phase-five record pointers.
 [[tools-ingress-path-ownership]] — Relay, executors, and tools in '/cosmoshot/tools'.
-[13/42 entries shown; cosmo-mem read program _index.md]
+[12/41 entries shown; cosmo-mem read program _index.md]
 ```
 
 
