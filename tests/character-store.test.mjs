@@ -8,7 +8,7 @@ import { createHash, webcrypto } from 'node:crypto';
 import { createCharacterStore, createTemporaryCharacterStore, createMemoryStorage, createMemoryLocks, checkStoredRecord, CHARACTER_STORE_LIMITS, CHARACTER_LOCK_NAME } from '../chat/characters/character-store.mjs';
 import { plainWriteScope } from './helpers/character-write-scope.mjs'; // contract-only provided scope for the persistent store (this file tests other contracts)
 import { encodeCharacterFragment } from '../chat/characters/character-package.mjs';
-import { openAuthored, exportAuthored } from '../chat/characters/vendor/t415/contracts/authored-profiles/authored.mjs';
+import { openAuthored, exportAuthored } from '../vendor/authored-profiles/authored-profiles/index.mjs';
 
 const fx = new URL('./fixtures/characters/', import.meta.url);
 const bundle = (n) => readFileSync(new URL(`examples/${n}.bundle.json`, fx), 'utf8');

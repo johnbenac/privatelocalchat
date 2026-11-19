@@ -133,13 +133,15 @@ test('Clear history fences a stale tab; delete does not resurrect; a conflict is
   assert.equal(storage.getItem('chatThreads'), null, 'nothing was brought back');
   assert.equal(a.ledger().epoch, 1); assert.deepEqual(Object.keys(a.ledger().events), []);
   // delete: tab c deletes t2 while tab d edits t2
-  seed(storage, [thread('t2', [msg('n0', 'user', 'other')])]);
-  const c = openTab({ storage, locks }), d = openTab({ storage, locks });
+  // a fresh browser for the second half: writing chatThreads behind the coordinator's back is exactly what it refuses ('stale-view')
+  const storage2 = memStorage(), locks2 = fakeLocks();
+  seed(storage2, [thread('t2', [msg('n0', 'user', 'other')])]);
+  const c = openTab({ storage: storage2, locks: locks2 }), d = openTab({ storage: storage2, locks: locks2 });
   c.threads.splice(0, 1); d.thread('t2').messages.push(msg('n1', 'user', 'edit'));
   assert.equal((await c.save()).ok, true);
   const rd = await d.save();
   assert.equal(rd.ok, true); assert.equal(rd.conflicts.length, 1); assert.equal(rd.conflicts[0].code, 'gone');
-  assert.deepEqual(a.stored(), [], 'the deleted chat did not come back');
+  assert.deepEqual(c.stored(), [], 'the deleted chat did not come back');
 });
 
 test('two edits of one message: one wins, the other gets an explicit conflict', async () => {

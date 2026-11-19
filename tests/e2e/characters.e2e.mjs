@@ -11,7 +11,7 @@ import { launch, assert } from './harness.mjs';
 import { newProfileDir } from './profile-root.mjs';
 import { encodeCharacterFragment, CHARACTER_PACKAGE_LIMITS, reviewCharacterPackageFile } from '../../chat/characters/character-package.mjs';
 import { encodePresetFragment } from '../../chat/assistant/preset-candidate.mjs';
-import { openAuthored, exportAuthored } from '../../chat/characters/vendor/t415/contracts/authored-profiles/authored.mjs';
+import { openAuthored, exportAuthored } from '../../vendor/authored-profiles/authored-profiles/index.mjs';
 
 const ok = (n) => console.log('PASS ' + n);
 const fx = new URL('../fixtures/characters/', import.meta.url);

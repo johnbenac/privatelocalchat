@@ -8,7 +8,7 @@ import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { createHash, webcrypto } from 'node:crypto';
 import { launch, assert } from './harness.mjs';
 import { newProfileDir } from './profile-root.mjs';
-import { openAuthored, exportAuthored } from '../../chat/characters/vendor/t415/contracts/authored-profiles/authored.mjs';
+import { openAuthored, exportAuthored } from '../../vendor/authored-profiles/authored-profiles/index.mjs';
 
 const ok = (n) => console.log('PASS ' + n);
 const fx = new URL('../fixtures/characters/', import.meta.url);

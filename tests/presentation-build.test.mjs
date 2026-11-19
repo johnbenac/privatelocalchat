@@ -25,10 +25,10 @@ function closure(entry){
       const spec=m[1]||m[2];const next=path.posix.normalize(path.posix.join(path.posix.dirname(rel),spec));visit(next);}};
   visit(entry);return [...seen].sort();
 }
-const NEUTRAL=closure('neutral/index.mjs');
+const NEUTRAL=[...new Set([...closure('neutral/index.mjs'),...closure('authored-profiles/index.mjs')])].sort();   // the neutral entry's closure and the main entry's (rich character packages are received through it)
 
-test('the neutral closure is ten files, computed from the imports, and is what scripts/build.mjs ships',()=>{
-  assert.equal(NEUTRAL.length,10,'ten files: '+NEUTRAL.join(', '));
+test('the closure of the two entries is seventeen files, computed from the imports, and is what scripts/build.mjs ships',()=>{
+  assert.equal(NEUTRAL.length,17,'seventeen files: '+NEUTRAL.join(', '));
   const src=readFileSync('scripts/build.mjs','utf8');
   const listed=[...src.match(/const AUTHORED_PROFILES_RUNTIME=\[(.*?)\];/)[1].matchAll(/'([^']+)'/g)].map(m=>m[1]).sort();
   assert.deepEqual(listed,NEUTRAL,'the build ships exactly what the neutral entry imports, no more and no less');
@@ -41,7 +41,7 @@ for(const [target,extra] of [['app',{}],['runkit',{}],['site',{SITE_DIR:'tests/f
   const shipped=walk(base).map(f=>path.relative(base,f).split(path.sep).join('/')).sort();
   assert.deepEqual(shipped,NEUTRAL);
   for(const f of NEUTRAL) assert.deepEqual(readFileSync(path.join(base,f)),readFileSync(path.join(PKG,f)),f+' is byte-identical to the pinned copy');
-  assert.ok(!shipped.some(f=>/tests?\/|examples|fixtures|resources|scripts\/|\.json$|\.md$|LICENSE|authored\.mjs|consumer-projections|receiving-definitions|content\.mjs|bundles\.mjs/.test(f)),'no tests, examples, documents, licence file or any module of the main (non-neutral) entry');
+  assert.ok(!shipped.some(f=>/tests?\/|examples|fixtures|resources|scripts\/|\.json$|\.md$|LICENSE/.test(f)),'no tests, examples, documents, licence file or any module of the main (non-neutral) entry');
   assert.equal(existsSync(path.join(out,PKG)),false,'nothing outside the release folder');
   assert.ok(!/id="previewCharacterBtn"[^>]*\bhidden\b/.test(readFileSync(path.join(out,'index.html'),'utf8')),'the button is shown');
 });

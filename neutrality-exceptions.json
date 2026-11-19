@@ -175,14 +175,6 @@
    "why": "The same single mention of the default model source host in the self-hosting document's 'What it contacts' table.",
    "match": "cdn\\.aiofourown\\.com",
    "userVisible": true
-  },
-  {
-   "rule": "other-app-names",
-   "paths": [
-    "releases/*/chat/characters/**"
-   ],
-   "why": "The private copy of the producer's validator for rich character packages (chat/characters/vendor/t415, byte-exact, pinned in its SOURCE.json) and the module that reads it: package ids, format names and code comments that name the producer, not text a person reads. It is replaced by the shared authored-profiles package when T222 moves rich admission onto it (that package's neutral entry cannot yet receive rich packages: a request to its owner is on T222). The test that every exception is used will force this one out the day the copy is removed.",
-   "userVisible": false
   }
  ],
  "allowedHosts": [

@@ -12,7 +12,7 @@
 //   PURPOSES / CHARACTER_PACKAGE_LIMITS / CHARACTER_FRAGMENT_KEY
 //
 // This is NOT the simple "#preset=" route (chat/assistant/preset-candidate.mjs), which stays {id,name,prompt}. A rich package is
-// opened by the vendored producer validators (chat/characters/vendor/t415, byte-exact, see SOURCE.json): safe JSON, duplicate keys,
+// opened by the vendored producer validators (vendor/authored-profiles, the shared package, pinned in vendor.lock.json): safe JSON, duplicate keys,
 // bundle root hash, byte digests, protected definitions, dependency closure and authored semantics all run there. Nothing is trusted
 // because it advertises a version or a hash. The candidate keeps the verified transport, content, definitions, claims and resource
 // bytes as structured data for the owning later tasks; nothing is appended to a prompt except the producer's own plain projection.
@@ -20,7 +20,7 @@
 // Bytes: this module never fetches. Inline bytes are verified. External bytes need explicit trusted local adapters
 // (`openExternal` and `hasherFactory`) supplied by the caller; without them an external asset refuses.
 
-import { openAuthored, receivingFixture, LIMITS as PRODUCER_LIMITS } from './vendor/t415/contracts/authored-profiles/authored.mjs';
+import { openAuthored, receivingFixture, LIMITS as PRODUCER_LIMITS } from '../../vendor/authored-profiles/authored-profiles/index.mjs';
 import { parsePresetCandidate } from '../assistant/preset-candidate.mjs';
 
 const producerFileMax = PRODUCER_LIMITS.maxMetadataBytes + Math.ceil(PRODUCER_LIMITS.maxInlineTotalBytes / 3) * 4 + 1024;

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { createHash, webcrypto } from 'node:crypto';
 import { reviewCharacterPackageFile, reviewCharacterPackageFragment, readCharacterFragment, encodeCharacterFragment, checkPackageFileSize, CHARACTER_PACKAGE_LIMITS, PURPOSES, reopenCharacterSource, bundleTextFromSource } from '../chat/characters/character-package.mjs';
-import { openAuthored, exportAuthored } from '../chat/characters/vendor/t415/contracts/authored-profiles/authored.mjs';
+import { openAuthored, exportAuthored } from '../vendor/authored-profiles/authored-profiles/index.mjs';
 import { readPresetFragment, parsePresetCandidate, encodePresetFragment } from '../chat/assistant/preset-candidate.mjs';
 
 const fx = new URL('./fixtures/characters/', import.meta.url);
@@ -25,20 +25,14 @@ const parsed = (name) => JSON.parse(bundles[name]);
 const review = (text, o = {}) => reviewCharacterPackageFile(text, { crypto: webcrypto, ...o });
 const aspect = (b, id) => b.content.subjects.flatMap((s) => s.aspects || []).find((a) => a.id === id);
 
-test('the vendored producer closure and fixtures match their recorded checksums', () => {
-  const manifest = JSON.parse(readFileSync(new URL('../chat/characters/vendor/t415/SOURCE.json', import.meta.url), 'utf8'));
-  assert.equal(manifest.sourceCommit, 'de5e9231730cc2b0d3a6725d006a5d3d48878fd0');
-  for (const [rel, info] of Object.entries(manifest.vendored)) {
-    const b = readFileSync(new URL('../chat/characters/vendor/t415/' + rel, import.meta.url));
-    assert.equal(createHash('sha256').update(b).digest('hex'), info.sha256, rel);
-  }
-  const A = 'contracts/authored-profiles/';
-  for (const [rel, info] of Object.entries(manifest.fixtures)) {
-    const b = readFileSync(new URL(rel.slice(A.length), fx));
-    assert.equal(createHash('sha256').update(b).digest('hex'), info.sha256, rel);
-  }
+test('the producer fixtures are byte-identical to the examples and resources of the shared authored-profiles package', () => {
+  const pkg = new URL('../vendor/authored-profiles/authored-profiles/', import.meta.url);
+  for (const n of ['minimal', 'neri', 'bex']) assert.deepEqual(readFileSync(new URL(`examples/${n}.bundle.json`, fx)), readFileSync(new URL(`examples/${n}.bundle.json`, pkg)), n);
   const res = JSON.parse(read('resources/manifest.json'));
-  for (const r of res.resources) assert.equal(sha(readFileSync(new URL('resources/' + r.file, fx))), r.sha256);
+  for (const r of res.resources) {
+    assert.equal(sha(readFileSync(new URL('resources/' + r.file, fx))), r.sha256);
+    assert.deepEqual(readFileSync(new URL('resources/' + r.file, fx)), readFileSync(new URL('resources/' + r.file, pkg)), r.file);
+  }
 });
 
 test('all three real producer bundles are reviewed and keep the producer plain projection exactly', async () => {
@@ -363,6 +357,8 @@ test('reviewing touches no network, storage, timer or eval', async () => {
   // character-store.mjs is the one module of this folder that owns timers, Web Locks and a clock; it has its own source test (character-store.test.mjs).
   const walk = (dir) => { for (const n of readdirSync(new URL(dir + '/', import.meta.url))) { const p = dir + '/' + n; statSync(new URL(p, import.meta.url)).isDirectory() ? walk(p) : /\.mjs$/.test(n) && n !== 'character-store.mjs' && files.push(p); } };
   dirs.forEach(walk);
+  // the validator that reviewing calls is the shared package's main entry and the files it imports (what the build ships of it): scanned too
+  for (const f of ['authored-profiles/index','authored-profiles/authored','authored-profiles/authored-engine','authored-profiles/authored-util','authored-profiles/definitions','authored-profiles/receiving-definitions','src/core/bundle-engine','src/core/bundles','src/core/consumer-projections','src/core/content-engine','src/core/content-schema','src/core/content','src/core/plc-projection','src/core/projection-kit','src/core/providers']) files.push('../vendor/authored-profiles/' + f + '.mjs');
   assert.ok(files.length >= 9);
   for (const f of files) {
     const src = readFileSync(new URL(f, import.meta.url), 'utf8').replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, '');

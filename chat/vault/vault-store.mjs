@@ -1027,7 +1027,7 @@ export function createWriteMode(store, { feature, guard } = {}) {
     const q = getQueue(key);
     if (q.reserve) {
       // Wait for the reserve to be cleared
-      while (q.reserve) { await new Promise(r => setImmediate(r)); }
+      while (q.reserve) { await new Promise(r => setTimeout(r, 0)); }
     }
     q.seq = receipt.seq || 0;
     q.pending = Promise.resolve(receipt);

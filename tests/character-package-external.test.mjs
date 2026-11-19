@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createHash, webcrypto } from 'node:crypto';
 import { reviewCharacterPackageFile, reopenCharacterSource, bundleTextFromSource } from '../chat/characters/character-package.mjs';
-import { openAuthored, exportAuthored } from '../chat/characters/vendor/t415/contracts/authored-profiles/authored.mjs';
+import { openAuthored, exportAuthored } from '../vendor/authored-profiles/authored-profiles/index.mjs';
 
 const fx = new URL('./fixtures/characters/', import.meta.url);
 const text = (name) => readFileSync(new URL(`examples/${name}.bundle.json`, fx), 'utf8');

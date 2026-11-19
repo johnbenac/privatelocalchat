@@ -6,7 +6,7 @@ import { createHash, webcrypto } from 'node:crypto';
 import { externalResourcesOf, checkResourceFiles, matchResourceFiles } from '../chat/characters/character-resources.mjs';
 import { describeCapabilities, describeOmissions, describeResource, BACKUP_LIMIT } from '../chat/characters/character-describe.mjs';
 import { reviewCharacterPackageFile, CHARACTER_PACKAGE_LIMITS } from '../chat/characters/character-package.mjs';
-import { openAuthored, exportAuthored } from '../chat/characters/vendor/t415/contracts/authored-profiles/authored.mjs';
+import { openAuthored, exportAuthored } from '../vendor/authored-profiles/authored-profiles/index.mjs';
 
 const fx = new URL('./fixtures/characters/', import.meta.url);
 const neri = readFileSync(new URL('examples/neri.bundle.json', fx), 'utf8');

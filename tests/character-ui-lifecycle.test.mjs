@@ -10,7 +10,7 @@ import { createEvents } from '../chat/events.mjs';
 import { createMemoryLocks } from '../chat/characters/character-store.mjs';
 import { createCharactersUi } from '../chat/characters/characters-ui.mjs';
 import { plainWriteScope, realKvBackend } from './helpers/character-write-scope.mjs'; // contract-only provided scope; the encrypted real-KV cases are in character-durable-receipts.test.mjs
-import { openAuthored, exportAuthored } from '../chat/characters/vendor/t415/contracts/authored-profiles/authored.mjs';
+import { openAuthored, exportAuthored } from '../vendor/authored-profiles/authored-profiles/index.mjs';
 
 const fx = new URL('./fixtures/characters/', import.meta.url);
 const bundle = (n) => readFileSync(new URL(`examples/${n}.bundle.json`, fx), 'utf8');
