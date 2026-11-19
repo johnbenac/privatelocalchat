@@ -73,7 +73,7 @@ chat/history/           chat history in and out: export, import (with preview), 
 chat/core/              the chat core, in slices: the page's own furniture (toast, About, sidebar, popup menus) so far, and the messages on screen
 chat/provider/          the connected provider: endpoint, token per destination, model list, theme, provider catalogue
 chat/list/              the conversation list, its menus and projects
-chat/context/           the context meter and the summary divider
+chat/context/           the context meter and the summary divider; and the context composer for a receiving individual (composer.mjs pure, receiver-context.mjs the page side, attribution.mjs reported handles: docs/CONTEXT-COMPOSER.md)
 chat/storage/           the Storage and backups screen and the backup reminder
 chat/connection/        whether the app is online, and one sentence for everything that needs a connection
 chat/shell/             the app shell: rail, panel, Settings page and pickers
