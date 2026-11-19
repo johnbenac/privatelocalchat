@@ -28,6 +28,7 @@ import { fileURLToPath } from 'node:url';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const { chromium } = createRequire(import.meta.url)('playwright');
 const arg = (name, fallback) => { const i = process.argv.indexOf(name); return i >= 0 ? process.argv[i + 1] : fallback; };
+const EXECUTABLE = arg('--executable', process.env.PLC_CHROMIUM || '');   // a Chromium binary to use instead of the one this Playwright version downloads (a machine with another revision)
 const MEDIA = arg('--media'), REPEAT = Number(arg('--repeat', '20')), CONTENDERS = Number(arg('--contenders', '3')), OUT = arg('--out', ''), SABOTAGE = arg('--sabotage', '');
 if (!MEDIA || !(MEDIA.startsWith('/media/Vivarium/') || MEDIA.startsWith('/var/lib/cosmoshot/scratch-plc-'))) { console.error('--media must name a dedicated folder under /media/Vivarium/ (or /var/lib/cosmoshot/scratch-plc-*)'); process.exit(2); }
 fs.mkdirSync(MEDIA, { recursive: true });
@@ -49,7 +50,7 @@ const server = http.createServer((req, res) => {
 });
 await new Promise((r) => server.listen(0, '127.0.0.1', r));
 const origin = 'http://127.0.0.1:' + server.address().port;
-const context = await chromium.launchPersistentContext(profile, { headless: true });
+const context = await chromium.launchPersistentContext(profile, { headless: true, ...(EXECUTABLE ? { executablePath: EXECUTABLE } : {}) });
 
 // ---- the browser's process tree ---------------------------------------------------------------------------------------------------------------------------------------------------------
 const ps = () => execFileSync('ps', ['-eo', 'pid=,ppid=,args='], { encoding: 'utf8', maxBuffer: 1 << 26 }).split('\n').map((l) => l.trim()).filter(Boolean).map((l) => { const m = l.match(/^(\d+)\s+(\d+)\s+(.*)$/); return m ? { pid: +m[1], ppid: +m[2], args: m[3] } : null; }).filter(Boolean);
@@ -164,7 +165,7 @@ for (let i = 1; i <= REPEAT; i++) {
 await context.close(); server.close();
 try { fs.rmSync(profile, { recursive: true, force: true }); } catch { /* best effort */ }
 const failed = results.filter((r) => !r.pass), killRuns = results.filter((r) => r.detail && r.detail.kill);
-const summary = { browser: 'chromium (playwright)', node: process.version, platform: process.platform, sabotage: SABOTAGE || null, checks: results.length, passed: results.length - failed.length, failed: failed.length, kills: killRuns.length, seconds: Math.round((Date.now() - t0) / 1000), failures: failed.slice(0, 6) };
+const summary = { browser: 'chromium (playwright) ' + context.browser?.()?.version?.() , executable: EXECUTABLE || 'default', node: process.version, platform: process.platform, sabotage: SABOTAGE || null, checks: results.length, passed: results.length - failed.length, failed: failed.length, kills: killRuns.length, seconds: Math.round((Date.now() - t0) / 1000), failures: failed.slice(0, 6) };
 console.log(JSON.stringify(summary));
 if (OUT) fs.writeFileSync(OUT, JSON.stringify({ summary, results }, null, 1));
 if (SABOTAGE) { const expected = SABOTAGE === 'no-settle-p2' ? 'at P2 durable' : 'at P1 durable'; const caught = failed.some((f) => f.name.includes(expected)); console.log(caught ? 'NEGATIVE CONTROL CAUGHT: ' + SABOTAGE : 'NEGATIVE CONTROL NOT CAUGHT: ' + SABOTAGE); process.exit(caught ? 0 : 1); }
