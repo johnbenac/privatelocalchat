@@ -14,7 +14,7 @@ tasks and `O12` for objectives in pages and briefings only.
 
 ## Rules
 
-- Send `X-Actor: <your team>` on every write; it is recorded in the history. The names are one
+- Write with `cosmo-board` (below): it sends `X-Actor` and the note `author` as the team of the folder you work in, so you do not choose a name. The names are one
   list, used for who owns a task, who wrote an item or a note, and who made a change: `John`,
   `platform`, `plc`, `memory`, `simulator`, `infra`, `cyberplanetary`, `sonalon`, `brand`,
   `cosmogenitor`, `concepts`, `business`, `devops`, `aiofourown`, `taskboard`. Use the team whose folder you work in
@@ -30,14 +30,25 @@ tasks and `O12` for objectives in pages and briefings only.
 
 ## Calls
 
+Writes: `cosmo-board` (it puts the time first in a note, refuses when it cannot tell the team and says what to set, and reads a note or status change back).
+
+    cosmo-board team                         # who you write as, and why
+    cosmo-board note 43 "what I did"         # add a note to task 43
+    cosmo-board status 43 "in progress"      # not started | in progress | done | dropped
+    cosmo-board post PATH --json FILE        # any other POST (stdin when FILE is left out); patch likewise
+    cosmo-board get /api/context/task/43.md  # reads need no team
+
+Reads and the raw form (same API):
+
     B=https://cosmoshot.benac.dev
     curl -s $B/api/context/task/43.md                      # briefing: task, notes, what it depends on
     curl -s "$B/api/context?tasks=43,44&mode=brief"        # several items, mode full|brief|item
     curl -s $B/api/state                                   # everything, JSON
-    curl -s -X PATCH $B/api/tasks/43 -H 'X-Actor: <your team>' \
+    A=$(cosmo-board team | cut -d' ' -f1)
+    curl -s -X PATCH $B/api/tasks/43 -H "X-Actor: $A" \
       -H 'Content-Type: application/json' -d '{"status":"in progress"}'
-    curl -s -X POST $B/api/tasks/43/notes -H 'X-Actor: <your team>' \
-      -H 'Content-Type: application/json' -d '{"author":"<your team>","text":"[TIME] what I did"}'
+    curl -s -X POST $B/api/tasks/43/notes -H "X-Actor: $A" \
+      -H 'Content-Type: application/json' -d '{"author":"'$A'","text":"[TIME] what I did"}'
 
 Task fields you may PATCH: `title`, `detail`, `who` (the owner: `John` or a team from the list above), `kind`, `status`, `high_priority`.
 When you create a task (POST /api/tasks) you must send `high_priority`: `true` if the task must be

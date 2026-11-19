@@ -1,0 +1,1 @@
+export const CosmoshotEnv = async () => ({ "shell.env": async (_input, output) => { for (const k of ["GITLAB_TOKEN", "GITLAB_PRIVATE_TOKEN", "GITLAB_ACCESS_TOKEN"]) output.env[k] = ""; output.env.GLAB_CONFIG_DIR = "/var/lib/cosmoshot/empty-glab"; output.env.COSMO_TEAM = "plc"; } });

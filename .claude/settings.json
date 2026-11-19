@@ -1,0 +1,9 @@
+{
+  "env": {
+    "GITLAB_TOKEN": "",
+    "GITLAB_PRIVATE_TOKEN": "",
+    "GITLAB_ACCESS_TOKEN": "",
+    "GLAB_CONFIG_DIR": "/var/lib/cosmoshot/empty-glab",
+    "COSMO_TEAM": "plc"
+  }
+}
