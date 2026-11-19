@@ -394,23 +394,10 @@ async function classifiedModules() {
 }
 const classified = await classifiedModules();
 const LEDGER_TEXT = JSON.stringify({ v: 1, rev: 1, epoch: 1, encounters: { E1: { id: 'E1', thread: 't1' } }, participants: {}, events: { ev: { text: 'secret legacy' } }, holders: {} });
-test('production key table: the unclassified legacy ledger is left alone by every route (never copied, never served from the vault)', async () => {
-  const real = createMemoryAdapter(); const { session } = await fresh(real);
-  const realLocal = memoryStorage({ 'plc.encounters.v1': LEDGER_TEXT, 'plc.prefs.v1': '{"a":1}' });
-  const before = JSON.stringify(real.raw());
-  const report = await reconcileRaw({ session, adapter: real, realLocal, writer: true, exclusive: true });
-  assert.equal(report.held.some((h) => h.key === 'plc.encounters.v1'), false); assert.equal(report.recovered.includes('plc.encounters.v1'), false);
-  assert.equal(JSON.stringify(real.raw()), before); assert.equal(realLocal.getItem('plc.encounters.v1'), LEDGER_TEXT);
-  const adapter2 = createMemoryAdapter(), local2 = memoryStorage({ 'plc.encounters.v1': LEDGER_TEXT });
-  const made = await createAndMigrate({ passphrase: 'pw', adapter: adapter2, realLocal: local2, realSession: memoryStorage(), iterations: ITER });
-  assert.equal((await createVault({ adapter: adapter2 }).unlock('pw')).state.kv.has('l/plc.encounters.v1'), false); assert.equal(local2.getItem('plc.encounters.v1'), LEDGER_TEXT);
-  assert.deepEqual(made.heldLegacy, []);
-  made.session.lock();
-  const store = createAppStorage({ realLocal: memoryStorage({ 'plc.encounters.v1': LEDGER_TEXT }), realSession: memoryStorage() });
-  store.attach(session, { writer: true, adapter: real });
-  assert.equal(store.local.getItem('plc.encounters.v1'), LEDGER_TEXT, 'an unclassified key is the browser\'s own storage');
-  store.local.setItem('plc.encounters.v1', 'x'); await store.flush();
-  assert.equal(JSON.stringify(real.raw()), before, 'and nothing reaches the vault');
+test('production key table: the plain ledger plc.encounters.v1 is classified (the plain encounter layer owns it) and the vault still never admits it (LEGACY_HOLD)', async () => {
+  const { KEY_CLASSES } = await import('../chat/vault/key-classes.mjs'); const { LEGACY_HOLD } = await import('../chat/vault/vault-store.mjs');
+  assert.deepEqual(KEY_CLASSES['plc.encounters.v1'], { store: 'local', class: 'user', format: 1 });
+  assert.ok(LEGACY_HOLD.includes('plc.encounters.v1'), 'a vault-backed write of the ledger is refused, so the page keeps no plain ledger while the vault is on (index.html isLedgerBlocked)');
 });
 test('legacy ledger plc.encounters.v1 is held once classified, never copied into the vault: reconcileRaw, createAndMigrate and appLocal named routes', async () => {
   const { reconcileRaw, createAndMigrate, createAppStorage, memoryStorage } = classified;

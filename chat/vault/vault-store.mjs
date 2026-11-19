@@ -227,6 +227,7 @@ export function createAppStorage({ realLocal, realSession, onWriteError = () => 
     },
     /** Everything vaulted, as the plain storage would hold it (for turning the vault off, a check after migrating, or a backup). */
     snapshot() {
+      if (session?.typedHold) throw new VaultError("typed-hold", "Typed encounters exist (or an operation is pending), so this snapshot is refused. Use the typed projection.");
       const out = { local: {}, session: {} };
       for (const kind of ["local", "session"]) for (const [k, v] of mirror[kind]) out[kind][k] = v;
       if (threadsById.size || order.length) out.local[THREADS] = threadsJson();

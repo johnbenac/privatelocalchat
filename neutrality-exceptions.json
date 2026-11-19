@@ -59,7 +59,8 @@
    "paths": [
     "releases/*/chat/assistant/assistant.mjs",
     "releases/*/chat/assistant/preset-candidate.mjs",
-    "releases/*/chat/presentation/*.mjs"
+    "releases/*/chat/presentation/*.mjs",
+    "releases/*/chat/characters/character-package.mjs"
    ],
    "why": "Code comments that say where a character package or a preset handoff comes from: Cosmogenitor is a technical input, the producer of the packages this copy can read. No string shown to a person names it: where the app shows a picture's author it prints the package's own author field from the data, never as a recommendation, a promotion or a link.",
    "userVisible": false

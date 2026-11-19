@@ -201,7 +201,9 @@ async function round(N, impl) {
   const count = (t, text) => (t?.messages || []).filter((m) => m.content === text).length;
   const lastOf = (c, label) => (c.log[label] || []).slice(-1)[0];
   const WHY = { unsupported: 'unsupported', 'read-only': 'read-only', 'records-write-failed': 'records-write-failed' };
-  const refusal = (c, o, tag) => { ok(o && !o.saved && o.code === WHY[c.kind], tag, `${c.kind} controller ${c.i} must be refused with its own code, got ${o && o.code} (saved ${o && o.saved})`); };
+  // a controller whose records cannot be written may be refused by the coordination first ('stale-view': another tab had just saved, the answer is "try again"): still a refusal that saved nothing, which is what is asserted
+  const codeOk = (c, code) => code === WHY[c.kind] || (c.kind === 'records-write-failed' && code === 'stale-view');
+  const refusal = (c, o, tag) => { ok(o && !o.saved && codeOk(c, o.code), tag, `${c.kind} controller ${c.i} must be refused with its own code, got ${o && o.code} (saved ${o && o.saved})`); };
 
   tabs.forEach((c, idx) => {
     const a = A[idx], i = c.i, refused = Boolean(c.kind);
@@ -261,7 +263,7 @@ async function round(N, impl) {
     pair.forEach((c) => {
       const a = A[c.i], o = lastOf(c, 's6'), m = c.thread(a.mvId);
       if (o?.saved) ok(stored === a.mvTo && m.folderId === a.mvTo, 'durability', `controller ${c.i}: acknowledged move to ${a.mvTo}, stored ${stored}`);
-      else { ok(m.folderId === `F-${k}-a`, 'move-rollback', `controller ${c.i}: refused/conflicting move must restore the exact previous project, memory has ${m.folderId}`); ok(c.kind ? o?.code === WHY[c.kind] : o?.code === 'conflict', c.kind ? 'refusal' : 'conflict', `controller ${c.i}: move answered ${o && o.code}`); }
+      else { ok(m.folderId === `F-${k}-a`, 'move-rollback', `controller ${c.i}: refused/conflicting move must restore the exact previous project, memory has ${m.folderId}`); ok(c.kind ? codeOk(c, o?.code) : o?.code === 'conflict', c.kind ? 'refusal' : 'conflict', `controller ${c.i}: move answered ${o && o.code}`); }
       ok(m.pinned === true, 'rollback-unrelated', `controller ${c.i}: move rollback erased the sibling's newer pin`);
     });
   }

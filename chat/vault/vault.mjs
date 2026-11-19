@@ -458,7 +458,12 @@ export function createVault({ adapter, crypto = globalThis.crypto, now = () => D
       for (const r of encRemoves) {
         const entity = isPlain(r) ? work.encounters.get(r.id) : null;
         if (!entity || ownerKeyOf(r.owner) !== entity.ownerKeyId) throw bad("a removed encounter is not owned as named");
-        emit(entity.ownerKeyId, { t: "owned.del", kind: "encounter", id: r.id, owner: { type: entity.owner.type, id: entity.owner.id, generation: entity.owner.generation } });
+        const keyId = entity.ownerKeyId;
+        const observed = S.keys.has(keyId) ? (S.keyGenerations.get(keyId) ?? null) : undefined;
+        if (Object.hasOwn(r.owner, "generation")) {
+          if (observed === undefined || r.owner.generation !== observed) throw bad("the owner generation of " + r.id + " is not the one observed");
+        }
+        emit(keyId, { t: "owned.del", kind: "encounter", id: r.id, owner: { type: entity.owner.type, id: entity.owner.id, generation: entity.owner.generation } });
       }
       for (const p of parsedPuts) {
         const live = work.keyGenerations.get(p.keyId);
