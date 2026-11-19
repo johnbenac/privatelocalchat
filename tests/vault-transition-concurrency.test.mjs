@@ -18,7 +18,7 @@ import readline from 'node:readline';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { createVault } from '../chat/vault/vault.mjs';
-import { buildModules, loadModules, oldRevAvailable, scratchRoot, fileAdapter, fileStorage, startBroker, NEW_KEYS } from './helpers/vault-transition-rig.mjs';
+import { buildModules, loadModules, oldRevAvailable, scratchRoot, fileAdapter, fileStorage, startBroker, NEW_KEYS, skipOld } from './helpers/vault-transition-rig.mjs';
 
 const [CH, EN] = NEW_KEYS, FAST = 1000, REPEAT = Number(process.env.CONC_REPEAT || 20), TIMEOUT = 40000;
 const here = path.dirname(fileURLToPath(import.meta.url)), ACTOR = path.join(here, 'helpers', 'vault-transition-actor.mjs');
@@ -104,7 +104,7 @@ const maxHolders = (events) => { let now = 0, max = 0; for (const e of events) {
 const N = built.new, writerSpec = (role, extra) => ({ kind: N, role, ...extra });
 
 test('A same recovery: 6 parallel tabs start on one vault with two sole raw stores', async (t) => {
-  if (!haveOld) return t.skip('old revision not present');
+  if (!haveOld) return skipOld(t);
   const bad = await repeated('A', async (i) => withBroker(i, 'A', async (broker) => {
     const state = await makeState('A', i);
     const res = await runBatch(state, broker, Array.from({ length: 6 }, () => writerSpec('boot')));
@@ -117,7 +117,7 @@ test('A same recovery: 6 parallel tabs start on one vault with two sole raw stor
 });
 
 test('B same migration and same cleanup: 6 tabs recover and all try to clean up; only the writer removes, only verified copies', async (t) => {
-  if (!haveOld) return t.skip('old revision not present');
+  if (!haveOld) return skipOld(t);
   const bad = await repeated('B', async (i) => withBroker(i, 'B', async (broker) => {
     const state = await makeState('B', i);
     const res = await runBatch(state, broker, Array.from({ length: 6 }, () => writerSpec('boot-cleanup')));
@@ -138,7 +138,7 @@ test('B same migration and same cleanup: 6 tabs recover and all try to clean up;
 });
 
 test('C different conflicts at once: a conflicting stored value, a raw value changed by another tab, and cleanups, all in parallel', async (t) => {
-  if (!haveOld) return t.skip('old revision not present');
+  if (!haveOld) return skipOld(t);
   const bad = await repeated('C', async (i) => withBroker(i, 'C', async (broker) => {
     const state = await makeState('C', i, { encVault: { [EN]: '{"v":1,"encounters":[{"id":"encrypted-A"}]}' } });
     const changed = '{"v":1,"records":[{"id":"changed-by-other-tab-' + i + '"}]}';
@@ -160,7 +160,7 @@ test('C different conflicts at once: a conflicting stored value, a raw value cha
 
 const KILLS = ['pre-append:1', 'post-append:1', 'pre-append:2', 'post-append:2', 'pre-append:3', 'post-append:3'];
 for (const killAt of KILLS) test(`D abrupt termination of the writer at ${killAt}, then 4 tabs recover`, async (t) => {
-  if (!haveOld) return t.skip('old revision not present');
+  if (!haveOld) return skipOld(t);
   const bad = await repeated('D', async (i) => withBroker(i, 'D' + killAt, async (broker) => {
     const state = await makeState('D-' + killAt.replace(':', '_'), i);
     const killed = (await runBatch(state, broker, [{ kind: N, role: 'boot', extra: { killAt } }], { kill: 0 }))[0];
@@ -180,7 +180,7 @@ for (const killAt of KILLS) test(`D abrupt termination of the writer at ${killAt
 });
 
 for (const killAt of ['pre-remove:1', 'post-remove:1', 'pre-remove:2', 'post-remove:2']) test(`D' abrupt termination of the writer during cleanup at ${killAt}`, async (t) => {
-  if (!haveOld) return t.skip('old revision not present');
+  if (!haveOld) return skipOld(t);
   const bad = await repeated('Dc', async (i) => withBroker(i, 'Dc' + killAt, async (broker) => {
     const state = await makeState('Dc-' + killAt.replace(':', '_'), i);
     const killed = (await runBatch(state, broker, [{ kind: N, role: 'boot-cleanup', extra: { killAt } }], { kill: 0 }))[0];
@@ -198,7 +198,7 @@ for (const killAt of ['pre-remove:1', 'post-remove:1', 'pre-remove:2', 'post-rem
 });
 
 test('E ambiguous history: 6 tabs boot on a compacted log that once held the deleted new store; nobody resurrects it, nobody writes, every read is the raw copy', async (t) => {
-  if (!haveOld) return t.skip('old revision not present');
+  if (!haveOld) return skipOld(t);
   const bad = await repeated('E', async (i) => withBroker(i, 'E', async (broker) => {
     const state = await makeState('E', i, { deletedCompacted: true });
     const before = state.adapter.count();
@@ -215,7 +215,7 @@ test('E ambiguous history: 6 tabs boot on a compacted log that once held the del
 });
 
 test('F no Web Locks: 4 tabs with the fallback claim all think they are writers, none recovers, cleans up or writes; the baseline stays readable', async (t) => {
-  if (!haveOld) return t.skip('old revision not present');
+  if (!haveOld) return skipOld(t);
   const bad = await repeated('F', async (i) => withBroker(i, 'F', async (broker) => {
     const state = await makeState('F', i); const before = state.adapter.count();
     const res = await runBatch(state, broker, Array.from({ length: 4 }, (_, n) => writerSpec(n % 2 ? 'boot-retry' : 'boot-cleanup', { locks: 'none' })));
@@ -229,7 +229,7 @@ test('F no Web Locks: 4 tabs with the fallback claim all think they are writers,
 });
 
 test('G different operations at once on a held state: the writer retries while other tabs retry, clean up and read', async (t) => {
-  if (!haveOld) return t.skip('old revision not present');
+  if (!haveOld) return skipOld(t);
   const bad = await repeated('G', async (i) => withBroker(i, 'G', async (broker) => {
     const state = await makeState('G', i);
     const res = await runBatch(state, broker, [writerSpec('boot-retry'), writerSpec('boot-cleanup'), writerSpec('boot-retry'), writerSpec('boot'), writerSpec('boot-cleanup'), writerSpec('boot')]);
@@ -245,7 +245,7 @@ test('G different operations at once on a held state: the writer retries while o
 // ---- negative controls: each must violate the invariants in EVERY repeat --------------------------------------------------------------------------------------------------
 
 test('control: the old code with the new key table (no recovery) violates I4 in every repeat', async (t) => {
-  if (!haveOld) return t.skip('old revision not present');
+  if (!haveOld) return skipOld(t);
   let violated = 0;
   for (let i = 0; i < REPEAT; i++) await withBroker(i, 'N1', async (broker) => {
     const state = await makeState('N1', i);
@@ -256,7 +256,7 @@ test('control: the old code with the new key table (no recovery) violates I4 in 
 });
 
 test('control: treating the no-Web-Locks fallback as exclusive lets several tabs recover at once (modelled violation, never production behaviour) in every repeat', async (t) => {
-  if (!haveOld) return t.skip('old revision not present');
+  if (!haveOld) return skipOld(t);
   let violated = 0;
   for (let i = 0; i < REPEAT; i++) await withBroker(i, 'N2', async (broker) => {
     const state = await makeState('N2', i);
@@ -267,7 +267,7 @@ test('control: treating the no-Web-Locks fallback as exclusive lets several tabs
 });
 
 test('control: taking absence from a compacted log as proof resurrects the deleted stores in every repeat (E violated)', async (t) => {
-  if (!haveOld) return t.skip('old revision not present');
+  if (!haveOld) return skipOld(t);
   let violated = 0;
   for (let i = 0; i < REPEAT; i++) await withBroker(i, 'N5', async (broker) => {
     const state = await makeState('N5', i, { deletedCompacted: true });
@@ -278,7 +278,7 @@ test('control: taking absence from a compacted log as proof resurrects the delet
 });
 
 test('control: cleanup without verification removes a conflicting and a sole raw value in every repeat (I2, I5)', async (t) => {
-  if (!haveOld) return t.skip('old revision not present');
+  if (!haveOld) return skipOld(t);
   let violated = 0;
   for (let i = 0; i < REPEAT; i++) await withBroker(i, 'N3', async (broker) => {
     const state = await makeState('N3', i, { encVault: { [EN]: '{"v":1,"encounters":[{"id":"encrypted-A"}]}' } });
@@ -289,7 +289,7 @@ test('control: cleanup without verification removes a conflicting and a sole raw
 });
 
 test('control: a lock that is never freed after a kill (no kernel release) leaves the next tabs read-only: recovery never completes (I6 modelled)', async (t) => {
-  if (!haveOld) return t.skip('old revision not present');
+  if (!haveOld) return skipOld(t);
   let violated = 0;
   for (let i = 0; i < Math.min(REPEAT, 5); i++) await withBroker(i, 'N4', async (broker) => {
     const state = await makeState('N4', i);

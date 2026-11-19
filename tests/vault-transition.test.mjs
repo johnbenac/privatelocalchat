@@ -9,7 +9,7 @@ import fs from 'node:fs';
 import { createMemoryAdapter } from '../chat/vault/vault-db.mjs';
 import { createVault } from '../chat/vault/vault.mjs';
 import { memoryStorage } from '../chat/vault/vault-store.mjs';
-import { buildModules, loadModules, oldRevAvailable, scratchRoot, NEW_KEYS } from './helpers/vault-transition-rig.mjs';
+import { buildModules, loadModules, oldRevAvailable, scratchRoot, NEW_KEYS, skipOld } from './helpers/vault-transition-rig.mjs';
 import { providedLease } from './helpers/web-locks-fake.mjs';
 
 const FAST = 1000, [CH, EN] = NEW_KEYS;
@@ -67,7 +67,7 @@ test('ordinary enable on the new build migrates the new stores, writes the recon
 });
 
 test('old reader enables the vault, the new build returns: the new stores are recovered before any read, copy left in place, read back from storage', async (t) => {
-  if (!haveOld) return t.skip('old revision not present');
+  if (!haveOld) return skipOld(t);
   const ctx = ctxOf(oldInitial());
   await oldReaderEnables(ctx);
   const before = await storedKv(ctx);
@@ -87,7 +87,7 @@ test('old reader enables the vault, the new build returns: the new stores are re
 });
 
 test('a passkey unlock (raw key, no passphrase) recovers and verifies the same way', async (t) => {
-  if (!haveOld) return t.skip('old revision not present');
+  if (!haveOld) return skipOld(t);
   const ctx = ctxOf(oldInitial()); await oldReaderEnables(ctx);
   const b = await boot(ctx, 'new', { unlock: async ({ vault, header }) => { const open = await vault.unlock('pw'); const dek = open.dekBytes(); open.lock(); return vault.unlockWithKey(header, dek); } });
   assert.deepEqual([...b.res.recovery.recovered].sort(), [CH, EN]); assert.equal((await storedKv(ctx)).kv.get('l/' + CH), chars);
@@ -134,7 +134,7 @@ test('a stale retained copy of a deleted store is never copied back, and is kept
 });
 
 test('raw value changed while the copy is being verified: both kept as a conflict, cleanup never removes it', async (t) => {
-  if (!haveOld) return t.skip('old revision not present');
+  if (!haveOld) return skipOld(t);
   const ctx = ctxOf(oldInitial()); await oldReaderEnables(ctx);
   const realAppend = ctx.adapter.append; let n = 0;
   ctx.adapter.append = async (r) => { await realAppend.call(ctx.adapter, r); if (++n === 1) ctx.local.setItem(CH, 'CHANGED-BY-OTHER-TAB'); };
@@ -168,7 +168,7 @@ test('cleanup: a copy that changes while the stored vault is being read back is 
 });
 
 test('read-only tab: no write of any kind, the raw value is served (not null), writes/clear/cleanup refused, bytes preserved', async (t) => {
-  if (!haveOld) return t.skip('old revision not present');
+  if (!haveOld) return skipOld(t);
   const ctx = ctxOf(oldInitial()); await oldReaderEnables(ctx);
   const n = (await ctx.adapter.readLog()).length;
   const b = await boot(ctx, 'new', { locks: lockHeldByOther });
@@ -185,7 +185,7 @@ test('read-only tab: no write of any kind, the raw value is served (not null), w
 });
 
 test('format-blocked (newer data): readable, never written, never removed', async (t) => {
-  if (!haveOld) return t.skip('old revision not present');
+  if (!haveOld) return skipOld(t);
   const ctx = ctxOf({ ...oldInitial(), 'plc.formats.v1': JSON.stringify({ v: 1, formats: { [CH]: 2 } }) }); await oldReaderEnables(ctx);
   const n = (await ctx.adapter.readLog()).length;
   const b = await boot(ctx);
@@ -197,7 +197,7 @@ test('format-blocked (newer data): readable, never written, never removed', asyn
 });
 
 test('interruption and retry: a failed write holds the key (raw served), a later retry or restart recovers it once, with no duplicate record', async (t) => {
-  if (!haveOld) return t.skip('old revision not present');
+  if (!haveOld) return skipOld(t);
   const ctx = ctxOf(oldInitial()); await oldReaderEnables(ctx);
   const realAppend = ctx.adapter.append; let failing = true;
   ctx.adapter.append = async (r) => { if (failing) throw new Error('disk full'); return realAppend.call(ctx.adapter, r); };
@@ -213,7 +213,7 @@ test('interruption and retry: a failed write holds the key (raw served), a later
 });
 
 test('durable readback failure: a record that is not really stored (or is damaged) is never trusted from memory', async (t) => {
-  if (!haveOld) return t.skip('old revision not present');
+  if (!haveOld) return skipOld(t);
   const ctx = ctxOf(oldInitial()); await oldReaderEnables(ctx);
   const realAppend = ctx.adapter.append;
   ctx.adapter.append = async (r) => { if (r.keyId === 'dek') { await realAppend.call(ctx.adapter, { ...r, data: Buffer.from('garbage').toString('base64') }); return; } return realAppend.call(ctx.adapter, r); };
@@ -224,7 +224,7 @@ test('durable readback failure: a record that is not really stored (or is damage
 });
 
 test('damaged vault: a sole raw value is held, nothing is written over damage', async (t) => {
-  if (!haveOld) return t.skip('old revision not present');
+  if (!haveOld) return skipOld(t);
   const ctx = ctxOf(oldInitial()); await oldReaderEnables(ctx);
   ctx.adapter.tamper((records, set) => { const r = records.at(-1); set({ ...r, data: Buffer.from('xx').toString('base64') }); });
   const n = (await ctx.adapter.readLog()).length;
@@ -285,7 +285,7 @@ test('turning encryption off keeps a differing raw copy of a newer store; a diff
 // ---- negative controls: the guard removed, or the old code, must FAIL the same invariants -----------------------------------------------------------------------------
 
 test('control: the old code with the new key table reads null for the sole raw store and its cleanup deletes the only copy', async (t) => {
-  if (!haveOld) return t.skip('old revision not present');
+  if (!haveOld) return skipOld(t);
   const ctx = ctxOf(oldInitial()); await oldReaderEnables(ctx);
   const b = await boot(ctx, 'oldNewTable');
   assert.equal(b.get(CH), null, 'the defect: the store looks empty'); assert.equal(ctx.local.getItem(CH), chars);
@@ -294,14 +294,14 @@ test('control: the old code with the new key table reads null for the sole raw s
 });
 
 test('control: the revised code without the boot reconciliation fails the same invariant', async (t) => {
-  if (!haveOld) return t.skip('old revision not present');
+  if (!haveOld) return skipOld(t);
   const ctx = ctxOf(oldInitial()); await oldReaderEnables(ctx);
   const b = await boot(ctx, 'noRecovery');
   assert.equal(b.get(CH), null);
 });
 
 test('control: cleanup without the verification deletes a sole and a conflicting value; without the recheck it deletes a value changed during the check', async (t) => {
-  if (!haveOld) return t.skip('old revision not present');
+  if (!haveOld) return skipOld(t);
   const ctx = ctxOf(oldInitial()); await oldReaderEnables(ctx);
   const ctx2 = ctxOf(oldInitial()); await oldReaderEnables(ctx2);
   const w = await boot(ctx2, 'unverified');
@@ -317,7 +317,7 @@ test('control: cleanup without the verification deletes a sole and a conflicting
 });
 
 test('control: the old reader itself (no new classes) leaves the unknown stores raw and reports no remaining copy', async (t) => {
-  if (!haveOld) return t.skip('old revision not present');
+  if (!haveOld) return skipOld(t);
   const ctx = ctxOf(oldInitial()); await oldReaderEnables(ctx);
   const mods = await loadModules(built.old, { local: ctx.local, session: ctx.session, locks: lockFree });
   assert.deepEqual(mods.store.plaintextRemains(ctx.local, ctx.session).filter((k) => NEW_KEYS.includes(k)), []);

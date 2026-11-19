@@ -33,6 +33,16 @@ export function scratchRoot() {
   process.on('exit', () => { if (!process.env.PLC_TRANSITION_KEEP) { try { fs.rmSync(made, { recursive: true, force: true }); } catch { /* best effort */ } } });
   return made;
 }
+/**
+ * What a test does when the old revision (OLD_REV) is not in this clone. Without PLC_REQUIRE_OLD_REV it skips, LOUDLY (a line on stderr, and the skip is counted in the totals): a shallow clone
+ * must not turn a qualification into a pass by skipping. With PLC_REQUIRE_OLD_REV=1 (set it for every qualification run) the test FAILS instead. A skipped test counts as not run.
+ */
+export function skipOld(t) {
+  const message = 'the old revision ' + OLD_REV.slice(0, 8) + ' is not in this clone, so this test did NOT run';
+  if (process.env.PLC_REQUIRE_OLD_REV) throw new Error(message + ' (PLC_REQUIRE_OLD_REV is set: this is a failure, not a skip)');
+  process.stderr.write('WARNING: ' + message + '\n');
+  return t.skip(message);
+}
 export const oldRevAvailable = () => { try { execFileSync('git', ['cat-file', '-e', OLD_REV + '^{commit}'], { cwd: ROOT, stdio: 'ignore' }); return true; } catch { return false; } };
 
 function replaceOnce(text, from, to, label) {
