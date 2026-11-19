@@ -70,30 +70,18 @@ shows the note below again; `cosmo-mem attachments --cwd ...` shows the access.
 ```text
 ## Shared memory (Cosmoshot)
 
-Memory is shared by every agent on the Cosmoshot program. Read it before you start; write what you
-learn that the next agent needs. All reads and writes go through the `cosmo-mem` command.
-
-Store: program (Cosmoshot)
-  Path on disk: /cosmoshot/memory/program
-  Access: READ-ONLY
-  About: Facts about the program as a whole and what every project must agree on. Written for all projects; read-only for project sessions.
-
-Store: plc (Private Local Chat)
-  Path on disk: /cosmoshot/memory/plc
-  Access: READ-WRITE
-  About: What agents have learned working on Private Local Chat. Where the person chats with the resident.
-
-Start with the catalogue of each store:
-  cosmo-mem read STORE _index.md
-Then read what is relevant:
-  cosmo-mem list STORE        cosmo-mem read STORE PATH        cosmo-mem search STORE REGEX
+Every agent on the program shares it: read it before you start, write what the next agent needs.
+Everything goes through the `cosmo-mem` command. Stores (name, access, path on disk, about):
+- program (Cosmoshot) READ-ONLY /cosmoshot/memory/program: Facts about the program as a whole and what every project must agree on. Written for all projects; read-only for project sessions.
+- plc (Private Local Chat) READ-WRITE /cosmoshot/memory/plc: What agents have learned working on Private Local Chat. Where the person chats with the resident.
+Start with `cosmo-mem read STORE _index.md`, then `cosmo-mem list STORE`, `read STORE PATH` or `search STORE REGEX`.
 
 You may write to: plc. Read the file first and pass the sha256 you saw back, or `absent` to create:
   cosmo-mem write STORE PATH --if-sha SHA_OR_absent --project plc --session SESSION_ID \
       --harness claude-code|codex|router --model MODEL --reason "why" --file FILE   (or content on stdin)
 A memory is STORE/slug.md with frontmatter name (equal to the slug), description, optional metadata.
-If the write exits 3 the file changed since you read it: read it again, merge, retry.
-After creating a memory, catalogue it:  cosmo-mem index STORE set SLUG "one sentence" --domain "Heading" --project plc (same provenance flags).
+Exit 3 means the file changed since you read it: read again, merge, retry.
+After creating one, catalogue it: cosmo-mem index STORE set SLUG "one sentence" --domain "Heading" --project plc (same flags).
 Never write secrets. Do not edit the files directly. Do not push; the sync job does.
 ```
 
@@ -125,7 +113,8 @@ program:
 [[shared-cdn-design-location]] — Design document for the shared cdn.aiofourown.com endpoint.
 [[sonalon-phase-evidence-location]] — The host directory for Sonalon browser-study evidence and the phase-five record pointers.
 [[tools-ingress-path-ownership]] — Relay, executors, and tools in '/cosmoshot/tools'.
-[12/41 entries shown; cosmo-mem read program _index.md]
+[[any-one-lane-is-enough]] — The standing bar that any one of Claude Code, Codex or opencode on the local router must be able to run Cosmoshot, and the routing-policy mechanism that chooses lanes.
+[13/41 entries shown; cosmo-mem read program _index.md]
 ```
 
 
