@@ -100,6 +100,7 @@ async function once(point, { kill }) {
     const session = await createVault({ adapter: wrapped }).unlock('pw');
     const r = await session.readChatProjection({ guard: G });
     await new Promise((res) => navigator.locks.request(${JSON.stringify(lock)}, () => { res(); return new Promise(() => {}); }));   // the writer lease: held until this process dies
+    window.__alive = true;   // this tab's own JS state: gone if its process died, even if the browser reloads the tab
     window.__commit = session.commitChatProjection(plan(r.base, 'E1', 1), { guard: G });   // NOT awaited
     return true;`);
   const where = await Promise.race([reached, new Promise((_, rej) => setTimeout(() => rej(new Error('the writer never reached the kill point')), 30000))]);
@@ -113,8 +114,12 @@ async function once(point, { kill }) {
     const pid = fresh[0]; out.killedPid = pid;
     process.kill(pid, 'SIGKILL');
     await until(() => !alive(pid), 10000, 'the killed renderer to disappear');
-    // the writer tab must be DEAD: Playwright's `crash` event, or the tab no longer answers a trivial evaluate (the event is not delivered by every Chromium build)
-    const dead = await until(async () => { if (await Promise.race([crashed, Promise.resolve(false)])) return 'crash-event'; try { const r = await Promise.race([writer.evaluate(() => 1), new Promise((res) => setTimeout(() => res('no-answer'), 1500))]); return r === 'no-answer' ? 'no-answer' : false; } catch { return 'evaluate-failed'; } }, 15000, 'the writer tab to be dead');
+    // the writer tab must be DEAD: Playwright's `crash` event; or evaluate fails; or the tab answers but its JS state (window.__alive) is GONE, which is what a browser that reloads a crashed
+    // tab shows. Only a tab that still holds its marker is alive.
+    const dead = await until(async () => {
+      if (await Promise.race([crashed, Promise.resolve(false)])) return 'crash-event';
+      try { const r = await Promise.race([writer.evaluate(() => window.__alive === true), new Promise((res) => setTimeout(() => res('no-answer'), 1500))]); return r === 'no-answer' ? 'no-answer' : (r === true ? false : 'state-gone-reloaded'); } catch { return 'evaluate-failed'; }
+    }, 15000, 'the writer tab to be dead');
     out.writerDeath = dead;
     assert.equal(await observer.evaluate(() => 1 + 1), 2, 'the observer tab must be alive: only the writer tab was killed');
     out.takenAfterKill = await until(async () => (await inPage(observer, `return await navigator.locks.request(${JSON.stringify(lock)}, { ifAvailable: true }, (l) => !!l);`)) === true, 15000, 'the dead tab\'s Web Lock to be released');
