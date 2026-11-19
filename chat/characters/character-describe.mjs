@@ -50,6 +50,7 @@ export function describeResource(resource) {
   };
 }
 
+import { reportAttribution, ATTRIBUTION_FIELDS } from '../context/attribution.mjs';
 /** The author's claims about the design: shown as unverified source statements, never as who this local character is. */
 export function describeSourceClaims(candidateLike) {
   const d = candidateLike.design || {}; const s = candidateLike.subject || {};
@@ -57,6 +58,14 @@ export function describeSourceClaims(candidateLike) {
   if (s.label) rows.push(['Character in the package', s.label + (s.id ? ' (' + s.id + ')' : '')]);
   if (d.designId) rows.push(['Design named by the author', d.designId + (d.revision ? ' revision ' + d.revision : '')]);
   if (d.author) rows.push(['Author’s credit', d.author]);
+  // Reported attribution: the handles exactly as supplied (never trimmed or rewritten); a blank one is shown as unnamed. None of it is verified (chat/context/attribution.mjs).
+  for (const c of candidateLike.unverifiedSourceClaims || []) {
+    const a = reportAttribution(c);
+    const parts = ATTRIBUTION_FIELDS.filter((f) => a.fields[f].state !== 'absent').map((f) => f + ' ' + (a.fields[f].state === 'named' ? '“' + a.fields[f].value + '”' : '(unnamed)'));
+    if (!parts.length && !a.audience.total) continue;
+    if (a.audience.total) parts.push('for ' + (a.audience.named.length ? a.audience.named.map((h) => '“' + h + '”').join(', ') : 'nobody named') + (a.audience.blank ? ' and ' + a.audience.blank + ' unnamed' : ''));
+    rows.push(['Report ' + c.entry, parts.join(' · ') + (a.usable ? '' : ' · not usable as a scoped report') + ' · as supplied, not verified']);
+  }
   return rows;
 }
 
