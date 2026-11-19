@@ -2,7 +2,7 @@
 
 What this is: a local record of **who said what, to whom, in which conversation, and with what standing**, kept beside the chats. It is the common record foundation for later work (audience-safe context, several agents, hosted guests); it is not any of those. The chat transcript (`chatThreads`) keeps its format and stays the thing the person reads and exports.
 
-What it is not: hosted invitation or guest authority, rich package admission, context composition, agent scheduling, backup/transfer of the records (T428), or any service. Nothing here checks who a person is: a name, a preset id, a design id, a link holder or a claim in an imported file is a **label**, never a verified person.
+What it is not: hosted invitation or guest authority, rich package admission, context composition (that reads these records: `docs/CONTEXT-COMPOSER.md`), agent scheduling, backup/transfer of the records (T428), or any service. Nothing here checks who a person is: a name, a preset id, a design id, a link holder or a claim in an imported file is a **label**, never a verified person.
 
 ## Where it lives
 
