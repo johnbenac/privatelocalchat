@@ -6,6 +6,7 @@
 // host: g (the running answer: gen, controller, busy, with setters), M(), moduleBase(), currentThreadId(), and the page capabilities named in the destructure below
 // (threads, the messages view, the provider settings, documents, the event list)
 import { buildApiRequest, readApiStream, errorDetail } from '../provider/api-formats.mjs';
+import { assistantId, personId } from '../encounters/records.mjs';
 
 export function createSender(host) {
   const { saveThreads, persistThreads: persist, updateChatAvailability, updateSendButtonDisabled, getThread, STATUS, messagesView, providerName, renderMessages, events,
@@ -31,7 +32,7 @@ export function createSender(host) {
    *  retry       the same request again, in place (nothing was produced the first time)
    *  continue    append to a stopped, cut-off or failed answer
    */
-  async function runReply(threadId, { mode = 'new', message = null } = {}) {
+  async function runReply(threadId, { mode = 'new', message = null, receiver = null } = {}) {
     const thread = getThread(threadId);
     if (!thread || g.gen) return { ok: false, code: 'busy' };
     const S = STATUS();
@@ -92,7 +93,7 @@ export function createSender(host) {
         generationStatus.textContent = messagesView.generatingLabel();
         if (threadId === host.currentThreadId()) messagesView.renderMessages(thread, { keepScroll: false });
       }
-      const context = await buildInferenceMessages(thread, index, mode);
+      const context = await buildInferenceMessages(thread, index, mode, { receiver });
       let result;
       for (let attempt = 0; ; attempt++) {
         try { result = await sendToApi(context, controller.signal, onText); break; }
@@ -164,11 +165,24 @@ export function createSender(host) {
   const startWords = { new: 'Your message was not answered', regenerate: 'The new answer was not started', retry: 'The retry was not started', continue: 'The continuation was not started' };
   let contextSources = [];
 
-  async function buildInferenceMessages(thread, index, mode) {
+  // options.receiver: the participant id of a receiving individual OTHER than the conversation's default assistant (or the person). Then, and only then, the request is composed for that receiver
+  // (chat/context/composer.mjs: filtered before anything is retrieved, summarised or projected) and the global collectors (memory, preferences, folder text, documents) are NOT asked.
+  // No receiver, or the default assistant: exactly the request this function has always built.
+  async function buildInferenceMessages(thread, index, mode, { receiver = null } = {}) {
     const { messagesForInference } = await import(host.moduleBase() + 'conversation-messages.mjs');
     const view = { ...thread, messages: thread.messages.slice(0, mode === 'continue' ? index + 1 : index) };
     // the answer being continued is already written: it is context, not a reply in progress
     if (mode === 'continue') view.messages[index] = { ...view.messages[index], status: undefined };
+    if (receiver != null && receiver !== assistantId(thread.id) && receiver !== personId(thread.id)) {
+      // fail closed: a request for a receiving individual is never built without the composer
+      if (typeof host.receiverContext !== 'function') throw Object.assign(new Error('No context composer is available, so nothing was sent for this receiver.'), { code: 'composer-unavailable' });
+      const composed = await host.receiverContext({ thread, view, receiver });
+      if (composed.error) throw Object.assign(new Error(composed.error.message), { code: composed.error.code });
+      contextSources = composed.options.sources;
+      const composedMessages = messagesForInference(composed.view, composed.options);
+      if (mode === 'continue') composedMessages.push({ role: 'user', content: CONTINUE_PROMPT });
+      return composedMessages;
+    }
     const options = await contextOptions(thread, view);
     contextSources = options.sources;
     const messages = messagesForInference(view, options);
