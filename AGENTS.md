@@ -96,10 +96,9 @@ plc:
 [[encrypted-derived-record-deletion]] — Preserve per-chat cryptographic deletion for derived encounter text and recovery journals; private T418 finding and evidence.
 [[intermittent-9b-installer-issue-left]] — John's decision 2026-11-18 to leave the rare 130-of-131 file failure of the 9B install; what is in place (model-runtime 1.0.0 refetch, 1.0.1 detail) and when to reopen.
 [[preset-import-and-standalone-qualification]] — Checked T465/T34/T519 delivery, evidence limits, and unfinished bounded T222/T418 orchestration.
+[[private-lines-vs-main-probe-20261119]] — A scratch merge of PLC's three private lines onto main: sizes, small textual and real semantic conflicts, the red tests and the one real defect at their own heads, and why T860 was added first.
 [[real-device-access-iphone-and-mac]] — How to reach and drive the shared iPhone 15 Pro (boiler usbmux forward plus pymobiledevice3) and the networked Mac's Safari (ssh port 2222): commands, pitfalls, what only John can do.
-[[plc-refactor-winddown-20261117]] — User-requested wind-down: split objectives, accepted private component, incomplete core checkpoint and exact continuation gates.
-[[run-kit-e2e-dev-runner]] — The npm e2e runner forces the dev branch, where the run-kit build is refused.
-[8/8 entries shown; cosmo-mem read plc _index.md]
+[7/9 entries shown; cosmo-mem read plc _index.md]
 
 program:
 [[what-this-project-is]] — What Cosmoshot is and the near-term objectives for it.
