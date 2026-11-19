@@ -117,15 +117,15 @@ program:
 [[concept-systems-plugin-path-and-loading]] — Where the Concept Systems plugin lives and the command that loads it in Claude Code.
 [[conversation-archive-api-query]] — The Chat Cleave API schema location and supported GET search query fields.
 [[conversation-archive-search-location]] — The shared Chat Cleave helper for searching imported conversations and its source contract.
+[[cosmo-msg-branding-inbox-mapping]] — cosmo-msg maps both brand and aiofourown to one inbox named "branding"; teams.json is checked before program.json.
 [[host-fact-evidence-contract]] — Host facts and native execution evidence
 [[how-memory-is-kept]] — Where to find memory access, safe writes and sync, instruction rollout, and dream validation contracts.
+[[lipsync-core-plan-location]] — The lip-sync core plan is located at /cosmoshot/lipsync/docs/CORE-PLAN.md and contains research, licence, scope, order, and decisions.
 [[plc-nano-verification-driver]] — Link to the nano generation driver and recipe
 [[shared-cdn-design-location]] — Design document for the shared cdn.aiofourown.com endpoint.
 [[sonalon-phase-evidence-location]] — The host directory for Sonalon browser-study evidence and the phase-five record pointers.
 [[tools-ingress-path-ownership]] — Relay, executors, and tools in '/cosmoshot/tools'.
-[[any-one-lane-is-enough]] — The standing bar that any one of Claude Code, Codex or opencode on the local router must be able to run Cosmoshot, and the routing-policy mechanism that chooses lanes.
-[[development-infrastructure-scope]] — Scope and ownership of the shared developer foundation; read before expanding infrastructure into application or commercial design.
-[12/37 entries shown; cosmo-mem read program _index.md]
+[12/41 entries shown; cosmo-mem read program _index.md]
 ```
 
 
