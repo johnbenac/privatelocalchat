@@ -58,6 +58,16 @@ const context = await chromium.launchPersistentContext(profile, { headless: true
 const ps = () => execFileSync('ps', ['-eo', 'pid=,ppid=,args='], { encoding: 'utf8', maxBuffer: 1 << 26 }).split('\n').map((l) => l.trim()).filter(Boolean).map((l) => { const m = l.match(/^(\d+)\s+(\d+)\s+(.*)$/); return m ? { pid: +m[1], ppid: +m[2], args: m[3] } : null; }).filter(Boolean);
 const browserPid = () => { const p = ps().find((x) => x.args.includes('--user-data-dir=' + profile) && !x.args.includes('--type=')); assert.ok(p, 'the browser process was not found'); return p.pid; };
 const renderers = () => { const table = ps(), root = browserPid(), seen = new Set([root]); let grew = true; while (grew) { grew = false; for (const p of table) if (!seen.has(p.pid) && seen.has(p.ppid)) { seen.add(p.pid); grew = true; } } return new Set(table.filter((p) => seen.has(p.pid) && p.args.includes('--type=renderer')).map((p) => p.pid)); };
+const cpuTicks = (pid) => { try { const f = fs.readFileSync('/proc/' + pid + '/stat', 'utf8'); const r = f.slice(f.lastIndexOf(')') + 2).split(' '); return Number(r[11]) + Number(r[12]); } catch { return 0; } };   // utime + stime
+/** The renderer process that runs `page`: the one whose CPU time jumps while the page spins for a moment (robust to spare renderers and process reuse). */
+async function rendererOf(page) {
+  const all = [...renderers()], t0 = Object.fromEntries(all.map((p) => [p, cpuTicks(p)]));
+  await page.evaluate(() => { const t = Date.now(); while (Date.now() - t < 1500) { /* spin */ } });
+  const delta = all.map((p) => ({ pid: p, d: cpuTicks(p) - t0[p] })).sort((x, y) => y.d - x.d);
+  assert.ok(delta.length && delta[0].d >= 50, 'no renderer showed the writer tab spinning: ' + JSON.stringify(delta.slice(0, 4)));   // 100 ticks per second
+  assert.ok(!delta[1] || delta[1].d * 3 < delta[0].d, 'the spinning tab\'s process is not clear: ' + JSON.stringify(delta.slice(0, 4)));
+  return { pid: delta[0].pid, others: delta.slice(1, 3) };
+}
 const alive = (pid) => { try { process.kill(pid, 0); return true; } catch { return false; } };
 const until = async (fn, ms, what) => { const t = Date.now(); for (;;) { const v = await fn(); if (v) return v; if (Date.now() - t > ms) throw new Error('timed out waiting for ' + what); await new Promise((r) => setTimeout(r, 50)); } };
 
@@ -109,9 +119,8 @@ async function once(point, { kill }) {
   out.lockHeldBeforeKill = heldBefore === false;
   assert.equal(heldBefore, false, 'the writer lock must be held while the writer is alive');
   if (kill) {
-    const after = renderers(), fresh = [...after].filter((p) => !before.has(p));
-    assert.equal(fresh.length, 1, 'expected exactly one new renderer process for the writer tab, found ' + fresh.length + ' (' + fresh.join(',') + ')');
-    const pid = fresh[0]; out.killedPid = pid;
+    const found = await rendererOf(writer); const pid = found.pid; out.killedPid = pid; out.mappedBy = 'cpu'; out.cpuOthers = found.others;
+    out.newRenderers = [...renderers()].filter((p) => !before.has(p)).length;
     process.kill(pid, 'SIGKILL');
     await until(() => !alive(pid), 10000, 'the killed renderer to disappear');
     // the writer tab must be DEAD: Playwright's `crash` event; or evaluate fails; or the tab answers but its JS state (window.__alive) is GONE, which is what a browser that reloads a crashed
