@@ -162,12 +162,19 @@ async function s3(actors, expect) {   // S3: mixed intents on one base: competin
 }
 async function s4(actors, rep) {   // S4: one actor's guard is withdrawn mid-commit (a lifecycle that ended); a fresh tab reconciles; the next base is won exactly once
   const v = [], f = await makeFolder('s4'); await openAll(actors, f, v);
-  const k = 1 + (rep % 6);
+  const k = 1 + (rep % 12);   // the guard is withdrawn at question 1 .. 12 of the commit: before P1, between the phases, after P2
   const specs = actors.map((a, i) => ({ ...put('E1', 1, 'op-' + i), ...(i === 0 ? { guardAfter: k } : {}) }));
   const { results } = await race(actors, specs, f, 'a', v);
   account(v, results, actors.map(() => 'put'), { fenced: 0 });
   const winners = results.filter((r, i) => i !== 0 && r.status === 'committed').length + (results[0].status === 'committed' ? 1 : 0);
   if (winners > 1) v.push('more than one commit won this base: ' + winners);
+  if (['not-committed', 'unsettled', 'unknown'].includes(results[0].status)) {   // its commit ended uncertain: the SAME session must not write anything more until a reconcile
+    const before = await f.adapter.readLog(); const w = { v: [] };
+    const again = await race([actors[0]], [put('E9', 2, 'again')], f, 'again', w.v); v.push(...w.v);
+    const r0 = again.results[0];
+    if (r0.status !== 'not-written' || r0.reason !== 'needs-reconcile') v.push('the same session wrote again after an uncertain commit instead of refusing with needs-reconcile: ' + r0.status + '/' + r0.reason);
+    if (JSON.stringify(await f.adapter.readLog()) !== JSON.stringify(before)) v.push('the refused retry changed the stored log');
+  }
   const fresh = await createVault({ adapter: f.adapter }).unlock('pw');
   const rec = await fresh.reconcileChatProjection({ guard: () => true });   // the one narrow recovery, from the stored state, in a brand new session
   const mid = await cold(f, v, { entities: [...fresh.state.encounters.keys()] });
@@ -222,10 +229,23 @@ test('negative control: a backend that loses updates (no compare of the expected
 });
 test('negative control: an engine that ignores the caller\'s guard lets a fenced actor commit, and the fence check catches it', async () => {
   const broken = buildEngine('noguard', [['guard ignored', 'const authorized = (guard) => { if (guard === undefined || guard === null) return true; try { return guard() === true; } catch { return false; } };', 'const authorized = () => true;']]);
-  const actors = spawnActors(4, broken); await ready(actors);
+  const actors = spawnActors(1, broken); await ready(actors);   // alone: the fenced actor is certain to be the one that would commit
   try {
     let caught = 0;
-    for (let rep = 0; rep < 6; rep++) { const o = await s4(actors, rep); if (o.v.some((x) => x.includes('committed although its guard was withdrawn'))) caught += 1; }
+    for (let rep = 0; rep < 12; rep++) { const o = await s4(actors, rep); if (o.v.some((x) => x.includes('committed although its guard was withdrawn'))) caught += 1; }
     assert.ok(caught > 0, 'the fence check did not notice an engine that ignores the guard');
+  } finally { await stop(actors); }
+});
+
+// One more negative control: the engine's needs-reconcile bar removed; scenario S4 must fail (the fenced actor's second commit in the SAME session must be refused with exactly needs-reconcile).
+// Controls for the pending-marker check and the typed-unreadable refusal were tried and are NOT listed: the stale-base check and the adapter's compare of the expected header and log refuse first
+// (a P1 changes the log, so every base read earlier is already stale), so removing them one at a time is not observable by these races (recorded on T893).
+test('negative control: the needs-reconcile bar removed', async () => {
+  const broken = buildEngine('noreconcile', [['needs-reconcile bar removed', 'if (needsReconcile) return refuse("needs-reconcile");', '']]);
+  const actors = spawnActors(1, broken); await ready(actors);
+  try {
+    let caught = 0;
+    for (let rep = 0; rep < 12; rep++) { const o = await s4(actors, rep); if (o.v.some((x) => x.includes('needs-reconcile'))) caught += 1; }
+    assert.ok(caught > 0, 'the fenced actor was allowed to commit again before a reconcile and nothing noticed');
   } finally { await stop(actors); }
 });
