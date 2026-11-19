@@ -113,7 +113,7 @@ program:
 [[shared-cdn-design-location]] — Design document for the shared cdn.aiofourown.com endpoint.
 [[sonalon-phase-evidence-location]] — The host directory for Sonalon browser-study evidence and the phase-five record pointers.
 [[tools-ingress-path-ownership]] — Relay, executors, and tools in '/cosmoshot/tools'.
-[12/41 entries shown; cosmo-mem read program _index.md]
+[12/42 entries shown; cosmo-mem read program _index.md]
 ```
 
 
