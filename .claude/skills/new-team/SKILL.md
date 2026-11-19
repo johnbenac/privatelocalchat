@@ -18,8 +18,9 @@ for a long time by an agent of its own. There are three separate lists, each wit
 | Project (board project, memory store, skills project file) | where tasks are grouped and which memory a session reads and writes | 6 | taskboard (board project: code, seed, a startup migration and a release) and memory (store) |
 
 A folder may map to an existing team, and several folders may map to one team. A team name is not a project. The board name is the
-canonical one; `cosmo-msg` maps it where it differs (`simulator` to `simulation`, `brand` and `aiofourown` to `branding`, `planner` to
-`claude`), in one place, `BOARD_TO_MSG` in `/cosmoshot/tools/msg/cosmo_msg.py`.
+canonical one; `cosmo-msg` maps it where it differs (`simulator` to `simulation`, `planner` to `claude`), in one place, `BOARD_TO_MSG` in
+`/cosmoshot/tools/msg/cosmo_msg.py`. `brand` and `aiofourown` are separate teams with their own inboxes (a folder owned by
+`aiofourown` in `program.json`, such as `lipsync`, follows `aiofourown`); `branding` is only an address that sends one copy to each.
 
 ## Level 1: a small place (the usual case)
 
