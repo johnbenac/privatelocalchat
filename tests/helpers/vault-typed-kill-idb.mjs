@@ -50,7 +50,9 @@ const server = http.createServer((req, res) => {
 });
 await new Promise((r) => server.listen(0, '127.0.0.1', r));
 const origin = 'http://127.0.0.1:' + server.address().port;
-const context = await chromium.launchPersistentContext(profile, { headless: true, ...(EXECUTABLE ? { executablePath: EXECUTABLE } : {}) });
+// one renderer process PER TAB, so the writer tab's process is the one new renderer after it opens (newer Chromium builds pre-launch a spare renderer and may reuse one for a same-site tab)
+const EXTRA = (arg('--chromium-args', '--process-per-tab') || '').split(' ').filter(Boolean);
+const context = await chromium.launchPersistentContext(profile, { headless: true, args: EXTRA, ...(EXECUTABLE ? { executablePath: EXECUTABLE } : {}) });
 
 // ---- the browser's process tree ---------------------------------------------------------------------------------------------------------------------------------------------------------
 const ps = () => execFileSync('ps', ['-eo', 'pid=,ppid=,args='], { encoding: 'utf8', maxBuffer: 1 << 26 }).split('\n').map((l) => l.trim()).filter(Boolean).map((l) => { const m = l.match(/^(\d+)\s+(\d+)\s+(.*)$/); return m ? { pid: +m[1], ppid: +m[2], args: m[3] } : null; }).filter(Boolean);
@@ -167,7 +169,7 @@ for (let i = 1; i <= REPEAT; i++) {
 await context.close(); server.close();
 try { fs.rmSync(profile, { recursive: true, force: true }); } catch { /* best effort */ }
 const failed = results.filter((r) => !r.pass), killRuns = results.filter((r) => r.detail && r.detail.kill);
-const summary = { browser: 'chromium (playwright) ' + context.browser?.()?.version?.() , executable: EXECUTABLE || 'default', node: process.version, platform: process.platform, sabotage: SABOTAGE || null, checks: results.length, passed: results.length - failed.length, failed: failed.length, kills: killRuns.length, seconds: Math.round((Date.now() - t0) / 1000), failures: failed.slice(0, 6) };
+const summary = { browser: 'chromium (playwright) ' + context.browser?.()?.version?.() , executable: EXECUTABLE || 'default', chromiumArgs: EXTRA, node: process.version, platform: process.platform, sabotage: SABOTAGE || null, checks: results.length, passed: results.length - failed.length, failed: failed.length, kills: killRuns.length, seconds: Math.round((Date.now() - t0) / 1000), failures: failed.slice(0, 6) };
 console.log(JSON.stringify(summary));
 if (OUT) fs.writeFileSync(OUT, JSON.stringify({ summary, results }, null, 1));
 if (SABOTAGE) { const expected = SABOTAGE === 'no-settle-p2' ? 'at P2 durable' : 'at P1 durable'; const caught = failed.some((f) => f.name.includes(expected)); console.log(caught ? 'NEGATIVE CONTROL CAUGHT: ' + SABOTAGE : 'NEGATIVE CONTROL NOT CAUGHT: ' + SABOTAGE); process.exit(caught ? 0 : 1); }
