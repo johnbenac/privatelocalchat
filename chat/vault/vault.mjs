@@ -331,6 +331,20 @@ export function createVault({ adapter, crypto = globalThis.crypto, now = () => D
     };
     // A guard (optional, from the action that started the write) authorizes only by returning exactly true; anything else, or a throw, refuses.
     const authorized = (guard) => { if (guard === undefined || guard === null) return true; try { return guard() === true; } catch { return false; } };
+    // The header rewriters (passphrase, passkey wraps) read the stored header, await crypto and then write it. Without a compare, a typed commit that landed meanwhile (semantic header plc-vault/2) is
+    // overwritten by the STALE plc-vault/1 header and the typed data becomes unreadable while that commit reported success (T895 finding 2). The rewrite is therefore ONE atomic projection (no
+    // records added) compared with exactly the header and log that were read; if anything changed it refuses (busy) and changes nothing. An adapter that cannot compare must not rewrite the header
+    // of a vault that holds typed records.
+    const rewriteHeader = async (build) => {
+      const stored = await adapter.readHeader(), log = await adapter.readLog();
+      const next = await build(stored);
+      if (adapter.atomicProjection === true) {
+        try { await adapter.replaceLog({ add: [], removeUpTo: 0, expected: { header: stored, log }, nextHeader: next }); }
+        catch (error) { if (error?.code === "expected-mismatch" || error?.code === "conflict") throw new VaultError("busy", "The vault changed while its header was being rewritten, so nothing was changed. Try again."); throw error; }
+      } else if (stored && stored.format === SEMANTIC_FORMAT) throw new VaultError("unsupported-adapter", "This storage cannot compare what it holds, so the header of a vault with typed records is not rewritten.");
+      else await adapter.writeHeader(next);
+      api.header = next;
+    };
     // writes are strictly ordered: the next seq is taken when the write starts, and applied to the state only once it is stored
     async function write({ keyId, event }, guard) {
       if (locked) throw new VaultError("locked", "The vault is locked.");
@@ -649,6 +663,11 @@ export function createVault({ adapter, crypto = globalThis.crypto, now = () => D
         await requireSupportedFormat(api.header);
         // A pending typed operation is not compacted: nothing here proves a rewrite preserves its phase, so the pending record is refused, never dropped or finished by accident.
         { let index; try { index = indexOf(state); } catch { throw new VaultError("typed-unreadable", "The typed index could not be read, so nothing was compacted."); } if (index && index.pending !== null) throw new VaultError("typed-hold", "A typed operation is pending, so the vault was not compacted."); }
+        // Exact-bytes fence (T895 finding 1). Compaction rewrites the WHOLE log from this session's memory, so this session must be what is stored: a session that went stale (another session deleted
+        // a chat and compacted since) would otherwise bring the deleted chat, its key and its typed records back. The stored vault is read now and must equal this session's state and last seq;
+        // the new records then start right after that stored last seq, so a writer that slips in between this read and the replace collides on the exclusive add (a known abort) and nothing is replaced.
+        { let stored; try { stored = await readSnapshot(); } catch { throw new VaultError("busy", "The stored vault could not be read consistently, so nothing was compacted."); }
+          if (stored.lastSeq !== seq || canonState(stored.state) !== canonState(state)) throw new VaultError("stale-session", "The stored vault is not what this session holds (another session changed it), so nothing was compacted. Unlock again."); }
         const before = seq, add = [];
         try {
           for (const item of eventsFor(state)) { const at = ++seq; add.push(await seal(item.keyId, item.event, at)); }
@@ -656,27 +675,29 @@ export function createVault({ adapter, crypto = globalThis.crypto, now = () => D
           if (locked) throw new VaultError("locked", "The vault is locked.");
           if (!authorized(guard)) throw new VaultError("session-changed", "The vault was locked or replaced while this was waiting, so it was not compacted.");
         } catch (error) { seq = before; throw error; }   // nothing was handed to the adapter: the sequence numbers are given back
-        try { await adapter.replaceLog({ add, removeUpTo: before, guard: () => !locked && authorized(guard) }); } catch (error) { seq = before; throw error; }
+        try { await adapter.replaceLog({ add, removeUpTo: before, guard: () => !locked && authorized(guard) }); } catch (error) {
+          // Only a failure that PROVES nothing was stored may give the sequence numbers back (T895 finding 6). A known refusal does. An unknown completion (a lost reply) is settled by reading the
+          // stored log: replaced (every record above `before`, ours) = it happened, nothing was lost; no record above `before` = it did not; anything else bars the next write until a reconcile.
+          if (KNOWN_ABORT.has(error?.code) || error?.code === "locked") { seq = before; throw error; }
+          let stored = null; try { stored = await adapter.readLog(); } catch { stored = null; }
+          if (Array.isArray(stored) && stored.length && stored.every((r) => r?.seq > before) && stored.length === add.length) return { records: add.length, removedUpTo: before, settled: "read-back" };
+          if (Array.isArray(stored) && !stored.some((r) => r?.seq > before)) { seq = before; throw error; }
+          needsReconcile = true; throw error;
+        }
         return { records: add.length, removedUpTo: before };
       }),
       /** Change the passphrase: only the wrapped key changes, no data is re-encrypted. Needs the current passphrase. */
       changePassphrase: async (current, next, { iterations = DEFAULT_ITERATIONS } = {}) => {
         if (!next) throw new VaultError("no-passphrase", "A passphrase is required.");
-        const stored = await adapter.readHeader();
-        await openDek(stored, current);
-        const wraps = (stored.wraps || []).filter((w) => w.type !== "passphrase");
-        wraps.unshift(await newPassphraseWrap(dekRaw, next, iterations));
-        const updated = { ...stored, wraps };
-        await adapter.writeHeader(updated); api.header = updated;
+        await rewriteHeader(async (stored) => { await openDek(stored, current); const wraps = (stored.wraps || []).filter((w) => w.type !== "passphrase"); wraps.unshift(await newPassphraseWrap(dekRaw, next, iterations)); return { ...stored, wraps }; });
       },
       /** Add another way to unwrap the vault key (a passkey): { id, type, ...sealed } made by chat/vault/passkey.mjs from `dekBytes()`. */
-      addWrap: async (wrap) => { const stored = await adapter.readHeader(); const updated = { ...stored, wraps: [...(stored.wraps || []).filter((w) => w.id !== wrap.id), wrap] }; await adapter.writeHeader(updated); api.header = updated; },
-      removeWrap: async (id) => {
-        const stored = await adapter.readHeader();
+      addWrap: (wrap) => rewriteHeader(async (stored) => ({ ...stored, wraps: [...(stored.wraps || []).filter((w) => w.id !== wrap.id), wrap] })),
+      removeWrap: (id) => rewriteHeader(async (stored) => {
         const wraps = (stored.wraps || []).filter((w) => w.id !== id);
         if (!wraps.some((w) => w.type === "passphrase")) throw new VaultError("last-passphrase", "The passphrase cannot be removed.");
-        const updated = { ...stored, wraps }; await adapter.writeHeader(updated); api.header = updated;
-      },
+        return { ...stored, wraps };
+      }),
       /** The raw vault key, for wrapping it under a passkey. Kept off the session object's enumerable properties. */
       dekBytes: () => new Uint8Array(dekRaw),
       /**
