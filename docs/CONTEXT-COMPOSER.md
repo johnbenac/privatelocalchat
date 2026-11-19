@@ -10,7 +10,7 @@ What it is not: a resident, a scheduler, a hosted service, authentication, or a 
 |---|---|
 | Admitted design and lore | its `individualId` is the receiver's own (never by name, preset or design id); a participant with no individual gets none |
 | Transcript (originals) | the event the transcript shows has an audience that includes the receiver (`encounter`, or a list holding its participant id) and an allowed standing |
-| Lines with no record (legacy) | policy `legacyTranscript` (default `include`: they are the shared transcript; shown as standing `legacy`, attributed to nobody) |
+| Lines with no record (legacy) | policy `legacyTranscript` (default `exclude`: they have no recorded audience, so a receiver is not told them; the person may choose `include`, and they are then shown as standing `legacy`, attributed to nobody) |
 | Scoped reports (events not in the transcript; package evidence) | audience includes the receiver; package handles name a participant only through the person's explicit `handleMap` |
 | Documents | attached: only if the carrying message is permitted; otherwise a document is the person's own unless it names an audience |
 | Summary | every message it stands on (`[0, upTo)`) is permitted, its own audience (if any) includes the receiver, and it is not stale |

@@ -44,13 +44,40 @@ test('audience: each receiver gets only what its audience includes, and nothing 
   assert.notEqual(a.digest, b.digest);
 });
 
-test('legacy transcript lines (no record) are the shared transcript by default and can be left out by policy', async () => {
+test('legacy transcript lines (no record) have no recorded audience: left out by default, and shown only when the person\'s policy includes them', async () => {
   const w = world();
   const m = msgs([['old1', 'user', 'LEGACY-ONE'], ['old2', 'assistant', 'LEGACY-TWO']]);
-  const inc = await compose(w, w.R1, m);
+  const dflt = await compose(w, w.R1, m);
+  assert.equal(dflt.items.length, 0); assert.ok(!everything(dflt).includes('LEGACY-ONE'), 'not told to a receiver by default');
+  assert.ok(dflt.excluded.every((x) => x.reason === 'legacy-excluded' && !('text' in x)));
+  const inc = await compose(w, w.R1, m, { policy: { legacyTranscript: 'include' } });
   assert.deepEqual(inc.items.map((i) => [i.provenance.standing, i.provenance.attributedTo]), [['legacy', null], ['legacy', null]], 'never attributed to anyone');
   const exc = await compose(w, w.R1, m, { policy: { legacyTranscript: 'exclude' } });
-  assert.equal(exc.items.length, 0); assert.ok(!everything(exc).includes('LEGACY-ONE'));
+  assert.equal(exc.items.length, 0);
+});
+
+test('the standing policy applies to recorded events that are not transcript lines too', async () => {
+  const w = world();
+  const reported = w.rec({ speaker: w.G, text: 'REPORTED-TEXT', audience: [w.R1, w.G], standing: 'reported', expression: 'external' });
+  const other = w.rec({ speaker: w.G, text: 'OTHER-STANDING-TEXT', audience: [w.R1, w.G], standing: 'observed', expression: 'external' });
+  const all = await compose(w, w.R1, []);
+  assert.ok(everything(all).includes('REPORTED-TEXT') && everything(all).includes('OTHER-STANDING-TEXT'), 'no standing policy: both are told');
+  const only = await compose(w, w.R1, [], { policy: { standings: ['reported'] } });
+  assert.ok(everything(only).includes('REPORTED-TEXT'));
+  assert.ok(!everything(only).includes('OTHER-STANDING-TEXT'), 'an event whose standing the policy does not allow is not told');
+  assert.ok(only.excluded.some((x) => x.id === other.id && x.reason === 'standing'));
+  void reported;
+});
+
+test('fail closed: a participant of ANOTHER conversation is not a receiver of this one', async () => {
+  const w = world();
+  ensureEncounter(w.l, 'chat-2', 1);
+  const foreign = addParticipant(w.l, { thread: 'chat-2' }, { id: 'p:foreign', kind: 'agent', name: 'Rin', individualId: 'ind:rin' }).participant.id;
+  const ev = w.rec({ speaker: w.P, text: 'ONLY-IN-CHAT-ONE', audience: 'encounter', message: 'm1' });
+  w.msgs = { m1: ev.id };
+  const r = await compose(w, foreign, msgs([['m1', 'user', 'ONLY-IN-CHAT-ONE']]));
+  assert.equal(r.error?.code, 'unknown-receiver');
+  assert.equal(r.items.length, 0); assert.ok(!everything(r).includes('ONLY-IN-CHAT-ONE'));
 });
 
 test('a receiver is never found by name: an equal name with another individual id gets nothing of the other', async () => {

@@ -15,7 +15,7 @@
 //   input.reports       [{ id, text, standing, audience: [handles], individual?, run?, participant?, source?, occurrence?, derivedFrom? }]   package evidence; handles map to participants ONLY through policy.handleMap
 //   input.memory        { enabled, items: [{ text }] }         legacy global memory: personal scope, never an individual's knowledge
 //   input.preferences   { instructions }                       legacy global preferences: personal scope
-//   input.policy        { personal: { memory, preferences, systemPrompt } (all false by default for a receiver), legacyTranscript: 'include'|'exclude' ('include'), standings?: [..],
+//   input.policy        { personal: { memory, preferences, systemPrompt } (all false by default for a receiver), legacyTranscript: 'include'|'exclude' ('exclude': a line with no record has no recorded audience, so a receiver is not told it unless the person's policy includes it), standings?: [..],
 //                         handleMap?: { handle: participantId }, maxMemoryChars?, query? }
 //   input.stages        { retrieve?(items, ctx), embed?(items, ctx), summarize?(items, ctx) }   each is handed ONLY items that passed the filter; whatever it returns that was not handed to it is dropped
 //
@@ -106,7 +106,7 @@ export async function composeContext(input = {}) {
     const eid = encounter.msgs?.[m.id], ev = eid ? events[eid] : null;
     let item = null, why = null;
     if (!ev) {
-      if ((policy.legacyTranscript || 'include') === 'include') item = { id: 'msg:' + m.id, kind: 'message', text: text(m.content), role: m.role, order: 0, message: m,
+      if (policy.legacyTranscript === 'include') item = { id: 'msg:' + m.id, kind: 'message', text: text(m.content), role: m.role, order: 0, message: m,
         provenance: { source: 'transcript', messageId: m.id, scope: 'encounter', audience: 'encounter', standing: 'legacy', attributedTo: null }, reason: 'legacy message of the shared transcript (no recorded audience or speaker)' };
       else why = 'legacy-excluded';
     } else {

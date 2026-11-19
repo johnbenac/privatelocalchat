@@ -38,7 +38,7 @@ async function oldBuild(host, thread, index, mode) {
   return messages;
 }
 
-function rig({ threads = [], memory = { enabled: true, items: [{ text: 'likes tea' }] }, prefs = { instructions: 'be brief' }, withComposer = true } = {}) {
+function rig({ threads = [], memory = { enabled: true, items: [{ text: 'likes tea' }] }, prefs = { instructions: 'be brief' }, withComposer = true, policy = null } = {}) {
   const storage = memStorage(); let n = 0;
   const live = threads;
   const writes = []; const raw = storage.setItem; storage.setItem = (k, v) => { writes.push(k); raw(k, v); };
@@ -55,7 +55,7 @@ function rig({ threads = [], memory = { enabled: true, items: [{ text: 'likes te
     persistThreads: async () => ({ saved: true }), saveThreads: async () => ({ ok: true }), getThread: (id) => live.find((t) => t.id === id), STATUS: () => model.STATUS, M: () => ({ model }), currentThreadId: () => null,
     messagesView, updateChatAvailability: noop, updateSendButtonDisabled: noop, providerName: () => 'x', modelLabel: () => 'stand-in', provider: { authErrors: 0, config: {} }, updateAuthGuidance: noop, isAuthError: () => false,
     renderThreadList: noop, renderMessages: noop, offline: null, schedulePaint: noop };
-  if (withComposer) host.receiverContext = createReceiverContext({ encounters: enc.facade, memory: () => memory, prefs: () => prefs });
+  if (withComposer) host.receiverContext = createReceiverContext({ encounters: enc.facade, memory: () => memory, prefs: () => prefs, ...(policy ? { policy } : {}) });
   const sender = createSender(host);
   return { enc, f: enc.facade, sender, host, storage, writes, live };
 }
@@ -134,7 +134,7 @@ test('provider request inspection: the messages array a receiving individual’s
   assert.equal(provider.length, 1);
   assert.deepEqual(provider[0], JSON.parse(flat(rin)), 'the array the provider received is the composed one');
   assert.ok(!flat(provider[0]).includes('SHOWN-ONLY-TO-SOL') && flat(provider[0]).includes('SHOWN-ONLY-TO-RIN'));
-  assert.ok(flat(provider[0]).includes('LEGACY-LINE-TWO'), 'lines stored before records existed have no recorded audience: they are the shared transcript (policy.legacyTranscript, default include)');
+  assert.ok(flat(provider[0]).includes('LEGACY-LINE-TWO'), 'saveThreads recorded this line with the default encounter audience, so the receiver is told it (a line with NO record is left out by default: see the composer test)');
   // the same conversation answered for the default assistant is the ordinary request (and does carry the person's memory), so the two are visibly different requests
   provider.length = 0;
   await r.sender.runReply('room');
@@ -143,7 +143,7 @@ test('provider request inspection: the messages array a receiving individual’s
 
 test('a temporary chat: composing for a receiver writes nothing anywhere, and its records live in memory only', async () => {
   const live = [thread('tmp', [msg('m1', 'user', 'TEMP-LINE')], { temporary: true })];
-  const r = rig({ threads: live });
+  const r = rig({ threads: live, policy: () => ({ legacyTranscript: 'include' }) });   // an unrecorded line is told only when the person's policy includes it
   const reg = await r.f.registerParticipant({ thread: 'tmp', id: 'p:rin', name: 'Rin', kind: 'agent', individualId: 'ind:rin' });
   assert.equal(reg.memoryOnly, true);
   const ev = await r.f.receive({ thread: 'tmp', speaker: 'p:rin', expression: 'model', modality: 'text', text: 'TEMP-REPORT', standing: 'reported', occurrence: { source: 's', id: '1' }, audience: 'encounter' });
