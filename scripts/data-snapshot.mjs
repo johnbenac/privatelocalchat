@@ -72,7 +72,8 @@ const withoutCharacters=p=>{const c=JSON.parse(JSON.stringify(p));delete c.local
 try{
   await ready();
   checkBuildIdentity(await page.evaluate(()=>window.APP_BUILD),commitFull);   // before any scenario write: the page is the declared source, for every kind of capture
-  const hasCharacters=await page.evaluate(async()=>{const {KEY_CLASSES}=await import(window.plcApp.moduleBase()+'chat/vault/key-classes.mjs');return 'plc.characters.v1' in KEY_CLASSES;});
+  const charactersKnown=await page.evaluate(async()=>{const {KEY_CLASSES}=await import(window.plcApp.moduleBase()+'chat/vault/key-classes.mjs');return 'plc.characters.v1' in KEY_CLASSES;});
+  let hasCharacters=false;   // decided below: the key is known AND this build can actually save a character (its review says so)
   const modelRequests=()=>fetch(`http://127.0.0.1:${h.api.port}/__requests`).then(r=>r.json()).then(r=>r.length);
   // two chats, a project, a pinned chat, a document, memory, a preset, personal instructions and an unsent draft
   await send('Packing list for a week in Lisbon, please.');
@@ -123,6 +124,17 @@ try{
     await page.click('.app-dialog:has(.char-details) .dialog-actions .primary');await page.waitForFunction(()=>document.querySelectorAll('.app-dialog').length===1);
     await page.click('.app-dialog .dialog-actions .primary');await noDialog();
   };
+  if(charactersKnown){
+    // a build that knows the key but has no durable write capability wired yet (the page refuses to save: 'Saving characters is not available here yet') cannot write it, so it is not captured; an earlier snapshot holds that format
+    await openInstructions();
+    const [chooser]=await Promise.all([page.waitForEvent('filechooser'),page.click('#importCharacterBtn')]);
+    await chooser.setFiles(join(examples,'minimal.bundle.json'));
+    await page.locator('.app-dialog:has-text("Review character")').waitFor();
+    await page.waitForTimeout(1500);
+    hasCharacters=await page.locator('.app-dialog .dialog-actions .primary').isEnabled();
+    await page.click('.app-dialog .dialog-actions button:has-text("Cancel")');await noDialog();
+    console.log('characters: '+(hasCharacters?'this build can save them, so three are captured':'this build cannot save them yet, so none are captured'));
+  }
   let plainProbe,characterStateAfterAdmission=null;
   if(hasCharacters){
     const before=await probe();
