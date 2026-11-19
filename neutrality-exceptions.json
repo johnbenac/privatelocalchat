@@ -280,6 +280,15 @@
     "help/index.html"
    ],
    "why": "The source URL of the attribution block (the programme forge, where the source of this build is offered): the one place a neutral build names our forge."
+  },
+  {
+   "hosts": [
+    "json-schema.org"
+   ],
+   "paths": [
+    "releases/*/vendor/authored-profiles/src/core/content-schema.mjs"
+   ],
+   "why": "The JSON Schema dialect identifier inside the shared authored-profiles package's content schema (a name that says which schema language it is written in, never a request): shipped because rich character packages are received through the package's main entry. The neutral entry avoids it with its own copy of the schema; the app never contacts this address."
   }
  ]
 }
