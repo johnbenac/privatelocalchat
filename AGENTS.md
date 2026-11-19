@@ -111,7 +111,7 @@ program:
 [[lipsync-core-plan-location]] — The lip-sync core plan is located at /cosmoshot/lipsync/docs/CORE-PLAN.md and contains research, licence, scope, order, and decisions.
 [[relay-named-exclusion-brutus-gpu]] — local:qwen3-8-27b-gsq-rco on brutus-gpu is a named exclusion in the relay router config.json; the recorded reason is its slow long-prompt latency.
 [[shared-cdn-design-location]] — Design document for the shared cdn.aiofourown.com endpoint.
-[10/43 entries shown; cosmo-mem read program _index.md]
+[10/44 entries shown; cosmo-mem read program _index.md]
 ```
 
 
