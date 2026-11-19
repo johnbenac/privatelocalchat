@@ -1,7 +1,7 @@
 // Shared pieces of the vault-transition tests (tests/vault-transition*.test.mjs). Synthetic data only.
 //
 //   buildModules(dir, kind)  copies the app's REAL chat/vault/*.mjs into a scratch folder. kind 'new' = the working tree with ONE source transform: the key table gets the two
-//                            supplied new-store classes (plc.characters.v1, plc.encounters.v1: local, user, format 1), because production key ownership is added at final integration.
+//                            supplied new-store classes (plc.characters.v1, plc.syntheticGeneric.v1: local, user, format 1), because production key ownership is added at final integration.
 //                            kind 'old' = the same files from git at the old reader (0b0ef275), byte for byte; 'old-new-table' = those old files with only the same key-table transform (the code the review diagnosed). kind 'new-without-recovery' / 'new-unverified-cleanup' = negative controls:
 //                            the new files with exactly one guard removed.
 //   file adapter / file storage / socket broker: the storage contracts of the vault and of localStorage shared by several PROCESSES (an actor per process).
@@ -13,7 +13,7 @@ import { execFileSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 export const OLD_REV = '0b0ef27530a25e9d218ecae5460066162b07a6da';
-export const NEW_KEYS = ['plc.characters.v1', 'plc.encounters.v1'];
+export const NEW_KEYS = ['plc.characters.v1', 'plc.syntheticGeneric.v1'];
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const FILES = ['vault-store.mjs', 'vault-control.mjs', 'vault.mjs', 'vault-db.mjs', 'data-formats.mjs', 'key-classes.mjs'];
 const ANCHOR = '  "plc.shell.pins.v1": { store: "local", class: "user", format: 1 },\n';

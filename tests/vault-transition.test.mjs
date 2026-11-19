@@ -1,6 +1,6 @@
 // newer store -> older vault -> newer reader (docs/DATA-COMPATIBILITY.md "A newer store, an older vault, then the newer build again").
 // Runs the app's REAL chat/vault/*.mjs, copied into a scratch folder with one transform: the key table gets the two supplied new-store classes
-// (plc.characters.v1, plc.encounters.v1). The old reader is the same files from git 0b0ef275. Synthetic data only.
+// (plc.characters.v1, plc.syntheticGeneric.v1). The old reader is the same files from git 0b0ef275. Synthetic data only.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';

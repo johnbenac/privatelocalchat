@@ -1,7 +1,7 @@
 // The four root-reproduced failures of the shared vault core candidate d79ce40f, as regression tests (the root probes root-policy-probe, post-detach-swap-probe and crypto-lock-probe).
 // Every case sets up a POSITIVE exclusive writer ({ writer: true, lease: providedLease() }) so a refusal can never be an unrelated "no exclusive / read-only / busy" refusal: each test
 // first asserts the authority it relies on, and each has an unchanged positive control. Runs the app's REAL chat/vault/*.mjs copied into an owned scratch folder with ONE transform
-// (the key table gets the two supplied classes plc.characters.v1 / plc.encounters.v1). Synthetic data only. Negative controls are the same files with one guard removed.
+// (the key table gets the two supplied classes plc.characters.v1 / plc.syntheticGeneric.v1). Synthetic data only. Negative controls are the same files with one guard removed.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';
