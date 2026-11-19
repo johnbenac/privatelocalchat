@@ -189,7 +189,8 @@ export async function assertNeriResources(record, { fixtures = FIXTURES, expecte
 export async function producerNeriRecord(fixtures = FIXTURES) {
   const { createCharacterStore, createMemoryStorage, createMemoryLocks } = await import('../../chat/characters/character-store.mjs');
   const storage = createMemoryStorage();
-  const store = createCharacterStore({ storage, key: 'plc.characters.v1', locks: createMemoryLocks(), crypto: webcrypto });
+  const { plainWriteScope } = await import('../helpers/character-write-scope.mjs');   // the store refuses to save without a durable write scope; this contract-only one is the stand-in the store tests use
+  const store = createCharacterStore({ storage, key: 'plc.characters.v1', locks: createMemoryLocks(), crypto: webcrypto, runWriteScope: plainWriteScope(storage) });
   const prepared = await store.prepare({ text: fs.readFileSync(new URL('examples/neri.bundle.json', fixtures), 'utf8') });
   assert.equal(prepared.ok, true, 'the real producer accepts the Neri bundle: ' + JSON.stringify(prepared));
   const committed = await store.commit(prepared.preparation);
