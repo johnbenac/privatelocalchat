@@ -50,7 +50,7 @@ The twelve `cyberplanetary-*` repositories have a second remote, `forge`. After 
 there with the credential helper (never print or paste a credential):
 
     GIT_TERMINAL_PROMPT=0 git -c credential.helper= \
-      -c credential.helper=/cosmoshot/cyberplanetary-forge/forge_git_credential.py \
+      -c 'credential.helper=!forge-git-credential' \
       -c credential.useHttpPath=true push --no-verify forge main
 
 On HTTP 503 retry after a minute, up to eight times. Never push to a GitHub remote unless the
