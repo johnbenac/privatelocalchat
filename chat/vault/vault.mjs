@@ -637,7 +637,12 @@ export function createVault({ adapter, crypto = globalThis.crypto, now = () => D
        * Rewrite the live state as fresh records (new seqs), then drop every older record. Superseded writes, deleted chats and destroyed keys disappear.
        * One adapter call, so it is all-or-nothing.
        */
-      compact: () => enqueue(async () => {
+      // `guard` (optional, strict true, from the action that started this) is asked when compaction starts, again at the boundary where the log is replaced, and by the adapter where it
+      // is actually replaced. A locked session, or one whose authority has gone, never rewrites the log: it would replace the stored records with whatever that session holds in memory
+      // (nothing after a lock), and every record, typed ones included, would be lost.
+      compact: ({ guard } = {}) => enqueue(async () => {
+        if (locked) throw new VaultError("locked", "The vault is locked.");
+        if (!authorized(guard)) throw new VaultError("session-changed", "The vault was locked or replaced while this was waiting, so it was not compacted.");
         // Refused before any record is sealed or replaced: a decoded event this version cannot apply would be dropped, and the stored header may be newer than the supplied one.
         if (sawUnsupported) throw new VaultError("unsupported-event", "This vault holds data written by a newer version of the app, so it was not compacted.");
         requireAdmission();
@@ -645,8 +650,13 @@ export function createVault({ adapter, crypto = globalThis.crypto, now = () => D
         // A pending typed operation is not compacted: nothing here proves a rewrite preserves its phase, so the pending record is refused, never dropped or finished by accident.
         { let index; try { index = indexOf(state); } catch { throw new VaultError("typed-unreadable", "The typed index could not be read, so nothing was compacted."); } if (index && index.pending !== null) throw new VaultError("typed-hold", "A typed operation is pending, so the vault was not compacted."); }
         const before = seq, add = [];
-        for (const item of eventsFor(state)) { const at = ++seq; add.push(await seal(item.keyId, item.event, at)); }
-        try { await adapter.replaceLog({ add, removeUpTo: before }); } catch (error) { seq = before; throw error; }
+        try {
+          for (const item of eventsFor(state)) { const at = ++seq; add.push(await seal(item.keyId, item.event, at)); }
+          // The crypto above is awaited: the page may have locked or replaced this session meanwhile. This is the boundary where the stored log is replaced, so check HERE.
+          if (locked) throw new VaultError("locked", "The vault is locked.");
+          if (!authorized(guard)) throw new VaultError("session-changed", "The vault was locked or replaced while this was waiting, so it was not compacted.");
+        } catch (error) { seq = before; throw error; }   // nothing was handed to the adapter: the sequence numbers are given back
+        try { await adapter.replaceLog({ add, removeUpTo: before, guard: () => !locked && authorized(guard) }); } catch (error) { seq = before; throw error; }
         return { records: add.length, removedUpTo: before };
       }),
       /** Change the passphrase: only the wrapped key changes, no data is re-encrypted. Needs the current passphrase. */
