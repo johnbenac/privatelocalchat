@@ -86,7 +86,7 @@ test('owned removal controls accept live and omitted base-bound generations', as
     // Remove it with the owner exactly as the fresh read observed it: named with the live generation, or with the field omitted whole.
     const r = await session.readChatProjection({ guard: G });
     const actualOwner = r.encounters.find(e => e.id === entity.id).owner;
-    assert.match(actualOwner.generation, /^[A-Za-z0-9_-]{22}$/);
+    assert.equal(actualOwner.generation, session.state.keyGenerations.get('c:synthetic-a'), 'the owner generation read back is the live key generation of that chat');
     const namedOwner = named ? { ...actualOwner } : (() => { const { generation, ...rest } = actualOwner; return rest; })();
 
     const removal = await session.commitChatProjection(plan(r.base, { encounters: { put: [], remove: [{ id: entity.id, owner: namedOwner }] } }), { guard: G });
@@ -174,6 +174,10 @@ test('legacy OFF refuses typed state without clearing any owned data', async () 
   const afterRaw = JSON.stringify(adapter.raw());
 
   assert.ok(error, 'typed-aware handoff absent: legacy OFF must refuse, preserving sole typed data');
+  assert.equal(error.code, 'typed-hold', 'the refusal is the typed-hold one, not busy, a wrong passphrase or a missing lock: ' + JSON.stringify(error));
+  let again = null;
+  try { await control.disable('synthetic'); } catch (e) { again = { code: e.code }; }
+  assert.equal(again?.code, 'typed-hold', 'a second OFF gets the same refusal, so the first left nothing busy or half-done');
   assert.equal(afterRaw, beforeRaw, 'adapter raw exactly unchanged');
   const after = await createVault({ adapter }).unlock('synthetic');
   assert.equal(after.state.encounters.has('enc:synthetic-a'), true, 'owned encounter still present');
@@ -185,6 +189,57 @@ test('legacy OFF refuses typed state without clearing any owned data', async () 
   assert.equal(app.lease, lease, 'lease preserved');
   assert.equal(app.lease.owned, true, 'lease still owned');
   assert.equal(app.vaultSession, session, 'the same session is still attached');
+  assert.equal(realLocal.getItem(VAULT_MARKER), '1', 'marker preserved');
+  assert.equal(realLocal.getItem('chatThreads'), null, 'raw threads not resurrected');
+});
+
+// A DURABLE P1 pending marker with no typed entity at all: a typed commit whose P2 never landed (the writer died, or the adapter refused after P1). The typed hold covers this state too
+// ('pending'): OFF and a full snapshot must refuse, because nothing here proves that dropping the marker does not drop a half-settled operation.
+async function setupVaultWithPendingOnly() {
+  const real = createMemoryAdapter();
+  const vault = createVault({ adapter: real });
+  const first = await vault.create('synthetic', { iterations: ITER });
+  const thread = await seedThread(first);
+  let projections = 0;
+  const crashing = { ...real, async replaceLog(args) { if (!args.expected) return real.replaceLog(args); projections += 1; if (projections === 2) throw new Error('crash before P2 reached the store'); return real.replaceLog(args); } };
+  const writer = await createVault({ adapter: crashing }).unlock('synthetic');
+  const r = await writer.readChatProjection({ guard: G });
+  const entity = structuredClone(FIXTURE.values.find(v => v.owner.type === 'thread' && v.owner.id === 'synthetic-a'));
+  entity.owner = r.owners.find(o => o.type === 'thread' && o.id === 'synthetic-a');
+  await writer.commitChatProjection(plan(r.base, { encounters: { put: [entity], remove: [] } }), { guard: G });   // P1 lands, P2 throws: the outcome is not asserted here
+  const stored = await createVault({ adapter: real }).unlock('synthetic');
+  const index = JSON.parse(stored.state.kv.get('meta/encounters.index.v1'));
+  assert.ok(index.pending, 'the fixture really holds a durable P1 pending marker');
+  assert.equal(index.entities.length, 0, 'and no typed entity at all');
+  assert.equal(stored.state.encounters.size, 0);
+  const session = stored;
+  const realLocal = memoryStorage({ [VAULT_MARKER]: '1' });
+  const realSession = memoryStorage();
+  const lease = providedLease();
+  const app = createAppStorage({ realLocal, realSession });
+  app.attach(session, { writer: true, lease, adapter: real });
+  const control = createVaultControl({ app, adapter: real, realLocal, realSession, docs: { all: async () => [], put: async () => {} }, dropDocsDb: async () => {}, reload: () => {}, iterations: ITER });
+  return { adapter: real, realLocal, session, app, lease, control, thread };
+}
+
+test('OFF and a full snapshot refuse with typed-hold while only a durable P1 pending marker exists', async () => {
+  const { adapter, realLocal, session, app, lease, control } = await setupVaultWithPendingOnly();
+  const beforeRaw = JSON.stringify(adapter.raw());
+
+  assert.throws(() => app.snapshot(), (e) => e.code === 'typed-hold', 'the full snapshot refuses with the typed-hold code');
+  let error = null;
+  try { await control.disable('synthetic'); } catch (e) { error = { code: e.code, message: e.message }; }
+  assert.ok(error, 'OFF must refuse');
+  assert.equal(error.code, 'typed-hold', JSON.stringify(error));
+  assert.equal(JSON.stringify(adapter.raw()), beforeRaw, 'header and log byte-identical after both refusals');
+  let again = null;
+  try { await control.disable('synthetic'); } catch (e) { again = { code: e.code }; }
+  assert.equal(again?.code, 'typed-hold', 'a second OFF gets the same refusal, so nothing was left busy or half-done by the first');
+  const after = await createVault({ adapter }).unlock('synthetic');
+  assert.ok(JSON.parse(after.state.kv.get('meta/encounters.index.v1')).pending, 'the pending marker is still there');
+  assert.equal(app.active, true, 'session still attached');
+  assert.equal(app.vaultSession, session, 'the same session is still attached');
+  assert.equal(app.lease, lease, 'lease preserved'); assert.equal(lease.owned, true, 'lease still owned');
   assert.equal(realLocal.getItem(VAULT_MARKER), '1', 'marker preserved');
   assert.equal(realLocal.getItem('chatThreads'), null, 'raw threads not resurrected');
 });
@@ -224,7 +279,7 @@ test('ordinary thread export preserves its projection with typed state', async (
   assert.equal(r.encounters[0].id, 'enc:synthetic-a');
   assert.equal(r.encounters[0].owner.type, 'thread');
   assert.equal(r.encounters[0].owner.id, 'synthetic-a');
-  assert.match(r.encounters[0].owner.generation, /^[A-Za-z0-9_-]{22}$/);
+  assert.equal(r.encounters[0].owner.generation, session.state.keyGenerations.get('c:synthetic-a'), 'the owner generation read back is the live key generation of that chat');
   assert.ok(r.base);
 
   // The FULL original thread projection through app.local.getItem, with the typed state committed.

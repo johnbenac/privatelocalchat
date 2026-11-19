@@ -335,7 +335,7 @@ test('compaction refuses while a pending operation exists', async () => {
   const r = await s.readChatProjection({ guard: G });
   await s.commitChatProjection(local(r.base), { guard: G });
   const s2 = await createVault({ adapter: real }).unlock('pw');
-  await assert.rejects(() => s2.compact(), (e) => e.code === 'typed-hold' || e.code === 'pending');
+  await assert.rejects(() => s2.compact(), (e) => e.code === 'typed-hold');
 });
 
 test('queued commits from 4, 8 and 16 callers on one session: exactly one wins per base, the rest are refused stale, nothing is corrupt (repeated)', async () => {
