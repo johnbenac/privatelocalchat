@@ -1,0 +1,152 @@
+{
+  "attribution_roots": [
+    "private-local-chat-0.78.0-app",
+    "private-local-chat-0.78.0-app/app"
+  ],
+  "environment": {
+    "node": "v20.19.6",
+    "platform": "linux",
+    "python": "3.12.3",
+    "python_path": "/usr/bin/python3"
+  },
+  "exceptions": {
+    "path": "/cosmoshot/privatelocalchat/neutrality-exceptions.json",
+    "sha256": "eecfdcb96425907d4901e574ad19aa712b9c15f7acfcdc5a4a541c88c1e7f033"
+  },
+  "failed": [],
+  "finished": "2026-11-19T02:52:44Z",
+  "format": "clean-machine-result/1",
+  "input": {
+    "bytes": 20577322,
+    "given": "/var/lib/cosmoshot/scratch-plc-pub/rel/private-local-chat-0.78.0-app.zip",
+    "path": "/var/lib/cosmoshot/scratch-plc-pub/rel/private-local-chat-0.78.0-app.zip",
+    "sha256": "e0902a7bbe4012885383bbf4e91e55e2246fa8cf5727ed6f391cccfeb3f34234"
+  },
+  "passed": true,
+  "rules": {
+    "path": "/cosmoshot/privatelocalchat/tests/neutrality-rules.json",
+    "sha256": "4c6d4c7e2bcf18db0db106cd35bdfda23b10af4463c67b7a444a6fbcde27819d"
+  },
+  "seconds": 42.41,
+  "skipped": [
+    {
+      "name": "scan_archive",
+      "reason": "the archive holds its build inside a wrapper (private-local-chat-0.78.0-app, private-local-chat-0.78.0-app/app); its unpacked files, with the same safe unpacker, were scanned in scan_folder"
+    }
+  ],
+  "started": "2026-11-19T02:52:02Z",
+  "steps": [
+    {
+      "detail": "249 file(s), 86344298 bytes, into a fresh empty folder",
+      "name": "unpack",
+      "seconds": 0.41,
+      "status": "pass"
+    },
+    {
+      "command": [
+        "node",
+        "/var/lib/cosmoshot/scratch-plc-pub/pkg/scan/neutrality.mjs",
+        "--rules",
+        "/cosmoshot/privatelocalchat/tests/neutrality-rules.json",
+        "--exceptions",
+        "/cosmoshot/privatelocalchat/neutrality-exceptions.json",
+        "--tmp",
+        "/var/lib/cosmoshot/scratch-plc-pub/work/clean-machine-sb2nj577/tmp",
+        "--no-attribution",
+        "--manifests",
+        "/cosmoshot/privatelocalchat/tests/brand-asset-hashes.json",
+        "--skip",
+        "app/**",
+        "/var/lib/cosmoshot/scratch-plc-pub/work/clean-machine-sb2nj577/build/private-local-chat-0.78.0-app",
+        "/var/lib/cosmoshot/scratch-plc-pub/work/clean-machine-sb2nj577/build/private-local-chat-0.78.0-app/app"
+      ],
+      "detail": "neutrality scan exit 0",
+      "exit_code": 0,
+      "name": "scan_folder",
+      "output_tail": "rules neutrality-rules/1 version 0.3.2; 249 files scanned\nwarning: /var/lib/cosmoshot/scratch-plc-pub/work/clean-machine-sb2nj577/build/private-local-chat-0.78.0-app DATA-HANDLING.md: \"verified\" matches the rule \"voice-claims\"\nwarning: /var/lib/cosmoshot/scratch-plc-pub/work/clean-machine-sb2nj577/build/private-local-chat-0.78.0-app DATA-HANDLING.md: \"Live\" matches the rule \"evidence-words\"\nwarning: /var/lib/cosmoshot/scratch-plc-pub/work/clean-machine-sb2nj577/build/private-local-chat-0.78.0-app DATA-HANDLING.md: \"live\" matches the rule \"evidence-words\"\nwarning: /var/lib/cosmoshot/scratch-plc-pub/work/clean-machine-sb2nj577/build/private-local-chat-0.78.0-app DATA-HANDLING.md: \"free\" matches the rule \"evidence-words\"\nwarning: /var/lib/cosmoshot/scratch-plc-pub/work/clean-machine-sb2nj577/build/private-local-chat-0.78.0-app README.md: \"secure\" matches the rule \"evidence-words\"\nwarning: /var/lib/cosmoshot/scratch-plc-pub/work/clean-machine-sb2nj577/build/private-local-chat-0.78.0-app README.md: \"free\" matches the rule \"evidence-words\"\nwarning: /var/lib/cosmoshot/scratch-plc-pub/work/clean-machine-sb2nj577/build/private-local-chat-0.78.0-app SELF-HOSTING.md: \"secure\" matches the rule \"evidence-words\"\nwarning: /var/lib/cosmoshot/scratch-plc-pub/work/clean-machine-sb2nj577/build/private-local-chat-0.78.0-app/app brand/WORDMARK_FONT_LICENSE.txt: \"src@users.sourceforge.net\" matches the rule \"email-address\"\nwarning: /var/lib/cosmoshot/scratch-plc-pub/work/clean-machine-sb2nj577/build/private-local-chat-0.78.0-app/app brand/WORDMARK_FONT_LICENSE.txt: \"pce@users.sourceforge.net\" matches the rule \"email-address\"\nwarning: /var/lib/cosmoshot/scratch-plc-pub/work/clean-machine-sb2nj577/build/private-local-chat-0.78.0-app/app brand/WORDMARK_FONT_LICENSE.txt: \"zinosat@tiscali.it\" matches the rule \"email-address\"\nwarning: /var/lib/cosmoshot/scratch-plc-pub/work/clean-machine-sb2nj577/build/private-local-chat-0.78.0-app/app brand/WORDMARK_FONT_LICENSE.txt: \"bubulle@debian.org\" matches the rule \"email-address\"\nwarning: /var/lib/cosmoshot/scratch-plc-pub/work/clean-machine-sb2nj577/build/private-local-chat-0.78.0-app/app brand/WORDMARK_FONT_LICENSE.txt: \"fabian+debian@greffrath.com\" matches the rule \"email-address\"\nwarning: /var/lib/cosmoshot/scratch-plc-pub/work/clean-machine-sb2nj577/build/private-local-chat-0.78.0-app/app index.html: \"Free\" matches the rule \"evidence-words\"\nwarning: /var/lib/cosmoshot/scratch-plc-pub/work/clean-machine-sb2nj577/build/private-local-chat-0.78.0-app/app index.html: \"available\" matches the rule \"evidence-words\"\nwarning: /var/lib/cosmoshot/scratch-plc-pub/work/clean-machine-sb2nj577/build/private-local-chat-0.78.0-app/app manifest.webmanifest: \"Free\" matches the rule \"evidence-words\"\nNothing to fix (15 warning(s)).\n",
+      "seconds": 41.14,
+      "status": "pass"
+    },
+    {
+      "detail": "the archive holds its build inside a wrapper (private-local-chat-0.78.0-app, private-local-chat-0.78.0-app/app); its unpacked files, with the same safe unpacker, were scanned in scan_folder",
+      "name": "scan_archive",
+      "status": "skipped"
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-I",
+        "/var/lib/cosmoshot/scratch-plc-pub/pkg/attribution/attribution.py",
+        "check",
+        "/var/lib/cosmoshot/scratch-plc-pub/work/clean-machine-sb2nj577/build/private-local-chat-0.78.0-app"
+      ],
+      "detail": "attribution check exit 0 on 2 place(s)",
+      "exit_code": 0,
+      "name": "attribution_folder",
+      "output_tail": "attribution block present and consistent\nattribution block present and consistent\n",
+      "seconds": 0.11,
+      "status": "pass"
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-I",
+        "/var/lib/cosmoshot/scratch-plc-pub/pkg/attribution/attribution.py",
+        "check",
+        "/var/lib/cosmoshot/scratch-plc-pub/rel/private-local-chat-0.78.0-app.zip"
+      ],
+      "detail": "attribution check exit 0 on 1 place(s)",
+      "exit_code": 0,
+      "name": "attribution_archive",
+      "output_tail": "attribution block present and consistent\n",
+      "seconds": 0.53,
+      "status": "pass"
+    },
+    {
+      "command": [
+        "http.server",
+        "127.0.0.1:<port>"
+      ],
+      "detail": "fetched 7 path(s) from 127.0.0.1",
+      "fetched": [
+        {
+          "path": "/",
+          "status": 200
+        },
+        {
+          "path": "/NOTICE.md",
+          "status": 200
+        },
+        {
+          "path": "/attribution.json",
+          "status": 200
+        },
+        {
+          "path": "/LICENSE",
+          "status": 200
+        },
+        {
+          "path": "/version.json",
+          "status": 200
+        },
+        {
+          "path": "/manifest.webmanifest",
+          "status": 200
+        },
+        {
+          "path": "/sw.js",
+          "status": 200
+        }
+      ],
+      "name": "serve",
+      "seconds": 0.17,
+      "status": "pass"
+    }
+  ],
+  "tool": {
+    "attribution_sha256": "98c8130eda27eeca82c184b8135c77bad10146b23fe7ad1d944f513ce2359738",
+    "scan_sha256": "e9ad2817c86d563087456170928132dd58a76db8aa91f4707e7ce378409f3591",
+    "script": "/var/lib/cosmoshot/scratch-plc-pub/pkg/selfhost/clean_machine_check.py",
+    "script_sha256": "f1ef077abf1479ac83d32de070b86b0431c60608c37232980a641c22f2807da0"
+  }
+}

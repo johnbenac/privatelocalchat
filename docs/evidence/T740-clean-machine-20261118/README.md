@@ -13,3 +13,16 @@ The earlier run with 1.4.0 (the same day) failed on this layout for the reasons 
 
 Limits: one machine, one run per archive, loopback only; the serve step checks that each path answers 200, it does not check the response headers, run the application, or fetch a model; the scans do not prove that
 the vendored libraries' fallback address is never requested (no request log yet); this is not the independent check (T746, taskboard). Files here: `result-runkit.json`, `result-app.json`.
+
+## The same check on the PUBLISHED archives, release v0.78.0 (2026-11-19)
+
+Taskboard found that the archives above were built locally and that the published v0.77.0 predates the exceptions and the self-hosting page, so a release was cut through the normal path
+(`feat(release): ship the self-hosting page ...`, commit 1da8226; tag v0.78.0, the checksums of the release verified with `sha256sum -c SHA256SUMS`: all three files OK). The check of delivery-tooling **1.6.0**
+(fetched to a scratch folder, SHA-256 d17eaef7...a886 verified) was run on the two zips as downloaded from the GitHub release, with the repository's rules, exceptions and brand hashes, and a serve command per target as
+the procedure says (the zip's own `node {dir}/../serve.mjs` for the runkit zip, the default static server for the app zip):
+
+- `published-v0.78.0-runkit.json`: unpack (251 files), scan, attribution at the top and in app/, attribution on the archive, and a loopback serve of 9 paths all PASS.
+- `published-v0.78.0-app.json`: the same, 7 paths, all PASS.
+
+zip SHA-256 (as downloaded): e0902a7bbe401288... and 49250d09045d092b... (the full values are in the release's SHA256SUMS).
+Limits as above: one machine, loopback only, status codes and not headers, not the independent check (taskboard's T746). `run-kit/site.json` is not in a zip (the manifest is baked into the page), so the pages were named with --path.

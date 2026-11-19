@@ -1,0 +1,160 @@
+{
+  "attribution_roots": [
+    "private-local-chat-0.78.0-runkit",
+    "private-local-chat-0.78.0-runkit/app"
+  ],
+  "environment": {
+    "node": "v20.19.6",
+    "platform": "linux",
+    "python": "3.12.3",
+    "python_path": "/usr/bin/python3"
+  },
+  "exceptions": {
+    "path": "/cosmoshot/privatelocalchat/neutrality-exceptions.json",
+    "sha256": "eecfdcb96425907d4901e574ad19aa712b9c15f7acfcdc5a4a541c88c1e7f033"
+  },
+  "failed": [],
+  "finished": "2026-11-19T02:52:02Z",
+  "format": "clean-machine-result/1",
+  "input": {
+    "bytes": 20592903,
+    "given": "/var/lib/cosmoshot/scratch-plc-pub/rel/private-local-chat-0.78.0-runkit.zip",
+    "path": "/var/lib/cosmoshot/scratch-plc-pub/rel/private-local-chat-0.78.0-runkit.zip",
+    "sha256": "49250d09045d092b8320596c882ee635d11ec84542ac0186b3cee1af46690e3a"
+  },
+  "passed": true,
+  "rules": {
+    "path": "/cosmoshot/privatelocalchat/tests/neutrality-rules.json",
+    "sha256": "4c6d4c7e2bcf18db0db106cd35bdfda23b10af4463c67b7a444a6fbcde27819d"
+  },
+  "seconds": 43.47,
+  "skipped": [
+    {
+      "name": "scan_archive",
+      "reason": "the archive holds its build inside a wrapper (private-local-chat-0.78.0-runkit, private-local-chat-0.78.0-runkit/app); its unpacked files, with the same safe unpacker, were scanned in scan_folder"
+    }
+  ],
+  "started": "2026-11-19T02:51:18Z",
+  "steps": [
+    {
+      "detail": "251 file(s), 86390855 bytes, into a fresh empty folder",
+      "name": "unpack",
+      "seconds": 0.46,
+      "status": "pass"
+    },
+    {
+      "command": [
+        "node",
+        "/var/lib/cosmoshot/scratch-plc-pub/pkg/scan/neutrality.mjs",
+        "--rules",
+        "/cosmoshot/privatelocalchat/tests/neutrality-rules.json",
+        "--exceptions",
+        "/cosmoshot/privatelocalchat/neutrality-exceptions.json",
+        "--tmp",
+        "/var/lib/cosmoshot/scratch-plc-pub/work/clean-machine-q0rbyjq0/tmp",
+        "--no-attribution",
+        "--manifests",
+        "/cosmoshot/privatelocalchat/tests/brand-asset-hashes.json",
+        "--skip",
+        "app/**",
+        "/var/lib/cosmoshot/scratch-plc-pub/work/clean-machine-q0rbyjq0/build/private-local-chat-0.78.0-runkit",
+        "/var/lib/cosmoshot/scratch-plc-pub/work/clean-machine-q0rbyjq0/build/private-local-chat-0.78.0-runkit/app"
+      ],
+      "detail": "neutrality scan exit 0",
+      "exit_code": 0,
+      "name": "scan_folder",
+      "output_tail": "1 files scanned\nwarning: /var/lib/cosmoshot/scratch-plc-pub/work/clean-machine-q0rbyjq0/build/private-local-chat-0.78.0-runkit DATA-HANDLING.md: \"verified\" matches the rule \"voice-claims\"\nwarning: /var/lib/cosmoshot/scratch-plc-pub/work/clean-machine-q0rbyjq0/build/private-local-chat-0.78.0-runkit DATA-HANDLING.md: \"Live\" matches the rule \"evidence-words\"\nwarning: /var/lib/cosmoshot/scratch-plc-pub/work/clean-machine-q0rbyjq0/build/private-local-chat-0.78.0-runkit DATA-HANDLING.md: \"live\" matches the rule \"evidence-words\"\nwarning: /var/lib/cosmoshot/scratch-plc-pub/work/clean-machine-q0rbyjq0/build/private-local-chat-0.78.0-runkit DATA-HANDLING.md: \"free\" matches the rule \"evidence-words\"\nwarning: /var/lib/cosmoshot/scratch-plc-pub/work/clean-machine-q0rbyjq0/build/private-local-chat-0.78.0-runkit README.md: \"secure\" matches the rule \"evidence-words\"\nwarning: /var/lib/cosmoshot/scratch-plc-pub/work/clean-machine-q0rbyjq0/build/private-local-chat-0.78.0-runkit README.md: \"free\" matches the rule \"evidence-words\"\nwarning: /var/lib/cosmoshot/scratch-plc-pub/work/clean-machine-q0rbyjq0/build/private-local-chat-0.78.0-runkit SELF-HOSTING.md: \"secure\" matches the rule \"evidence-words\"\nwarning: /var/lib/cosmoshot/scratch-plc-pub/work/clean-machine-q0rbyjq0/build/private-local-chat-0.78.0-runkit/app about/index.html: \"free\" matches the rule \"evidence-words\"\nwarning: /var/lib/cosmoshot/scratch-plc-pub/work/clean-machine-q0rbyjq0/build/private-local-chat-0.78.0-runkit/app brand/WORDMARK_FONT_LICENSE.txt: \"src@users.sourceforge.net\" matches the rule \"email-address\"\nwarning: /var/lib/cosmoshot/scratch-plc-pub/work/clean-machine-q0rbyjq0/build/private-local-chat-0.78.0-runkit/app brand/WORDMARK_FONT_LICENSE.txt: \"pce@users.sourceforge.net\" matches the rule \"email-address\"\nwarning: /var/lib/cosmoshot/scratch-plc-pub/work/clean-machine-q0rbyjq0/build/private-local-chat-0.78.0-runkit/app brand/WORDMARK_FONT_LICENSE.txt: \"zinosat@tiscali.it\" matches the rule \"email-address\"\nwarning: /var/lib/cosmoshot/scratch-plc-pub/work/clean-machine-q0rbyjq0/build/private-local-chat-0.78.0-runkit/app brand/WORDMARK_FONT_LICENSE.txt: \"bubulle@debian.org\" matches the rule \"email-address\"\nwarning: /var/lib/cosmoshot/scratch-plc-pub/work/clean-machine-q0rbyjq0/build/private-local-chat-0.78.0-runkit/app brand/WORDMARK_FONT_LICENSE.txt: \"fabian+debian@greffrath.com\" matches the rule \"email-address\"\nwarning: /var/lib/cosmoshot/scratch-plc-pub/work/clean-machine-q0rbyjq0/build/private-local-chat-0.78.0-runkit/app help/index.html: \"verified\" matches the rule \"voice-claims\"\nwarning: /var/lib/cosmoshot/scratch-plc-pub/work/clean-machine-q0rbyjq0/build/private-local-chat-0.78.0-runkit/app help/index.html: \"free\" matches the rule \"evidence-words\"\nwarning: /var/lib/cosmoshot/scratch-plc-pub/work/clean-machine-q0rbyjq0/build/private-local-chat-0.78.0-runkit/app help/index.html: \"safe\" matches the rule \"evidence-words\"\nwarning: /var/lib/cosmoshot/scratch-plc-pub/work/clean-machine-q0rbyjq0/build/private-local-chat-0.78.0-runkit/app help/index.html: \"live\" matches the rule \"evidence-words\"\nwarning: /var/lib/cosmoshot/scratch-plc-pub/work/clean-machine-q0rbyjq0/build/private-local-chat-0.78.0-runkit/app help/index.html: \"available\" matches the rule \"evidence-words\"\nwarning: /var/lib/cosmoshot/scratch-plc-pub/work/clean-machine-q0rbyjq0/build/private-local-chat-0.78.0-runkit/app help/index.html: \"Free\" matches the rule \"evidence-words\"\nwarning: /var/lib/cosmoshot/scratch-plc-pub/work/clean-machine-q0rbyjq0/build/private-local-chat-0.78.0-runkit/app index.html: \"Free\" matches the rule \"evidence-words\"\nwarning: /var/lib/cosmoshot/scratch-plc-pub/work/clean-machine-q0rbyjq0/build/private-local-chat-0.78.0-runkit/app index.html: \"available\" matches the rule \"evidence-words\"\nwarning: /var/lib/cosmoshot/scratch-plc-pub/work/clean-machine-q0rbyjq0/build/private-local-chat-0.78.0-runkit/app manifest.webmanifest: \"Free\" matches the rule \"evidence-words\"\nNothing to fix (22 warning(s)).\n",
+      "seconds": 42.13,
+      "status": "pass"
+    },
+    {
+      "detail": "the archive holds its build inside a wrapper (private-local-chat-0.78.0-runkit, private-local-chat-0.78.0-runkit/app); its unpacked files, with the same safe unpacker, were scanned in scan_folder",
+      "name": "scan_archive",
+      "status": "skipped"
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-I",
+        "/var/lib/cosmoshot/scratch-plc-pub/pkg/attribution/attribution.py",
+        "check",
+        "/var/lib/cosmoshot/scratch-plc-pub/work/clean-machine-q0rbyjq0/build/private-local-chat-0.78.0-runkit"
+      ],
+      "detail": "attribution check exit 0 on 2 place(s)",
+      "exit_code": 0,
+      "name": "attribution_folder",
+      "output_tail": "attribution block present and consistent\nattribution block present and consistent\n",
+      "seconds": 0.12,
+      "status": "pass"
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-I",
+        "/var/lib/cosmoshot/scratch-plc-pub/pkg/attribution/attribution.py",
+        "check",
+        "/var/lib/cosmoshot/scratch-plc-pub/rel/private-local-chat-0.78.0-runkit.zip"
+      ],
+      "detail": "attribution check exit 0 on 1 place(s)",
+      "exit_code": 0,
+      "name": "attribution_archive",
+      "output_tail": "attribution block present and consistent\n",
+      "seconds": 0.51,
+      "status": "pass"
+    },
+    {
+      "command": [
+        "--serve-command",
+        "127.0.0.1:<port>"
+      ],
+      "detail": "fetched 9 path(s) from 127.0.0.1",
+      "fetched": [
+        {
+          "path": "/",
+          "status": 200
+        },
+        {
+          "path": "/NOTICE.md",
+          "status": 200
+        },
+        {
+          "path": "/attribution.json",
+          "status": 200
+        },
+        {
+          "path": "/LICENSE",
+          "status": 200
+        },
+        {
+          "path": "/version.json",
+          "status": 200
+        },
+        {
+          "path": "/manifest.webmanifest",
+          "status": 200
+        },
+        {
+          "path": "/sw.js",
+          "status": 200
+        },
+        {
+          "path": "/help/",
+          "status": 200
+        },
+        {
+          "path": "/about/",
+          "status": 200
+        }
+      ],
+      "name": "serve",
+      "seconds": 0.17,
+      "status": "pass"
+    }
+  ],
+  "tool": {
+    "attribution_sha256": "98c8130eda27eeca82c184b8135c77bad10146b23fe7ad1d944f513ce2359738",
+    "scan_sha256": "e9ad2817c86d563087456170928132dd58a76db8aa91f4707e7ce378409f3591",
+    "script": "/var/lib/cosmoshot/scratch-plc-pub/pkg/selfhost/clean_machine_check.py",
+    "script_sha256": "f1ef077abf1479ac83d32de070b86b0431c60608c37232980a641c22f2807da0"
+  }
+}
