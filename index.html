@@ -337,6 +337,8 @@
           <button type="button" id="savePresetBtn" class="secondary">Save as preset</button>
           <button type="button" id="importPresetBtn" class="secondary">Import preset…</button>
           <button type="button" id="previewCharacterBtn" class="secondary">Preview character package…</button>
+          <button type="button" id="importCharacterBtn" class="secondary">Import character…</button>
+          <button type="button" id="savedCharactersBtn" class="secondary">Saved characters…</button>
         </div>
         <div id="lookControls" class="look-controls-host" hidden></div>
         <label for="systemPromptInput">System prompt:</label>
@@ -466,7 +468,7 @@
       const modulesAt = window.APP_BUILD?.commit ? '/releases/' + window.APP_BUILD.commit + '/' : '/';
       // the vault's modules are fetched together with the rest, so the start-up does not wait one more round trip for them
       const vaultModules = Promise.all([import(modulesAt + 'chat/vault/vault-store.mjs'), import(modulesAt + 'chat/vault/vault-control.mjs'), import(modulesAt + 'chat/documents/doc-store.mjs')]);
-      const [{ createDialogs }, { createLock }, { createCall }, { createModelServices }, { createEvents }, { createDocumentsUi }, { createDrafts }, { createVoiceUi }, { createAssistant }, { createRobertaGlue }, { createContextUi }, { createBackups }, { createStorageUi }, { createConversationList }, { createHistoryIo }, { createProviderSettings }, { createTransferGlue }, { createPageChrome }, { createMessagesView }, { createSender }, { createThreadState }, { createConnectionGlue }, { createPrefsStore }] = await Promise.all([import(modulesAt + 'chat/dialogs.mjs'), import(modulesAt + 'chat/lock/lock.mjs'), import(modulesAt + 'chat/call/call.mjs'), import(modulesAt + 'chat/models/services.mjs'), import(modulesAt + 'chat/events.mjs'), import(modulesAt + 'chat/documents/documents-ui.mjs'), import(modulesAt + 'chat/documents/drafts.mjs'), import(modulesAt + 'chat/voice/voice-ui.mjs'), import(modulesAt + 'chat/assistant/assistant.mjs'), import(modulesAt + 'chat/roberta/roberta-glue.mjs'), import(modulesAt + 'chat/context/context-ui.mjs'), import(modulesAt + 'chat/transfer/backups.mjs'), import(modulesAt + 'chat/storage/storage-ui.mjs'), import(modulesAt + 'chat/list/conversation-list.mjs'), import(modulesAt + 'chat/history/history-io.mjs'), import(modulesAt + 'chat/provider/provider-settings.mjs'), import(modulesAt + 'chat/transfer/transfer-glue.mjs'), import(modulesAt + 'chat/core/page-chrome.mjs'), import(modulesAt + 'chat/core/messages-view.mjs'), import(modulesAt + 'chat/core/sender.mjs'), import(modulesAt + 'chat/core/thread-state.mjs'), import(modulesAt + 'chat/connection/connection-glue.mjs'), import(modulesAt + 'chat/assistant/prefs-store.mjs')]);
+      const [{ createDialogs }, { createLock }, { createCall }, { createModelServices }, { createEvents }, { createDocumentsUi }, { createDrafts }, { createVoiceUi }, { createAssistant }, { createRobertaGlue }, { createContextUi }, { createBackups }, { createStorageUi }, { createConversationList }, { createHistoryIo }, { createProviderSettings }, { createTransferGlue }, { createPageChrome }, { createMessagesView }, { createSender }, { createThreadState }, { createConnectionGlue }, { createPrefsStore }, { createCharactersUi }] = await Promise.all([import(modulesAt + 'chat/dialogs.mjs'), import(modulesAt + 'chat/lock/lock.mjs'), import(modulesAt + 'chat/call/call.mjs'), import(modulesAt + 'chat/models/services.mjs'), import(modulesAt + 'chat/events.mjs'), import(modulesAt + 'chat/documents/documents-ui.mjs'), import(modulesAt + 'chat/documents/drafts.mjs'), import(modulesAt + 'chat/voice/voice-ui.mjs'), import(modulesAt + 'chat/assistant/assistant.mjs'), import(modulesAt + 'chat/roberta/roberta-glue.mjs'), import(modulesAt + 'chat/context/context-ui.mjs'), import(modulesAt + 'chat/transfer/backups.mjs'), import(modulesAt + 'chat/storage/storage-ui.mjs'), import(modulesAt + 'chat/list/conversation-list.mjs'), import(modulesAt + 'chat/history/history-io.mjs'), import(modulesAt + 'chat/provider/provider-settings.mjs'), import(modulesAt + 'chat/transfer/transfer-glue.mjs'), import(modulesAt + 'chat/core/page-chrome.mjs'), import(modulesAt + 'chat/core/messages-view.mjs'), import(modulesAt + 'chat/core/sender.mjs'), import(modulesAt + 'chat/core/thread-state.mjs'), import(modulesAt + 'chat/connection/connection-glue.mjs'), import(modulesAt + 'chat/assistant/prefs-store.mjs'), import(modulesAt + 'chat/characters/characters-ui.mjs')]);
       // an encrypted vault, if the person made one, is unlocked before anything reads a saved setting (chat/vault/); the same answer gates local-models.js. Importing the other modules first is safe: none of them reads storage until it is created below.
       const [{ bootVault, appLocal, appSession, app: vaultApp }, { createVaultControl }, { docStore: vaultDocs }] = await vaultModules;
       await bootVault();
@@ -891,6 +893,11 @@
       });
       const { addMemory, openPreferences } = assistant;
 
+      // ---- rich characters (chat/characters/characters-ui.mjs): review a package file or link, keep it deliberately, the saved library; every change goes through its one store ----
+      const characters = createCharactersUi({ el, openAppDialog, showToast, events, storage: appLocal, vault: vaultApp, currentThread, alert: (...a) => alertDialog(...a), confirm: (...a) => confirmDialog(...a) });
+      document.getElementById('importCharacterBtn')?.addEventListener('click', () => characters.chooseFile());
+      document.getElementById('savedCharactersBtn')?.addEventListener('click', () => characters.openLibrary());
+
       // ---- model services (chat/models/services.mjs): memory manager, shared embedder, voice choice ----
       let voiceTestHook = null;
       /* DEV_DIAGNOSTICS_START */
@@ -1068,7 +1075,8 @@
         loadThreads();
         // Check if URL contains chat data and create a thread accordingly
         parseUrlParams();
-        assistant.openPresetFromAddress(); // a preset link only opens the review box (the address is not changed); adding is the person's click
+        // a preset or character link only opens a review box (the address is not changed); adding is the person's click. A link naming both opens neither.
+        if (characters.addressConflict()) characters.openFromAddress(); else { assistant.openPresetFromAddress(); characters.openFromAddress(); }
         assistant.openResourceFromAddress(); // a discovery page's link only opens a box that asks for the downloaded file; nothing is fetched or added
         const ensuredId = ensureThreadExists();
         renderThreadList();
@@ -1235,7 +1243,7 @@
         threads: () => threads, folders: () => convoList.folders(), currentThreadId: () => currentThreadId, currentThread: () => getThread(currentThreadId) || null,
         newThread: opts => newThread(opts || {}), toggleThreadMenu: (id, anchor) => toggleThreadMenu(id, anchor), moduleBase, loadRoberta,
         createProject: () => createFolder(),
-        openLibrary: () => openLibrary(), openPreferences: () => openPreferences(), openStorage: () => openStorage(), openLockSettings: () => lock.openLockSettings(),
+        openLibrary: () => openLibrary(), openCharacters: () => characters.openLibrary(), openPreferences: () => openPreferences(), openStorage: () => openStorage(), openLockSettings: () => lock.openLockSettings(),
         openHelp: async () => (await loadTransferUi()).openHelp(), openShare: async () => (await loadTransferUi()).openShare(),
         attachFiles: () => docsUi.attachFiles(), voiceBusy: () => call.active || voiceUi.recorderOpen(), canRecordNote: () => voiceUi.recordAvailable(), toggleVoiceNote: () => voiceUi.toggleVoiceNote(),
         openSidebar: () => openSidebar(), closeSidebar: () => closeSidebar({ restoreFocus: true }),

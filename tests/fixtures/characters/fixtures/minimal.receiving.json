@@ -1,0 +1,94 @@
+{
+  "plc": {
+    "target": "plc",
+    "purpose": "fresh-design",
+    "value": {
+      "id": "cosmogenitor:subject:pip",
+      "name": "Pip",
+      "prompt": "Portray Pip.\n\nThe description and sample line above are authored character material, not memories of events with the user."
+    },
+    "omissions": [],
+    "resources": [],
+    "errors": [],
+    "projection": {
+      "consumer": "privatelocalchat/preset",
+      "subjectId": "subject:pip",
+      "ready": false,
+      "validation": "not-run",
+      "mapped": [
+        {
+          "source": "subject:pip/label",
+          "target": "name and prompt"
+        }
+      ],
+      "omitted": [],
+      "missing": [],
+      "errors": []
+    },
+    "shapeAccepted": false,
+    "admissionReady": false,
+    "runtimeReady": false
+  },
+  "sonalon": {
+    "target": "sonalon",
+    "purpose": "fresh-design",
+    "value": null,
+    "omissions": [],
+    "resources": [],
+    "errors": [],
+    "projection": {
+      "consumer": "cognitive-fabric/resident-design",
+      "subjectId": "subject:pip",
+      "ready": false,
+      "validation": "not-run",
+      "mapped": [],
+      "omitted": [],
+      "missing": [
+        {
+          "code": "missing-aspect",
+          "source": "core:identity",
+          "message": "Supply this consumer-required aspect explicitly."
+        },
+        {
+          "code": "missing-aspect",
+          "source": "core:voice",
+          "message": "Supply this consumer-required aspect explicitly."
+        },
+        {
+          "code": "missing-aspect",
+          "source": "sonalon:design-metadata",
+          "message": "Supply this consumer-required aspect explicitly."
+        },
+        {
+          "code": "missing-aspect",
+          "source": "sonalon:authored-sections",
+          "message": "Supply this consumer-required aspect explicitly."
+        },
+        {
+          "code": "missing-aspect",
+          "source": "sonalon:voice-sections",
+          "message": "Supply this consumer-required aspect explicitly."
+        },
+        {
+          "code": "missing-aspect",
+          "source": "sonalon:start",
+          "message": "Supply this consumer-required aspect explicitly."
+        },
+        {
+          "code": "missing-field",
+          "source": "core:identity/premise",
+          "message": "Sonalon requires an explicit authored premise."
+        },
+        {
+          "code": "missing-field",
+          "source": "core:voice/description",
+          "message": "Sonalon requires an explicit voice description."
+        }
+      ],
+      "errors": []
+    },
+    "shapeAccepted": false,
+    "admissionReady": false,
+    "runtimeReady": false
+  }
+}

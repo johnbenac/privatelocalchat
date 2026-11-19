@@ -1,0 +1,309 @@
+{
+  "plc": {
+    "target": "plc",
+    "purpose": "fresh-design",
+    "value": {
+      "id": "cosmogenitor:subject:neri",
+      "name": "Neri",
+      "prompt": "Portray Neri.\n\nAn imagined coastal archivist who leaves uncertainty visible in her tide notebooks.\n\nPremise: An archivist comparing incomplete accounts of an imaginary harbour.\n\nMotive: Keep uncertain records useful without making them certain.\n\nCentral contradiction: She longs for a complete chart and distrusts tidy explanations.\n\nCommunication: Quiet, precise questions; room for disagreement.\n\nAuthored sample line: There is a gap here. We can leave it visible.\n\nThe description and sample line above are authored character material, not memories of events with the user."
+    },
+    "omissions": [
+      {
+        "id": "profile:world",
+        "reason": "optional profile transported, not interpreted"
+      },
+      {
+        "id": "subject:harbour",
+        "reason": "dependency subject retained, not projected"
+      },
+      {
+        "id": "authored:character-v1",
+        "reason": "optional profile transported, not interpreted"
+      },
+      {
+        "id": "profile:relationship",
+        "reason": "optional profile transported, not interpreted"
+      },
+      {
+        "id": "subject:neri-harbour",
+        "reason": "dependency subject retained, not projected"
+      },
+      {
+        "id": "aspect:neri-design-attribution",
+        "reason": "optional aspect transported, not interpreted"
+      },
+      {
+        "id": "aspect:neri-lore",
+        "reason": "optional aspect transported, not interpreted"
+      },
+      {
+        "id": "aspect:neri-guidance",
+        "reason": "optional aspect transported, not interpreted"
+      },
+      {
+        "id": "aspect:neri-prepared",
+        "reason": "optional aspect transported, not interpreted"
+      },
+      {
+        "id": "aspect:neri-presentation",
+        "reason": "optional aspect transported, not interpreted"
+      },
+      {
+        "id": "aspect:neri-media",
+        "reason": "optional aspect transported, not interpreted"
+      },
+      {
+        "id": "aspect:neri-evidence",
+        "reason": "optional aspect transported, not interpreted"
+      }
+    ],
+    "resources": [
+      {
+        "asset": "asset:chart",
+        "required": true,
+        "status": "verified-bytes"
+      },
+      {
+        "asset": "asset:card",
+        "required": true,
+        "status": "verified-bytes"
+      }
+    ],
+    "errors": [],
+    "projection": {
+      "consumer": "privatelocalchat/preset",
+      "subjectId": "subject:neri",
+      "ready": false,
+      "validation": "not-run",
+      "mapped": [
+        {
+          "source": "subject:neri/label",
+          "target": "name and prompt"
+        },
+        {
+          "source": "subject:neri/summary",
+          "target": "prompt"
+        },
+        {
+          "source": "aspect:neri-identity/premise",
+          "target": "prompt"
+        },
+        {
+          "source": "aspect:neri-dossier/motive",
+          "target": "prompt"
+        },
+        {
+          "source": "aspect:neri-dossier/contradiction",
+          "target": "prompt"
+        },
+        {
+          "source": "aspect:neri-communication/manner",
+          "target": "prompt"
+        },
+        {
+          "source": "aspect:neri-communication/signatureLine",
+          "target": "prompt"
+        }
+      ],
+      "omitted": [
+        {
+          "code": "unmapped-aspect",
+          "source": "aspect:neri-design-attribution",
+          "message": "This aspect is retained in the source library but has no mapping in this projection."
+        },
+        {
+          "code": "unmapped-aspect",
+          "source": "aspect:neri-lore",
+          "message": "This aspect is retained in the source library but has no mapping in this projection."
+        },
+        {
+          "code": "unmapped-aspect",
+          "source": "aspect:neri-guidance",
+          "message": "This aspect is retained in the source library but has no mapping in this projection."
+        },
+        {
+          "code": "unmapped-aspect",
+          "source": "aspect:neri-prepared",
+          "message": "This aspect is retained in the source library but has no mapping in this projection."
+        },
+        {
+          "code": "unmapped-aspect",
+          "source": "aspect:neri-presentation",
+          "message": "This aspect is retained in the source library but has no mapping in this projection."
+        },
+        {
+          "code": "unmapped-aspect",
+          "source": "aspect:neri-media",
+          "message": "This aspect is retained in the source library but has no mapping in this projection."
+        },
+        {
+          "code": "unmapped-aspect",
+          "source": "aspect:neri-evidence",
+          "message": "This aspect is retained in the source library but has no mapping in this projection."
+        }
+      ],
+      "missing": [],
+      "errors": []
+    },
+    "shapeAccepted": false,
+    "admissionReady": false,
+    "runtimeReady": false
+  },
+  "sonalon": {
+    "target": "sonalon",
+    "purpose": "fresh-design",
+    "value": null,
+    "omissions": [
+      {
+        "id": "profile:world",
+        "reason": "optional profile transported, not interpreted"
+      },
+      {
+        "id": "subject:harbour",
+        "reason": "dependency subject retained, not projected"
+      },
+      {
+        "id": "authored:character-v1",
+        "reason": "optional profile transported, not interpreted"
+      },
+      {
+        "id": "profile:relationship",
+        "reason": "optional profile transported, not interpreted"
+      },
+      {
+        "id": "subject:neri-harbour",
+        "reason": "dependency subject retained, not projected"
+      },
+      {
+        "id": "aspect:neri-design-attribution",
+        "reason": "optional aspect transported, not interpreted"
+      },
+      {
+        "id": "aspect:neri-dossier",
+        "reason": "optional aspect transported, not interpreted"
+      },
+      {
+        "id": "aspect:neri-lore",
+        "reason": "optional aspect transported, not interpreted"
+      },
+      {
+        "id": "aspect:neri-guidance",
+        "reason": "optional aspect transported, not interpreted"
+      },
+      {
+        "id": "aspect:neri-prepared",
+        "reason": "optional aspect transported, not interpreted"
+      },
+      {
+        "id": "aspect:neri-presentation",
+        "reason": "optional aspect transported, not interpreted"
+      },
+      {
+        "id": "aspect:neri-media",
+        "reason": "optional aspect transported, not interpreted"
+      },
+      {
+        "id": "aspect:neri-evidence",
+        "reason": "optional aspect transported, not interpreted"
+      }
+    ],
+    "resources": [
+      {
+        "asset": "asset:chart",
+        "required": true,
+        "status": "verified-bytes"
+      },
+      {
+        "asset": "asset:card",
+        "required": true,
+        "status": "verified-bytes"
+      }
+    ],
+    "errors": [],
+    "projection": {
+      "consumer": "cognitive-fabric/resident-design",
+      "subjectId": "subject:neri",
+      "ready": false,
+      "validation": "not-run",
+      "mapped": [],
+      "omitted": [
+        {
+          "code": "unmapped-aspect",
+          "source": "aspect:neri-design-attribution",
+          "message": "This aspect is retained in the source library but has no mapping in this projection."
+        },
+        {
+          "code": "unmapped-aspect",
+          "source": "aspect:neri-dossier",
+          "message": "This aspect is retained in the source library but has no mapping in this projection."
+        },
+        {
+          "code": "unmapped-aspect",
+          "source": "aspect:neri-lore",
+          "message": "This aspect is retained in the source library but has no mapping in this projection."
+        },
+        {
+          "code": "unmapped-aspect",
+          "source": "aspect:neri-guidance",
+          "message": "This aspect is retained in the source library but has no mapping in this projection."
+        },
+        {
+          "code": "unmapped-aspect",
+          "source": "aspect:neri-prepared",
+          "message": "This aspect is retained in the source library but has no mapping in this projection."
+        },
+        {
+          "code": "unmapped-aspect",
+          "source": "aspect:neri-presentation",
+          "message": "This aspect is retained in the source library but has no mapping in this projection."
+        },
+        {
+          "code": "unmapped-aspect",
+          "source": "aspect:neri-media",
+          "message": "This aspect is retained in the source library but has no mapping in this projection."
+        },
+        {
+          "code": "unmapped-aspect",
+          "source": "aspect:neri-evidence",
+          "message": "This aspect is retained in the source library but has no mapping in this projection."
+        }
+      ],
+      "missing": [
+        {
+          "code": "missing-aspect",
+          "source": "core:voice",
+          "message": "Supply this consumer-required aspect explicitly."
+        },
+        {
+          "code": "missing-aspect",
+          "source": "sonalon:design-metadata",
+          "message": "Supply this consumer-required aspect explicitly."
+        },
+        {
+          "code": "missing-aspect",
+          "source": "sonalon:authored-sections",
+          "message": "Supply this consumer-required aspect explicitly."
+        },
+        {
+          "code": "missing-aspect",
+          "source": "sonalon:voice-sections",
+          "message": "Supply this consumer-required aspect explicitly."
+        },
+        {
+          "code": "missing-aspect",
+          "source": "sonalon:start",
+          "message": "Supply this consumer-required aspect explicitly."
+        },
+        {
+          "code": "missing-field",
+          "source": "core:voice/description",
+          "message": "Sonalon requires an explicit voice description."
+        }
+      ],
+      "errors": []
+    },
+    "shapeAccepted": false,
+    "admissionReady": false,
+    "runtimeReady": false
+  }
+}
