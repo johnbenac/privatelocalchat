@@ -261,6 +261,8 @@ What the interface must say: the passkey is kept by the device's account (Apple 
 
 ## Log (newest first; add a line with every finding)
 
+* 2026-11-17: **typed owned encounters: engine component built, no producer wired** (`docs/OWNED-CONVERSATION-STORE.md`). The engine keeps one entity per encounter under the key of its chat or standalone owner (events `owned.put`/`owned.del`, key generations, semantic header `plc-vault/2` beside the unchanged `plc-vault/1` encryption domain), commits it with its chat in one engine-owned P1/P2/P3 over one header+log transaction, and refuses whole-chat and reserved writes while typed state exists. Tested in node and on real IndexedDB (20 repeats, 4/8/16 pages, killed pages); the genuine producer snapshot, host, consumers, backup and the full browser, file and data-upgrade gates are NOT done.
+
 * 2026-11-04: **6.1 decided: opt-in only, never the default** (owner). The "also encrypt" box in the passcode dialog now starts unticked. Also from the owner: the encryption dialogs did not use the app's visual language; they now use the Settings vocabulary (cards, rows with a label and description, pill buttons, sub-headings), and the unlock screen is a card in the same style.
 * 2026-11-04: **5.1 closed: the passkey worked perfectly on the Galaxy S8+** (add, lock, unlock with the screen lock), so Chrome 131 there does support PRF. Only 6.1 (default-on, the owner's decision) is left.
 

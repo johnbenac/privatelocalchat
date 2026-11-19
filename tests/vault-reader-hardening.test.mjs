@@ -11,7 +11,7 @@ import {createMemoryAdapter} from '../chat/vault/vault-db.mjs';
 
 const FAST = 1000;
 const MARKER = 'plc.vault.v1';
-const FUTURE = 'plc-vault/2';
+const FUTURE = 'plc-vault/999';
 const raw = (adapter) => JSON.stringify(adapter.raw());
 const storage = (initial = {}) => { const m = new Map(Object.entries(initial)); return {getItem: (k) => (m.has(k) ? m.get(k) : null), setItem: (k, v) => { m.set(k, String(v)); }, removeItem: (k) => { m.delete(k); }, clear: () => m.clear(), key: (i) => [...m.keys()][i] ?? null, get length() { return m.size; }}; };
 let instances = 0;
