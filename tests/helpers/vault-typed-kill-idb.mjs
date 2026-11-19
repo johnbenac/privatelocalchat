@@ -111,7 +111,9 @@ async function once(point, { kill }) {
     const pid = fresh[0]; out.killedPid = pid;
     process.kill(pid, 'SIGKILL');
     await until(() => !alive(pid), 10000, 'the killed renderer to disappear');
-    assert.equal(await Promise.race([crashed, new Promise((r) => setTimeout(() => r(false), 10000))]), true, 'the writer tab should report a crash');
+    // the writer tab must be DEAD: Playwright's `crash` event, or the tab no longer answers a trivial evaluate (the event is not delivered by every Chromium build)
+    const dead = await until(async () => { if (await Promise.race([crashed, Promise.resolve(false)])) return 'crash-event'; try { const r = await Promise.race([writer.evaluate(() => 1), new Promise((res) => setTimeout(() => res('no-answer'), 1500))]); return r === 'no-answer' ? 'no-answer' : false; } catch { return 'evaluate-failed'; } }, 15000, 'the writer tab to be dead');
+    out.writerDeath = dead;
     assert.equal(await observer.evaluate(() => 1 + 1), 2, 'the observer tab must be alive: only the writer tab was killed');
     out.takenAfterKill = await until(async () => (await inPage(observer, `return await navigator.locks.request(${JSON.stringify(lock)}, { ifAvailable: true }, (l) => !!l);`)) === true, 15000, 'the dead tab\'s Web Lock to be released');
   } else {
