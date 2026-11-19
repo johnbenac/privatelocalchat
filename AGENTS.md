@@ -111,8 +111,7 @@ program:
 [[lipsync-core-plan-location]] — The lip-sync core plan is located at /cosmoshot/lipsync/docs/CORE-PLAN.md and contains research, licence, scope, order, and decisions.
 [[relay-named-exclusion-brutus-gpu]] — local:qwen3-8-27b-gsq-rco on brutus-gpu is a named exclusion in the relay router config.json; the recorded reason is its slow long-prompt latency.
 [[shared-cdn-design-location]] — Design document for the shared cdn.aiofourown.com endpoint.
-[[sonalon-phase-evidence-location]] — The host directory for Sonalon browser-study evidence and the phase-five record pointers.
-[11/43 entries shown; cosmo-mem read program _index.md]
+[10/43 entries shown; cosmo-mem read program _index.md]
 ```
 
 
@@ -127,7 +126,8 @@ program:
   `contract-request.md` in your own repository; its agent or an independent reviewer answers on the same task with agreement and
   numbered corrections. Each team writes only in its own repository.
 - Mail reaches you at your next prompt or tool call, and when you stop; read it with `cosmo-msg read ID`. If you are idle and
-  it matters, the sender wakes you with a direct message. Wait on tasks with `board-watch` in the background, not by polling.
+  it matters, the sender wakes you with a direct message. Never hold a background task (a watcher, `board-watch`) while you
+  work toward a goal: the goal check is skipped while one runs. Check the board at your own turns.
 - Delegating: `program/execution-lanes.md` and `api-key-executors.md`. New repository: the `new-repository` skill.
 - Use `/usr/bin/python3`. Heavy runs can go to `boiler`. `/tmp` is memory-backed: no large trees there.
 <!-- END cosmoshot-managed: instructions -->
