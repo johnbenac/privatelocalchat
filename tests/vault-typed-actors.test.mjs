@@ -7,6 +7,9 @@
 //   accounting  every actor's outcome is known: `committed`, or `not-written` with a reason in a stated set of stale refusals (stale-base, pending, expected-mismatch, unreadable); an
 //               unexpected status (unknown, unsettled, not-committed) or a reason outside the set FAILS, except the one fenced actor of scenario S4 whose guard is withdrawn on purpose;
 //   one winner  exactly one committed commit per base; the rest refused; the engine's own guard is asked (guardAsked > 0);
+//   NOTE on S3 and S4: in the N-actor races most losers are refused as STALE before their own plan is judged, so S3 shows 'refused and nothing written' for a wrong-generation removal, not 'refused for
+//               the wrong generation': the reason is asserted exactly by S5 (wrong generation with no competing commit) and by tests/vault-owned-corrections.test.mjs; and the phases an actor's guard is
+//               withdrawn in are probabilistic in the race, so the fence sweep (a fenced actor alone, question 1 to 16) asserts the coverage deterministically.
 //   no mutation the stored log after the race holds exactly the records of the one winning commit (the record count equals what one actor alone leaves), contiguous and unique seqs, no
 //               pending marker, no damaged record, the entities are exactly the winners', and a refusal changed nothing (generation of the chat key unchanged, the existing entity intact);
 //   cold replay a brand new unlock of the stored folder (no memory of any actor) reaches that state.
@@ -18,7 +21,8 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import { spawn } from 'node:child_process';
+import os from 'node:os';
+import { spawn, execFileSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { scratchRoot } from './helpers/vault-transition-rig.mjs';
 import { fileProjectionAdapter } from './helpers/vault-typed-adapter.mjs';
@@ -30,6 +34,10 @@ const STALE_OK = new Set(['stale-base', 'pending', 'expected-mismatch', 'unreada
 const REMOVE_OK = new Set([...STALE_OK, 'invalid-plan']);
 const root = scratchRoot();
 const ITER = 1000;
+// PROVENANCE (T895 finding 9): what this run is, written into its own output, so a saved log can be tied to a tree and a command
+{ const git = (...a) => { try { return execFileSync('git', a, { cwd: ROOT, encoding: 'utf8' }).trim(); } catch { return 'unknown'; } };
+  console.log('# provenance ' + JSON.stringify({ file: 'tests/vault-typed-actors.test.mjs', head: git('rev-parse', 'HEAD'), tree: git('rev-parse', 'HEAD^{tree}'), dirty: git('status', '--porcelain') !== '', engineSha256: crypto.createHash('sha256').update(fs.readFileSync(path.join(ROOT, 'chat', 'vault', 'vault.mjs'))).digest('hex').slice(0, 16),
+    node: process.version, argv: process.argv.slice(1).join(' '), env: { PLC_REQUIRE_OLD_REV: process.env.PLC_REQUIRE_OLD_REV || null, TYPED_REPEAT: process.env.TYPED_REPEAT || null, TYPED_COUNTS: process.env.TYPED_COUNTS || null }, host: os.hostname(), at: new Date().toISOString() })); }
 
 // ---- engine copies: the app's real file, optionally with ONE deliberate break (negative controls) ---------------------------------------------------------------------------------------
 function buildEngine(name, breaks = []) {
@@ -187,7 +195,17 @@ async function s4(actors, rep) {   // S4: one actor's guard is withdrawn mid-com
   const entities = [...(await createVault({ adapter: f.adapter }).unlock('pw')).state.encounters.keys()];
   if (!entities.includes('E2') && !entities.includes('enc:E2')) v.push('liveness: the next base was not won');
   await cold(f, v, { entities });
-  return { v, records: null };
+  return { v, records: null, fenced: { k, status: results[0].status, reason: results[0].reason ?? null } };
+}
+
+async function s5(actors) {   // S5: an explicit WRONG owner generation with NO competing commit: every actor is refused for exactly that reason, before P1, and nothing is written
+  const v = [], f = await makeFolder('s5'); await openAll(actors, f, v);
+  await race([actors[0]], [put('E1', 1, 'pre')], f, 'pre', v);
+  const before = await cold(f, v, { entities: ['E1'] });
+  const { results } = await race(actors, actors.map((a, i) => ({ kind: 'removeWrong', E: 'E1', op: 'rm-' + i, rev: 2 })), f, 'b', v);
+  results.forEach((r, i) => { if (r.t !== 'result' || r.status !== 'not-written' || r.reason !== 'invalid-plan') v.push('actor ' + i + ': a wrong generation must be refused with exactly invalid-plan, got ' + JSON.stringify(r)); });
+  await cold(f, v, { entities: ['E1'], records: before.records, keyGeneration: before.generation });
+  return { v, records: before.records };
 }
 
 async function expectations() {   // what ONE actor alone leaves: the reference every N-actor repeat is compared with
@@ -209,13 +227,31 @@ for (const N of COUNTS) {
     const actors = spawnActors(N, GOOD); await ready(actors);
     try {
       for (let rep = 0; rep < REPEAT; rep++) {
-        const outs = [await s1(actors, EXPECT), await s2(actors, EXPECT), await s3(actors, EXPECT), await s4(actors, rep)];
+        const outs = [await s1(actors, EXPECT), await s2(actors, EXPECT), await s3(actors, EXPECT), await s4(actors, rep), await s5(actors)];
         const v = outs.flatMap((o, i) => o.v.map((x) => 'S' + (i + 1) + ': ' + x));
         assert.deepEqual(v, [], `repeat ${rep + 1}/${REPEAT} with ${N} actors:\n  ` + v.join('\n  '));
       }
     } finally { await stop(actors); }
   });
 }
+
+// ---- the fence sweep: a fenced actor ALONE, the guard withdrawn at question 1 to 16: deterministic coverage of every phase of the commit ------------------------------------------------------
+test('fence sweep: withdrawing the guard at any question of a commit never commits, and the phases beyond P1 are really covered', async () => {
+  const actors = spawnActors(1, GOOD); await ready(actors);
+  try {
+    const seen = new Map();
+    for (let rep = 0; rep < 16; rep++) {
+      const o = await s4(actors, rep);   // k = 1 + (rep % 12): extend the sweep to 16 by also using the second lap
+      assert.deepEqual(o.v, [], 'sweep question ' + (rep + 1) + ': ' + o.v.join(' | '));
+      seen.set(o.fenced.status + (o.fenced.reason ? '/' + o.fenced.reason : ''), (seen.get(o.fenced.status + (o.fenced.reason ? '/' + o.fenced.reason : '')) || 0) + 1);
+      assert.notEqual(o.fenced.status, 'committed', 'a withdrawn guard must never commit (question ' + o.fenced.k + ')');
+    }
+    const statuses = [...seen.keys()];
+    assert.ok(statuses.some((x) => x === 'not-written/authority'), 'the guard was withdrawn before P1 at least once: ' + JSON.stringify([...seen]));
+    assert.ok(statuses.some((x) => ['not-committed', 'unsettled', 'unknown'].some((p) => x.startsWith(p))), 'the guard was withdrawn AFTER P1 (an uncertain commit) at least once: ' + JSON.stringify([...seen]));
+    if (process.env.TYPED_DEBUG) console.error('    fence sweep outcomes: ' + JSON.stringify([...seen]));
+  } finally { await stop(actors); }
+});
 
 // ---- negative controls: the same races over a deliberately broken engine or backend must FAIL ------------------------------------------------------------------------------------------------
 test('negative control: a backend that loses updates (no compare of the expected header and log) and an engine without the stale-base check are caught', async () => {

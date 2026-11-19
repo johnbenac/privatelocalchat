@@ -66,7 +66,7 @@ async function rendererOf(page) {
   const delta = all.map((p) => ({ pid: p, d: cpuTicks(p) - t0[p] })).sort((x, y) => y.d - x.d);
   assert.ok(delta.length && delta[0].d >= 50, 'no renderer showed the writer tab spinning: ' + JSON.stringify(delta.slice(0, 4)));   // 100 ticks per second
   assert.ok(!delta[1] || delta[1].d * 3 < delta[0].d, 'the spinning tab\'s process is not clear: ' + JSON.stringify(delta.slice(0, 4)));
-  return { pid: delta[0].pid, others: delta.slice(1, 3) };
+  return { pid: delta[0].pid, cpuWriter: delta[0].d, others: delta.slice(1, 3) };
 }
 const alive = (pid) => { try { process.kill(pid, 0); return true; } catch { return false; } };
 const until = async (fn, ms, what) => { const t = Date.now(); for (;;) { const v = await fn(); if (v) return v; if (Date.now() - t > ms) throw new Error('timed out waiting for ' + what); await new Promise((r) => setTimeout(r, 50)); } };
@@ -119,7 +119,7 @@ async function once(point, { kill }) {
   out.lockHeldBeforeKill = heldBefore === false;
   assert.equal(heldBefore, false, 'the writer lock must be held while the writer is alive');
   if (kill) {
-    const found = await rendererOf(writer); const pid = found.pid; out.killedPid = pid; out.mappedBy = 'cpu'; out.cpuOthers = found.others;
+    const found = await rendererOf(writer); const pid = found.pid; out.killedPid = pid; out.mappedBy = 'cpu'; out.cpuWriter = found.cpuWriter; out.cpuOthers = found.others;
     out.newRenderers = [...renderers()].filter((p) => !before.has(p)).length;
     process.kill(pid, 'SIGKILL');
     await until(() => !alive(pid), 10000, 'the killed renderer to disappear');
@@ -183,7 +183,9 @@ for (let i = 1; i <= REPEAT; i++) {
 await context.close(); server.close();
 try { fs.rmSync(profile, { recursive: true, force: true }); } catch { /* best effort */ }
 const failed = results.filter((r) => !r.pass), killRuns = results.filter((r) => r.detail && r.detail.kill);
-const summary = { browser: 'chromium (playwright) ' + context.browser?.()?.version?.() , executable: EXECUTABLE || 'default', chromiumArgs: EXTRA, node: process.version, platform: process.platform, sabotage: SABOTAGE || null, checks: results.length, passed: results.length - failed.length, failed: failed.length, kills: killRuns.length, seconds: Math.round((Date.now() - t0) / 1000), failures: failed.slice(0, 6) };
+const git = (...a) => { try { return execFileSync('git', a, { cwd: ROOT, encoding: 'utf8' }).trim(); } catch { return 'unknown'; } };
+const provenance = { file: 'tests/helpers/vault-typed-kill-idb.mjs', head: git('rev-parse', 'HEAD'), tree: git('rev-parse', 'HEAD^{tree}'), dirty: git('status', '--porcelain') !== '', engineSha256: (await import('node:crypto')).createHash('sha256').update(fs.readFileSync(path.join(ROOT, 'chat', 'vault', 'vault.mjs'))).digest('hex').slice(0, 16), dbSha256: (await import('node:crypto')).createHash('sha256').update(fs.readFileSync(path.join(ROOT, 'chat', 'vault', 'vault-db.mjs'))).digest('hex').slice(0, 16), argv: process.argv.slice(1).join(' '), host: (await import('node:os')).hostname(), at: new Date().toISOString() };
+const summary = { provenance, browser: 'chromium (playwright) ' + context.browser?.()?.version?.() , executable: EXECUTABLE || 'default', chromiumArgs: EXTRA, node: process.version, platform: process.platform, sabotage: SABOTAGE || null, checks: results.length, passed: results.length - failed.length, failed: failed.length, kills: killRuns.length, seconds: Math.round((Date.now() - t0) / 1000), failures: failed.slice(0, 6) };
 console.log(JSON.stringify(summary));
 if (OUT) fs.writeFileSync(OUT, JSON.stringify({ summary, results }, null, 1));
 if (SABOTAGE) { const expected = SABOTAGE === 'no-settle-p2' ? 'at P2 durable' : 'at P1 durable'; const caught = failed.some((f) => f.name.includes(expected)); console.log(caught ? 'NEGATIVE CONTROL CAUGHT: ' + SABOTAGE : 'NEGATIVE CONTROL NOT CAUGHT: ' + SABOTAGE); process.exit(caught ? 0 : 1); }
