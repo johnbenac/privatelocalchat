@@ -9,7 +9,7 @@ Nobody tags or uploads by hand. The `Release` workflow (`.github/workflows/relea
 1. It waits for the `Data upgrade` workflow to pass for that commit (`tests/e2e/data-upgrade.e2e.mjs` loads data saved by earlier releases into this build, `docs/DATA-COMPATIBILITY.md`). If the suite did not pass, or did not finish in 30 minutes, there is no release.
 2. It installs the dependencies (`npm ci`) and runs `semantic-release` with `.releaserc.cjs`.
 3. `semantic-release` reads the commit subjects since the last tag. `feat:` makes a minor release, `fix:` and `perf:` a patch, a `BREAKING CHANGE` a major one. `build:`, `test:`, `docs:`, `chore:`, `ci:` and `refactor:` make none, so use them for work that should not publish. The tag is `v<version>`.
-4. Through `@semantic-release/exec` it runs `scripts/release-hooks.mjs`: `notes` appends the Upgrading section to the notes, and `prepare` writes the files to attach. If a zip fails `unzip -t` or carries anything `tests/neutrality.config.json` forbids, `prepare` stops and nothing is published.
+4. Through `@semantic-release/exec` it runs `scripts/release-hooks.mjs`: `notes` appends the Upgrading section to the notes, and `prepare` writes the files to attach. If a zip fails `unzip -t`, fails the shared neutrality scan (`tests/neutrality-rules.json` with `neutrality-exceptions.json`, `docs/DELIVERY.md`) or lacks the attribution block, `prepare` stops and nothing is published.
 5. `@semantic-release/github` creates the release with the files.
 6. A separate step attests the files (`actions/attest-build-provenance`). If it fails, the release stands and the files are still published with their checksums.
 
@@ -23,6 +23,8 @@ A commit that is not a `feat`, `fix` or `perf` still deploys the site; it just m
 - **Tests that build run in parallel.** `node --test` runs files at the same time. A test that lists the repository root, or any shared folder, will meet another test's build folder and fail now and then. Give a test a folder of its own (`packageRelease` takes `workDir`).
 
 ## What a release carries
+
+Every zip also holds `SELF-HOSTING.md` (the one-page way to run a copy), `DATA-HANDLING.md`, `SOURCE.txt` (which starts with the attribution block) and `attribution.json`.
 
 | File | What it is |
 | --- | --- |
