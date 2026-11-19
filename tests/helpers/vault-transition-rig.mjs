@@ -13,7 +13,8 @@ import { execFileSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 export const OLD_REV = '0b0ef27530a25e9d218ecae5460066162b07a6da';
-export const NEW_KEYS = ['plc.characters.v1', 'plc.encounters.v1'];
+// the two keys a build with this table recovers from sole raw stores. The plain ledger plc.encounters.v1 is NOT one of them any more: the vault holds it on purpose and never copies it in (LEGACY_HOLD), so the second key is the presentations store.
+export const NEW_KEYS = ['plc.characters.v1', 'plc.presentations.v1'];
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const FILES = ['vault-store.mjs', 'vault-control.mjs', 'vault.mjs', 'vault-db.mjs', 'data-formats.mjs', 'key-classes.mjs'];
 const ANCHOR = '  "plc.shell.pins.v1": { store: "local", class: "user", format: 1 },\n';
