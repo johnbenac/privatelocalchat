@@ -107,9 +107,11 @@ async function run({ repeat, kill = null, staged = false, scenario = 'writers', 
       else { actors.forEach((a) => a.go()); await until(() => victim.has('phase'), 5000, 'the victim to reach ' + kill[0]); }
       record.victimPhase = victim.messages.find((m) => m.t === 'phase').name;
       record.queuedAtKill = broker.queued(); record.holderAtKill = broker.holderPid(); record.victimPid = victim.pid;
+      // The record is read BEFORE the kill, while the victim stands still at its stop point holding the lock and the others are queued behind it, so nothing else can change it. Reading it after the
+      // kill raced the survivors: the lock is freed at once, a queued tab recovers the open record (open to stable) and, on a loaded machine, did so before this read (a false failure).
+      record.coordAtKill = coordOf(dir);
       process.kill(-victim.pid, 'SIGKILL');
       await Promise.race([victim.exit, wait(5000)]);
-      record.coordAtKill = coordOf(dir);
       record.victimExit = victim.exited; record.victimGroupGone = victim.exited ? groupGone(victim.pid) : false;
     } else actors.forEach((a) => a.go());
     const finished = await Promise.race([Promise.all(others.map((a) => a.exit)).then(() => true), wait(timeoutMs).then(() => false)]);
