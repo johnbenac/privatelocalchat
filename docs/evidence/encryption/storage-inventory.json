@@ -17,6 +17,7 @@
       "owner": "chat/core/thread-state.mjs",
       "note": "every saved chat, rewritten whole on each save",
       "alsoIn": [
+        "chat/encounters/ledger-store.mjs",
         "chat/encounters/thread-commit.mjs",
         "index.html"
       ],
@@ -432,9 +433,10 @@
       "chat/connection/private-mode.mjs",
       "chat/core/page-chrome.mjs",
       "chat/core/thread-state.mjs",
+      "chat/documents/doc-store.mjs",
       "chat/encounters/coordination.mjs",
       "chat/encounters/encounters.mjs",
-      "chat/documents/doc-store.mjs",
+      "chat/encounters/ledger-store.mjs",
       "chat/history/history-io.mjs",
       "chat/list/conversation-list.mjs",
       "chat/lock/lock.mjs",

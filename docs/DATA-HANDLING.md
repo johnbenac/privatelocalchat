@@ -70,7 +70,7 @@ Browsers offer to clear the site data of an address. In current browsers that re
 | `user` | what the person wrote or chose to keep (chats, drafts, memory, documents, API keys): goes into the vault |
 | `vault` | the encrypted store itself: nothing in it is readable without the passphrase |
 
-**Keys in local and session storage (32)**
+**Keys in local and session storage (34)**
 
 | Key | Where | Class | What it holds | Format | First release |
 | --- | --- | --- | --- | --- | --- |
@@ -109,11 +109,12 @@ Browsers offer to clear the site data of an address. In current browsers that re
 | `plc.voice.v2` | local storage | `setting` | chosen voice and its settings | 2 | v0.23.0 |
 | `promoDismissed` | session storage | `plain` | the banner was closed | 1 | v0.3.1 |
 
-**Databases (2)**
+**Databases (3)**
 
 | Name | Where | Class | What it holds | Format | First release |
 | --- | --- | --- | --- | --- | --- |
 | `plc-docs` | indexedDB | `user` | attached and library documents | 1 | v0.8.0 |
+| `plc-encounters-coord` | indexedDB | `plain` | one record: the generation and SHA-256 digests of the last complete state of chatThreads and plc.encounters.v1 (no payload), the proof that a tab's view of them is fresh before it writes; removed while the vault is on | 1 | unreleased |
 | `plc-vault` | indexedDB | `vault` | the encrypted header and log | 1 | v0.47.0 |
 
 **Device stores (3)**
@@ -124,7 +125,7 @@ Browsers offer to clear the site data of an address. In current browsers that re
 | OPFS model and voice files | `device` | runtime/providers/, chat/voice/voice-engine.mjs |
 | throw-away IndexedDB probe databases | `plain` | chat/connection/connection-glue.mjs, chat/connection/private-mode.mjs |
 
-36 source files read or write browser storage; the list is in `files.list` of docs/evidence/encryption/storage-inventory.json.
+39 source files read or write browser storage; the list is in `files.list` of docs/evidence/encryption/storage-inventory.json.
 <!-- data-handling:storage:end -->
 
 ## 2. What the app sends over the network
