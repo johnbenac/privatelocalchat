@@ -8,7 +8,7 @@
   "SOURCE_DATE_EPOCH": "0",
   "SITE_DIR": ""
  },
- "fileCount": 235,
+ "fileCount": 255,
  "files": {
   "404.html": {
    "bytes": 101,
@@ -107,16 +107,16 @@
    "sha256": "fc39e97998793e675078a819b0871ee854c5dbdd452ee6a9b2cc9fb8439704bd"
   },
   "index.html": {
-   "bytes": 81202,
-   "sha256": "12bb67d0d4ef1222946afd9b504c22950b67b314c81f7814fcd64cb5aca1c8fd"
+   "bytes": 84001,
+   "sha256": "2d96a77fac9ab6748117afa99696987e3d100ff9854cbea86fc6e2932b13afff"
   },
   "manifest.webmanifest": {
    "bytes": 633,
    "sha256": "4f104609324189c39f279c75a7eedf8c3cb3cdb9d2fa9caad375931e94db83d8"
   },
   "releases/0000000000000000000000000000000000000000/chat/assistant/assistant.mjs": {
-   "bytes": 24914,
-   "sha256": "71a650d8b7a10f0185ddb7abaeca31113f1a800bcc787077497cee5951ef72df"
+   "bytes": 24926,
+   "sha256": "77509ed76c34088ef0452675c0d07d602bc756f8f24c3c632f0dbec1a9218d7a"
   },
   "releases/0000000000000000000000000000000000000000/chat/assistant/prefs-store.mjs": {
    "bytes": 9864,
@@ -154,6 +154,26 @@
    "bytes": 29066,
    "sha256": "99d214271430536a391bd77af8827f58ddd6b269188b2de21964a6d4bc9f9805"
   },
+  "releases/0000000000000000000000000000000000000000/chat/characters/character-describe.mjs": {
+   "bytes": 4371,
+   "sha256": "44a0dd4a6e53e46b7fa95ca37fa94e38a72a335cab335237de34f203a385b3c6"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/characters/character-package.mjs": {
+   "bytes": 26421,
+   "sha256": "3c9d395d7fb203fed50150c96121eee5ecc954971cfc2c4330566f65c5a49c71"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/characters/character-resources.mjs": {
+   "bytes": 5165,
+   "sha256": "e834458a3c031dada9c0ebe38d9056e2e4bcb7c0a44b24f1c19f60cf571ab757"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/characters/character-store.mjs": {
+   "bytes": 37444,
+   "sha256": "91163721f51391e3ce82a4acbb5f74561e07dcdc239881aefedb96f1be4ca686"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/characters/characters-ui.mjs": {
+   "bytes": 36614,
+   "sha256": "a4b654958887adb44ff52c88580583d17c697ba51971921f5f5408b9c543c810"
+  },
   "releases/0000000000000000000000000000000000000000/chat/chat.css": {
    "bytes": 21717,
    "sha256": "5c68c6ebdcae8856e18b735ce354566dac67ec07a7d0410fbdcabe504baf685d"
@@ -179,24 +199,24 @@
    "sha256": "15cfbb1207c5944dafeed7cdd1f5d58e337d50ef1e481b637ddcec24d905a67c"
   },
   "releases/0000000000000000000000000000000000000000/chat/context/context-ui.mjs": {
-   "bytes": 6464,
-   "sha256": "612932ab55f22991a8329efb751ac00d65b0d581331b00967e8fc0a521239fec"
+   "bytes": 6476,
+   "sha256": "adc547bae412e719d8de39851429b032eaaf8ee2f3a7153732d13e2acaf6393d"
   },
   "releases/0000000000000000000000000000000000000000/chat/core/messages-view.mjs": {
-   "bytes": 21089,
-   "sha256": "11556b3236e29cf5632809415bcf6149e0345cd5ef75a6410963050742370d27"
+   "bytes": 22701,
+   "sha256": "c42184805d35304715a303402b7f2f580379f8e7d54ebc326a9f18af75ee743f"
   },
   "releases/0000000000000000000000000000000000000000/chat/core/page-chrome.mjs": {
    "bytes": 10667,
    "sha256": "6a803575001a382f0bf89334824499067980b553436e36bb3152efa123a07c3f"
   },
   "releases/0000000000000000000000000000000000000000/chat/core/sender.mjs": {
-   "bytes": 19139,
-   "sha256": "bb7fff58cb267b36fe6df4da517d370186731a9446ac4c9930bf9f8e25977f7a"
+   "bytes": 27059,
+   "sha256": "c82fbc3c244f188c4a7691e4a16ecaec8774f84c2755b38adf578a38aac4feb5"
   },
   "releases/0000000000000000000000000000000000000000/chat/core/thread-state.mjs": {
-   "bytes": 11460,
-   "sha256": "f4409f3b7a55c84fb627f773efe3dd7ea2b9b52e4540cf9430b5b57e21920f05"
+   "bytes": 14723,
+   "sha256": "db9765790675be831c92f24ee8019bd558c7b8700d0c884d344b1bba40eea030"
   },
   "releases/0000000000000000000000000000000000000000/chat/core/toast-timing.mjs": {
    "bytes": 1902,
@@ -215,16 +235,16 @@
    "sha256": "ca2523941eebca95150c9a3d98bff00c463658f552708844bfc64ccb2ba199e8"
   },
   "releases/0000000000000000000000000000000000000000/chat/documents/documents-ui.mjs": {
-   "bytes": 16085,
-   "sha256": "b48bb263038fb700378206e3564d2c3a55034a468ec6b8492c0505cb04e062b9"
+   "bytes": 16341,
+   "sha256": "e842e7354a70938dd5a6b41f86e9e9cc6ddbe34da58979b227e6f278fd9f8e8e"
   },
   "releases/0000000000000000000000000000000000000000/chat/documents/documents.mjs": {
    "bytes": 6496,
    "sha256": "714c771cccfda7b615374364eafb9de49191b6034d9883444a94de1804b57c67"
   },
   "releases/0000000000000000000000000000000000000000/chat/documents/drafts.mjs": {
-   "bytes": 5295,
-   "sha256": "74233cf597cab5587d80d557e7a7e0f1d9b0351cf237e373b014a34f768231fd"
+   "bytes": 5319,
+   "sha256": "93e4c0628a7064733fe8c28c7fe518c7391299a62c5b842e8436597f521e1ab0"
   },
   "releases/0000000000000000000000000000000000000000/chat/documents/images.mjs": {
    "bytes": 1047,
@@ -254,25 +274,57 @@
    "bytes": 799,
    "sha256": "97885beef5accc0b2f914be2e4cf3035100b347189aa50ff173a4a7acbfc82e7"
   },
+  "releases/0000000000000000000000000000000000000000/chat/encounters/coordination.mjs": {
+   "bytes": 22773,
+   "sha256": "4e0bafbff891673897b2e0a9a96c7aee57c6e9196d37a4057ff2982b5b2d13f4"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/encounters/encounters.mjs": {
+   "bytes": 16285,
+   "sha256": "d03f6eb88a43127536485259e0c5a935abddf803fab567f5a6eb431ed97093d1"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/encounters/ledger-store.mjs": {
+   "bytes": 18203,
+   "sha256": "41fd2b9d22add1bd92c99948433e7171d22aab52c464a473e62f8c1ea051d539"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/encounters/records.mjs": {
+   "bytes": 36154,
+   "sha256": "a5a04f9c31e8030fa28c74ee297daeb21ddea5b971b568885a21b1c650a00ad0"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/encounters/save-outcome.mjs": {
+   "bytes": 5048,
+   "sha256": "979837d078b4978375c015d1df212255360b9c5666dca201c925484bcb45a217"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/encounters/thread-commit.mjs": {
+   "bytes": 34885,
+   "sha256": "d4bef101fbf7977b77275ce3291c4bc83fe7d4228f9820414665498db78ac9d7"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/encounters/thread-events.mjs": {
+   "bytes": 9397,
+   "sha256": "2c55226906be3deae906b7641bc09df3b38e5deb207b82975a82b71c5bb9e327"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/encounters/thread-patch.mjs": {
+   "bytes": 5278,
+   "sha256": "99cf8433bce753cb76b9d246cbe035e008ae83c6df81aab0221c9e19cae1034a"
+  },
   "releases/0000000000000000000000000000000000000000/chat/events.mjs": {
    "bytes": 3679,
    "sha256": "831fd90c3b77aa5957c8da60b1cc39d6c185cf7071045516e5e9d13fe3fe0312"
   },
   "releases/0000000000000000000000000000000000000000/chat/history/history-io.mjs": {
-   "bytes": 9582,
-   "sha256": "a459deb2132a4dec3e0b3f23e752cdd2e972e1fa95f12768efd9db5ccea384d2"
+   "bytes": 11069,
+   "sha256": "238fa503c06d338fb74ec25ff9744d1429eefbb664accf1cc75b4e5bd46e94d0"
   },
   "releases/0000000000000000000000000000000000000000/chat/icons.mjs": {
    "bytes": 9069,
    "sha256": "582653fbeb4ec382d50f7664900c1fa28409ebef91b2e44d39b3edde6c5264fe"
   },
   "releases/0000000000000000000000000000000000000000/chat/list/conversation-list.mjs": {
-   "bytes": 12943,
-   "sha256": "a9399f375bba430871e1fddaddb79be8d366322d22044103b4154c6c6f47ece6"
+   "bytes": 17581,
+   "sha256": "2cc6d15ed855e3f0d3b253999c88843510dd1eccd8b18ccc2c679bf6efafa514"
   },
   "releases/0000000000000000000000000000000000000000/chat/lock/lock.mjs": {
-   "bytes": 24842,
-   "sha256": "139be529dcce2a365ab67b4d2b0f5dc8353fa1893637299ca6606cf13fa51c24"
+   "bytes": 30738,
+   "sha256": "69180843a3946f4b96a84ed3b941256d3a67ed8f445018123ba34ab678305cc3"
   },
   "releases/0000000000000000000000000000000000000000/chat/lock/padlock.mjs": {
    "bytes": 5187,
@@ -443,8 +495,8 @@
    "sha256": "ea8f8793e06b1612ec1931161328550e3f20c35a31ac849d9b8c074dd8569f2d"
   },
   "releases/0000000000000000000000000000000000000000/chat/storage/storage-ui.mjs": {
-   "bytes": 8421,
-   "sha256": "f5b0d802d57af4be5314abfdcb63859ff8f9180c0cc8806db5969359eb800a60"
+   "bytes": 8511,
+   "sha256": "f460913157ded70d3b6638f5d526d47b887aa194707a85b7a44af40dcbdaee91"
   },
   "releases/0000000000000000000000000000000000000000/chat/stream.mjs": {
    "bytes": 2898,
@@ -495,8 +547,8 @@
    "sha256": "8fafb7bd6804e4bf99c22f438ed30c22e204d80bfa62b539c3f28c240e40ad22"
   },
   "releases/0000000000000000000000000000000000000000/chat/transfer/transfer-glue.mjs": {
-   "bytes": 9244,
-   "sha256": "8d5d1624cd6d3e494416ee2ef4a1e6eaf720c7a07b5ed077a17b16f98c97188e"
+   "bytes": 9333,
+   "sha256": "7c7c755840a9b1f3345292aa29ac4191ab537aec02645e463afc647bb3936ed7"
   },
   "releases/0000000000000000000000000000000000000000/chat/transfer/transfer-ui.mjs": {
    "bytes": 32729,
@@ -507,16 +559,16 @@
    "sha256": "f3795518f3f958bd505aa7ff95049bdcc856a96c3ccf315b11eb80e1b5471131"
   },
   "releases/0000000000000000000000000000000000000000/chat/vault/data-formats.mjs": {
-   "bytes": 5355,
-   "sha256": "5e6b6ccf3bf513b3be0bc9a1819f7afc157dab2fcbab9b9e24730fdb861f1be1"
+   "bytes": 5391,
+   "sha256": "f4cfae634a77c605276b3724380f6f101ddf55151366697df9f45639eb8a4315"
   },
   "releases/0000000000000000000000000000000000000000/chat/vault/format-guard-ui.mjs": {
    "bytes": 1659,
    "sha256": "4ba0559cc4984a22f81bb7b0f1195c6082ce7b6862fbda47146785c699c6b276"
   },
   "releases/0000000000000000000000000000000000000000/chat/vault/key-classes.mjs": {
-   "bytes": 3112,
-   "sha256": "dc59b422ee9dc9cc3f10e0f0e4d2e15372069f02bc30ed0fc9b4f12fe4ee4419"
+   "bytes": 3250,
+   "sha256": "3e542bd7dd9507d9cc2013e46a3567d71e85845dc3ae436ed67c05aa8ef42382"
   },
   "releases/0000000000000000000000000000000000000000/chat/vault/passkey.mjs": {
    "bytes": 5725,
@@ -527,20 +579,20 @@
    "sha256": "8842ae9c9d140f338aa60ff85cde6066e5ed7fa9a019bfa0afa5a521cd3f22bf"
   },
   "releases/0000000000000000000000000000000000000000/chat/vault/vault-control.mjs": {
-   "bytes": 5319,
-   "sha256": "b8a6aa45f6eb692493050cc0bb43ce0191f44e12753fc12a63d94e9c912493d4"
+   "bytes": 17050,
+   "sha256": "f05bdc8b3f9cae18535ce6a03a8ec49324b9fe11e8d917c066e6e9024b52daf2"
   },
   "releases/0000000000000000000000000000000000000000/chat/vault/vault-db.mjs": {
-   "bytes": 4749,
-   "sha256": "94b0708131638259e9bf804d896b200e7567638ab1cc9a9bc4221acdbbd8a24c"
+   "bytes": 13104,
+   "sha256": "5a3aae463976c383cc2767c3a8d63ad390373db61b7deb15ce70fb99ae3ca121"
   },
   "releases/0000000000000000000000000000000000000000/chat/vault/vault-store.mjs": {
-   "bytes": 22899,
-   "sha256": "657f008d0ec87f7a7a1674bd9183b79044f9e51e567ec77397349750f3915783"
+   "bytes": 71384,
+   "sha256": "b9541c67220dfe70bfa2d1ea57c6ef7f3a351a8a5e3e416cdbefe1daa1aa68b5"
   },
   "releases/0000000000000000000000000000000000000000/chat/vault/vault.mjs": {
-   "bytes": 17542,
-   "sha256": "0a1a70ed17291ac37d4466829d26a2059aa9ec56075cedcf5e6244daf20605d6"
+   "bytes": 62185,
+   "sha256": "f111220873de3c89874dfdb9b7deb0b2366c673d2c6a4310818db62d29fbe28c"
   },
   "releases/0000000000000000000000000000000000000000/chat/vendor/embedding/VERSIONS.json": {
    "bytes": 742,
@@ -667,8 +719,8 @@
    "sha256": "2b88ed9ce462dd725d3805c01af14aadde61129a42a41baebb4bfcb60990a25e"
   },
   "releases/0000000000000000000000000000000000000000/chat/voice/voice-ui.mjs": {
-   "bytes": 17637,
-   "sha256": "880f95652231eac7e3b61daaa6a2b612fabb398ea2a21f10d88ed2b5f6616cbe"
+   "bytes": 17643,
+   "sha256": "026144e7fe1a8ac176a83f5aad08b775e21f3969d565af10a2b1da80006987b3"
   },
   "releases/0000000000000000000000000000000000000000/chat/voice/voice.mjs": {
    "bytes": 15133,
@@ -687,8 +739,8 @@
    "sha256": "54ab05c4b23c2e2ca8e7e698a5d2a156e4305fc08d3db4862869d9ae40c6344b"
   },
   "releases/0000000000000000000000000000000000000000/release.json": {
-   "bytes": 31593,
-   "sha256": "7fd45c44df2b193efd5aa6c383011a0f616ec17767e781d3e1e6dcb5fe9e6294"
+   "bytes": 34849,
+   "sha256": "d3b0e0c3ef5b6bddc35b0ec61f976e6d654852723df398ea7ca887511570e185"
   },
   "releases/0000000000000000000000000000000000000000/runtime/auto-load.mjs": {
    "bytes": 565,
@@ -906,9 +958,21 @@
    "bytes": 419,
    "sha256": "9a5375535492fa89595eaab0202d9dd650c1764363afad413234f0fdf90f4da4"
   },
+  "releases/0000000000000000000000000000000000000000/vendor/authored-profiles/authored-profiles/authored.mjs": {
+   "bytes": 9246,
+   "sha256": "40e82fb258d22bed3e23d5a47bcb79173198778c6a57dfbe99978590c09554d3"
+  },
   "releases/0000000000000000000000000000000000000000/vendor/authored-profiles/authored-profiles/definitions.mjs": {
    "bytes": 18542,
    "sha256": "be5323bae64f7b10b6fd555781b08379cb0741b8bc4b86cf1555ec23c0691596"
+  },
+  "releases/0000000000000000000000000000000000000000/vendor/authored-profiles/authored-profiles/index.mjs": {
+   "bytes": 340,
+   "sha256": "be3208d70d438a78070e45587fdc4a954f3281350e4bec4848dbaa6161c49b2f"
+  },
+  "releases/0000000000000000000000000000000000000000/vendor/authored-profiles/authored-profiles/receiving-definitions.mjs": {
+   "bytes": 7305,
+   "sha256": "620675c69ce4695faa3f73208629d189a7da1620ec933816e9b987d1f57627fd"
   },
   "releases/0000000000000000000000000000000000000000/vendor/authored-profiles/neutral/index.mjs": {
    "bytes": 1600,
@@ -918,13 +982,29 @@
    "bytes": 29486,
    "sha256": "6f187fa376be4a0adbbf83f7ac11b717e9eefee632b1c98b1cdd2c9232df57e9"
   },
+  "releases/0000000000000000000000000000000000000000/vendor/authored-profiles/src/core/bundles.mjs": {
+   "bytes": 473,
+   "sha256": "2b696b2aa034785825c32098cc06278454fd875e25446df4c97063d25e6e9a5a"
+  },
+  "releases/0000000000000000000000000000000000000000/vendor/authored-profiles/src/core/consumer-projections.mjs": {
+   "bytes": 8673,
+   "sha256": "f903f90d6fe4c2ddba07006d3861d473a7116d310e3d8e9dc198eee1a2dc6d08"
+  },
   "releases/0000000000000000000000000000000000000000/vendor/authored-profiles/src/core/content-engine.mjs": {
    "bytes": 36950,
    "sha256": "27a4b8fa49006424dbfa3c1c4a101434519eb4aec259a2185de1424e5068a723"
   },
+  "releases/0000000000000000000000000000000000000000/vendor/authored-profiles/src/core/content-schema.mjs": {
+   "bytes": 8931,
+   "sha256": "cc945736df4470192a8373518b42f1f89117a6e3f09ffae7ce5149434b0b8df7"
+  },
   "releases/0000000000000000000000000000000000000000/vendor/authored-profiles/src/core/content-schema.neutral.mjs": {
    "bytes": 8882,
    "sha256": "faefc9a5167efa829ad538e609ae0c8480167a786599c746069dac93dd30bbaf"
+  },
+  "releases/0000000000000000000000000000000000000000/vendor/authored-profiles/src/core/content.mjs": {
+   "bytes": 589,
+   "sha256": "5730bc96a93b104706155330bbd4b886131ceea17e242434abdc1aae4e478dad"
   },
   "releases/0000000000000000000000000000000000000000/vendor/authored-profiles/src/core/plc-projection.mjs": {
    "bytes": 2048,
@@ -943,8 +1023,8 @@
    "sha256": "802e46c9e6bf5a295ed08ff9debdd12d3d5c3b6f16d898ffac0ed6a7b40b06f4"
   },
   "sw.js": {
-   "bytes": 22977,
-   "sha256": "ca5550418743ff39840f0e99917b4ee72415c913a5615e8a51ebaf19562c4da3"
+   "bytes": 24865,
+   "sha256": "8315c1927bd61873e7cee2e78a2f27bab9c290f5d41433b594a2257c488ec710"
   },
   "version.json": {
    "bytes": 170,
