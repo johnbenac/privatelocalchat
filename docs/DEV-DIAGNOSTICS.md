@@ -180,6 +180,13 @@ application network denial, not an airplane-mode test. The [browser receipt](evi
 verifies failure of app/CDN misses and diagnostic POSTs, cached navigation after worker restart,
 and successful restoration against an actual HTTPS test server. Physical-device use is pending.
 
+## A one-page look at the phone
+
+`dev-tools/operator-phone-probe.py` is the smallest use of the same route: one automation context, one tab, one public https page of `privatelocal.chat` or `dev.privatelocal.chat` (refused for any other host, port or credentials),
+read-only. It prints the page's address, whether it is a secure context, the user agent, the viewport and the first 300 characters of its text, then closes its window and deletes its session (a deleted session is still listed for about five seconds). It needs the
+optional `pymobiledevice3`, an existing trust, and a usbmux socket: for the iPhone that is plugged into the host `boiler`, forward `boiler`'s `/var/run/usbmuxd` to a private socket with `ssh -L` (the full recipe, with its pitfalls, is the shared memory note `real-device-access-iphone-and-mac`).
+Automation cannot tap or click and uses WebKit's mock microphone, so it cannot test anything that needs a gesture. `python3 -m unittest discover -s dev-tools/tests -v` tests the host check without a phone.
+
 ## USB process-footprint sampling
 
 `operator-device-memory.py` uses the existing trusted USB connection and an in-process RSD
