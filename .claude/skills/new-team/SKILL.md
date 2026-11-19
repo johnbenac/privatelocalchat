@@ -15,7 +15,7 @@ for a long time by an agent of its own. There are three separate lists, each wit
 | --- | --- | --- | --- |
 | Board `who` (owner names) | who owns a task, who wrote a note; shown as a disc and a filter | 15, fixed in code | taskboard: a code change and a release |
 | Message team (`/cosmoshot/tools/msg/teams.json`) | the inbox for `cosmo-msg`, board notices and the message hook, by folder prefix | one entry per folder | devops, on a board task |
-| Project (board project, memory store, skills project file) | where tasks are grouped and which memory a session reads and writes | 6 | taskboard (board project: code, seed, a startup migration and a release) and memory (store) |
+| Project (board project, memory store, skills project file) | where tasks are grouped and which memory a session reads and writes | 6 with a memory store, and 4 board-only projects | taskboard (board project: `POST /api/projects`, seed, a startup migration) and memory (store) |
 
 A folder may map to an existing team, and several folders may map to one team. A team name is not a project. The board name is the
 canonical one; `cosmo-msg` maps it where it differs (`simulator` to `simulation`, `planner` to `claude`), in one place, `BOARD_TO_MSG` in
@@ -48,6 +48,13 @@ A team is something that works on its own and must be addressed: it has a `who` 
 
 A project has its own memory store and its own board project. It is rare: the programme has six. Do it only when the owner
 (John) has said the thing is a project of its own.
+
+A board project does not have to have a memory store. `worlds`, `engineering`, `aiofourown` and `strategy` are **board-only
+projects**: they group tasks and objectives on the board (taskboard adds one with `POST /api/projects`, a seed entry and a startup
+migration, and gives it a mark, colour and pattern with Brand) and nothing else. They have no memory store of their own, no
+`projects.json` folder prefix and no skills project file: a session working in one of their repositories reads and writes the memory
+of the existing project its folder already maps to, as before. Make a board-only project when the board needs a grouping; use
+the steps below only when a project is worked on for a long time by an agent of its own and needs its own memory.
 
 1. Memory store: a new folder in `/cosmoshot/memory` with an `_index.md`, and its entry in `stores.json` (name, description,
    and the `access` lines: its own project writes it and reads `program`; `program` reads and writes it). The memory agent does this;

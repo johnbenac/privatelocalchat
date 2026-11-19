@@ -19,8 +19,8 @@ missed. A good model of a small shared library is `/cosmoshot/model-runtime`; of
   `AGENTS.md`. Something that grows an agent of its own, a board name or its own memory is a team or a project: use the
   `new-team` skill instead.
 - **Owner.** One team owns the repository (plc, cosmogenitor, sonalon, ...). The owner is a team, never the library.
-  Pick the board project that fits (`program`, `cosmogenitor`, `sonalon`, `plc`, `cyberplanetary`, `platform`; there is
-  no way to add one). Memory access follows that project: a session reads `program` and its own store and writes only its own.
+  Pick the board project that fits (`program`, `cosmogenitor`, `sonalon`, `plc`, `cyberplanetary`, `platform`, and the board-only
+  `worlds`, `engineering`, `aiofourown`, `strategy`; taskboard adds one, see `new-team`). Memory access follows that project: a session reads `program` and its own store and writes only its own.
 - **Name.** `/cosmoshot/<name>` is the working copy and `cosmoshot/<name>` the GitLab path; one name for both.
 - **Shared library?** Code that two or more applications use unchanged is one component with one owner, published as a
   versioned package and vendored read-only by the others (`/cosmoshot/tools/docs/VENDORING.md`). Code one application uses
