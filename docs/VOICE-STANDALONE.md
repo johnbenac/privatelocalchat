@@ -17,3 +17,12 @@ corresponding source. It was built for the lipsync demo (board T1013); its own R
   needs it, it belongs in its own repository and versioned package (`/cosmoshot/tools/docs/VENDORING.md`): a decision for John, not made here.
 * **Known issue found on the way (not fixed here):** the notice file of the app's own worker, `chat/vendor/voice/worker-kokoro.js.LEGAL.txt`, still says Private Local Chat is released under GPL-3.0;
   the licence is AGPL-3.0-only. It is a built file: fixing it means rebuilding the worker with a corrected `ops/voice/build-worker.mjs`.
+
+
+## The threads variant (`build.mjs --variant threads`)
+
+For a page that IS cross-origin isolated (COOP same-origin, COEP require-corp): `node ops/voice/standalone/build.mjs <folder> --variant threads` writes the package `kokoro-engine-threads` with the worker `worker-kokoro-standalone-threads.js`. It is the same worker and engine with exact text patches (`variant-threads.mjs`; the build stops if a patch no longer applies), so the default package stays byte-identical:
+
+* `engine.load({ threads })` (default 1): the worker uses `min(threads, 4, hardwareConcurrency)` threads only when `crossOriginIsolated` is true, otherwise one; `engine.status().threads` and the load result say how many were used. No `blob:` in `worker-src` is needed (tested under `default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'`, `tests/e2e/kokoro-threads.e2e.mjs`).
+* `engine.speak(text, { firstChunkSplit: { minChars } })` (default off): the first chunk is cut at the first comma, semicolon or colon at least `minChars` characters in (not inside a number, leaving at least 12 characters), so the first sound arrives sooner. Measured on this host (loaded): first sound 10.4 s for a 6 s sentence as one chunk, 3.8 s with the first chunk cut at the comma.
+* Whether threads are faster on a phone is NOT known: on this loaded host four threads were not faster than one.

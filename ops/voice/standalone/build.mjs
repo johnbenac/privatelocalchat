@@ -6,18 +6,26 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { patchWorker, patchEngine } from "./variant-threads.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repo = path.resolve(here, "../../..");
 const nm = process.env.VOICE_NODE_MODULES || path.join(here, "../node_modules");
 const args = process.argv.slice(2);
-const out = args.find((a) => !a.startsWith("--") && args[args.indexOf(a) - 1] !== "--voices");
-if (!out) throw new Error("usage: build.mjs <output folder> [--voices a,b,c]");
+const out = args.find((a) => !a.startsWith("--") && !["--voices", "--variant"].includes(args[args.indexOf(a) - 1]));
+const VARIANT = args.indexOf("--variant") >= 0 ? args[args.indexOf("--variant") + 1] : "";
+if (VARIANT && VARIANT !== "threads") throw new Error("unknown --variant " + VARIANT + " (only: threads)");
+if (!out) throw new Error("usage: build.mjs <output folder> [--voices a,b,c] [--variant threads]");
 const voiceArg = args.indexOf("--voices") >= 0 ? args[args.indexOf("--voices") + 1] : "af_heart,am_michael,af_alloy";
 const VOICES = voiceArg.split(",");
 if (!fs.existsSync(path.join(nm, "esbuild"))) throw new Error(`no esbuild in ${nm}: run "npm ci --ignore-scripts" in ops/voice first`);
 
-const WORKER = "worker-kokoro-standalone.js";
+const WORKER = VARIANT ? "worker-kokoro-standalone-threads.js" : "worker-kokoro-standalone.js";
+// The variant is made from the real sources by exact text patches (variant-threads.mjs), written next to them so their relative imports resolve, and removed after the build.
+const workerEntry = VARIANT ? path.join(here, ".variant-worker.src.mjs") : path.join(here, "worker.src.mjs");
+const engineSource = VARIANT ? patchEngine(fs.readFileSync(path.join(here, "engine.mjs"), "utf8")) : fs.readFileSync(path.join(here, "engine.mjs"), "utf8");
+const workerSource = VARIANT ? patchWorker(fs.readFileSync(path.join(here, "worker.src.mjs"), "utf8")) : null;
+if (VARIANT) fs.writeFileSync(workerEntry, workerSource);
 fs.rmSync(out, { recursive: true, force: true });
 fs.mkdirSync(path.join(out, "licences"), { recursive: true });
 fs.mkdirSync(path.join(out, "source"), { recursive: true });
@@ -30,14 +38,16 @@ const owner = readJson(path.join(repo, "package.json"));
 
 // ---- the worker bundle ----
 const { build } = await import(pathToFileURL(path.join(nm, "esbuild/lib/main.js")).href);
+try {
 await build({
   bundle: true, format: "esm", platform: "browser", target: "es2022", minify: true, treeShaking: true, legalComments: "linked", nodePaths: [nm],
   conditions: ["onnxruntime-web-use-extern-wasm"], external: ["node:*", "fs", "path", "worker_threads", "os", "crypto"], logLevel: "info",
-  entryPoints: [path.join(here, "worker.src.mjs")], outfile: path.join(out, WORKER),
+  entryPoints: [workerEntry], outfile: path.join(out, WORKER),
   banner: { js: `/*! ${WORKER} bundles eSpeak NG (GPL-3.0-or-later, https://github.com/espeak-ng/espeak-ng, via the npm package phonemizer ${phonemizer.version}) and ONNX Runtime Web ${ort.version} (MIT), and the Kokoro pipeline of Private Local Chat (AGPL-3.0-only). Notices and the corresponding source: ${WORKER}.LEGAL.txt and source/ beside this file. */` },
 });
+} finally { if (VARIANT) fs.rmSync(workerEntry, { force: true }); }
 for (const f of ["ort-wasm-simd-threaded.mjs", "ort-wasm-simd-threaded.wasm"]) fs.copyFileSync(path.join(nm, "onnxruntime-web/dist", f), path.join(out, f));
-fs.copyFileSync(path.join(here, "engine.mjs"), path.join(out, "kokoro-engine.mjs"));
+fs.writeFileSync(path.join(out, "kokoro-engine.mjs"), engineSource);
 fs.copyFileSync(path.join(here, "kokoro-phoneme-notes.md"), path.join(out, "kokoro-phoneme-notes.md"));
 
 // ---- the pinned file list (the model files and only the voices asked for) ----
@@ -76,12 +86,12 @@ https://github.com/espeak-ng/espeak-ng ; the package phonemizer ${phonemizer.ver
 fs.writeFileSync(path.join(out, WORKER + ".LEGAL.txt"), legal.join(""));
 
 // ---- the corresponding source ----
-for (const [from, to] of [[path.join(here, "worker.src.mjs"), "worker.src.mjs"], [path.join(here, "engine.mjs"), "engine.mjs"], [path.join(here, "build.mjs"), "build.mjs"],
+for (const [from, to] of [[path.join(here, "worker.src.mjs"), "worker.src.mjs"], [path.join(here, "engine.mjs"), "engine.mjs"], [path.join(here, "build.mjs"), "build.mjs"], [path.join(here, "variant-threads.mjs"), "variant-threads.mjs"], [path.join(here, "first-chunk.mjs"), "first-chunk.mjs"],
   [path.join(here, "../stream-polyfill.mjs"), "stream-polyfill.mjs"], [path.join(repo, "chat/voice/voice-kokoro.mjs"), "voice-kokoro.mjs"],
   [path.join(here, "phoneme-survey.mjs"), "phoneme-survey.mjs"], [path.join(here, "../package.json"), "package.json"], [path.join(here, "../package-lock.json"), "package-lock.json"]]) fs.copyFileSync(from, path.join(out, "source", to));
 fs.writeFileSync(path.join(out, "VERSIONS.json"), JSON.stringify({
   onnxruntimeWeb: ort.version, onnxruntimeLicense: ort.license, phonemizer: phonemizer.version, phonemizerLicense: phonemizer.license, phonemizerEmbeds: "espeak-ng (GPL-3.0-or-later)",
-  pipelinePortedFrom: "kokoro-js 1.2.1 (Apache-2.0)", model: pins.model.id, modelRevision: pins.model.sourceRevision, modelLicense: pins.model.license, voices: VOICES, packageLicense: "AGPL-3.0-only", builtFrom: "ops/voice/standalone of Private Local Chat " + owner.version,
+  pipelinePortedFrom: "kokoro-js 1.2.1 (Apache-2.0)", model: pins.model.id, modelRevision: pins.model.sourceRevision, modelLicense: pins.model.license, voices: VOICES, packageLicense: "AGPL-3.0-only", variant: VARIANT || "default", builtFrom: "ops/voice/standalone of Private Local Chat " + owner.version,
 }, null, 2) + "\n");
 
 // ---- the list of what is in the folder, with sizes and hashes; then the README that quotes it ----
@@ -91,12 +101,13 @@ const table = (rows) => ["| file | bytes | SHA-256 |", "|---|---:|---|", ...rows
 const shipped = entries();
 const downloaded = files.map((f) => ({ path: f.path, bytes: f.bytes, sha256: f.sha256 }));
 const dlTotal = downloaded.reduce((n, f) => n + f.bytes, 0);
-const readme = fs.readFileSync(path.join(here, "README.template.md"), "utf8")
+const variantNote = VARIANT ? "\n> **Variant: threads.** Same as `kokoro-engine`, plus: `engine.load({ threads })` (default 1; the worker uses min(threads, 4, hardwareConcurrency) threads ONLY on a cross-origin isolated page, otherwise one; `engine.status().threads` says how many were used) and `engine.speak(text, { firstChunkSplit: { minChars } })` (default off: the first chunk is cut at the first comma, semicolon or colon at least `minChars` characters in, so the first sound arrives sooner). The worker file is `" + WORKER + "`. The default package is unchanged and byte-identical to what it was.\n" : "";
+const readme = fs.readFileSync(path.join(here, "README.template.md"), "utf8").replace("\n## Status:", variantNote + "\n## Status:")
   .replaceAll("{{SHIPPED}}", table(shipped)).replaceAll("{{DOWNLOADED}}", table(downloaded)).replaceAll("{{DOWNLOAD_TOTAL}}", dlTotal.toLocaleString("en-US"))
   .replaceAll("{{BASE}}", base).replaceAll("{{VOICES}}", VOICES.join(", ")).replaceAll("{{ORT}}", ort.version).replaceAll("{{WORKER}}", WORKER)
   .replaceAll("{{MODEL_ONLY}}", String(dlTotal - files.filter((f) => f.role === "voice").reduce((n, f) => n + f.bytes, 0)));
 fs.writeFileSync(path.join(out, "README.md"), readme);
 const final = entries().concat([{ path: "README.md", bytes: fs.statSync(path.join(out, "README.md")).size, sha256: sha(fs.readFileSync(path.join(out, "README.md"))) }]).sort((a, b) => a.path.localeCompare(b.path));
-fs.writeFileSync(path.join(out, "PINS.json"), JSON.stringify({ format: "kokoro-engine-pins/1", package: "kokoro-engine", files: final, downloadedByThePage: { base, files: downloaded } }, null, 2) + "\n");
+fs.writeFileSync(path.join(out, "PINS.json"), JSON.stringify({ format: "kokoro-engine-pins/1", package: VARIANT ? "kokoro-engine-" + VARIANT : "kokoro-engine", files: final, downloadedByThePage: { base, files: downloaded } }, null, 2) + "\n");
 fs.writeFileSync(path.join(out, "SHA256SUMS"), final.map((f) => `${f.sha256}  ${f.path}`).join("\n") + "\n");
 for (const f of final) console.log(`${f.sha256}  ${String(f.bytes).padStart(9)}  ${f.path}`);
