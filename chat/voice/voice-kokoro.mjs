@@ -16,6 +16,7 @@ export const MAX_SENTENCE_CHARS = 300;
 export const KOKORO_VOICES = Object.freeze({
   af_heart: { name: "Heart", language: "en-us", gender: "Female" },
   af_bella: { name: "Bella", language: "en-us", gender: "Female" },
+  af_alloy: { name: "Alloy", language: "en-us", gender: "Female" },
   af_nicole: { name: "Nicole", language: "en-us", gender: "Female" },
   af_sarah: { name: "Sarah", language: "en-us", gender: "Female" },
   am_michael: { name: "Michael", language: "en-us", gender: "Male" },

@@ -7,7 +7,7 @@ import {
   normalizeText, postProcessPhonemes, phonemizeText, splitSentences, splitLongSentence, kokoroChunks, createTokenizer, parseVoice, styleFor, resolveVoice,
   languageForVoice, KOKORO_VOICES, STYLE_DIM,
 } from "../chat/voice/voice-kokoro.mjs";
-import { KOKORO_Q8_MANIFEST, KOKORO_Q8_BASE_URL, KOKORO_Q8_COMMIT } from "../chat/voice/voice-manifest-kokoro.mjs";
+import { KOKORO_Q8_MANIFEST, KOKORO_Q8_BASE_URL, KOKORO_Q8_COMMIT, KOKORO_Q8_SET } from "../chat/voice/voice-manifest-kokoro.mjs";
 import { createVoiceEngine, validateManifest, KOKORO_VOICE_DIR } from "../chat/voice/voice-engine.mjs";
 
 const golden = JSON.parse(readFileSync(new URL("./fixtures/kokoro-golden.json", import.meta.url), "utf8"));
@@ -92,7 +92,7 @@ test("resolveVoice accepts ids and display names", () => {
   assert.equal(resolveVoice("Emma"), "bf_emma");
   assert.equal(resolveVoice(undefined), "af_heart");
   assert.throws(() => resolveVoice("Nobody"), /unknown voice/);
-  assert.equal(Object.keys(KOKORO_VOICES).length, 8);
+  assert.equal(Object.keys(KOKORO_VOICES).length, 9);
 });
 
 // ---------- manifest ----------
@@ -100,11 +100,12 @@ test("the Kokoro manifest is valid, pins the named files and the commit lives in
   validateManifest(KOKORO_Q8_MANIFEST);
   const names = KOKORO_Q8_MANIFEST.files.map((f) => f.path);
   assert.deepEqual(names.slice(0, 4), ["onnx/model_quantized.onnx", "tokenizer.json", "tokenizer_config.json", "config.json"]);
-  assert.equal(names.filter((n) => n.startsWith("voices/")).length, 8);
+  assert.equal(names.filter((n) => n.startsWith("voices/")).length, 9);
   const model = KOKORO_Q8_MANIFEST.files[0];
   assert.equal(model.bytes, 92361116);
   assert.equal(model.sha256, "fbae9257e1e05ffc727e951ef9b9c98418e6d79f1c9b6b13bd59f5c9028a1478");
-  assert.equal(KOKORO_Q8_BASE_URL, `https://cdn.aiofourown.com/models/Kokoro-82M-v1.0-ONNX-q8/${KOKORO_Q8_COMMIT}/`);
+  assert.equal(KOKORO_Q8_BASE_URL, `https://cdn.aiofourown.com/models/Kokoro-82M-v1.0-ONNX-q8/${KOKORO_Q8_SET}/`);
+  assert.equal(KOKORO_Q8_SET, KOKORO_Q8_COMMIT + "-alloy1");
   assert.ok(KOKORO_Q8_MANIFEST.files.filter((f) => f.role === "voice").every((f) => f.bytes === 522240));
 });
 test("the pinned tokenizer fixture matches the manifest checksum", () => {

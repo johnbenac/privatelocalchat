@@ -32,10 +32,10 @@
   ]
  },
  "kokoro_q8": {
-  "prefix": "models/Kokoro-82M-v1.0-ONNX-q8/1939ad2a8e416c0acfeecc08a694d14ef25f2231/",
+  "prefix": "models/Kokoro-82M-v1.0-ONNX-q8/1939ad2a8e416c0acfeecc08a694d14ef25f2231-alloy1/",
   "licenseFile": "licenses/kokoro-82m-v1.0-onnx-q8.txt",
   "licenseName": "Apache-2.0",
-  "note": "onnx-community/Kokoro-82M-v1.0-ONNX at commit 1939ad2a8e416c0acfeecc08a694d14ef25f2231 (q8 model file onnx/model_quantized.onnx, tokenizer, config and eight voices). The weights are Apache-2.0 per the model card; the training data includes CC BY audio (Koniwa, SIWIS), see LICENSE.txt. Its phonemizer dependency (eSpeak NG) is GPL-3.0 and ships separately inside the app. Immutable.",
+  "note": "onnx-community/Kokoro-82M-v1.0-ONNX at commit 1939ad2a8e416c0acfeecc08a694d14ef25f2231 (q8 model file onnx/model_quantized.onnx, tokenizer, config and nine voices; the folder is the pinned commit plus the suffix -alloy1 because the set that added af_alloy is a new immutable folder). The weights are Apache-2.0 per the model card; the training data includes CC BY audio (Koniwa, SIWIS), see LICENSE.txt. Its phonemizer dependency (eSpeak NG) is GPL-3.0 and ships separately inside the app. Immutable.",
   "sourceBase": "https://huggingface.co/onnx-community/Kokoro-82M-v1.0-ONNX/resolve/1939ad2a8e416c0acfeecc08a694d14ef25f2231/",
   "kind": "tts",
   "model": {
@@ -43,7 +43,7 @@
    "sourceRevision": "1939ad2a8e416c0acfeecc08a694d14ef25f2231",
    "format": "onnx-q8",
    "license": "Apache-2.0",
-   "totalBytes": 96542690
+   "totalBytes": 97064930
   },
   "files": [
    {
@@ -75,6 +75,11 @@
     "path": "voices/af_bella.bin",
     "bytes": 522240,
     "sha256": "f69d836209b78eb8c66e75e3cda491e26ea838a3674257e9d4e5703cbaf55c8b"
+   },
+   {
+    "path": "voices/af_alloy.bin",
+    "bytes": 522240,
+    "sha256": "c4a6b876047fd7fb472edf4ebd63cfac7c3b958a7cae7c106e8f038ca6308c45"
    },
    {
     "path": "voices/af_nicole.bin",

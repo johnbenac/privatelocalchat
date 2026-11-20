@@ -25,7 +25,7 @@ test("prefixes are unique across all published sets and end in a pinned revision
   const prefixes = [...Object.values(voice), ...Object.values(gguf)].map((m) => m.prefix);
   assert.equal(new Set(prefixes).size, prefixes.length);
   for (const p of Object.values(voice).map((m) => m.prefix)) {
-    assert.match(p, /^models\/[A-Za-z0-9._-]+\/[0-9a-f]{40}\/$/);
+    assert.match(p, /^models\/[A-Za-z0-9._-]+\/[0-9a-f]{40}(-[a-z0-9]+)?\/$/);
   }
 });
 
@@ -36,7 +36,7 @@ test("no entry points at another project's host; the source is Hugging Face at a
     const url = new URL(m.sourceBase);
     assert.equal(url.hostname, "huggingface.co");
     assert.ok(url.pathname.includes("/resolve/" + m.model.sourceRevision + "/"), key);
-    assert.ok(m.prefix.endsWith(m.model.sourceRevision + "/"), key);
+    assert.ok(m.prefix.includes(m.model.sourceRevision), key);   // the folder is the pinned revision, with a set suffix when a published set grew (a published folder is immutable)
     assert.ok(!m.prefix.includes("://"));
   }
 });
@@ -69,11 +69,11 @@ test("Kokoro q8 pins the real commit, nested paths, hashes and the data notice",
   const by = Object.fromEntries(m.files.map((f) => [f.path, f]));
   const commit = "1939ad2a8e416c0acfeecc08a694d14ef25f2231";
   assert.equal(m.model.sourceRevision, commit);
-  assert.equal(m.prefix, "models/Kokoro-82M-v1.0-ONNX-q8/" + commit + "/");
-  assert.equal(m.files.length, 12);
+  assert.equal(m.prefix, "models/Kokoro-82M-v1.0-ONNX-q8/" + commit + "-alloy1/");
+  assert.equal(m.files.length, 13);
   assert.equal(by["onnx/model_quantized.onnx"].bytes, 92361116);
   assert.ok(by["onnx/model_quantized.onnx"].sha256.startsWith("fbae9257e1e0"));
-  for (const v of ["af_heart", "af_bella", "af_nicole", "af_sarah", "am_michael", "am_adam", "bf_emma", "bm_george"]) {
+  for (const v of ["af_heart", "af_alloy", "af_bella", "af_nicole", "af_sarah", "am_michael", "am_adam", "bf_emma", "bm_george"]) {
     assert.equal(by["voices/" + v + ".bin"].bytes, 522240, v);
   }
   for (const p of ["tokenizer.json", "tokenizer_config.json", "config.json"]) assert.ok(by[p], p);

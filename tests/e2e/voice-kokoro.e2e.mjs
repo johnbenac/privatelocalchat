@@ -84,7 +84,7 @@ try{
  assert(result.afterInstall.installed===true&&result.afterInstall.bytes===TOTAL,'installed with all bytes');
  assert(result.progress===TOTAL,'progress reached the total');
  assert(served.length===PATHS.length,'each file fetched once: '+served.length);
- assert(result.voices.length===8&&result.voices.includes('af_heart'),'eight voices loaded');
+ assert(result.voices.length===9&&result.voices.includes('af_heart')&&result.voices.includes('af_alloy'),'nine voices loaded');
  const r=result.second;
  assert(r.chunkCount===2,'two sentences give two chunks; got '+r.chunkCount);
  const seconds=r.samples/24000;

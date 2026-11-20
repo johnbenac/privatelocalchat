@@ -29,7 +29,7 @@ export const VOICE_CONFIG = Object.freeze({
 /** Candidates. `tier` orders them; sizes are the bytes the person would download (model plus voices). */
 export const VOICE_ENGINES = Object.freeze({
   kitten: Object.freeze({ id: "kitten", label: "Kitten TTS nano", tier: 1, downloadBytes: 24369971 + 3278902, languages: ["en"] }),
-  kokoro: Object.freeze({ id: "kokoro", label: "Kokoro", tier: 2, downloadBytes: 96542690, languages: ["en"] })
+  kokoro: Object.freeze({ id: "kokoro", label: "Kokoro", tier: 2, downloadBytes: 97064930, languages: ["en"] })
 });
 
 const IOS = /iPhone|iPad|iPod/;

@@ -8,7 +8,10 @@ import { appConfig } from "../../runtime/providers/app-config.mjs";
 /** The Hugging Face revision the hosted copy is keyed by. ONE place. */
 export const KOKORO_Q8_COMMIT = "1939ad2a8e416c0acfeecc08a694d14ef25f2231";
 
-export const KOKORO_Q8_BASE_URL = `${appConfig().modelRoot()}Kokoro-82M-v1.0-ONNX-q8/${KOKORO_Q8_COMMIT}/`;
+/** The folder of the hosted set under the model source. A published folder is immutable, so the set that adds the voice af_alloy is a NEW folder: the model revision above plus a set suffix. */
+export const KOKORO_Q8_SET = `${KOKORO_Q8_COMMIT}-alloy1`;
+
+export const KOKORO_Q8_BASE_URL = `${appConfig().modelRoot()}Kokoro-82M-v1.0-ONNX-q8/${KOKORO_Q8_SET}/`;
 
 const file = (path, role, bytes, sha256) => Object.freeze({ name: path.split("/").pop(), path, role, bytes, sha256 });
 
@@ -22,6 +25,7 @@ export const KOKORO_Q8_MANIFEST = Object.freeze({
     file("config.json", "config", 44, "df34b4f930b23447cd4dc410fabfb42eb3f24e803e6c3f97d618fb359380a36f"),
     file("voices/af_heart.bin", "voice", 522240, "d583ccff3cdca2f7fae535cb998ac07e9fcb90f09737b9a41fa2734ec44a8f0b"),
     file("voices/af_bella.bin", "voice", 522240, "f69d836209b78eb8c66e75e3cda491e26ea838a3674257e9d4e5703cbaf55c8b"),
+    file("voices/af_alloy.bin", "voice", 522240, "c4a6b876047fd7fb472edf4ebd63cfac7c3b958a7cae7c106e8f038ca6308c45"),
     file("voices/af_nicole.bin", "voice", 522240, "cd2191ab31b914ed7b318416b0e4440fdf392ddad9106a060819aa600a64f59a"),
     file("voices/af_sarah.bin", "voice", 522240, "4409fbc125afabacc615d94db5398d847006a737b0247d6892b7a9a0007a2f0a"),
     file("voices/am_michael.bin", "voice", 522240, "1d1f21dd8da39c30705cd4c75d039d265e9bc4a2a93ed09bc9e1b1225eb95ba1"),
