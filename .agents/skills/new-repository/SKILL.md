@@ -66,6 +66,10 @@ In `/cosmoshot/<name>`: `git init -b main`, then:
 
 ## 4. Register it, so it gets the shared skills
 
+**Do NOT register a repository that will be mirrored or published publicly** (see `ops/forge-mirrors.json` in tools):
+the rollout commits the programme's internal paths and setup into every registered repository, and the public mirror
+would publish them (this happened to emma-server on 2026-11-20 and was caught before the forge). Ask Devops first.
+
 - Add `{"name": "<name>", "path": "/cosmoshot/<name>"}` to `repositories` in `/cosmoshot/skills/sources/projects/<project>.json`
   for the owner's project: one small commit, `git pull --rebase` first, push as in `commit-rules`. Without this the
   repository gets no skills, no memory note and no managed `AGENTS.md` block.
