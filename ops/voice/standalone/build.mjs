@@ -38,6 +38,7 @@ await build({
 });
 for (const f of ["ort-wasm-simd-threaded.mjs", "ort-wasm-simd-threaded.wasm"]) fs.copyFileSync(path.join(nm, "onnxruntime-web/dist", f), path.join(out, f));
 fs.copyFileSync(path.join(here, "engine.mjs"), path.join(out, "kokoro-engine.mjs"));
+fs.copyFileSync(path.join(here, "kokoro-phoneme-notes.md"), path.join(out, "kokoro-phoneme-notes.md"));
 
 // ---- the pinned file list (the model files and only the voices asked for) ----
 const wanted = new Set(["onnx/model_quantized.onnx", "tokenizer.json", "tokenizer_config.json", "config.json", ...VOICES.map((v) => `voices/${v}.bin`)]);
@@ -77,7 +78,7 @@ fs.writeFileSync(path.join(out, WORKER + ".LEGAL.txt"), legal.join(""));
 // ---- the corresponding source ----
 for (const [from, to] of [[path.join(here, "worker.src.mjs"), "worker.src.mjs"], [path.join(here, "engine.mjs"), "engine.mjs"], [path.join(here, "build.mjs"), "build.mjs"],
   [path.join(here, "../stream-polyfill.mjs"), "stream-polyfill.mjs"], [path.join(repo, "chat/voice/voice-kokoro.mjs"), "voice-kokoro.mjs"],
-  [path.join(here, "../package.json"), "package.json"], [path.join(here, "../package-lock.json"), "package-lock.json"]]) fs.copyFileSync(from, path.join(out, "source", to));
+  [path.join(here, "phoneme-survey.mjs"), "phoneme-survey.mjs"], [path.join(here, "../package.json"), "package.json"], [path.join(here, "../package-lock.json"), "package-lock.json"]]) fs.copyFileSync(from, path.join(out, "source", to));
 fs.writeFileSync(path.join(out, "VERSIONS.json"), JSON.stringify({
   onnxruntimeWeb: ort.version, onnxruntimeLicense: ort.license, phonemizer: phonemizer.version, phonemizerLicense: phonemizer.license, phonemizerEmbeds: "espeak-ng (GPL-3.0-or-later)",
   pipelinePortedFrom: "kokoro-js 1.2.1 (Apache-2.0)", model: pins.model.id, modelRevision: pins.model.sourceRevision, modelLicense: pins.model.license, voices: VOICES, packageLicense: "AGPL-3.0-only", builtFrom: "ops/voice/standalone of Private Local Chat " + owner.version,

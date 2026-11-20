@@ -46,7 +46,7 @@ await engine.unload();      // frees the model and ends the worker
 ```
 
 `speak` splits the text into sentences and calls `onChunk` once per chunk, in order (chunks that are silent are skipped). `ipa` is the phoneme string Kokoro was given for that chunk
-(the model's own phoneme alphabet: IPA symbols with some letters of its own), not a timing track. Errors are `KokoroEngineError` with `code`: `bad-config`, `bad-file-list`, `network`,
+(eSpeak NG's IPA with a few substitutions; what the symbols are and how American and British differ is in `kokoro-phoneme-notes.md`), not a timing track. Errors are `KokoroEngineError` with `code`: `bad-config`, `bad-file-list`, `network`,
 `http-error`, `bad-size`, `bad-hash`, `not-loaded`, `unknown-voice`, `worker-failed`, `aborted`. `engine.status()` gives `{ state, voices, totalBytes, cache, sha256 }`.
 
 ## The worker's message protocol (if you drive the worker yourself)
