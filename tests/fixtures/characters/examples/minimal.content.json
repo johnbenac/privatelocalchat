@@ -1,0 +1,12 @@
+{
+  "format": "cosmogenitor/content/0",
+  "subjects": [
+    {
+      "id": "subject:pip",
+      "label": "Pip",
+      "profiles": [
+        "profile:character"
+      ]
+    }
+  ]
+}

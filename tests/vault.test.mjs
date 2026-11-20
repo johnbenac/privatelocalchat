@@ -140,12 +140,31 @@ test('writes are ordered and a locked session refuses to write',async()=>{
   assert.equal(s.state.kv.size,0,'locking drops the data from memory');
 });
 
-test('two writers: the second write of the same seq is refused',async()=>{
+test('same-seq fixture: two sessions unlocked from same nonempty prefix, first succeeds second conflicts',async()=>{
   const {vault,adapter}=make();
-  const a=await vault.create('p',{iterations:FAST});
+  // Seed a committed prefix: create and write some data
+  const s1=await vault.create('p',{iterations:FAST});
+  await s1.putThread('t1',thread('t1','seed'));
+  await s1.setKv('k','v1');
+  const seq1=s1.lastSeq;
+  s1.lock();
+  // Unlock TWO sessions from the SAME nonempty prefix
+  const a=await vault.unlock('p');
   const b=await vault.unlock('p');
+  // Both should have equal lastSeq and the same next seq
+  assert.equal(a.lastSeq,b.lastSeq,'both sessions see same lastSeq');
+  assert.equal(a.lastSeq,seq1,'lastSeq matches seeded prefix');
+  // First write succeeds
   await a.setKv('x','1');
+  assert.equal(a.lastSeq,seq1+1,'first writer advanced seq');
+  // Second write conflicts (same next seq)
   await assert.rejects(()=>b.setKv('y','2'),e=>e.code==='conflict');
+  assert.equal(b.lastSeq,seq1,'second writer seq unchanged after conflict');
+  // Fresh persisted state: rejected key absent
+  const fresh=await vault.unlock('p');
+  assert.equal(fresh.state.kv.get('x'),'1','first writer data persisted');
+  assert.equal(fresh.state.kv.has('y'),false,'rejected key absent from persisted state');
+  a.lock();b.lock();
 });
 
 test('the reducer: events replay to the state, and eventsFor rebuilds it',()=>{

@@ -1,0 +1,41 @@
+{
+ "format": "plc-data-snapshot/1",
+ "release": "v0.78.0",
+ "commit": "fb44515",
+ "commitFull": "fb445152f9b7e01648229d26365b448362703782",
+ "capturedAt": "2026-11-19",
+ "app": {
+  "version": "2.0.0",
+  "commit": "fb445152f9b7e01648229d26365b448362703782",
+  "branch": "main",
+  "environment": "release",
+  "builtAt": "2026-11-19T10:21:12.909Z"
+ },
+ "formats": {
+  "chatThreads": 1,
+  "plc.activeThread.v1": 1,
+  "plc.drafts.v1": 1,
+  "plc.prefs.v1": 1,
+  "plc.folders.v1": 1,
+  "plc.presets.v1": 1,
+  "plc.presentations.v1": 1,
+  "plc.encounters.v1": 1,
+  "plc.memory.v1": 1,
+  "plc.characters.v1": 1,
+  "plc.modelMemory.v1": 1,
+  "plc.voice.v2": 2,
+  "plc.voice.v1": 1,
+  "plc.inferenceMode.v1": 1,
+  "plc.models.v1": 1,
+  "plc.shell.pins.v1": 1,
+  "chatConfig": 1,
+  "chatModels": 1,
+  "chatEndpointTokens": 1
+ },
+ "captureKind": "private-build",
+ "unpublished": true,
+ "baseRelease": "v0.78.0",
+ "sourceCommit": "fb445152f9b7e01648229d26365b448362703782",
+ "scenario": "two chats (one with a document), a project, a pinned chat, memory, a preset, a character package added as a preset with its look, personal instructions, an unsent draft; then the encrypted vault. A post-release private writer build, unpublished: v0.78.0 is only the nearest earlier release.",
+ "projection": 1
+}

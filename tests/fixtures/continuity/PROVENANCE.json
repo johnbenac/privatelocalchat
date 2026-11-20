@@ -1,0 +1,9 @@
+{
+  "file": "reported-experience.json",
+  "sha256": "0a443e8f2475035f7005bfaec054b2e14c37e5462b7ec17347db8c8503ac568f",
+  "bytes": 5474,
+  "source": "T412 continuity index, contracts/continuity/fixtures/reported-experience.json (synthetic rows, copied byte for byte)",
+  "sourceRevision": "ec099c7dabc5c1be99bb936aee482cc9769805f8",
+  "usedBy": "tests/encounters-facade.test.mjs (local record semantics only: no transport, provider, CP or authentication behaviour is exercised)",
+  "note": "The test reads ONLY this copy and pins its sha256; nothing outside the clone is read."
+}

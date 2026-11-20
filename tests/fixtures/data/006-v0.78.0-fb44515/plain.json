@@ -1,0 +1,617 @@
+{
+ "storage": {
+  "local": {
+   "plc.encounters.v1": "{\"v\":1,\"rev\":32,\"epoch\":0,\"encounters\":{\"enc:mwneh162-14190f80\":{\"id\":\"enc:mwneh162-14190f80\",\"thread\":\"mwneh162-14190f80\",\"createdAt\":1795083676220,\"seq\":4,\"msgs\":{\"mwneh19g-77958128\":\"ev:23bff7a7-35a4-41e0-9f8e-b32629758be6\",\"mwneh19y-f3791bd4\":\"ev:dc035782-9316-43d3-9b98-61d71a166a61\",\"mwneh1f2-f0b2fa95\":\"ev:7f01ed9d-9220-4a32-946a-fa605d945746\",\"mwneh1fn-13394840\":\"ev:cf90d1bc-a656-4357-8b3f-68b19f867aa7\"},\"origin\":\"local\"},\"enc:mwneh1g3-55f67c1f\":{\"id\":\"enc:mwneh1g3-55f67c1f\",\"thread\":\"mwneh1g3-55f67c1f\",\"createdAt\":1795083676579,\"seq\":2,\"msgs\":{\"mwneh1mg-1f7c0e26\":\"ev:898b5f37-5129-4bc2-ab70-45e38e071dd5\",\"mwneh1n0-491e9cf5\":\"ev:ad0045f9-a1e1-4af8-a867-aad316134920\"},\"origin\":\"local\"},\"enc:mwneh3kn-7266c77e\":{\"id\":\"enc:mwneh3kn-7266c77e\",\"thread\":\"mwneh3kn-7266c77e\",\"createdAt\":1795083679332,\"seq\":0,\"msgs\":{},\"origin\":\"local\"}},\"participants\":{\"p:mwneh162-14190f80:person\":{\"id\":\"p:mwneh162-14190f80:person\",\"encounter\":\"enc:mwneh162-14190f80\",\"kind\":\"human\",\"name\":\"You\",\"standing\":\"local-device\",\"individualId\":null,\"origin\":{\"kind\":\"local\"}},\"p:mwneh162-14190f80:assistant\":{\"id\":\"p:mwneh162-14190f80:assistant\",\"encounter\":\"enc:mwneh162-14190f80\",\"kind\":\"agent\",\"name\":\"Assistant\",\"standing\":\"runtime-projection\",\"individualId\":null,\"origin\":{\"kind\":\"local\"}},\"p:mwneh1g3-55f67c1f:person\":{\"id\":\"p:mwneh1g3-55f67c1f:person\",\"encounter\":\"enc:mwneh1g3-55f67c1f\",\"kind\":\"human\",\"name\":\"You\",\"standing\":\"local-device\",\"individualId\":null,\"origin\":{\"kind\":\"local\"}},\"p:mwneh1g3-55f67c1f:assistant\":{\"id\":\"p:mwneh1g3-55f67c1f:assistant\",\"encounter\":\"enc:mwneh1g3-55f67c1f\",\"kind\":\"agent\",\"name\":\"Assistant\",\"standing\":\"runtime-projection\",\"individualId\":null,\"origin\":{\"kind\":\"local\"}},\"p:mwneh3kn-7266c77e:person\":{\"id\":\"p:mwneh3kn-7266c77e:person\",\"encounter\":\"enc:mwneh3kn-7266c77e\",\"kind\":\"human\",\"name\":\"You\",\"standing\":\"local-device\",\"individualId\":null,\"origin\":{\"kind\":\"local\"}},\"p:mwneh3kn-7266c77e:assistant\":{\"id\":\"p:mwneh3kn-7266c77e:assistant\",\"encounter\":\"enc:mwneh3kn-7266c77e\",\"kind\":\"agent\",\"name\":\"Assistant\",\"standing\":\"runtime-projection\",\"individualId\":null,\"origin\":{\"kind\":\"local\"}}},\"events\":{\"ev:23bff7a7-35a4-41e0-9f8e-b32629758be6\":{\"id\":\"ev:23bff7a7-35a4-41e0-9f8e-b32629758be6\",\"encounter\":\"enc:mwneh162-14190f80\",\"thread\":\"mwneh162-14190f80\",\"message\":\"mwneh19g-77958128\",\"version\":null,\"occ\":{\"source\":\"plc:local\",\"id\":\"loc:ed874a30125352e227f0579ec96197546ac528fe7c3f30f3ab30bb5152fa8191\",\"digest\":\"sha256:0447a45a8d12eea9811d8c518782da0541bf68fc09c8b8a2694ebf174cb692ff\"},\"speaker\":\"p:mwneh162-14190f80:person\",\"audience\":{\"scope\":\"encounter\"},\"expression\":\"person\",\"modality\":\"text\",\"standing\":\"recorded\",\"state\":\"final\",\"outcome\":\"complete\",\"content\":{\"text\":\"Packing list for a week in Lisbon, please.\",\"digest\":\"sha256:0447a45a8d12eea9811d8c518782da0541bf68fc09c8b8a2694ebf174cb692ff\"},\"inTranscript\":true,\"authority\":\"local-device\",\"observed\":true,\"clock\":{\"domain\":\"encounter:enc:mwneh162-14190f80\",\"position\":1,\"receivedMs\":1795083676333}},\"ev:dc035782-9316-43d3-9b98-61d71a166a61\":{\"id\":\"ev:dc035782-9316-43d3-9b98-61d71a166a61\",\"encounter\":\"enc:mwneh162-14190f80\",\"thread\":\"mwneh162-14190f80\",\"message\":\"mwneh19y-f3791bd4\",\"version\":null,\"occ\":{\"source\":\"plc:local\",\"id\":\"loc:688927e0278b5daf1d24103d6156c4055a03bf605fdd6dc139df5546c8889bb5\",\"digest\":\"sha256:373ac1f8a516ebeae2688ca6ddeb250256c8aed9552e14778c2465653580d6cf\"},\"speaker\":\"p:mwneh162-14190f80:assistant\",\"audience\":{\"scope\":\"encounter\"},\"expression\":\"model\",\"modality\":\"text\",\"standing\":\"recorded\",\"state\":\"final\",\"outcome\":\"complete\",\"content\":{\"text\":\"Reply to: Packing list for a week in Lisbon, please.\",\"digest\":\"sha256:373ac1f8a516ebeae2688ca6ddeb250256c8aed9552e14778c2465653580d6cf\"},\"inTranscript\":true,\"authority\":\"local-device\",\"observed\":true,\"clock\":{\"domain\":\"encounter:enc:mwneh162-14190f80\",\"position\":2,\"receivedMs\":1795083676347},\"causes\":[\"ev:23bff7a7-35a4-41e0-9f8e-b32629758be6\"],\"runtime\":{\"label\":\"fake-model · 127.0.0.1\"}},\"ev:7f01ed9d-9220-4a32-946a-fa605d945746\":{\"id\":\"ev:7f01ed9d-9220-4a32-946a-fa605d945746\",\"encounter\":\"enc:mwneh162-14190f80\",\"thread\":\"mwneh162-14190f80\",\"message\":\"mwneh1f2-f0b2fa95\",\"version\":null,\"occ\":{\"source\":\"plc:local\",\"id\":\"loc:261c3ee1b42a39be4edcc3695c8eea239f7780b5ed7c50c671bf13cf9d3d2da6\",\"digest\":\"sha256:afbf0dc1e5662a05005f24d0bdbe65ecb6e3995bb0457abf4f891ef73f2098d4\"},\"speaker\":\"p:mwneh162-14190f80:person\",\"audience\":{\"scope\":\"encounter\"},\"expression\":\"person\",\"modality\":\"text\",\"standing\":\"recorded\",\"state\":\"final\",\"outcome\":\"complete\",\"content\":{\"text\":\"And what about the weather in March?\",\"digest\":\"sha256:afbf0dc1e5662a05005f24d0bdbe65ecb6e3995bb0457abf4f891ef73f2098d4\"},\"inTranscript\":true,\"authority\":\"local-device\",\"observed\":true,\"clock\":{\"domain\":\"encounter:enc:mwneh162-14190f80\",\"position\":3,\"receivedMs\":1795083676540}},\"ev:cf90d1bc-a656-4357-8b3f-68b19f867aa7\":{\"id\":\"ev:cf90d1bc-a656-4357-8b3f-68b19f867aa7\",\"encounter\":\"enc:mwneh162-14190f80\",\"thread\":\"mwneh162-14190f80\",\"message\":\"mwneh1fn-13394840\",\"version\":null,\"occ\":{\"source\":\"plc:local\",\"id\":\"loc:37d50fcdc8990decb38128a3ab09662b5b0cf03fa854637ff9f9042d89ccdcff\",\"digest\":\"sha256:412cfc6107925b26b09031d60fdcde3eec1542577d42a3da163f8f39f911fe20\"},\"speaker\":\"p:mwneh162-14190f80:assistant\",\"audience\":{\"scope\":\"encounter\"},\"expression\":\"model\",\"modality\":\"text\",\"standing\":\"recorded\",\"state\":\"final\",\"outcome\":\"complete\",\"content\":{\"text\":\"Reply to: And what about the weather in March?\",\"digest\":\"sha256:412cfc6107925b26b09031d60fdcde3eec1542577d42a3da163f8f39f911fe20\"},\"inTranscript\":true,\"authority\":\"local-device\",\"observed\":true,\"clock\":{\"domain\":\"encounter:enc:mwneh162-14190f80\",\"position\":4,\"receivedMs\":1795083676549},\"causes\":[\"ev:7f01ed9d-9220-4a32-946a-fa605d945746\"],\"runtime\":{\"label\":\"fake-model · 127.0.0.1\"}},\"ev:898b5f37-5129-4bc2-ab70-45e38e071dd5\":{\"id\":\"ev:898b5f37-5129-4bc2-ab70-45e38e071dd5\",\"encounter\":\"enc:mwneh1g3-55f67c1f\",\"thread\":\"mwneh1g3-55f67c1f\",\"message\":\"mwneh1mg-1f7c0e26\",\"version\":null,\"occ\":{\"source\":\"plc:local\",\"id\":\"loc:13e4888b1b521af9beee3405acc1dc4330425074833ec82ad695544c68511c5b\",\"digest\":\"sha256:54869ecea80bd46d4f66c749e01861e24348db2526d8a7f3cd6a6e6047c75fb5\"},\"speaker\":\"p:mwneh1g3-55f67c1f:person\",\"audience\":{\"scope\":\"encounter\"},\"expression\":\"person\",\"modality\":\"text\",\"standing\":\"recorded\",\"state\":\"final\",\"outcome\":\"complete\",\"content\":{\"text\":\"Summarise the launch notes in one line.\",\"digest\":\"sha256:54869ecea80bd46d4f66c749e01861e24348db2526d8a7f3cd6a6e6047c75fb5\"},\"inTranscript\":true,\"authority\":\"local-device\",\"observed\":true,\"clock\":{\"domain\":\"encounter:enc:mwneh1g3-55f67c1f\",\"position\":1,\"receivedMs\":1795083676807}},\"ev:ad0045f9-a1e1-4af8-a867-aad316134920\":{\"id\":\"ev:ad0045f9-a1e1-4af8-a867-aad316134920\",\"encounter\":\"enc:mwneh1g3-55f67c1f\",\"thread\":\"mwneh1g3-55f67c1f\",\"message\":\"mwneh1n0-491e9cf5\",\"version\":null,\"occ\":{\"source\":\"plc:local\",\"id\":\"loc:4ceb3e74acd9af30ee105bb2aaee39d3be1f0e6fac546a0d51aff8bae1e9fdeb\",\"digest\":\"sha256:9d43e025b1b6e706faac5d7435d3c002cb81711af494b75fa0e67ee753d107a0\"},\"speaker\":\"p:mwneh1g3-55f67c1f:assistant\",\"audience\":{\"scope\":\"encounter\"},\"expression\":\"model\",\"modality\":\"text\",\"standing\":\"recorded\",\"state\":\"final\",\"outcome\":\"complete\",\"content\":{\"text\":\"Reply to: [Attached file: notes.txt] Launch notes: the review is on Thursday and the budget is 4200 euros.  [End of notes.txt]  Summarise the launch notes in one line.\",\"digest\":\"sha256:9d43e025b1b6e706faac5d7435d3c002cb81711af494b75fa0e67ee753d107a0\"},\"inTranscript\":true,\"authority\":\"local-device\",\"observed\":true,\"clock\":{\"domain\":\"encounter:enc:mwneh1g3-55f67c1f\",\"position\":2,\"receivedMs\":1795083676814},\"causes\":[\"ev:898b5f37-5129-4bc2-ab70-45e38e071dd5\"],\"runtime\":{\"label\":\"fake-model · 127.0.0.1\"}}},\"holders\":{}}",
+   "plc.activeThread.v1": "\"mwneh3kn-7266c77e\"",
+   "plc.drafts.v1": "{\"mwneh3kn-7266c77e\":\"an unsent draft about the snapshot\"}",
+   "plc.presentations.v1": "{\"preset-mwneh3vw-a2cf4d05\":{\"v\":1,\"enabled\":true,\"off\":{\"layout\":false,\"palette\":false,\"portrait\":false,\"background\":false},\"source\":{\"id\":\"subject:lantern-keeper\",\"label\":\"Lantern Keeper\"},\"look\":{\"layout\":\"folio\",\"palette\":\"sea\",\"alt\":\"A folio page on a deep sea-teal ground with a lantern portrait and a horizon background.\",\"reducedMotion\":true},\"images\":[{\"assetId\":\"asset:lantern-portrait\",\"role\":\"portrait\",\"alt\":\"Flat illustration of a pale lantern disc with an amber flame on deep teal.\",\"author\":\"Cosmogenitor (generated by tools/make-assets)\",\"license\":\"CC0-1.0\",\"mediaType\":\"image/png\",\"size\":1101,\"sha256\":\"sha256:61ecd42bddb9604676e9521d29edda61b148e8ff5f4d5c5583e59ecbe0fc5f9a\",\"data\":\"iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAIAAADTED8xAAAEFElEQVR42u3dYU0DQRhF0WogSEFARaAAhQhATIMCJOCAQJhuv9l7kmugM+9sf7V7eXp905E9v1x/zhEd2cURAACAAABAAAAgAAAQAAAIAAAEAAACAAABAIAAAEAAACAAABAAAAgAAAQAAAIAAAEAgAAAQAAAIAAAEAAACAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAUwIAAAEAgAAAQAAAIAAAEAAACAAABAAAAgAAAQCAAABAAAAgAAAQAAAIAAAEAAACAAABAIAAAEAAACAAABAAAADgFAAAQAAAIAAAkADQoj4+b//PMQLQWjwPABg9DADYPQkA2D0JAJg+BgCYPgYAmD4GAJg+BgCYPgYAmD4GAFg/AwCYPgYAWD8DAFg/AwCYPgYAWD8DAFg/AwBYPwMAGDcDXQBmzUAXgEEz0AVgygx0ARgxA10A5stAF4DhMtAFYLIMACAAkgCMlYEuADNloAvAQBkAQAAkAZgmA10ARskAAAIgCcAcGQBAACQBGCIDAAiAJAATZAAAAZAEYHwMACAAkgDMjgEAdurr/fr7AADgJOv/0+63lgAAACunvx0DAABYP/2NGABg/XdcPwMATAdw1+lvwQCALoDD1j/ZAADWzwAAMQAPWf9YAwC0ADxw/TMNABAC8PD1DzQAgMe/LwEAPP59CQBwYgCj1j/NAAAAAADAeQEMXP8oAwB4/PsSAMDj35cAAAAAAAAAAABwCgDD1z/HAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4PcAfg8AAAAAAAAAAAAw4F8h/C8QAB7/ADDg8Q8AAAAAwIB/hwbA+wEA8IYYAKwfAO8IAwAAb4kEAADvCQbghAAYsH4AbnEDY08AgDSAAxgM/+wAMHBHA9YPwB4AljPY4vMCAMB6Bht9UgAYWCZhu0+36YoAEAAMKLl+AATAzgAYsH4ATBCAMAAGrB8AQwQgDIAB6wfAHAEIA2DA+gEwSgDCABiw/joABqwfAAMFIAyAAeuvA2DA+usAGLB+AEwWgDAABqy/DoAB668DYMD66wAYsP46AAasvw6AAeuvA2DA+usAGLD+OgAGrL8OgAHrrwNgwPrrADCITx8ABurrB6BuwNUDEGXgugHoGnDRAEQZuFwAogxcKABRBi4RgCgDFwdAlIHLAiDKwAUBUJTgOgAoSnD4AOQwOGQAWh4cIwASABIAEgASABIAEgASABIAEgASABIAEgASABIAEgASABIAEgACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQFrRN67jFLM0jxqkAAAAAElFTkSuQmCC\"},{\"assetId\":\"asset:lantern-background\",\"role\":\"background\",\"alt\":\"Bands of teal sea under a pale horizon line.\",\"author\":\"Cosmogenitor (generated by tools/make-assets)\",\"license\":\"CC0-1.0\",\"mediaType\":\"image/png\",\"size\":2647,\"sha256\":\"sha256:b97f047619dd551ad7da43c51939a1cf53a50cfebf4a254186d8d3e144c8bfc7\",\"data\":\"iVBORw0KGgoAAAANSUhEUgAABAAAAAJACAIAAACc94OCAAAKHklEQVR42u3XQQ2AMBAAwQrg1Ud1oAENFdBUQQUihqAEEYQHd5OMgv1t2fYDAABIokgAAAAGAAAAMAAAAIABAAAADAAAAGAAAAAAAwAAABgAAADAAAAAAAYAAAAwAAAAgAEAAAADAAAAGAAAAMAAAAAABgAAADAAAACAAQAAAAwAAABgAAAAAAMAAAAYAAAAwAAAAIABAAAADAAAAGAAAAAAAwAAABgAAADAAAAAAAYAAAAwAAAAgAEAAAAMAAAAYAAAAMAAAAAABgAAADAAAACAAQAAAAwAAABgAAAAAAMAAAAYAAAAwAAAAAAGAAAAMAAAAGAAAAAAAwAAABgAAADAAAAAAAYAAAAwAAAAgAEAAAAMAAAAYAAAAAADAAAAGAAAAMAAAACAAQAAAAwAAABgAAAAAAMAAAAYAAAAwAAAAAAGAAAAMAAAAIABAAAADAAAAGAAAADAAAAAAAYAAAAwAAAAgAEAAAAMAAAAYAAAAAADAAAAGAAAAMAAAAAABgAAADAAAABgAAAAAAMAAAAYAAAAwAAAAAAGAAAAMAAAAIABAAAADAAAAGAAAAAAAwAAABgAAAAwAAAAgAEAAAAMAAAAYAAAAAADAAAAGAAAAMAAAAAABgAAADAAAACAAQAAAAwAAAAYABUAAMAAAAAABgAAADAAAACAAQAAAAwAAABgAAAAAAMAAAAYAAAAwAAAAAAGAAAAMAAAAGAAAAAAAwAAABgAAADAAAAAAAYAAAAwAAAAgAEAAAAMAAAAYAAAAAADAAAAGAAAADAAAACAAQAAAAwAAABgAAAAAAMAAAAYAAAAwAAAAAAGAAAAMAAAAIABAAAADAAAABgAAADAAAAAAAYAAAAwAAAAgAEAAAAMAAAAYAAAAAADAAAAGAAAAMAAAAAABgAAAAwAAABgAAAAAAMAAAAYAAAAwAAAAAAGAAAAMAAAAIABAAAADAAAAGAAAAAAAwAAABgAAAAwAAAAgAEAAAAMAAAAYAAAAAADAAAAGAAAAMAAAAAABgAAADAAAACAAQAAAAwAAAAYAAAAwAAAAAAGAAAAMAAAAIABAAAADAAAAGAAAAAAAwAAABgAAADAAAAAAAYAAAAMAAAAYAAAAAADAAAAGAAAAMAAAAAABgAAADAAAACAAQAAAAwAAABgAAAAAAMAAAAGAAAAMAAAAIABAAAADAAAAGAAAAAAAwAAABgAAADAAAAAAAYAAAAwAAAAgAEAAAADoAIAABgAAADAAAAAAAYAAAAwAAAAgAEAAAAMAAAAYAAAAAADAAAAGAAAAMAAAAAABgAAAAwAAABgAAAAAAMAAAAYAAAAwAAAAAAGAAAAMAAAAIABAAAADAAAAGAAAAAAAwAAAAYAAAAwAAAAgAEAAAAMAAAAYAAAAAADAAAAGAAAAMAAAAAABgAAADAAAACAAQAAAAMAAAAYAAAAwAAAAAAGAAAAMAAAAIABAAAADAAAAGAAAAAAAwAAABgAAADAAAAAgAEAAAAMAAAAYAAAAAADAAAAGAAAAMAAAAAABgAAADAAAACAAQAAAAwAAABgAAAAwABIAAAABgAAADAAAACAAQAAAAwAAABgAAAAAAMAAAAYAAAAwAAAAAAGAAAAMAAAAIABAAAAAwAAABgAAADAAAAAAAYAAAAwAAAAgAEAAAAMAAAAYAAAAAADAAAAGAAAAMAAAACAAQAAAAwAAABgAAAAAAMAAAAYAAAAwAAAAAAGAAAAMAAAAIABAAAADAAAAGAAAADAAAAAAAYAAAAwAAAAgAEAAAAMAAAAYAAAAAADAAAAfDYA530BAABJGAAAADAAAACAAQAAAP49AG0sAAAgCQMAAAAGAAAAMAAAAIABAAAADAAAAGAAAAAAAwAAABgAAADAAAAAAAYAAAAwAAAAgAEAAAADAAAAGAAAAMAAAAAABgAAADAAAACAAQAAAAwAAABgAAAAAAMAAAAYAAAAwAAAAIABAAAADAAAAGAAAAAAAwAAABgAAADAAAAAAAYAAAAwAAAAwLsBqH0CAABJGAAAADAAAACAAQAAAAwAAABgAAAAAAMAAAAYAAAAwAAAAAAGAAAAMAAAAIABAAAADAAAABgAAADAAAAAAAYAAAAwAAAAgAEAAAAMAAAAYAAAAAADAAAAGAAAAMAAAAAABgAAAAwAAABgAAAAAAMAAAAYAAAAwAAAAAAGAAAAMAAAAIABAAAADAAAAGAAAAAAAwAAAAYAAAAwAAAAgAEAAAAMAAAAYAAAAAADAAAAGAAAAMAAAAAABgAAADAAAACAAQAAAAOgAgAAGAAAACDeALSxAACAJAwAAAAYAAAAwAAAAAAGAAAAMAAAAIABAAAADAAAAGAAAAAAAwAAABgAAADAAAAAAAYAAAAMAAAAYAAAAAADAAAAGAAAAMAAAAAABgAAADAAAACAAQAAAAwAAABgAAAAAAMAAAAGAAAAMAAAAIABAAAADAAAAGAAAAAAAwAAABgAAADAAAAAAAYAAAAwAAAAgAEAAAADAAAAGAAAAMAAAAAABgAAADAAAACAAQAAAAwAAABgAAAAAAMAAAAYAAAAwAAAAIABUAEAAAwAAAAQbwBqnwAAQBIGAAAADAAAAGAAAAAAAwAAABgAAADAAAAAAAYAAAAwAAAAgAEAAAAMAAAAYAAAAAADAAAABgAAADAAAACAAQAAAAwAAABgAAAAAAMAAAAYAAAAwAAAAAAGAAAAMAAAAIABAAAAAwAAABgAAADAAAAAAAYAAAAwAAAAgAEAAAAMAAAAYAAAAAADAAAAGAAAAMAAAACAAQAAAAwAAABgAAAAAAMAAAAYAAAAwAAAAAAGAAAAMAAAAIABAAAADAAAAGAAAADAAKgAAAAGAAAAiDcAbSwAACAJAwAAAAYAAAAwAAAAgAEAAAAMAAAAYAAAAAADAAAAGAAAAMAAAAAABgAAADAAAACAAQAAAAMAAAAYAAAAwAAAAAAGAAAAMAAAAIABAAAADAAAAGAAAAAAAwAAABgAAADAAAAAgAEAAAAMAAAAYAAAAAADAAAAGAAAAMAAAAAABgAAADAAAACAAQAAAAwAAABgAAAAwAAAAAAGAAAAMAAAAIABAAAADAAAAGAAAAAAAwAAABgAAADAAAAAAAYAAAAwAAAAYABUAAAAAwAAAMQbgNonAACQhAEAAAADAAAAGAAAAMAAAAAABgAAADAAAACAAQAAAAwAAABgAAAAAAMAAAAYAAAAwAAAAIABAAAADAAAAGAAAAAAAwAAABgAAADAAAAAAAYAAAAwAAAAgAEAAAAMAAAAYAAAAMAAAAAABgAAADAAAACAAQAAAAwAAABgAAAAAAMAAAAYAAAAwAAAAAAGAAAAMAAAAGAAAAAAAwAAABgAAADAAAAAAAYAAAAwAAAAgAEAAAAMAAAAYAAAAAADAAAAGAAAADAAKgAAgAEAAADCeQB5Z9o97ldUbAAAAABJRU5ErkJggg==\"}]}}",
+   "chatThreads": "[{\"id\":\"mwneh162-14190f80\",\"title\":\"Packing list for a week in Lisbon, please.\",\"systemPrompt\":\"\",\"messages\":[{\"id\":\"mwneh19g-77958128\",\"role\":\"user\",\"content\":\"Packing list for a week in Lisbon, please.\",\"at\":1795083676324},{\"id\":\"mwneh19y-f3791bd4\",\"role\":\"assistant\",\"content\":\"Reply to: Packing list for a week in Lisbon, please.\",\"at\":1795083676342,\"model\":\"fake-model · 127.0.0.1\"},{\"id\":\"mwneh1f2-f0b2fa95\",\"role\":\"user\",\"content\":\"And what about the weather in March?\",\"at\":1795083676526},{\"id\":\"mwneh1fn-13394840\",\"role\":\"assistant\",\"content\":\"Reply to: And what about the weather in March?\",\"at\":1795083676547,\"model\":\"fake-model · 127.0.0.1\"}],\"createdAt\":1795083676202,\"updatedAt\":1795083676591,\"folderId\":\"mwneh1rj-5c8dda59\"},{\"id\":\"mwneh1g3-55f67c1f\",\"title\":\"Summarise the launch notes in one line.\",\"systemPrompt\":\"\",\"messages\":[{\"id\":\"mwneh1mg-1f7c0e26\",\"role\":\"user\",\"content\":\"Summarise the launch notes in one line.\",\"at\":1795083676792,\"attachments\":[{\"id\":\"mwneh1k2-e2d63fe9\",\"name\":\"notes.txt\",\"kind\":\"text\",\"size\":70,\"pages\":null,\"chars\":70}]},{\"id\":\"mwneh1n0-491e9cf5\",\"role\":\"assistant\",\"content\":\"Reply to: [Attached file: notes.txt] Launch notes: the review is on Thursday and the budget is 4200 euros.  [End of notes.txt]  Summarise the launch notes in one line.\",\"at\":1795083676812,\"model\":\"fake-model · 127.0.0.1\",\"sources\":[{\"docId\":\"mwneh1k2-e2d63fe9\",\"name\":\"notes.txt\"}]}],\"createdAt\":1795083676563,\"updatedAt\":1795083676919,\"pinned\":true},{\"id\":\"mwneh3kn-7266c77e\",\"title\":\"New chat\",\"systemPrompt\":\"Talk like a pirate.\",\"messages\":[],\"createdAt\":1795083679319,\"updatedAt\":1795083679319,\"presetId\":\"preset-mwneh3p0-724855cd\"}]",
+   "plc.lockSplash.v1": "off",
+   "plc.presets.v1": "[{\"id\":\"preset-mwneh3p0-724855cd\",\"name\":\"Pirate\",\"prompt\":\"Talk like a pirate.\"},{\"id\":\"preset-mwneh3vw-a2cf4d05\",\"name\":\"Lantern Keeper\",\"prompt\":\"Portray Lantern Keeper.\\n\\nAn imagined harbour lamp-tender who answers slowly and in images of weather and water.\\n\\nPremise: A fictional keeper of a sea lantern on a quiet imagined coast, patient and fond of long pauses.\\n\\nCommunication: Slow, calm, concrete images; asks one small question at a time.\\n\\nAuthored sample line: The light is lit. Tell me what the water is doing.\\n\\nThe description and sample line above are authored character material, not memories of events with the user.\"}]",
+   "plc.folders.v1": "[{\"id\":\"mwneh1rj-5c8dda59\",\"name\":\"Travel\",\"instructions\":\"\"}]",
+   "plc.voice.v2": "{\"v\":2,\"selected\":\"os\",\"failures\":{},\"pending\":null,\"speaking\":null}",
+   "plc.inferenceMode.v1": "api",
+   "plc.theme.v1": "light",
+   "plc.formats.v1": "{\"v\":1,\"formats\":{\"chatConfig\":1,\"chatEndpointTokens\":1,\"chatModels\":1,\"chatThreads\":1,\"plc.activeThread.v1\":1,\"plc.characters.v1\":1,\"plc.drafts.v1\":1,\"plc.encounters.v1\":1,\"plc.folders.v1\":1,\"plc.inferenceMode.v1\":1,\"plc.memory.v1\":1,\"plc.modelMemory.v1\":1,\"plc.models.v1\":1,\"plc.prefs.v1\":1,\"plc.presentations.v1\":1,\"plc.presets.v1\":1,\"plc.shell.pins.v1\":1,\"plc.voice.v1\":1,\"plc.voice.v2\":2},\"app\":{\"version\":\"2.0.0\",\"commit\":\"fb445152f9b7e01648229d26365b448362703782\"}}",
+   "plc.memory.v1": "{\"enabled\":true,\"items\":[{\"id\":\"mwneh3ij-272f6996\",\"text\":\"My favourite colour is green.\",\"at\":1795083679243}]}"
+  },
+  "session": {
+   "chatConfig": "{\"endpoint\":\"http://127.0.0.1:43175/v1\",\"token\":\"\",\"model\":\"fake-model\",\"theme\":\"light\"}",
+   "chatModels": "[\"fake-model\"]"
+  },
+  "idb": {
+   "plc-docs": {
+    "version": 1,
+    "stores": {
+     "docs": {
+      "keyPath": "id",
+      "autoIncrement": false,
+      "indexes": [],
+      "records": [
+       {
+        "key": "mwneh1k2-e2d63fe9",
+        "value": {
+         "id": "mwneh1k2-e2d63fe9",
+         "name": "notes.txt",
+         "size": 70,
+         "kind": "text",
+         "addedAt": 1795083676711,
+         "pages": null,
+         "chars": 70,
+         "summary": "",
+         "text": "Launch notes: the review is on Thursday and the budget is 4200 euros.\n",
+         "chunks": [
+          {
+           "id": "mwneh1k2-e2d63fe9:0",
+           "docId": "mwneh1k2-e2d63fe9",
+           "page": null,
+           "text": "Launch notes: the review is on Thursday and the budget is 4200 euros."
+          }
+         ],
+         "temporary": false
+        }
+       }
+      ]
+     }
+    }
+   },
+   "plc-encounters-coord": {
+    "version": 1,
+    "stores": {
+     "state": {
+      "keyPath": null,
+      "autoIncrement": false,
+      "indexes": [],
+      "records": [
+       {
+        "key": "main",
+        "value": {
+         "v": 1,
+         "gen": 81,
+         "state": "stable",
+         "keys": {
+          "plc.encounters.v1": "6d59f62a45e645415c5b11005a226bd1920a117d94ff284de064d37b5611712c",
+          "chatThreads": "a0900b340ccdc88eee2ba6cb1a73a7f730511b14280022ba017b0e2f42cdf9fa"
+         },
+         "last": {
+          "op": "c404b4e9-9d60-4384-aaea-a91c4b9f9850",
+          "outcome": "applied"
+         },
+         "at": 1795083679493,
+         "doc": "264yop2o"
+        }
+       }
+      ]
+     }
+    }
+   }
+  }
+ },
+ "expected": {
+  "projection": 1,
+  "local": {
+   "chatThreads": [
+    {
+     "id": "mwneh162-14190f80",
+     "title": "Packing list for a week in Lisbon, please.",
+     "systemPrompt": "",
+     "messages": [
+      {
+       "id": "mwneh19g-77958128",
+       "role": "user",
+       "content": "Packing list for a week in Lisbon, please.",
+       "at": 1795083676324
+      },
+      {
+       "id": "mwneh19y-f3791bd4",
+       "role": "assistant",
+       "content": "Reply to: Packing list for a week in Lisbon, please.",
+       "at": 1795083676342,
+       "model": "fake-model · 127.0.0.1"
+      },
+      {
+       "id": "mwneh1f2-f0b2fa95",
+       "role": "user",
+       "content": "And what about the weather in March?",
+       "at": 1795083676526
+      },
+      {
+       "id": "mwneh1fn-13394840",
+       "role": "assistant",
+       "content": "Reply to: And what about the weather in March?",
+       "at": 1795083676547,
+       "model": "fake-model · 127.0.0.1"
+      }
+     ],
+     "createdAt": 1795083676202,
+     "updatedAt": 1795083676591,
+     "folderId": "mwneh1rj-5c8dda59"
+    },
+    {
+     "id": "mwneh1g3-55f67c1f",
+     "title": "Summarise the launch notes in one line.",
+     "systemPrompt": "",
+     "messages": [
+      {
+       "id": "mwneh1mg-1f7c0e26",
+       "role": "user",
+       "content": "Summarise the launch notes in one line.",
+       "at": 1795083676792,
+       "attachments": [
+        {
+         "id": "mwneh1k2-e2d63fe9",
+         "name": "notes.txt",
+         "kind": "text",
+         "size": 70,
+         "pages": null,
+         "chars": 70
+        }
+       ]
+      },
+      {
+       "id": "mwneh1n0-491e9cf5",
+       "role": "assistant",
+       "content": "Reply to: [Attached file: notes.txt] Launch notes: the review is on Thursday and the budget is 4200 euros.  [End of notes.txt]  Summarise the launch notes in one line.",
+       "at": 1795083676812,
+       "model": "fake-model · 127.0.0.1",
+       "sources": [
+        {
+         "docId": "mwneh1k2-e2d63fe9",
+         "name": "notes.txt"
+        }
+       ]
+      }
+     ],
+     "createdAt": 1795083676563,
+     "updatedAt": 1795083676919,
+     "pinned": true
+    },
+    {
+     "id": "mwneh3kn-7266c77e",
+     "title": "New chat",
+     "systemPrompt": "Talk like a pirate.",
+     "messages": [],
+     "createdAt": 1795083679319,
+     "updatedAt": 1795083679319,
+     "presetId": "preset-mwneh3p0-724855cd"
+    }
+   ],
+   "plc.activeThread.v1": "mwneh3kn-7266c77e",
+   "plc.drafts.v1": {
+    "mwneh3kn-7266c77e": "an unsent draft about the snapshot"
+   },
+   "plc.folders.v1": [
+    {
+     "id": "mwneh1rj-5c8dda59",
+     "name": "Travel",
+     "instructions": ""
+    }
+   ],
+   "plc.presets.v1": [
+    {
+     "id": "preset-mwneh3p0-724855cd",
+     "name": "Pirate",
+     "prompt": "Talk like a pirate."
+    },
+    {
+     "id": "preset-mwneh3vw-a2cf4d05",
+     "name": "Lantern Keeper",
+     "prompt": "Portray Lantern Keeper.\n\nAn imagined harbour lamp-tender who answers slowly and in images of weather and water.\n\nPremise: A fictional keeper of a sea lantern on a quiet imagined coast, patient and fond of long pauses.\n\nCommunication: Slow, calm, concrete images; asks one small question at a time.\n\nAuthored sample line: The light is lit. Tell me what the water is doing.\n\nThe description and sample line above are authored character material, not memories of events with the user."
+    }
+   ],
+   "plc.presentations.v1": {
+    "preset-mwneh3vw-a2cf4d05": {
+     "v": 1,
+     "enabled": true,
+     "off": {
+      "layout": false,
+      "palette": false,
+      "portrait": false,
+      "background": false
+     },
+     "source": {
+      "id": "subject:lantern-keeper",
+      "label": "Lantern Keeper"
+     },
+     "look": {
+      "layout": "folio",
+      "palette": "sea",
+      "alt": "A folio page on a deep sea-teal ground with a lantern portrait and a horizon background.",
+      "reducedMotion": true
+     },
+     "images": [
+      {
+       "assetId": "asset:lantern-portrait",
+       "role": "portrait",
+       "alt": "Flat illustration of a pale lantern disc with an amber flame on deep teal.",
+       "author": "Cosmogenitor (generated by tools/make-assets)",
+       "license": "CC0-1.0",
+       "mediaType": "image/png",
+       "size": 1101,
+       "sha256": "sha256:61ecd42bddb9604676e9521d29edda61b148e8ff5f4d5c5583e59ecbe0fc5f9a",
+       "data": "iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAIAAADTED8xAAAEFElEQVR42u3dYU0DQRhF0WogSEFARaAAhQhATIMCJOCAQJhuv9l7kmugM+9sf7V7eXp905E9v1x/zhEd2cURAACAAABAAAAgAAAQAAAIAAAEAAACAAABAIAAAEAAACAAABAAAAgAAAQAAAIAAAEAgAAAQAAAIAAAEAAACAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAUwIAAAEAgAAAQAAAIAAAEAAACAAABAAAAgAAAQCAAABAAAAgAAAQAAAIAAAEAAACAAABAIAAAEAAACAAABAAAADgFAAAQAAAIAAAkADQoj4+b//PMQLQWjwPABg9DADYPQkA2D0JAJg+BgCYPgYAmD4GAJg+BgCYPgYAmD4GAFg/AwCYPgYAWD8DAFg/AwCYPgYAWD8DAFg/AwBYPwMAGDcDXQBmzUAXgEEz0AVgygx0ARgxA10A5stAF4DhMtAFYLIMACAAkgCMlYEuADNloAvAQBkAQAAkAZgmA10ARskAAAIgCcAcGQBAACQBGCIDAAiAJAATZAAAAZAEYHwMACAAkgDMjgEAdurr/fr7AADgJOv/0+63lgAAACunvx0DAABYP/2NGABg/XdcPwMATAdw1+lvwQCALoDD1j/ZAADWzwAAMQAPWf9YAwC0ADxw/TMNABAC8PD1DzQAgMe/LwEAPP59CQBwYgCj1j/NAAAAAADAeQEMXP8oAwB4/PsSAMDj35cAAAAAAAAAAABwCgDD1z/HAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4PcAfg8AAAAAAAAAAAAw4F8h/C8QAB7/ADDg8Q8AAAAAwIB/hwbA+wEA8IYYAKwfAO8IAwAAb4kEAADvCQbghAAYsH4AbnEDY08AgDSAAxgM/+wAMHBHA9YPwB4AljPY4vMCAMB6Bht9UgAYWCZhu0+36YoAEAAMKLl+AATAzgAYsH4ATBCAMAAGrB8AQwQgDIAB6wfAHAEIA2DA+gEwSgDCABiw/joABqwfAAMFIAyAAeuvA2DA+usAGLB+AEwWgDAABqy/DoAB668DYMD66wAYsP46AAasvw6AAeuvA2DA+usAGLD+OgAGrL8OgAHrrwNgwPrrADCITx8ABurrB6BuwNUDEGXgugHoGnDRAEQZuFwAogxcKABRBi4RgCgDFwdAlIHLAiDKwAUBUJTgOgAoSnD4AOQwOGQAWh4cIwASABIAEgASABIAEgASABIAEgASABIAEgASABIAEgASABIAEgACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQFrRN67jFLM0jxqkAAAAAElFTkSuQmCC"
+      },
+      {
+       "assetId": "asset:lantern-background",
+       "role": "background",
+       "alt": "Bands of teal sea under a pale horizon line.",
+       "author": "Cosmogenitor (generated by tools/make-assets)",
+       "license": "CC0-1.0",
+       "mediaType": "image/png",
+       "size": 2647,
+       "sha256": "sha256:b97f047619dd551ad7da43c51939a1cf53a50cfebf4a254186d8d3e144c8bfc7",
+       "data": "iVBORw0KGgoAAAANSUhEUgAABAAAAAJACAIAAACc94OCAAAKHklEQVR42u3XQQ2AMBAAwQrg1Ud1oAENFdBUQQUihqAEEYQHd5OMgv1t2fYDAABIokgAAAAGAAAAMAAAAIABAAAADAAAAGAAAAAAAwAAABgAAADAAAAAAAYAAAAwAAAAgAEAAAADAAAAGAAAAMAAAAAABgAAADAAAACAAQAAAAwAAABgAAAAAAMAAAAYAAAAwAAAAIABAAAADAAAAGAAAAAAAwAAABgAAADAAAAAAAYAAAAwAAAAgAEAAAAMAAAAYAAAAMAAAAAABgAAADAAAACAAQAAAAwAAABgAAAAAAMAAAAYAAAAwAAAAAAGAAAAMAAAAGAAAAAAAwAAABgAAADAAAAAAAYAAAAwAAAAgAEAAAAMAAAAYAAAAAADAAAAGAAAAMAAAACAAQAAAAwAAABgAAAAAAMAAAAYAAAAwAAAAAAGAAAAMAAAAIABAAAADAAAAGAAAADAAAAAAAYAAAAwAAAAgAEAAAAMAAAAYAAAAAADAAAAGAAAAMAAAAAABgAAADAAAABgAAAAAAMAAAAYAAAAwAAAAAAGAAAAMAAAAIABAAAADAAAAGAAAAAAAwAAABgAAAAwAAAAgAEAAAAMAAAAYAAAAAADAAAAGAAAAMAAAAAABgAAADAAAACAAQAAAAwAAAAYABUAAMAAAAAABgAAADAAAACAAQAAAAwAAABgAAAAAAMAAAAYAAAAwAAAAAAGAAAAMAAAAGAAAAAAAwAAABgAAADAAAAAAAYAAAAwAAAAgAEAAAAMAAAAYAAAAAADAAAAGAAAADAAAACAAQAAAAwAAABgAAAAAAMAAAAYAAAAwAAAAAAGAAAAMAAAAIABAAAADAAAABgAAADAAAAAAAYAAAAwAAAAgAEAAAAMAAAAYAAAAAADAAAAGAAAAMAAAAAABgAAAAwAAABgAAAAAAMAAAAYAAAAwAAAAAAGAAAAMAAAAIABAAAADAAAAGAAAAAAAwAAABgAAAAwAAAAgAEAAAAMAAAAYAAAAAADAAAAGAAAAMAAAAAABgAAADAAAACAAQAAAAwAAAAYAAAAwAAAAAAGAAAAMAAAAIABAAAADAAAAGAAAAAAAwAAABgAAADAAAAAAAYAAAAMAAAAYAAAAAADAAAAGAAAAMAAAAAABgAAADAAAACAAQAAAAwAAABgAAAAAAMAAAAGAAAAMAAAAIABAAAADAAAAGAAAAAAAwAAABgAAADAAAAAAAYAAAAwAAAAgAEAAAADoAIAABgAAADAAAAAAAYAAAAwAAAAgAEAAAAMAAAAYAAAAAADAAAAGAAAAMAAAAAABgAAAAwAAABgAAAAAAMAAAAYAAAAwAAAAAAGAAAAMAAAAIABAAAADAAAAGAAAAAAAwAAAAYAAAAwAAAAgAEAAAAMAAAAYAAAAAADAAAAGAAAAMAAAAAABgAAADAAAACAAQAAAAMAAAAYAAAAwAAAAAAGAAAAMAAAAIABAAAADAAAAGAAAAAAAwAAABgAAADAAAAAgAEAAAAMAAAAYAAAAAADAAAAGAAAAMAAAAAABgAAADAAAACAAQAAAAwAAABgAAAAwABIAAAABgAAADAAAACAAQAAAAwAAABgAAAAAAMAAAAYAAAAwAAAAAAGAAAAMAAAAIABAAAAAwAAABgAAADAAAAAAAYAAAAwAAAAgAEAAAAMAAAAYAAAAAADAAAAGAAAAMAAAACAAQAAAAwAAABgAAAAAAMAAAAYAAAAwAAAAAAGAAAAMAAAAIABAAAADAAAAGAAAADAAAAAAAYAAAAwAAAAgAEAAAAMAAAAYAAAAAADAAAAfDYA530BAABJGAAAADAAAACAAQAAAP49AG0sAAAgCQMAAAAGAAAAMAAAAIABAAAADAAAAGAAAAAAAwAAABgAAADAAAAAAAYAAAAwAAAAgAEAAAADAAAAGAAAAMAAAAAABgAAADAAAACAAQAAAAwAAABgAAAAAAMAAAAYAAAAwAAAAIABAAAADAAAAGAAAAAAAwAAABgAAADAAAAAAAYAAAAwAAAAwLsBqH0CAABJGAAAADAAAACAAQAAAAwAAABgAAAAAAMAAAAYAAAAwAAAAAAGAAAAMAAAAIABAAAADAAAABgAAADAAAAAAAYAAAAwAAAAgAEAAAAMAAAAYAAAAAADAAAAGAAAAMAAAAAABgAAAAwAAABgAAAAAAMAAAAYAAAAwAAAAAAGAAAAMAAAAIABAAAADAAAAGAAAAAAAwAAAAYAAAAwAAAAgAEAAAAMAAAAYAAAAAADAAAAGAAAAMAAAAAABgAAADAAAACAAQAAAAOgAgAAGAAAACDeALSxAACAJAwAAAAYAAAAwAAAAAAGAAAAMAAAAIABAAAADAAAAGAAAAAAAwAAABgAAADAAAAAAAYAAAAMAAAAYAAAAAADAAAAGAAAAMAAAAAABgAAADAAAACAAQAAAAwAAABgAAAAAAMAAAAGAAAAMAAAAIABAAAADAAAAGAAAAAAAwAAABgAAADAAAAAAAYAAAAwAAAAgAEAAAADAAAAGAAAAMAAAAAABgAAADAAAACAAQAAAAwAAABgAAAAAAMAAAAYAAAAwAAAAIABUAEAAAwAAAAQbwBqnwAAQBIGAAAADAAAAGAAAAAAAwAAABgAAADAAAAAAAYAAAAwAAAAgAEAAAAMAAAAYAAAAAADAAAABgAAADAAAACAAQAAAAwAAABgAAAAAAMAAAAYAAAAwAAAAAAGAAAAMAAAAIABAAAAAwAAABgAAADAAAAAAAYAAAAwAAAAgAEAAAAMAAAAYAAAAAADAAAAGAAAAMAAAACAAQAAAAwAAABgAAAAAAMAAAAYAAAAwAAAAAAGAAAAMAAAAIABAAAADAAAAGAAAADAAKgAAAAGAAAAiDcAbSwAACAJAwAAAAYAAAAwAAAAgAEAAAAMAAAAYAAAAAADAAAAGAAAAMAAAAAABgAAADAAAACAAQAAAAMAAAAYAAAAwAAAAAAGAAAAMAAAAIABAAAADAAAAGAAAAAAAwAAABgAAADAAAAAgAEAAAAMAAAAYAAAAAADAAAAGAAAAMAAAAAABgAAADAAAACAAQAAAAwAAABgAAAAwAAAAAAGAAAAMAAAAIABAAAADAAAAGAAAAAAAwAAABgAAADAAAAAAAYAAAAwAAAAYABUAAAAAwAAAMQbgNonAACQhAEAAAADAAAAGAAAAMAAAAAABgAAADAAAACAAQAAAAwAAABgAAAAAAMAAAAYAAAAwAAAAIABAAAADAAAAGAAAAAAAwAAABgAAADAAAAAAAYAAAAwAAAAgAEAAAAMAAAAYAAAAMAAAAAABgAAADAAAACAAQAAAAwAAABgAAAAAAMAAAAYAAAAwAAAAAAGAAAAMAAAAGAAAAAAAwAAABgAAADAAAAAAAYAAAAwAAAAgAEAAAAMAAAAYAAAAAADAAAAGAAAADAAKgAAgAEAAADCeQB5Z9o97ldUbAAAAABJRU5ErkJggg=="
+      }
+     ]
+    }
+   },
+   "plc.encounters.v1": {
+    "v": 1,
+    "rev": 32,
+    "epoch": 0,
+    "encounters": {
+     "enc:mwneh162-14190f80": {
+      "id": "enc:mwneh162-14190f80",
+      "thread": "mwneh162-14190f80",
+      "createdAt": 1795083676220,
+      "seq": 4,
+      "msgs": {
+       "mwneh19g-77958128": "ev:23bff7a7-35a4-41e0-9f8e-b32629758be6",
+       "mwneh19y-f3791bd4": "ev:dc035782-9316-43d3-9b98-61d71a166a61",
+       "mwneh1f2-f0b2fa95": "ev:7f01ed9d-9220-4a32-946a-fa605d945746",
+       "mwneh1fn-13394840": "ev:cf90d1bc-a656-4357-8b3f-68b19f867aa7"
+      },
+      "origin": "local"
+     },
+     "enc:mwneh1g3-55f67c1f": {
+      "id": "enc:mwneh1g3-55f67c1f",
+      "thread": "mwneh1g3-55f67c1f",
+      "createdAt": 1795083676579,
+      "seq": 2,
+      "msgs": {
+       "mwneh1mg-1f7c0e26": "ev:898b5f37-5129-4bc2-ab70-45e38e071dd5",
+       "mwneh1n0-491e9cf5": "ev:ad0045f9-a1e1-4af8-a867-aad316134920"
+      },
+      "origin": "local"
+     },
+     "enc:mwneh3kn-7266c77e": {
+      "id": "enc:mwneh3kn-7266c77e",
+      "thread": "mwneh3kn-7266c77e",
+      "createdAt": 1795083679332,
+      "seq": 0,
+      "msgs": {},
+      "origin": "local"
+     }
+    },
+    "participants": {
+     "p:mwneh162-14190f80:person": {
+      "id": "p:mwneh162-14190f80:person",
+      "encounter": "enc:mwneh162-14190f80",
+      "kind": "human",
+      "name": "You",
+      "standing": "local-device",
+      "individualId": null,
+      "origin": {
+       "kind": "local"
+      }
+     },
+     "p:mwneh162-14190f80:assistant": {
+      "id": "p:mwneh162-14190f80:assistant",
+      "encounter": "enc:mwneh162-14190f80",
+      "kind": "agent",
+      "name": "Assistant",
+      "standing": "runtime-projection",
+      "individualId": null,
+      "origin": {
+       "kind": "local"
+      }
+     },
+     "p:mwneh1g3-55f67c1f:person": {
+      "id": "p:mwneh1g3-55f67c1f:person",
+      "encounter": "enc:mwneh1g3-55f67c1f",
+      "kind": "human",
+      "name": "You",
+      "standing": "local-device",
+      "individualId": null,
+      "origin": {
+       "kind": "local"
+      }
+     },
+     "p:mwneh1g3-55f67c1f:assistant": {
+      "id": "p:mwneh1g3-55f67c1f:assistant",
+      "encounter": "enc:mwneh1g3-55f67c1f",
+      "kind": "agent",
+      "name": "Assistant",
+      "standing": "runtime-projection",
+      "individualId": null,
+      "origin": {
+       "kind": "local"
+      }
+     },
+     "p:mwneh3kn-7266c77e:person": {
+      "id": "p:mwneh3kn-7266c77e:person",
+      "encounter": "enc:mwneh3kn-7266c77e",
+      "kind": "human",
+      "name": "You",
+      "standing": "local-device",
+      "individualId": null,
+      "origin": {
+       "kind": "local"
+      }
+     },
+     "p:mwneh3kn-7266c77e:assistant": {
+      "id": "p:mwneh3kn-7266c77e:assistant",
+      "encounter": "enc:mwneh3kn-7266c77e",
+      "kind": "agent",
+      "name": "Assistant",
+      "standing": "runtime-projection",
+      "individualId": null,
+      "origin": {
+       "kind": "local"
+      }
+     }
+    },
+    "events": {
+     "ev:23bff7a7-35a4-41e0-9f8e-b32629758be6": {
+      "id": "ev:23bff7a7-35a4-41e0-9f8e-b32629758be6",
+      "encounter": "enc:mwneh162-14190f80",
+      "thread": "mwneh162-14190f80",
+      "message": "mwneh19g-77958128",
+      "version": null,
+      "occ": {
+       "source": "plc:local",
+       "id": "loc:ed874a30125352e227f0579ec96197546ac528fe7c3f30f3ab30bb5152fa8191",
+       "digest": "sha256:0447a45a8d12eea9811d8c518782da0541bf68fc09c8b8a2694ebf174cb692ff"
+      },
+      "speaker": "p:mwneh162-14190f80:person",
+      "audience": {
+       "scope": "encounter"
+      },
+      "expression": "person",
+      "modality": "text",
+      "standing": "recorded",
+      "state": "final",
+      "outcome": "complete",
+      "content": {
+       "text": "Packing list for a week in Lisbon, please.",
+       "digest": "sha256:0447a45a8d12eea9811d8c518782da0541bf68fc09c8b8a2694ebf174cb692ff"
+      },
+      "inTranscript": true,
+      "authority": "local-device",
+      "observed": true,
+      "clock": {
+       "domain": "encounter:enc:mwneh162-14190f80",
+       "position": 1,
+       "receivedMs": 1795083676333
+      }
+     },
+     "ev:dc035782-9316-43d3-9b98-61d71a166a61": {
+      "id": "ev:dc035782-9316-43d3-9b98-61d71a166a61",
+      "encounter": "enc:mwneh162-14190f80",
+      "thread": "mwneh162-14190f80",
+      "message": "mwneh19y-f3791bd4",
+      "version": null,
+      "occ": {
+       "source": "plc:local",
+       "id": "loc:688927e0278b5daf1d24103d6156c4055a03bf605fdd6dc139df5546c8889bb5",
+       "digest": "sha256:373ac1f8a516ebeae2688ca6ddeb250256c8aed9552e14778c2465653580d6cf"
+      },
+      "speaker": "p:mwneh162-14190f80:assistant",
+      "audience": {
+       "scope": "encounter"
+      },
+      "expression": "model",
+      "modality": "text",
+      "standing": "recorded",
+      "state": "final",
+      "outcome": "complete",
+      "content": {
+       "text": "Reply to: Packing list for a week in Lisbon, please.",
+       "digest": "sha256:373ac1f8a516ebeae2688ca6ddeb250256c8aed9552e14778c2465653580d6cf"
+      },
+      "inTranscript": true,
+      "authority": "local-device",
+      "observed": true,
+      "clock": {
+       "domain": "encounter:enc:mwneh162-14190f80",
+       "position": 2,
+       "receivedMs": 1795083676347
+      },
+      "causes": [
+       "ev:23bff7a7-35a4-41e0-9f8e-b32629758be6"
+      ],
+      "runtime": {
+       "label": "fake-model · 127.0.0.1"
+      }
+     },
+     "ev:7f01ed9d-9220-4a32-946a-fa605d945746": {
+      "id": "ev:7f01ed9d-9220-4a32-946a-fa605d945746",
+      "encounter": "enc:mwneh162-14190f80",
+      "thread": "mwneh162-14190f80",
+      "message": "mwneh1f2-f0b2fa95",
+      "version": null,
+      "occ": {
+       "source": "plc:local",
+       "id": "loc:261c3ee1b42a39be4edcc3695c8eea239f7780b5ed7c50c671bf13cf9d3d2da6",
+       "digest": "sha256:afbf0dc1e5662a05005f24d0bdbe65ecb6e3995bb0457abf4f891ef73f2098d4"
+      },
+      "speaker": "p:mwneh162-14190f80:person",
+      "audience": {
+       "scope": "encounter"
+      },
+      "expression": "person",
+      "modality": "text",
+      "standing": "recorded",
+      "state": "final",
+      "outcome": "complete",
+      "content": {
+       "text": "And what about the weather in March?",
+       "digest": "sha256:afbf0dc1e5662a05005f24d0bdbe65ecb6e3995bb0457abf4f891ef73f2098d4"
+      },
+      "inTranscript": true,
+      "authority": "local-device",
+      "observed": true,
+      "clock": {
+       "domain": "encounter:enc:mwneh162-14190f80",
+       "position": 3,
+       "receivedMs": 1795083676540
+      }
+     },
+     "ev:cf90d1bc-a656-4357-8b3f-68b19f867aa7": {
+      "id": "ev:cf90d1bc-a656-4357-8b3f-68b19f867aa7",
+      "encounter": "enc:mwneh162-14190f80",
+      "thread": "mwneh162-14190f80",
+      "message": "mwneh1fn-13394840",
+      "version": null,
+      "occ": {
+       "source": "plc:local",
+       "id": "loc:37d50fcdc8990decb38128a3ab09662b5b0cf03fa854637ff9f9042d89ccdcff",
+       "digest": "sha256:412cfc6107925b26b09031d60fdcde3eec1542577d42a3da163f8f39f911fe20"
+      },
+      "speaker": "p:mwneh162-14190f80:assistant",
+      "audience": {
+       "scope": "encounter"
+      },
+      "expression": "model",
+      "modality": "text",
+      "standing": "recorded",
+      "state": "final",
+      "outcome": "complete",
+      "content": {
+       "text": "Reply to: And what about the weather in March?",
+       "digest": "sha256:412cfc6107925b26b09031d60fdcde3eec1542577d42a3da163f8f39f911fe20"
+      },
+      "inTranscript": true,
+      "authority": "local-device",
+      "observed": true,
+      "clock": {
+       "domain": "encounter:enc:mwneh162-14190f80",
+       "position": 4,
+       "receivedMs": 1795083676549
+      },
+      "causes": [
+       "ev:7f01ed9d-9220-4a32-946a-fa605d945746"
+      ],
+      "runtime": {
+       "label": "fake-model · 127.0.0.1"
+      }
+     },
+     "ev:898b5f37-5129-4bc2-ab70-45e38e071dd5": {
+      "id": "ev:898b5f37-5129-4bc2-ab70-45e38e071dd5",
+      "encounter": "enc:mwneh1g3-55f67c1f",
+      "thread": "mwneh1g3-55f67c1f",
+      "message": "mwneh1mg-1f7c0e26",
+      "version": null,
+      "occ": {
+       "source": "plc:local",
+       "id": "loc:13e4888b1b521af9beee3405acc1dc4330425074833ec82ad695544c68511c5b",
+       "digest": "sha256:54869ecea80bd46d4f66c749e01861e24348db2526d8a7f3cd6a6e6047c75fb5"
+      },
+      "speaker": "p:mwneh1g3-55f67c1f:person",
+      "audience": {
+       "scope": "encounter"
+      },
+      "expression": "person",
+      "modality": "text",
+      "standing": "recorded",
+      "state": "final",
+      "outcome": "complete",
+      "content": {
+       "text": "Summarise the launch notes in one line.",
+       "digest": "sha256:54869ecea80bd46d4f66c749e01861e24348db2526d8a7f3cd6a6e6047c75fb5"
+      },
+      "inTranscript": true,
+      "authority": "local-device",
+      "observed": true,
+      "clock": {
+       "domain": "encounter:enc:mwneh1g3-55f67c1f",
+       "position": 1,
+       "receivedMs": 1795083676807
+      }
+     },
+     "ev:ad0045f9-a1e1-4af8-a867-aad316134920": {
+      "id": "ev:ad0045f9-a1e1-4af8-a867-aad316134920",
+      "encounter": "enc:mwneh1g3-55f67c1f",
+      "thread": "mwneh1g3-55f67c1f",
+      "message": "mwneh1n0-491e9cf5",
+      "version": null,
+      "occ": {
+       "source": "plc:local",
+       "id": "loc:4ceb3e74acd9af30ee105bb2aaee39d3be1f0e6fac546a0d51aff8bae1e9fdeb",
+       "digest": "sha256:9d43e025b1b6e706faac5d7435d3c002cb81711af494b75fa0e67ee753d107a0"
+      },
+      "speaker": "p:mwneh1g3-55f67c1f:assistant",
+      "audience": {
+       "scope": "encounter"
+      },
+      "expression": "model",
+      "modality": "text",
+      "standing": "recorded",
+      "state": "final",
+      "outcome": "complete",
+      "content": {
+       "text": "Reply to: [Attached file: notes.txt] Launch notes: the review is on Thursday and the budget is 4200 euros.  [End of notes.txt]  Summarise the launch notes in one line.",
+       "digest": "sha256:9d43e025b1b6e706faac5d7435d3c002cb81711af494b75fa0e67ee753d107a0"
+      },
+      "inTranscript": true,
+      "authority": "local-device",
+      "observed": true,
+      "clock": {
+       "domain": "encounter:enc:mwneh1g3-55f67c1f",
+       "position": 2,
+       "receivedMs": 1795083676814
+      },
+      "causes": [
+       "ev:898b5f37-5129-4bc2-ab70-45e38e071dd5"
+      ],
+      "runtime": {
+       "label": "fake-model · 127.0.0.1"
+      }
+     }
+    },
+    "holders": {}
+   },
+   "plc.memory.v1": {
+    "enabled": true,
+    "items": [
+     {
+      "id": "mwneh3ij-272f6996",
+      "text": "My favourite colour is green.",
+      "at": 1795083679243
+     }
+    ]
+   },
+   "plc.voice.v2": {
+    "v": 2,
+    "selected": "os",
+    "failures": {},
+    "pending": null,
+    "speaking": null
+   },
+   "plc.inferenceMode.v1": "api"
+  },
+  "session": {
+   "chatConfig": {
+    "model": "fake-model",
+    "theme": "light"
+   },
+   "chatModels": [
+    "fake-model"
+   ]
+  },
+  "docs": [
+   {
+    "id": "mwneh1k2-e2d63fe9",
+    "name": "notes.txt",
+    "size": 70,
+    "kind": "text",
+    "addedAt": 1795083676711,
+    "pages": null,
+    "chars": 70,
+    "summary": "",
+    "text": "Launch notes: the review is on Thursday and the budget is 4200 euros.\n",
+    "temporary": false
+   }
+  ]
+ }
+}

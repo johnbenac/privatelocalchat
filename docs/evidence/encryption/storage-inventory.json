@@ -17,6 +17,8 @@
       "owner": "chat/core/thread-state.mjs",
       "note": "every saved chat, rewritten whole on each save",
       "alsoIn": [
+        "chat/encounters/ledger-store.mjs",
+        "chat/encounters/thread-commit.mjs",
         "index.html"
       ],
       "format": 1,
@@ -27,6 +29,9 @@
       "store": "localStorage",
       "class": "user",
       "owner": "index.html",
+      "alsoIn": [
+        "chat/encounters/thread-commit.mjs"
+      ],
       "note": "which chat is open (an id)",
       "format": 1,
       "since": "v0.6.0"
@@ -59,6 +64,15 @@
       "since": "v0.8.0"
     },
     {
+      "key": "plc.characters.v1",
+      "store": "localStorage",
+      "class": "user",
+      "owner": "chat/characters/characters-ui.mjs",
+      "note": "rich characters the person kept: reviewed package transport, structured meaning, exact resource bytes and one local reference each (coordinated by the plc-characters lock)",
+      "format": 1,
+      "since": "v0.66.0"
+    },
+    {
       "key": "plc.presets.v1",
       "store": "localStorage",
       "class": "user",
@@ -75,6 +89,19 @@
       "note": "the look (layout, palette, pictures) a person chose to keep for a preset, one record per preset id",
       "format": 1,
       "since": "v0.74.0"
+    },
+    {
+      "key": "plc.encounters.v1",
+      "store": "localStorage",
+      "class": "user",
+      "owner": "chat/encounters/encounters.mjs",
+      "note": "who said what in each conversation: encounters, participants and events (speaker, source, audience, modality, order, corrections, original text), written only under the Web Lock plc-encounters together with every conversation save; chatThreads keeps its format",
+      "alsoIn": [
+        "chat/encounters/ledger-store.mjs",
+        "index.html"
+      ],
+      "format": 1,
+      "since": "v0.66.0"
     },
     {
       "key": "plc.memory.v1",
@@ -359,6 +386,25 @@
       "note": "the encrypted header and log",
       "format": 1,
       "since": "v0.47.0"
+    },
+    {
+      "name": "plc-encounters-coord",
+      "store": "indexedDB",
+      "class": "plain",
+      "owner": "chat/encounters/coordination.mjs",
+      "note": "one record: the generation and SHA-256 digests of the last complete state of chatThreads and plc.encounters.v1 (no payload), the proof that a tab's view of them is fresh before it writes; removed while the vault is on",
+      "format": 1,
+      "since": "unreleased"
+    }
+  ],
+  "vaultInternalKeys": [
+    {
+      "key": "meta/encounters.index.v1",
+      "class": "vault",
+      "owner": "chat/vault/vault.mjs",
+      "note": "an engine-internal key inside the vault log, sealed under the vault key; NOT a browser storage key. The header of the same vault database may carry the semantic format plc-vault/2 once typed encounters are admitted (the encryption domain plc-vault/1 and IndexedDB schema 1 are unchanged). The one noncontent index of typed encounters: logical counters, opaque owner and generation references and the pending/committed operation receipt. No text, label or payload digest. Written only by commitChatProjection and reconcileChatProjection; generic writes refuse it",
+      "format": 1,
+      "since": "unreleased"
     }
   ],
   "deviceStores": [
@@ -388,6 +434,9 @@
       "chat/core/page-chrome.mjs",
       "chat/core/thread-state.mjs",
       "chat/documents/doc-store.mjs",
+      "chat/encounters/coordination.mjs",
+      "chat/encounters/encounters.mjs",
+      "chat/encounters/ledger-store.mjs",
       "chat/history/history-io.mjs",
       "chat/list/conversation-list.mjs",
       "chat/lock/lock.mjs",

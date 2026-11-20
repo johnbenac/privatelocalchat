@@ -1,0 +1,5 @@
+# Files the capture tooling generates here (scripts/data-snapshot-output.mjs, scripts/data-snapshot.mjs). Fixture folders (NNN-<release>-<commit>) stay visible.
+# The lock file is deliberately never deleted by the tool (unlinking a flock file races); ignoring it keeps a capture's tree clean.
+/.publish.lock
+/.staging-*/
+/.notes-*/

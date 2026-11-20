@@ -1,0 +1,39 @@
+{
+ "format": "plc-data-snapshot/1",
+ "release": "v0.65.4",
+ "commit": "3de48b0",
+ "commitFull": "3de48b0729312848e07d22b8e1e8556f2a9fcd69",
+ "capturedAt": "2026-11-17",
+ "app": {
+  "version": "2.0.0",
+  "commit": "3de48b0729312848e07d22b8e1e8556f2a9fcd69",
+  "branch": "main",
+  "environment": "release",
+  "builtAt": "2026-11-17T07:17:18.205Z"
+ },
+ "formats": {
+  "chatThreads": 1,
+  "plc.activeThread.v1": 1,
+  "plc.drafts.v1": 1,
+  "plc.prefs.v1": 1,
+  "plc.folders.v1": 1,
+  "plc.presets.v1": 1,
+  "plc.memory.v1": 1,
+  "plc.characters.v1": 1,
+  "plc.modelMemory.v1": 1,
+  "plc.voice.v2": 2,
+  "plc.voice.v1": 1,
+  "plc.inferenceMode.v1": 1,
+  "plc.models.v1": 1,
+  "plc.shell.pins.v1": 1,
+  "chatConfig": 1,
+  "chatModels": 1,
+  "chatEndpointTokens": 1
+ },
+ "captureKind": "private-build",
+ "unpublished": true,
+ "baseRelease": "v0.65.4",
+ "sourceCommit": "3de48b0729312848e07d22b8e1e8556f2a9fcd69",
+ "scenario": "two chats (one with a document), a project, a pinned chat, memory, a preset, personal instructions, an unsent draft, three authentic producer characters saved through Import character, Review and Save (Pip, Neri with a text file and a picture, Bex with a sound); then the encrypted vault, locked, unlocked and reloaded. A post-release private writer build, unpublished: v0.65.4 is only the nearest earlier release.",
+ "projection": 1
+}

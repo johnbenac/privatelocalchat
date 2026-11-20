@@ -1,0 +1,41 @@
+{
+  "aspectDefinitions": [
+    {
+      "id": "festival:signal",
+      "version": "1",
+      "label": "Lantern signal",
+      "definition": "An unfamiliar local fair signal; data, not code.",
+      "scopes": [
+        "subject"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "colour": {
+            "type": "string"
+          },
+          "beats": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 8
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  ],
+  "profiles": [
+    {
+      "id": "festival:lantern",
+      "version": "1",
+      "label": "Lantern bearer",
+      "definition": "A local fair convention without core edits.",
+      "extends": [
+        "profile:character"
+      ],
+      "aspects": [
+        "festival:signal"
+      ]
+    }
+  ]
+}

@@ -216,7 +216,8 @@ export function createDocumentsUi(host) {
   return {
     loadDocModules, humanSize, contextWindowTokens, renderSources, referencedDocIds, pruneOrphanDocs, openLibrary, apiMessages,
     /** The files attached to the message being written. */
-    attachments: { count: () => pendingAttachments.length, take: takePendingAttachments },
+    // restore: a send that was refused gives back what it took (in front of anything attached meanwhile)
+    attachments: { count: () => pendingAttachments.length, take: takePendingAttachments, restore: list => { pendingAttachments = [...list, ...pendingAttachments]; renderChips(); host.updateSendButtonDisabled(host.getChatState().ready); } },
     /** Open the file picker (the + menu's "Add photos & files"). */
     attachFiles: () => attachInput.click(),
   };

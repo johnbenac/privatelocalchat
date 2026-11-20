@@ -1,0 +1,24 @@
+{
+  "license": "CC0-1.0",
+  "author": "T415 original synthetic fixture writer",
+  "resources": [
+    {
+      "file": "chart.png",
+      "sha256": "sha256:dbb67ebcf4b72c96c7d6e9d93cabae41d201381cad8cd1bf9e31037dbf4b837f",
+      "size": 76,
+      "meaning": "Original abstract 2x2 pixel chart; not a generated portrait"
+    },
+    {
+      "file": "tide-card.txt",
+      "sha256": "sha256:f79174c821407054158207ddc95c0143dedc6a95cb9bded7b2090cac99914b6f",
+      "size": 86,
+      "meaning": "Original fictional navigation disclaimer"
+    },
+    {
+      "file": "cue.wav",
+      "sha256": "sha256:f7236308298644cf4a743afa71bd2019f62aca4b87a7f8343d0d534a9af7c266",
+      "size": 1644,
+      "meaning": "Synthetic non-speech tone; not voice synthesis"
+    }
+  ]
+}

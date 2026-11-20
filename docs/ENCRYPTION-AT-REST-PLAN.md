@@ -261,6 +261,8 @@ What the interface must say: the passkey is kept by the device's account (Apple 
 
 ## Log (newest first; add a line with every finding)
 
+* 2026-11-17: **typed owned encounters: engine component built, no producer wired** (`docs/OWNED-CONVERSATION-STORE.md`). The engine keeps one entity per encounter under the key of its chat or standalone owner (events `owned.put`/`owned.del`, key generations, semantic header `plc-vault/2` beside the unchanged `plc-vault/1` encryption domain), commits it with its chat in one engine-owned P1/P2/P3 over one header+log transaction, and refuses whole-chat and reserved writes while typed state exists. Tested in node and on real IndexedDB (20 repeats, 4/8/16 pages, killed pages); the genuine producer snapshot, host, consumers, backup and the full browser, file and data-upgrade gates are NOT done.
+
 * 2026-11-04: **6.1 decided: opt-in only, never the default** (owner). The "also encrypt" box in the passcode dialog now starts unticked. Also from the owner: the encryption dialogs did not use the app's visual language; they now use the Settings vocabulary (cards, rows with a label and description, pill buttons, sub-headings), and the unlock screen is a card in the same style.
 * 2026-11-04: **5.1 closed: the passkey worked perfectly on the Galaxy S8+** (add, lock, unlock with the screen lock), so Chrome 131 there does support PRF. Only 6.1 (default-on, the owner's decision) is left.
 
@@ -275,3 +277,7 @@ What the interface must say: the passkey is kept by the device's account (Apple 
 * 2026-11-04: **found while writing the inventory: `plc.memory.v1` was shared by the assistant's memory items (`chat/assistant/assistant.mjs`) and the "One model at a time" switch (`runtime/memory-manager.mjs`).** Each rewrote the whole value, so flipping the switch could erase the person's memory items and saving a memory item reset the switch. Fixed: the switch has `plc.modelMemory.v1` and reads the old key once; `tests/memory-manager.test.mjs` and `tests/storage-inventory.test.mjs` now catch the class. Memory items already lost this way cannot be recovered.
 * 2026-11-04: the first survey missed four keys (`plc.shell.pins.v1`, `plc.models.v1`, `plc.inferenceMode.v1`, `plc.downloadIntent.v1`); the inventory test would have caught them, which is why it came first.
 * 2026-11-04: plan proposed (branch `claude/vigilant-ride-beaez6`) and made a living plan: phases with steps, an Automation section, recommended answers and this log.
+
+### Turning the vault on: what is reported at the end (2026-11-17)
+
+After the encrypted copy is stored, `enable` asks the browser for persistent storage and then reports success and `vault:unlocked` only if the session it attached is still the attached one (same epoch, unlocked) and this page still holds its own live writer lock. Otherwise it fails with `session-changed`, publishes nothing, and touches no replacement session. An interruption after setup data may already be stored says so (setup interrupted; some setup data may already be saved; the original unencrypted data was kept); refusals before anything is written keep their own wording. Tests: `tests/vault-enable-finalization.test.mjs`.

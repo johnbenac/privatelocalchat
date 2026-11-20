@@ -5,13 +5,14 @@
 // person can see: the content projection below, compared so that new fields never matter but missing or changed content always does.
 import {readdirSync,readFileSync,existsSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
+import {createHash} from 'node:crypto';
 import path from 'node:path';
 
 export const FIXTURES=fileURLToPath(new URL('../fixtures/data/',import.meta.url));
 export const PASSPHRASE='correct horse';
 
 /** The fixture folders, oldest first (their names start with a sequence number). */
-export const listFixtures=(dir=FIXTURES)=>existsSync(dir)?readdirSync(dir,{withFileTypes:true}).filter(e=>e.isDirectory()).map(e=>e.name).sort():[];
+export const listFixtures=(dir=FIXTURES)=>existsSync(dir)?readdirSync(dir,{withFileTypes:true}).filter(e=>e.isDirectory()&&!e.name.startsWith('.')).map(e=>e.name).sort():[];   // dot folders are a capture's staging and lock folders (scripts/data-snapshot-output.mjs)
 export const readFixture=(name,dir=FIXTURES)=>({
   name,dir:path.join(dir,name),
   meta:JSON.parse(readFileSync(path.join(dir,name,'meta.json'),'utf8')),
@@ -125,4 +126,55 @@ export function mismatch(expected,actual,at='$'){
     const m=mismatch(expected[k],actual[k],`${at}.${k}`);if(m)return m;
   }
   return null;
+}
+
+// ---- the rich character store: what a snapshot must hold to count as written by a build that writes plc.characters.v1 -----------------------------------------------------------
+// Metadata that merely lists the key proves nothing (the capture's meta lists every classified key). A snapshot counts only if the real app's saved characters are in it, whole, and
+// the vault copy of the same person holds them with nothing readable at rest. The same function judges a capture before it is written and the committed fixtures afterwards.
+export const CHARACTERS_KEY='plc.characters.v1';
+const CHARACTER_FILES=fileURLToPath(new URL('../fixtures/characters/',import.meta.url));
+const sha256=b=>'sha256:'+createHash('sha256').update(b).digest('hex');
+const sameJson=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+/** The authentic producer bundles and resource files the capture admits (tests/fixtures/characters/): name -> {root, resources: [bytes]} */
+export function producerCharacters(){
+  const root=n=>JSON.parse(readFileSync(path.join(CHARACTER_FILES,'examples',n+'.bundle.json'),'utf8')).root;
+  const res=n=>readFileSync(path.join(CHARACTER_FILES,'resources',n));
+  return {Pip:{root:root('minimal'),resources:[]},Neri:{root:root('neri'),resources:[res('tide-card.txt'),res('chart.png')]},Bex:{root:root('bex'),resources:[res('cue.wav')]}};
+}
+/** What is wrong with the characters in a snapshot ({plain, vault} as readFixture or the capture builds them), as a list; empty means it holds actual, whole, protected data. */
+export function characterProblems({plain,vault}){
+  const bad=[],want=producerCharacters(),state=plain?.expected?.local?.[CHARACTERS_KEY],raw=plain?.storage?.local?.[CHARACTERS_KEY];
+  if(typeof raw!=='string'){bad.push('the plain snapshot holds no '+CHARACTERS_KEY+' in browser storage');return bad;}
+  let stored;try{stored=JSON.parse(raw);}catch{bad.push('the stored '+CHARACTERS_KEY+' is not JSON');return bad;}
+  if(!sameJson(stored,state))bad.push('the plain expected state is not what the browser stored');
+  if(!state||state.format!==1||!Number.isInteger(state.revision)||!Array.isArray(state.records)||state.records.length<3){bad.push('the plain state is not a store with at least three records');return bad;}
+  if(state.revision<state.records.length)bad.push('the store revision is behind its records');
+  const ids=state.records.map(r=>r.individualId);
+  if(!ids.every(i=>/^individual:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(i))||new Set(ids).size!==ids.length)bad.push('the records do not have distinct local individual ids');
+  for(const [name,info] of Object.entries(want)){
+    const r=state.records.find(x=>x.preview?.name===name);
+    if(!r){bad.push(name+': no saved record');continue;}
+    if(!Number.isInteger(r.recordVersion)||r.recordVersion<1)bad.push(name+': no record version');
+    if(r.source?.root!==info.root)bad.push(name+': the stored package fingerprint is not the producer bundle\'s');
+    if(!r.preview.instructions||r.preview.instructions.length<8)bad.push(name+': the producer instructions are missing');
+    const bytes=new Map((r.source?.bytes||[]).map(b=>[b.hash,b.data]));
+    for(const [h,d] of bytes)if(sha256(Buffer.from(d,'base64'))!==h)bad.push(name+': stored bytes do not match their hash '+h);
+    for(const b of info.resources)if(bytes.get(sha256(b))!==Buffer.from(b).toString('base64'))bad.push(name+': the exact required resource bytes ('+sha256(b).slice(0,19)+') are not retained');
+    if(bytes.size!==info.resources.length)bad.push(name+': it retains '+bytes.size+' resources, expected '+info.resources.length);
+  }
+  const neri=state.records.find(x=>x.preview?.name==='Neri');
+  for(const k of ['lore','guidance','prepared','presentation','media','evidence'])if(!neri?.structured||!neri.structured[k]||JSON.stringify(neri.structured[k]).length<=4)bad.push('Neri: the structured '+k+' is empty');
+  if(neri?.structured?.executionReady!==undefined&&neri.structured.executionReady!==false)bad.push('Neri: executionReady is not false');
+  // the vault copy: the same characters through the vault, nothing at rest
+  const vstate=vault?.expected?.local?.[CHARACTERS_KEY];
+  if(!sameJson(vstate,state))bad.push('the vault snapshot\'s expected characters are not the plain ones');
+  if(vault?.storage?.local&&CHARACTERS_KEY in vault.storage.local)bad.push('the vault snapshot keeps '+CHARACTERS_KEY+' in plain browser storage');
+  if(vault?.storage?.session&&CHARACTERS_KEY in vault.storage.session)bad.push('the vault snapshot keeps '+CHARACTERS_KEY+' in session storage');
+  const rest=JSON.stringify(vault?.storage??null);
+  const secrets=[...ids,...state.records.map(r=>r.source?.root),'cosmogenitor/bundle',...state.records.map(r=>r.preview.instructions.slice(0,60)),...state.records.flatMap(r=>(r.source?.bytes||[]).map(b=>b.data.slice(0,48)))];
+  for(const s of secrets)if(s&&rest.includes(s))bad.push('something readable is left at rest in the vault snapshot: '+String(s).slice(0,40));
+  if(!/^\{.*\}$/s.test(rest)||rest.length<200)bad.push('the vault snapshot holds no storage');
+  const plainRest=JSON.stringify(plain.storage);
+  if(!ids.every(i=>plainRest.includes(i)))bad.push('the plain snapshot lacks its own ids (control)');
+  return bad;
 }
