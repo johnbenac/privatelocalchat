@@ -534,6 +534,19 @@ export async function removeVerifiedPlaintext({ session, adapter, realLocal, rea
       real[e.kind].removeItem(e.key); removed.push(e.key); if (e.status !== "equal") discarded.push({ key: e.key, status: e.status });
     } catch (error) { if (error?.code === "session-changed") throw error; kept.push({ key: e.key, reason: "could not be removed" }); }
   }
+  // The held legacy ledger (plc.encounters.v1) is never copied into the vault, so the loop above never sees it, yet it keeps the original text of every conversation readable beside the vault.
+  // When the person asks to remove the unencrypted copy it goes too, but ONLY once the chats themselves are in the vault and were removed (or were never there): the ledger only repeats
+  // what the chats hold. A chat store that was kept (not verified) keeps the ledger as well.
+  const chatsKept = kept.some((k) => k.key === THREADS);
+  if (!entries.damaged && !chatsKept) {
+    for (const key of LEGACY_HOLD) {
+      try {
+        if (real.local.getItem(key) == null) continue;
+        if (fence && !fence()) throw sessionChanged();
+        real.local.removeItem(key); removed.push(key); discarded.push({ key, status: "held-ledger" });
+      } catch (error) { if (error?.code === "session-changed") throw error; kept.push({ key, reason: "could not be removed" }); }
+    }
+  }
   if (!entries.damaged) { try { realLocal.removeItem("plc.lock.v1"); } catch { /* ignore */ } }
   return { removed, kept, discarded };
 }
