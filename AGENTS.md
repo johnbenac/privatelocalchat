@@ -97,7 +97,7 @@ plc:
 [[intermittent-9b-installer-issue-left]] — John's decision 2026-11-18 to leave the rare 130-of-131 file failure of the 9B install; what is in place (model-runtime 1.0.0 refetch, 1.0.1 detail) and when to reopen.
 [[preset-import-and-standalone-qualification]] — Checked T465/T34/T519 delivery, evidence limits, and unfinished bounded T222/T418 orchestration.
 [[private-lines-vs-main-probe-20261119]] — A scratch merge of PLC's three private lines onto main: sizes, small textual and real semantic conflicts, the red tests and the one real defect at their own heads, and why T860 was added first.
-[6/9 entries shown; cosmo-mem read plc _index.md]
+[6/10 entries shown; cosmo-mem read plc _index.md]
 
 program:
 [[what-this-project-is]] — What Cosmoshot is and the near-term objectives for it.
