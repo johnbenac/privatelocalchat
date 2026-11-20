@@ -9,6 +9,7 @@ import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { oldRevAvailable } from './helpers/vault-transition-rig.mjs';
 import {
   commitInfo, assertCleanCheckout, allocateScratchChild, cleanupOwnedChild, archiveCommit, buildArchive, readBuildIdentity, assertBuildIdentity,
   neriExpectedResources, assertNeriResources, producerNeriRecord, runScratchActors,
@@ -50,8 +51,10 @@ test('scratch: a child is owned, unique and cleaned only by its token; the paren
 
 // ---- commits, timestamps, clean checkouts (SYNTHETIC fixture repository: used only for these refusal tests, never as an old/new build identity) ----------------
 test('git: real commit time and id; missing or wrong commits fail; a dirty checkout is refused (synthetic fixture repo)', () => {
-  const real = commitInfo(ROOT, OLD_REV);
-  assert.equal(real.sha, OLD_REV); assert.equal(String(real.epoch), git(ROOT, 'show', '-s', '--format=%ct', OLD_REV));
+  // The real old revision is only in a clone WITH history (the deploy checkout is shallow). Without it this part did NOT run: say so loudly, and fail under PLC_REQUIRE_OLD_REV.
+  if (oldRevAvailable()) { const real = commitInfo(ROOT, OLD_REV); assert.equal(real.sha, OLD_REV); assert.equal(String(real.epoch), git(ROOT, 'show', '-s', '--format=%ct', OLD_REV)); }
+  else if (process.env.PLC_REQUIRE_OLD_REV) throw new Error('the old revision ' + OLD_REV.slice(0, 8) + ' is not in this clone (PLC_REQUIRE_OLD_REV is set: this is a failure, not a skip)');
+  else process.stderr.write('WARNING: the old revision ' + OLD_REV.slice(0, 8) + ' is not in this clone, so the real-commit part of this test did NOT run\n');
   assert.throws(() => commitInfo(ROOT, 'f'.repeat(40)), /not a commit/);
   assert.throws(() => commitInfo(ROOT, 'no-such-ref'), /not a commit/);
   assert.throws(() => commitInfo(ROOT, ''), /needs a revision/);
