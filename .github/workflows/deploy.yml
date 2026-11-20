@@ -30,6 +30,11 @@ jobs:
           path: site-layer
           persist-credentials: false
       - name: Validate
+        # The parallel-actor qualification tests run 20 repeats where a change is qualified (locally and on a spare machine, PLC_REQUIRE_OLD_REV=1, see docs/OPERATIONS.md). On this two-core runner
+        # the 16-actor ones need more than the tests' own time limit, so the deploy gate runs the same tests with fewer repeats: the invariants are the same, the repeat count is not.
+        env:
+          PLC_CONC_REPEATS: '3'
+          TYPED_REPEAT: '3'
         run: |
           npm test
           python3 -m unittest discover -s dev-tools/tests -v
