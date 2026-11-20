@@ -97,8 +97,7 @@ plc:
 [[intermittent-9b-installer-issue-left]] — John's decision 2026-11-18 to leave the rare 130-of-131 file failure of the 9B install; what is in place (model-runtime 1.0.0 refetch, 1.0.1 detail) and when to reopen.
 [[preset-import-and-standalone-qualification]] — Checked T465/T34/T519 delivery, evidence limits, and unfinished bounded T222/T418 orchestration.
 [[private-lines-vs-main-probe-20261119]] — A scratch merge of PLC's three private lines onto main: sizes, small textual and real semantic conflicts, the red tests and the one real defect at their own heads, and why T860 was added first.
-[[real-device-access-iphone-and-mac]] — How to reach and drive the shared iPhone 15 Pro (boiler usbmux forward plus pymobiledevice3) and the networked Mac's Safari (ssh port 2222): commands, pitfalls, what only John can do.
-[7/9 entries shown; cosmo-mem read plc _index.md]
+[6/9 entries shown; cosmo-mem read plc _index.md]
 
 program:
 [[what-this-project-is]] — What Cosmoshot is and the near-term objectives for it.
@@ -125,8 +124,10 @@ program:
 - Working with another team: ask it directly. Write the need on the board task (what, from which team, why); keep a detailed ask in
   `contract-request.md` in your own repository; its agent or an independent reviewer answers on the same task with agreement and
   numbered corrections. Each team writes only in its own repository.
-- Mail reaches you at your next prompt or tool call, and when you stop; read it with `cosmo-msg read ID`. If you are idle and
-  it matters, the sender wakes you with a direct message. Never hold a background task (a watcher, `board-watch`) while you
+- Send: `cosmo-msg send --to TEAM --subject S "text"`; answer: `cosmo-msg reply ID "text"`. Mail reaches the receiver at its next
+  prompt or tool call, and when it stops; read it with `cosmo-msg read ID`. An idle receiver is woken by you: a Claude session
+  by the SendMessage tool (the note `cosmo-msg send` prints gives the call), a Codex session (no such tool) by
+  `/usr/bin/python3 /cosmoshot/tools/msg/nudge.py TEAM --id ID`. Never hold a background task (a watcher, `board-watch`) while you
   work toward a goal: the goal check is skipped while one runs. Check the board at your own turns.
 - Delegating: `program/execution-lanes.md` and `api-key-executors.md`. New repository: the `new-repository` skill.
 - Use `/usr/bin/python3`. Heavy runs can go to `boiler`. `/tmp` is memory-backed: no large trees there.
