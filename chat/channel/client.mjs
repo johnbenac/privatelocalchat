@@ -1,5 +1,5 @@
-// The channel client: PLC's side of the message handoff (Sonalon's contract, board T379; copy in tests/fixtures/message-handoff/; PLC task T953, a bounded part of T443).
-// PREPARATION: it is tested against the contract's reference endpoint and is NOT wired into the page. It runs against a real running mind only when Sonalon's endpoint exists (T952).
+// The channel client: this app's side of the message handoff contract for a running mind (a pinned copy of the contract is in tests/fixtures/message-handoff/, the plan in docs/CHANNEL-CLIENT.md).
+// PREPARATION: it is tested against the contract's reference endpoint and is NOT wired into the page. It runs against a real running mind only when a host that answers the contract exists.
 //
 // What it does: it sends a person's words as contract messages (one id per attempt group, reused unchanged on every retry), turns the five receipts into the states a person can see, resolves an
 // uncertain outcome with a status query (known: do not resend; not known: resend the SAME message), and receives her replies from a stream that is resumed from the last sequence number it saw.
@@ -7,7 +7,7 @@
 // When she cannot be reached the client says so (`availability`): a closed tab or a stopped host is `unavailable`, a lost connection is `unreachable`. NOTHING answers in her place: this module has
 // no model, no prompt and no fallback of any kind, and a refused or unsent message is never queued as if she were alive.
 //
-// What it does NOT do: it stores nothing itself (the `store` is the caller's), writes no ledger and no typed records (her words are not kept anywhere until board T896 and John say so), opens no
+// What it does NOT do: it stores nothing itself (the `store` is the caller's), writes no ledger and no typed records (her words are not kept anywhere until real deletion exists and the owner says so), opens no
 // network connection of its own (the `transport` is the caller's), names no host, and never touches the page.
 //
 //   transport.request(frame) -> Promise<frame[]>      one request, the endpoint's answers; REJECTS when no answer arrived (the outcome is then unknown)
