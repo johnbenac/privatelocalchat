@@ -8,7 +8,7 @@
   "SOURCE_DATE_EPOCH": "0",
   "SITE_DIR": ""
  },
- "fileCount": 256,
+ "fileCount": 257,
  "files": {
   "404.html": {
    "bytes": 101,
@@ -145,6 +145,10 @@
   "releases/0000000000000000000000000000000000000000/chat/call/call.mjs": {
    "bytes": 29066,
    "sha256": "99d214271430536a391bd77af8827f58ddd6b269188b2de21964a6d4bc9f9805"
+  },
+  "releases/0000000000000000000000000000000000000000/chat/channel/client.mjs": {
+   "bytes": 12308,
+   "sha256": "ce90eb33a82d63806d206d43dff53569b1f166d1784babe625b11f87dd94e163"
   },
   "releases/0000000000000000000000000000000000000000/chat/characters/character-describe.mjs": {
    "bytes": 5345,
@@ -591,12 +595,12 @@
    "sha256": "5a3aae463976c383cc2767c3a8d63ad390373db61b7deb15ce70fb99ae3ca121"
   },
   "releases/0000000000000000000000000000000000000000/chat/vault/vault-store.mjs": {
-   "bytes": 71561,
-   "sha256": "e6d84feff06abe0bf711c2871017649de704bf104aaacc2566dc1a3074084a7a"
+   "bytes": 72533,
+   "sha256": "dfe61f3185193248d66a7aacc77dc4cfde33641cd403135b0c95c1188ff4774a"
   },
   "releases/0000000000000000000000000000000000000000/chat/vault/vault.mjs": {
-   "bytes": 63827,
-   "sha256": "dfc04e1a150e534a3625b53fde1df15f24fbad9cee50161e0e56fd38f110a375"
+   "bytes": 66985,
+   "sha256": "e818a8b87778f23322f7bb16b6c8c1bfa8364a19a6c08bb0dec27fa062d32d34"
   },
   "releases/0000000000000000000000000000000000000000/chat/vendor/embedding/VERSIONS.json": {
    "bytes": 742,
@@ -743,8 +747,8 @@
    "sha256": "54ab05c4b23c2e2ca8e7e698a5d2a156e4305fc08d3db4862869d9ae40c6344b"
   },
   "releases/0000000000000000000000000000000000000000/release.json": {
-   "bytes": 35302,
-   "sha256": "04b1186f3e27e77368315c863780cf9377dbf074e184b3a9c9f93352e217fbc7"
+   "bytes": 35448,
+   "sha256": "d6f99b1e3d03cc3b85466d0625c3fd1b8b430f7e68cc136b8d319abfe164103e"
   },
   "releases/0000000000000000000000000000000000000000/runtime/auto-load.mjs": {
    "bytes": 565,
@@ -1027,8 +1031,8 @@
    "sha256": "802e46c9e6bf5a295ed08ff9debdd12d3d5c3b6f16d898ffac0ed6a7b40b06f4"
   },
   "sw.js": {
-   "bytes": 25060,
-   "sha256": "3c61aeaac90ef98f587c91f7aa2dfd49a4e9d9f7c41c45a2d2cefc8fe5e6b31b"
+   "bytes": 25137,
+   "sha256": "20a12c1afac2ab29f26a411b57da6d1eafc6e13b3c3161bcfa2f7f44b2f19943"
   },
   "version.json": {
    "bytes": 170,
