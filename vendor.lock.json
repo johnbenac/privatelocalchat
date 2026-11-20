@@ -190,6 +190,28 @@
       "path": "tools/vendor-check",
       "tree_sha256": "2c3af34ae9d88dca9226e51a7e71bea7df8cffea5a72d494c779a0e4dc85cd72",
       "version": "1.0.0"
+    },
+    {
+      "files": {
+        "LICENSE": "0d96a4ff68ad6d4b6f1f30f713b18d5184912ba8dd389f86aa7710db079abcb0",
+        "THIRD-PARTY-NOTICES.md": "5f9948c5a9f560206279a03ba61f14b66381cb5138105815d93a530bae75c891",
+        "browser-voice.mjs": "ecc6bb1d8086e769fe2d2012c7c7f7e2c48819ebff3a31c13416e3a3ec2b9c9e",
+        "index.mjs": "de1d02cf1e80c5634f81d2e24a33ff57e1d9e194cdd085e292f888e8a0e663e8",
+        "kokoro-speaker.mjs": "f7f70a5205c8bff2097fe8db7f24a56638261fa03415a010b0414b38f760bda1",
+        "recognition.mjs": "7a46531cdf5346d61ed28b353ac3d73c0c3126534cae815fe95ab6d918968e5d",
+        "session.mjs": "41b627cbdffe3bd310cc42c1409e1359a03190c3bac87fb219668e1c0d79190c"
+      },
+      "license": "AGPL-3.0",
+      "name": "voice-loop",
+      "owner": "plc",
+      "package": {
+        "file": "voice-loop-1.0.0.tar.gz",
+        "sha256": "06a16ad17612a30d0649d649ea1b5e0ca94ac7b0947d833c051aaaae836f2754",
+        "type": "generic"
+      },
+      "path": "runtime/voice-loop",
+      "tree_sha256": "5f1553f9f580cdd0a34dd5a58c586b9ec897569a4765467ef83c3f7e8deed90a",
+      "version": "1.0.0"
     }
   ],
   "schema": "aiofourown-vendor-lock/1"

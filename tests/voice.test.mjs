@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createSentenceStream,createSpeaker,createVoiceSession,formatDuration,VOICE_STYLE} from '../chat/voice/voice.mjs';
+import {createSentenceStream,createSpeaker,createVoiceSession,formatDuration,VOICE_STYLE} from '../runtime/voice-loop/session.mjs';
 const sentences=(chunks,{final=true}={})=>{const out=[];const s=createSentenceStream({onSentence:t=>out.push(t)});let full='';for(const c of chunks){full+=c;s.update(full);}if(final)s.update(full,{final:true});return out;};
 test('a streaming reply is spoken sentence by sentence as it arrives',()=>{
  const out=[];const s=createSentenceStream({onSentence:t=>out.push(t)});

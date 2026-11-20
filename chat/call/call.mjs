@@ -1,7 +1,7 @@
 // The voice call: a phone call with the assistant. It rings, connects, shows how long it has run, and ends with a summary. The orb moves differently for listening,
 // thinking, writing the reply, making the voice and speaking; two chips show the chat model and the voice with their memory state; the call's messages are listed with older
 // ones fading; a spoken reply whose sound never starts is given up on and explained. Underneath: listen -> send -> speak the reply while it is written -> listen again
-// (chat/voice/voice.mjs, which has no DOM). The page provides everything this needs in `host`; createCall(host) returns { active, start, end, stop }.
+// (runtime/voice-loop/session.mjs, which has no DOM). The page provides everything this needs in `host`; createCall(host) returns { active, start, end, stop }.
 //
 // host: el, icons() (the icon set, once it has loaded), prefs(), showToast, providerName, messageForm, messageInput, growComposer, sendMessage(), abortReply(), currentThreadId(), chatReady(),
 //       loadSpeech(), loadVoice(), ensureCallSounds(), callSounds(), callSoundsOn(), loadVoiceChoice(), voiceOpts(), cleanText(text), moduleBase(),

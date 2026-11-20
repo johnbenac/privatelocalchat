@@ -515,7 +515,7 @@ The app's own statements about data are not in this document. They are listed in
 | A voice call listens with the same dictation | `chat/call/call.mjs` | `speechMod.startDictation` |
 | The app does not record audio | `chat/voice/voice-recorder.mjs` | `the AUDIO is never recorded or stored` |
 | The microphone is used only for a permission test | `chat/voice/speech.mjs` | `probeMicrophone` |
-| Reading aloud lists on-device voices first and may use any browser voice | `chat/voice/speech.mjs` | `localService` |
+| Reading aloud lists on-device voices first and may use any browser voice | `runtime/voice-loop/browser-voice.mjs` | `localService` |
 | Voice files are checked against a pinned size and SHA-256 | `chat/voice/voice-engine.mjs` | `hash-mismatch` |
 | Voice files come from the configured model source | `chat/voice/voice-manifest.mjs` | `appConfig().modelRoot()` |
 | Model files come from the first configured source | `runtime/providers/app-config.mjs` | `sources[0]` |

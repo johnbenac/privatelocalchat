@@ -217,7 +217,8 @@
     "www.gnu.org"
    ],
    "paths": [
-    "LICENSE"
+    "LICENSE",
+    "releases/*/runtime/voice-loop/LICENSE"
    ],
    "why": "Addresses in the text of the GNU General Public License."
   },

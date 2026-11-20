@@ -16,8 +16,8 @@ const lock=JSON.parse(readFileSync('vendor.lock.json','utf8'));
 test('the lock pins every component by an exact version and a package SHA-256',()=>{
   assert.equal(lock.schema,'aiofourown-vendor-lock/1');
   const byName=Object.fromEntries(lock.components.map((c)=>[c.name,c]));
-  assert.deepEqual(Object.keys(byName).sort(),['authored-profiles','delivery-tooling','model-runtime','vendor-check']);
-  for(const [name,owner,vendored] of [['authored-profiles','cosmogenitor','vendor/authored-profiles'],['model-runtime','plc','runtime/providers'],['vendor-check','devops','tools/vendor-check'],['delivery-tooling','devops','tools/delivery-tooling']]){
+  assert.deepEqual(Object.keys(byName).sort(),['authored-profiles','delivery-tooling','model-runtime','vendor-check','voice-loop']);
+  for(const [name,owner,vendored] of [['authored-profiles','cosmogenitor','vendor/authored-profiles'],['model-runtime','plc','runtime/providers'],['vendor-check','devops','tools/vendor-check'],['delivery-tooling','devops','tools/delivery-tooling'],['voice-loop','plc','runtime/voice-loop']]){
     const c=byName[name];
     assert.equal(c.owner,owner);assert.equal(c.path,vendored);
     assert.match(c.version,/^\d+\.\d+\.\d+$/,name+': an exact version, never a range or latest');

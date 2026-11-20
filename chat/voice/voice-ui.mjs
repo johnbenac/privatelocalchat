@@ -26,7 +26,7 @@ export function createVoiceUi(host) {
   const speechInputOk = speechAvailable.recognition;
   let speechMod = null, voiceMod = null;
   const loadSpeech = async () => (speechMod ||= await import(host.moduleBase() + 'chat/voice/speech.mjs'));
-  const loadVoice = async () => (voiceMod ||= await import(host.moduleBase() + 'chat/voice/voice.mjs'));
+  const loadVoice = async () => (voiceMod ||= await import(host.moduleBase() + 'runtime/voice-loop/session.mjs'));
   let speaking = null;
   const setListenButton = (btn, on) => { btn.setAttribute('aria-pressed', String(on)); host.icons().setIconLabel(btn, on ? '⏹ Stop' : '🔊 Listen'); };
   function stopSpeaking() { if (speaking) { speaking.handle.stop(); speaking = null; document.querySelectorAll('[data-action="speak"][aria-pressed="true"]').forEach(b => setListenButton(b, false)); } }

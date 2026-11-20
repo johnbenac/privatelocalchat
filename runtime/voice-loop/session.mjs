@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 // Speech-to-speech conversation. Pure logic (no DOM, no browser speech objects): everything the browser provides is injected, so the
 // turn-taking can be tested end to end.
 //
@@ -5,6 +6,11 @@
 //
 // Replies are spoken sentence by sentence while they are still being written, so the first words come out quickly. The microphone is
 // off while the app speaks (no echo), the person can interrupt at any time, and a recogniser that stops by itself is restarted.
+//
+// Sentence hook (voice-loop 1.0.0): `onSentence({ text, index, turn, attempt, startedAt, playing })` is called each time a sentence is handed to
+// speakOne (again on a retry, attempt 1). `playing` is exactly what speakOne returned, so a speaker that also gives `samples`, `sampleRate`, `ipa`
+// or a `subscribe` function (see kokoro-speaker.mjs) lets a face animate from each sentence. Without the option nothing changes. A hook that
+// throws is ignored: it can never break the call.
 
 /** m:ss for a call timer, h:mm:ss from an hour on. */
 export function formatDuration(totalSeconds) {
@@ -78,7 +84,7 @@ export const defaultSentenceMs = (text) => 20000 + String(text).length * 200;
  * A sentence whose `done` never settles (some browsers never report that speech ended, or a voice engine hangs) is stopped after `sentenceMs(text)`
  * and the call goes on to the next one, instead of staying on "speaking" for good. onStall(text) is told.
  */
-export function createSpeaker(speakOne, { onError, onBegin, onStall, retryStalled = 1, sentenceMs = defaultSentenceMs, setTimer = setTimeout, clearTimer = clearTimeout } = {}) {
+export function createSpeaker(speakOne, { onError, onBegin, onStall, onSpeak, retryStalled = 1, sentenceMs = defaultSentenceMs, setTimer = setTimeout, clearTimer = clearTimeout } = {}) {
   const queue = []; let current = null, running = false, waiters = [], generation = 0;
   const settle = () => { if (!running && !queue.length) { const w = waiters; waiters = []; w.forEach((f) => f()); } };
   async function run() {
@@ -90,6 +96,7 @@ export function createSpeaker(speakOne, { onError, onBegin, onStall, retryStalle
       // A sentence that never reports it has finished is stopped (which also clears anything stuck in front of it) and tried once more; if that stalls too it is skipped.
       for (let attempt = 0; ; attempt++) {
         const playing = current = speakOne(text);
+        if (onSpeak) { try { onSpeak(text, playing, attempt); } catch { /* a hook never breaks speaking */ } }
         let timer = null, timedOut = false;
         const limit = new Promise((resolve) => { timer = setTimer(() => { timedOut = true; resolve(); }, sentenceMs(text)); });
         try { await Promise.race([playing.done, limit]); } catch (e) { if (mine === generation) { queue.length = 0; onError?.(e); } }
@@ -112,14 +119,15 @@ export function createSpeaker(speakOne, { onError, onBegin, onStall, retryStalle
   };
 }
 
-export function createVoiceSession({ listen, speakOne, send, abortReply, onState = () => {}, onNote = () => {}, retryStalled = 1, now = Date.now, thinkingMs = 0, holdThinking = () => false, sentenceMs = defaultSentenceMs, clean = (s) => s, unlockAudio = () => {}, keepAwake = () => {}, setTimer = setTimeout, clearTimer = clearTimeout, silenceMs = 1400, restartMs = 250, minChars = 2, connectMs = 0 }) {
+export function createVoiceSession({ listen, speakOne, send, abortReply, onState = () => {}, onNote = () => {}, retryStalled = 1, now = Date.now, thinkingMs = 0, holdThinking = () => false, sentenceMs = defaultSentenceMs, clean = (s) => s, unlockAudio = () => {}, keepAwake = () => {}, setTimer = setTimeout, clearTimer = clearTimeout, silenceMs = 1400, restartMs = 250, minChars = 2, connectMs = 0, onSentence }) {
   let connectTimer = null, recDead = false;
-  let sentence = "", userText = "", writing = false;
+  let sentence = "", userText = "", writing = false, sentenceIndex = 0;
   let thinkTimer = null, recFails = 0, listenedAt = 0;
   let active = false, confirmed = false, state = "idle", heard = "", rec = null, silence = null, restart = null, replyDone = true, muted = false, turn = 0, spokeAny = false;
   const set = (next, info = {}) => { state = next; onState(next, { heard, muted, ...info }); };
   const speaker = createSpeaker(speakOne, {
     setTimer, clearTimer, sentenceMs, retryStalled,
+    onSpeak: onSentence ? (text, playing, attempt) => { onSentence({ text, index: attempt ? sentenceIndex - 1 : sentenceIndex++, turn, attempt, startedAt: now(), playing }); } : undefined,
     onStall: (text, attempt) => onNote(attempt >= retryStalled ? "sentence-stalled" : "sentence-retry", text), // the voice never finished a sentence: it was skipped and the call carried on
     onError: (e) => { fail(e.message || "This browser could not speak the reply."); },
     // a sentence is being turned into sound (it may take a while): said as such until the sound really starts
@@ -195,7 +203,7 @@ export function createVoiceSession({ listen, speakOne, send, abortReply, onState
     const text = heard.trim();
     if (text.length < minChars) return;
     stopListening();
-    turn++; replyDone = false; spokeAny = false; writing = false; userText = text; stream.reset();
+    turn++; sentenceIndex = 0; replyDone = false; spokeAny = false; writing = false; userText = text; stream.reset();
     set("thinking", { caption: text, phase: "thinking" }); armThinkWatch();
     Promise.resolve().then(() => send(text)).catch((e) => fail(e?.message || "The message could not be sent."));
   }
@@ -225,7 +233,7 @@ export function createVoiceSession({ listen, speakOne, send, abortReply, onState
     pause(reason = "background") { if (!active) return; if (state === "listening") { stopListening(); set("paused", { reason }); } },
     resume() { if (active && state === "paused" && !muted) startListening(); },
     // the app reports the reply as it is written
-    replyStarted() { if (!active) return; armThinkWatch(); replyDone = false; spokeAny = false; writing = false; stream.reset(); if (state !== "thinking") set("thinking", { phase: "thinking" }); },
+    replyStarted() { if (!active) return; armThinkWatch(); sentenceIndex = 0; replyDone = false; spokeAny = false; writing = false; stream.reset(); if (state !== "thinking") set("thinking", { phase: "thinking" }); },
     replyText(full) {
       if (!active || replyDone) return;
       armThinkWatch(); // words are still arriving

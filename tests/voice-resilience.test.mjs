@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createVoiceSession,createSpeaker} from '../chat/voice/voice.mjs';
+import {createVoiceSession,createSpeaker} from '../runtime/voice-loop/session.mjs';
 
 // The call must never end up waiting for something that is not coming. These drive the real turn-taking with a hand-driven clock and a fake voice, microphone
 // and reply, and throw the failures seen on phones at it: a voice that never says it has finished, a reply that never starts or never ends, a recogniser
