@@ -43,8 +43,8 @@ test('a newer document with a STALE view is refused and the durable acknowledged
 
 // ---- stale next actor / lag longer than any wait: refused with nothing written, acknowledged state kept, retry works once the view arrived ---------------------------------------------------------
 for (const [name, setup] of [
-  ['the view lags longer than any wait', async () => world(2, { lag: 300, coord: { freshMs: 40 } })],
-  ['no locks.query at all', async () => { const w = await world(2, { lag: 300, coord: { freshMs: 40 } }); delete w.locks.query; return w; }],
+  ['the view lags longer than any wait', async () => world(2, { lag: 1500, coord: { freshMs: 40 } })],
+  ['no locks.query at all', async () => { const w = await world(2, { lag: 1500, coord: { freshMs: 40 } }); delete w.locks.query; return w; }],
 ]) {
   test(`stale next actor, ${name}: refused (stale-view), nothing written, a1 survives, the retry succeeds once the view arrived`, async () => {
     const w = await setup(); const A = w.open(w.b.tabs[0]), B = w.open(w.b.tabs[1]);
@@ -53,7 +53,7 @@ for (const [name, setup] of [
     const rb = await within(B.save(), 5000, 'the refusal');
     assert.equal(rb.ok, false); assert.equal(rb.code, 'stale-view'); assert.equal(snap(w.b), before); assert.deepEqual(w.backend.peek(), rec, 'authority not rewound');
     assert.ok(B.thread('shared').messages.some((m) => m.id === 'b1'), 'the tab keeps its input');
-    await sleep(350);
+    await sleep(1600);
     assert.equal(ackd(await B.save()), true); assert.deepEqual(setOf(w.b), ['a1', 'b1', 's1']);
   });
 }

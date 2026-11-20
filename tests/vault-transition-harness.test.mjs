@@ -9,7 +9,7 @@ import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { oldRevAvailable } from './helpers/vault-transition-rig.mjs';
+import { oldRevAvailable, skipOld } from './helpers/vault-transition-rig.mjs';
 import {
   commitInfo, assertCleanCheckout, allocateScratchChild, cleanupOwnedChild, archiveCommit, buildArchive, readBuildIdentity, assertBuildIdentity,
   neriExpectedResources, assertNeriResources, producerNeriRecord, runScratchActors,
@@ -72,7 +72,8 @@ test('git: real commit time and id; missing or wrong commits fail; a dirty check
   assert.equal(fs.readFileSync(path.join(repo, 'new.txt'), 'utf8'), 'x', 'refusal left the dirty file as it was');
 });
 
-test('archive: git archive of a real commit, no .git, byte for byte what git holds; a non-commit or a full-id mismatch is refused', () => {
+test('archive: git archive of a real commit, no .git, byte for byte what git holds; a non-commit or a full-id mismatch is refused', (t) => {
+  if (!oldRevAvailable()) return skipOld(t);
   const dest = path.join(sub('archive'), 'old');
   const archiveSha = archiveCommit(ROOT, OLD_REV, dest);
   assert.match(archiveSha, /^[0-9a-f]{64}$/); assert.ok(!fs.existsSync(path.join(dest, '.git')));
@@ -83,7 +84,8 @@ test('archive: git archive of a real commit, no .git, byte for byte what git hol
 });
 
 // ---- two real builds ------------------------------------------------------------------------------------------------------------------------------
-test('real builds: exact old release and clean current HEAD, real commit times, served identity read from the build outputs', () => {
+test('real builds: exact old release and clean current HEAD, real commit times, served identity read from the build outputs', (t) => {
+  if (!oldRevAvailable()) return skipOld(t);
   assertCleanCheckout(ROOT); // the candidate must be committed: the NEW side is an archive of HEAD, not of a dirty tree
   const work = sub('builds'); const nodeModules = path.join(ROOT, 'node_modules');
   const old = buildArchive({ repo: ROOT, rev: OLD_REV, workDir: work, name: 'old', nodeModules });
@@ -113,7 +115,8 @@ test('real builds: exact old release and clean current HEAD, real commit times, 
   if (out) { fs.mkdirSync(out, { recursive: true }); for (const b of [old, cur]) fs.writeFileSync(path.join(out, `build-${b.name}.json`), JSON.stringify(record(b), null, 2) + '\n'); }
 });
 
-test('build refuses: a commit that does not exist, and an export that already holds a repository', () => {
+test('build refuses: a commit that does not exist, and an export that already holds a repository', (t) => {
+  if (!oldRevAvailable()) return skipOld(t);
   const work = sub('refusals');
   assert.throws(() => buildArchive({ repo: ROOT, rev: 'f'.repeat(40), workDir: work, name: 'ghost' }), /not a commit/);
   assert.ok(!fs.existsSync(path.join(work, 'ghost-src')), 'nothing was exported for a missing commit');
