@@ -93,6 +93,9 @@ try{
     settings:JSON.stringify({format:'plc-settings-transfer/9',settings:{endpoint:'https://x.example/v1',model:'future-model'}})
   };
   await open();
+  // The first chat is saved through a queued commit (with its conversation record), not synchronously: take the baseline only once that first-start save has landed, so the check below
+  // sees what a REFUSED FILE changes and not the app finishing its own start.
+  await page.waitForFunction(()=>localStorage.getItem('chatThreads')!==null&&localStorage.getItem('plc.encounters.v1')!==null,null,{timeout:15000});
   const before={threads:await rawLocal('chatThreads'),all:await userStorage()};
   await chooseHistory('chat-history.json',newer.history);
   let text=await dialogText();
