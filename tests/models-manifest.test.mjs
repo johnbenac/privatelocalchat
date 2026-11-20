@@ -32,7 +32,7 @@ test('every address and pin of the baseline is in the manifest, and the manifest
   assert.equal(manifest.root, 'https://cdn.aiofourown.com/models/');
   assert.equal(disagreement(manifest), null);
   const distinct = new Set(baselineFiles().map((f) => f.url)).size;
-  assert.equal(distinct, 308, 'the baseline names 308 distinct download addresses');
+  assert.equal(distinct, 309, 'the baseline names 309 distinct download addresses');
   assert.deepEqual(allBaselineFiles().filter((f) => f.url.startsWith('app:')).map((f) => f.url).sort(), ['app:runtime/providers/vendor/webllm/libs/Qwen3.5-9B-q4f16_1_cs1k-webgpu.wasm', 'app:runtime/providers/vendor/webllm/libs/Qwen3.5-9B-q4f32_1_cs1k-webgpu.wasm']);
   assert.equal(manifestFiles(manifest).length, distinct);
   assert.deepEqual(Object.keys(manifest.tiers), Object.keys(baseline.tiers));
