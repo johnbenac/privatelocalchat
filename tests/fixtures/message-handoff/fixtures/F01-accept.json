@@ -1,0 +1,168 @@
+{
+  "fixture": "F01",
+  "title": "accept",
+  "note": "A message is accepted and delivered to the running world; later states arrive as separate receipts. Nothing says she will answer.",
+  "initial": {
+    "running": true,
+    "resident": "individual:room-1-resident",
+    "admitted": [
+      "p:ext:3f2a:person"
+    ],
+    "limit": 2000
+  },
+  "steps": [
+    {
+      "direction": "to-resident",
+      "note": "first message of an attempt group",
+      "message": {
+        "kind": "message",
+        "id": "00000000-0000-4000-8000-000000000001",
+        "encounter": "enc:ext:3f2a",
+        "to": {
+          "individualId": "individual:room-1-resident",
+          "host": {
+            "kind": "in-process",
+            "address": "fixture-host-1"
+          }
+        },
+        "from": {
+          "participant": {
+            "id": "p:ext:3f2a:person",
+            "kind": "human",
+            "name": "Visitor",
+            "standing": "guest",
+            "individualId": null
+          },
+          "aliases": [
+            "visitor-label-1"
+          ]
+        },
+        "occ": {
+          "source": "plc:thread-3f2a",
+          "id": "occ-1",
+          "digest": "sha256:a0dec3299c9f1bb50e0304cf9cd1c791e5159673e8e0d936f4424253914a33fa"
+        },
+        "words": "Hello, are you there?",
+        "audience": {
+          "kind": "encounter"
+        },
+        "expression": "typed",
+        "after": []
+      },
+      "expectedState": {
+        "running": true,
+        "byMessage": {
+          "00000000-0000-4000-8000-000000000001": "delivered"
+        },
+        "deliveredOrder": [
+          "00000000-0000-4000-8000-000000000001"
+        ]
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "accepted by the endpoint",
+      "message": {
+        "kind": "receipt",
+        "state": "accepted",
+        "messageId": "00000000-0000-4000-8000-000000000001",
+        "encounter": "enc:ext:3f2a"
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "delivered to the running world",
+      "message": {
+        "kind": "receipt",
+        "state": "delivered",
+        "messageId": "00000000-0000-4000-8000-000000000001",
+        "encounter": "enc:ext:3f2a",
+        "worldSeq": 1
+      }
+    },
+    {
+      "direction": "host",
+      "note": "her context now holds it (returned, recorded only)",
+      "host": {
+        "kind": "progress",
+        "messageId": "00000000-0000-4000-8000-000000000001",
+        "state": "exposed"
+      },
+      "expectedState": {
+        "running": true,
+        "byMessage": {
+          "00000000-0000-4000-8000-000000000001": "exposed"
+        },
+        "deliveredOrder": [
+          "00000000-0000-4000-8000-000000000001"
+        ]
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "exposed receipt",
+      "message": {
+        "kind": "receipt",
+        "state": "exposed",
+        "messageId": "00000000-0000-4000-8000-000000000001",
+        "encounter": "enc:ext:3f2a"
+      }
+    },
+    {
+      "direction": "host",
+      "note": "her mind took it up (recorded only)",
+      "host": {
+        "kind": "progress",
+        "messageId": "00000000-0000-4000-8000-000000000001",
+        "state": "interpreted"
+      },
+      "expectedState": {
+        "running": true,
+        "byMessage": {
+          "00000000-0000-4000-8000-000000000001": "interpreted"
+        },
+        "deliveredOrder": [
+          "00000000-0000-4000-8000-000000000001"
+        ]
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "interpreted receipt; says nothing about what she did",
+      "message": {
+        "kind": "receipt",
+        "state": "interpreted",
+        "messageId": "00000000-0000-4000-8000-000000000001",
+        "encounter": "enc:ext:3f2a"
+      }
+    },
+    {
+      "direction": "host",
+      "note": "the exchange is in her record (recorded only)",
+      "host": {
+        "kind": "progress",
+        "messageId": "00000000-0000-4000-8000-000000000001",
+        "state": "persisted"
+      },
+      "expectedState": {
+        "running": true,
+        "byMessage": {
+          "00000000-0000-4000-8000-000000000001": "persisted"
+        },
+        "deliveredOrder": [
+          "00000000-0000-4000-8000-000000000001"
+        ]
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "persisted receipt",
+      "message": {
+        "kind": "receipt",
+        "state": "persisted",
+        "messageId": "00000000-0000-4000-8000-000000000001",
+        "encounter": "enc:ext:3f2a"
+      }
+    }
+  ]
+}

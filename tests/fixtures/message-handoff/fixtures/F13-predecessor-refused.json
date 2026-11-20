@@ -1,0 +1,125 @@
+{
+  "fixture": "F13",
+  "title": "predecessor-refused",
+  "note": "A message whose predecessor was refused is itself refused, never held. The sender does not set after to a refused message.",
+  "initial": {
+    "running": true,
+    "resident": "individual:room-1-resident",
+    "admitted": [
+      "p:ext:3f2a:person"
+    ],
+    "limit": 100
+  },
+  "steps": [
+    {
+      "direction": "to-resident",
+      "note": "refused as over-limit",
+      "message": {
+        "kind": "message",
+        "id": "00000000-0000-4000-8000-000000000111",
+        "encounter": "enc:ext:3f2a",
+        "to": {
+          "individualId": "individual:room-1-resident",
+          "host": {
+            "kind": "in-process",
+            "address": "fixture-host-1"
+          }
+        },
+        "from": {
+          "participant": {
+            "id": "p:ext:3f2a:person",
+            "kind": "human",
+            "name": "Visitor",
+            "standing": "guest",
+            "individualId": null
+          },
+          "aliases": [
+            "visitor-label-1"
+          ]
+        },
+        "occ": {
+          "source": "plc:thread-3f2a",
+          "id": "occ-111",
+          "digest": "sha256:0ebdf822c9bcad7189fa0cbd92499d0c7c574be16544e6178741e23d39b73072"
+        },
+        "words": "abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc ",
+        "audience": {
+          "kind": "encounter"
+        },
+        "expression": "typed",
+        "after": []
+      },
+      "expectedState": {
+        "running": true,
+        "byMessage": {},
+        "deliveredOrder": []
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "refused: over-limit",
+      "message": {
+        "kind": "refusal",
+        "class": "over-limit",
+        "messageId": "00000000-0000-4000-8000-000000000111",
+        "reason": "too many code points"
+      }
+    },
+    {
+      "direction": "to-resident",
+      "note": "its dependent",
+      "message": {
+        "kind": "message",
+        "id": "00000000-0000-4000-8000-000000000112",
+        "encounter": "enc:ext:3f2a",
+        "to": {
+          "individualId": "individual:room-1-resident",
+          "host": {
+            "kind": "in-process",
+            "address": "fixture-host-1"
+          }
+        },
+        "from": {
+          "participant": {
+            "id": "p:ext:3f2a:person",
+            "kind": "human",
+            "name": "Visitor",
+            "standing": "guest",
+            "individualId": null
+          },
+          "aliases": [
+            "visitor-label-1"
+          ]
+        },
+        "occ": {
+          "source": "plc:thread-3f2a",
+          "id": "occ-112",
+          "digest": "sha256:70ee9c809110bf6bb27b332a782aab4aa1b6965c35722827bccfbe172aa2c3a9"
+        },
+        "words": "A message that follows a refused one.",
+        "audience": {
+          "kind": "encounter"
+        },
+        "expression": "typed",
+        "after": [
+          "00000000-0000-4000-8000-000000000111"
+        ]
+      },
+      "expectedState": {
+        "running": true,
+        "byMessage": {},
+        "deliveredOrder": []
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "refused: malformed, predecessor-refused",
+      "message": {
+        "kind": "refusal",
+        "class": "malformed",
+        "messageId": "00000000-0000-4000-8000-000000000112",
+        "reason": "predecessor-refused"
+      }
+    }
+  ]
+}

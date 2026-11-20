@@ -1,0 +1,156 @@
+{
+  "fixture": "F04",
+  "title": "reorder",
+  "note": "Messages may arrive out of order. The world's order, given by causation, is what she perceives; a message whose predecessor has not arrived stays accepted and is not delivered.",
+  "initial": {
+    "running": true,
+    "resident": "individual:room-1-resident",
+    "admitted": [
+      "p:ext:3f2a:person"
+    ],
+    "limit": 2000
+  },
+  "steps": [
+    {
+      "direction": "to-resident",
+      "note": "the later message arrives first",
+      "message": {
+        "kind": "message",
+        "id": "00000000-0000-4000-8000-000000000012",
+        "encounter": "enc:ext:3f2a",
+        "to": {
+          "individualId": "individual:room-1-resident",
+          "host": {
+            "kind": "in-process",
+            "address": "fixture-host-1"
+          }
+        },
+        "from": {
+          "participant": {
+            "id": "p:ext:3f2a:person",
+            "kind": "human",
+            "name": "Visitor",
+            "standing": "guest",
+            "individualId": null
+          },
+          "aliases": [
+            "visitor-label-1"
+          ]
+        },
+        "occ": {
+          "source": "plc:thread-3f2a",
+          "id": "occ-12",
+          "digest": "sha256:3142cf26f5506751b7fa0ecd46db93c32d349108281a7ec255e6042941ab12ab"
+        },
+        "words": "Second thing I said.",
+        "audience": {
+          "kind": "encounter"
+        },
+        "expression": "typed",
+        "after": [
+          "00000000-0000-4000-8000-000000000011"
+        ]
+      },
+      "expectedState": {
+        "running": true,
+        "byMessage": {
+          "00000000-0000-4000-8000-000000000012": "accepted"
+        },
+        "deliveredOrder": []
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "accepted; held, waitingFor names the predecessor",
+      "message": {
+        "kind": "receipt",
+        "state": "accepted",
+        "messageId": "00000000-0000-4000-8000-000000000012",
+        "encounter": "enc:ext:3f2a",
+        "waitingFor": "00000000-0000-4000-8000-000000000011"
+      }
+    },
+    {
+      "direction": "to-resident",
+      "note": "the earlier message arrives",
+      "message": {
+        "kind": "message",
+        "id": "00000000-0000-4000-8000-000000000011",
+        "encounter": "enc:ext:3f2a",
+        "to": {
+          "individualId": "individual:room-1-resident",
+          "host": {
+            "kind": "in-process",
+            "address": "fixture-host-1"
+          }
+        },
+        "from": {
+          "participant": {
+            "id": "p:ext:3f2a:person",
+            "kind": "human",
+            "name": "Visitor",
+            "standing": "guest",
+            "individualId": null
+          },
+          "aliases": [
+            "visitor-label-1"
+          ]
+        },
+        "occ": {
+          "source": "plc:thread-3f2a",
+          "id": "occ-11",
+          "digest": "sha256:0d61f2c474938194c515573e35bf9eb1bd1eebd47d022200454cb4f8afb523e3"
+        },
+        "words": "First thing I said.",
+        "audience": {
+          "kind": "encounter"
+        },
+        "expression": "typed",
+        "after": []
+      },
+      "expectedState": {
+        "running": true,
+        "byMessage": {
+          "00000000-0000-4000-8000-000000000011": "delivered",
+          "00000000-0000-4000-8000-000000000012": "delivered"
+        },
+        "deliveredOrder": [
+          "00000000-0000-4000-8000-000000000011",
+          "00000000-0000-4000-8000-000000000012"
+        ]
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "accepted",
+      "message": {
+        "kind": "receipt",
+        "state": "accepted",
+        "messageId": "00000000-0000-4000-8000-000000000011",
+        "encounter": "enc:ext:3f2a"
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "delivered first",
+      "message": {
+        "kind": "receipt",
+        "state": "delivered",
+        "messageId": "00000000-0000-4000-8000-000000000011",
+        "encounter": "enc:ext:3f2a",
+        "worldSeq": 1
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "then the held message, in the world's order",
+      "message": {
+        "kind": "receipt",
+        "state": "delivered",
+        "messageId": "00000000-0000-4000-8000-000000000012",
+        "encounter": "enc:ext:3f2a",
+        "worldSeq": 2
+      }
+    }
+  ]
+}

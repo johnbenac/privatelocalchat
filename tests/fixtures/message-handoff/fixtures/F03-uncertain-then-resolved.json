@@ -1,0 +1,196 @@
+{
+  "fixture": "F03",
+  "title": "uncertain-then-resolved",
+  "note": "A lost answer is resolved by asking for the id, not by sending it as new. An id the endpoint never recorded is simply sent again, unchanged.",
+  "initial": {
+    "running": true,
+    "resident": "individual:room-1-resident",
+    "admitted": [
+      "p:ext:3f2a:person"
+    ],
+    "limit": 2000
+  },
+  "steps": [
+    {
+      "direction": "to-resident",
+      "note": "sent; the answer is lost on the way back",
+      "message": {
+        "kind": "message",
+        "id": "00000000-0000-4000-8000-000000000002",
+        "encounter": "enc:ext:3f2a",
+        "to": {
+          "individualId": "individual:room-1-resident",
+          "host": {
+            "kind": "in-process",
+            "address": "fixture-host-1"
+          }
+        },
+        "from": {
+          "participant": {
+            "id": "p:ext:3f2a:person",
+            "kind": "human",
+            "name": "Visitor",
+            "standing": "guest",
+            "individualId": null
+          },
+          "aliases": [
+            "visitor-label-1"
+          ]
+        },
+        "occ": {
+          "source": "plc:thread-3f2a",
+          "id": "occ-2",
+          "digest": "sha256:5d5f725188e755a865e4da6fc9f933e99758b870e528f07428367e4a0265f586"
+        },
+        "words": "Did my first message arrive?",
+        "audience": {
+          "kind": "encounter"
+        },
+        "expression": "typed",
+        "after": []
+      },
+      "expectedState": {
+        "running": true,
+        "byMessage": {
+          "00000000-0000-4000-8000-000000000002": "delivered"
+        },
+        "deliveredOrder": [
+          "00000000-0000-4000-8000-000000000002"
+        ]
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "accepted, never seen by the sender",
+      "message": {
+        "kind": "receipt",
+        "state": "accepted",
+        "messageId": "00000000-0000-4000-8000-000000000002",
+        "encounter": "enc:ext:3f2a"
+      },
+      "lost": true
+    },
+    {
+      "direction": "from-resident",
+      "note": "delivered, never seen by the sender",
+      "message": {
+        "kind": "receipt",
+        "state": "delivered",
+        "messageId": "00000000-0000-4000-8000-000000000002",
+        "encounter": "enc:ext:3f2a",
+        "worldSeq": 1
+      },
+      "lost": true
+    },
+    {
+      "direction": "to-resident",
+      "note": "the sender asks for the id",
+      "message": {
+        "kind": "status-query",
+        "messageId": "00000000-0000-4000-8000-000000000002"
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "known: no resend needed",
+      "message": {
+        "kind": "status",
+        "messageId": "00000000-0000-4000-8000-000000000002",
+        "known": true,
+        "states": [
+          "accepted",
+          "delivered"
+        ]
+      }
+    },
+    {
+      "direction": "to-resident",
+      "note": "the sender asks for an id the endpoint never saw",
+      "message": {
+        "kind": "status-query",
+        "messageId": "00000000-0000-4000-8000-000000000003"
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "unknown: resending the same id is safe",
+      "message": {
+        "kind": "status",
+        "messageId": "00000000-0000-4000-8000-000000000003",
+        "known": false,
+        "states": []
+      }
+    },
+    {
+      "direction": "to-resident",
+      "note": "the same id sent again, unchanged",
+      "message": {
+        "kind": "message",
+        "id": "00000000-0000-4000-8000-000000000003",
+        "encounter": "enc:ext:3f2a",
+        "to": {
+          "individualId": "individual:room-1-resident",
+          "host": {
+            "kind": "in-process",
+            "address": "fixture-host-1"
+          }
+        },
+        "from": {
+          "participant": {
+            "id": "p:ext:3f2a:person",
+            "kind": "human",
+            "name": "Visitor",
+            "standing": "guest",
+            "individualId": null
+          },
+          "aliases": [
+            "visitor-label-1"
+          ]
+        },
+        "occ": {
+          "source": "plc:thread-3f2a",
+          "id": "occ-3",
+          "digest": "sha256:160c3101a660d5b52d71e56f50f9c6c6dc25d90e493cdf1d558629eec66fd1a5"
+        },
+        "words": "This one never reached you.",
+        "audience": {
+          "kind": "encounter"
+        },
+        "expression": "typed",
+        "after": []
+      },
+      "expectedState": {
+        "running": true,
+        "byMessage": {
+          "00000000-0000-4000-8000-000000000002": "delivered",
+          "00000000-0000-4000-8000-000000000003": "delivered"
+        },
+        "deliveredOrder": [
+          "00000000-0000-4000-8000-000000000002",
+          "00000000-0000-4000-8000-000000000003"
+        ]
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "accepted",
+      "message": {
+        "kind": "receipt",
+        "state": "accepted",
+        "messageId": "00000000-0000-4000-8000-000000000003",
+        "encounter": "enc:ext:3f2a"
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "delivered",
+      "message": {
+        "kind": "receipt",
+        "state": "delivered",
+        "messageId": "00000000-0000-4000-8000-000000000003",
+        "encounter": "enc:ext:3f2a",
+        "worldSeq": 2
+      }
+    }
+  ]
+}

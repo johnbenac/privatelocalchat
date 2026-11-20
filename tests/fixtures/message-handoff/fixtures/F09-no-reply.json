@@ -1,0 +1,201 @@
+{
+  "fixture": "F09",
+  "title": "no-reply",
+  "note": "A message was delivered and taken up and she said nothing. That is a complete outcome: no receipt, error or timeout turns it into a failure.",
+  "initial": {
+    "running": true,
+    "resident": "individual:room-1-resident",
+    "admitted": [
+      "p:ext:3f2a:person"
+    ],
+    "limit": 2000
+  },
+  "steps": [
+    {
+      "direction": "to-resident",
+      "note": "message",
+      "message": {
+        "kind": "message",
+        "id": "00000000-0000-4000-8000-000000000061",
+        "encounter": "enc:ext:3f2a",
+        "to": {
+          "individualId": "individual:room-1-resident",
+          "host": {
+            "kind": "in-process",
+            "address": "fixture-host-1"
+          }
+        },
+        "from": {
+          "participant": {
+            "id": "p:ext:3f2a:person",
+            "kind": "human",
+            "name": "Visitor",
+            "standing": "guest",
+            "individualId": null
+          },
+          "aliases": [
+            "visitor-label-1"
+          ]
+        },
+        "occ": {
+          "source": "plc:thread-3f2a",
+          "id": "occ-61",
+          "digest": "sha256:71659e9e5d2bebb460d85f0dbd8e22f521d05cd99095d2724eeacd5d1458566c"
+        },
+        "words": "Take your time.",
+        "audience": {
+          "kind": "encounter"
+        },
+        "expression": "typed",
+        "after": []
+      },
+      "expectedState": {
+        "running": true,
+        "byMessage": {
+          "00000000-0000-4000-8000-000000000061": "delivered"
+        },
+        "deliveredOrder": [
+          "00000000-0000-4000-8000-000000000061"
+        ]
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "accepted",
+      "message": {
+        "kind": "receipt",
+        "state": "accepted",
+        "messageId": "00000000-0000-4000-8000-000000000061",
+        "encounter": "enc:ext:3f2a"
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "delivered",
+      "message": {
+        "kind": "receipt",
+        "state": "delivered",
+        "messageId": "00000000-0000-4000-8000-000000000061",
+        "encounter": "enc:ext:3f2a",
+        "worldSeq": 1
+      }
+    },
+    {
+      "direction": "host",
+      "note": "progress: exposed",
+      "host": {
+        "kind": "progress",
+        "messageId": "00000000-0000-4000-8000-000000000061",
+        "state": "exposed"
+      },
+      "expectedState": {
+        "running": true,
+        "byMessage": {
+          "00000000-0000-4000-8000-000000000061": "exposed"
+        },
+        "deliveredOrder": [
+          "00000000-0000-4000-8000-000000000061"
+        ]
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "exposed",
+      "message": {
+        "kind": "receipt",
+        "state": "exposed",
+        "messageId": "00000000-0000-4000-8000-000000000061",
+        "encounter": "enc:ext:3f2a"
+      }
+    },
+    {
+      "direction": "host",
+      "note": "progress: interpreted",
+      "host": {
+        "kind": "progress",
+        "messageId": "00000000-0000-4000-8000-000000000061",
+        "state": "interpreted"
+      },
+      "expectedState": {
+        "running": true,
+        "byMessage": {
+          "00000000-0000-4000-8000-000000000061": "interpreted"
+        },
+        "deliveredOrder": [
+          "00000000-0000-4000-8000-000000000061"
+        ]
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "interpreted",
+      "message": {
+        "kind": "receipt",
+        "state": "interpreted",
+        "messageId": "00000000-0000-4000-8000-000000000061",
+        "encounter": "enc:ext:3f2a"
+      }
+    },
+    {
+      "direction": "host",
+      "note": "progress: persisted",
+      "host": {
+        "kind": "progress",
+        "messageId": "00000000-0000-4000-8000-000000000061",
+        "state": "persisted"
+      },
+      "expectedState": {
+        "running": true,
+        "byMessage": {
+          "00000000-0000-4000-8000-000000000061": "persisted"
+        },
+        "deliveredOrder": [
+          "00000000-0000-4000-8000-000000000061"
+        ]
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "persisted",
+      "message": {
+        "kind": "receipt",
+        "state": "persisted",
+        "messageId": "00000000-0000-4000-8000-000000000061",
+        "encounter": "enc:ext:3f2a"
+      }
+    },
+    {
+      "direction": "to-resident",
+      "note": "later status: no reply is not an error",
+      "message": {
+        "kind": "status-query",
+        "messageId": "00000000-0000-4000-8000-000000000061"
+      },
+      "expectedState": {
+        "running": true,
+        "byMessage": {
+          "00000000-0000-4000-8000-000000000061": "persisted"
+        },
+        "deliveredOrder": [
+          "00000000-0000-4000-8000-000000000061"
+        ]
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "all five states, no reply event",
+      "message": {
+        "kind": "status",
+        "messageId": "00000000-0000-4000-8000-000000000061",
+        "known": true,
+        "states": [
+          "accepted",
+          "delivered",
+          "exposed",
+          "interpreted",
+          "persisted"
+        ]
+      }
+    }
+  ]
+}

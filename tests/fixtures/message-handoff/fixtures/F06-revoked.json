@@ -1,0 +1,245 @@
+{
+  "fixture": "F06",
+  "title": "revoked",
+  "note": "The person revokes in the sender. Messages after the cutoff are refused; history stays and a retry of an accepted message still returns its original outcome.",
+  "initial": {
+    "running": true,
+    "resident": "individual:room-1-resident",
+    "admitted": [
+      "p:ext:3f2a:person"
+    ],
+    "limit": 2000
+  },
+  "steps": [
+    {
+      "direction": "to-resident",
+      "note": "accepted before revocation",
+      "message": {
+        "kind": "message",
+        "id": "00000000-0000-4000-8000-000000000031",
+        "encounter": "enc:ext:3f2a",
+        "to": {
+          "individualId": "individual:room-1-resident",
+          "host": {
+            "kind": "in-process",
+            "address": "fixture-host-1"
+          }
+        },
+        "from": {
+          "participant": {
+            "id": "p:ext:3f2a:person",
+            "kind": "human",
+            "name": "Visitor",
+            "standing": "guest",
+            "individualId": null
+          },
+          "aliases": [
+            "visitor-label-1"
+          ]
+        },
+        "occ": {
+          "source": "plc:thread-3f2a",
+          "id": "occ-31",
+          "digest": "sha256:462a343c4d416fc7a353ac8ddb320978b234e4fa91e30169118bd7e0b8c22def"
+        },
+        "words": "Before I leave.",
+        "audience": {
+          "kind": "encounter"
+        },
+        "expression": "typed",
+        "after": []
+      },
+      "expectedState": {
+        "running": true,
+        "byMessage": {
+          "00000000-0000-4000-8000-000000000031": "delivered"
+        },
+        "deliveredOrder": [
+          "00000000-0000-4000-8000-000000000031"
+        ]
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "accepted",
+      "message": {
+        "kind": "receipt",
+        "state": "accepted",
+        "messageId": "00000000-0000-4000-8000-000000000031",
+        "encounter": "enc:ext:3f2a"
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "delivered",
+      "message": {
+        "kind": "receipt",
+        "state": "delivered",
+        "messageId": "00000000-0000-4000-8000-000000000031",
+        "encounter": "enc:ext:3f2a",
+        "worldSeq": 1
+      }
+    },
+    {
+      "direction": "to-resident",
+      "note": "revocation with the last accepted message id as cutoff",
+      "message": {
+        "kind": "revocation",
+        "encounter": "enc:ext:3f2a",
+        "participantId": "p:ext:3f2a:person",
+        "cutoff": {
+          "lastAcceptedMessageId": "00000000-0000-4000-8000-000000000031"
+        }
+      },
+      "expectedState": {
+        "running": true,
+        "byMessage": {
+          "00000000-0000-4000-8000-000000000031": "delivered"
+        },
+        "deliveredOrder": [
+          "00000000-0000-4000-8000-000000000031"
+        ]
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "cutoff acknowledged",
+      "message": {
+        "kind": "revocation-ack",
+        "participantId": "p:ext:3f2a:person",
+        "cutoff": {
+          "lastAcceptedMessageId": "00000000-0000-4000-8000-000000000031"
+        }
+      }
+    },
+    {
+      "direction": "to-resident",
+      "note": "a later message",
+      "message": {
+        "kind": "message",
+        "id": "00000000-0000-4000-8000-000000000032",
+        "encounter": "enc:ext:3f2a",
+        "to": {
+          "individualId": "individual:room-1-resident",
+          "host": {
+            "kind": "in-process",
+            "address": "fixture-host-1"
+          }
+        },
+        "from": {
+          "participant": {
+            "id": "p:ext:3f2a:person",
+            "kind": "human",
+            "name": "Visitor",
+            "standing": "guest",
+            "individualId": null
+          },
+          "aliases": [
+            "visitor-label-1"
+          ]
+        },
+        "occ": {
+          "source": "plc:thread-3f2a",
+          "id": "occ-32",
+          "digest": "sha256:ebdd76d1428568c161dfc8e72a9af084b8009a6a3c08241c3e026f521918b73f"
+        },
+        "words": "After I removed the link.",
+        "audience": {
+          "kind": "encounter"
+        },
+        "expression": "typed",
+        "after": [
+          "00000000-0000-4000-8000-000000000031"
+        ]
+      },
+      "expectedState": {
+        "running": true,
+        "byMessage": {
+          "00000000-0000-4000-8000-000000000031": "delivered"
+        },
+        "deliveredOrder": [
+          "00000000-0000-4000-8000-000000000031"
+        ]
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "refused: revoked",
+      "message": {
+        "kind": "refusal",
+        "class": "revoked",
+        "messageId": "00000000-0000-4000-8000-000000000032",
+        "reason": "participant revoked"
+      }
+    },
+    {
+      "direction": "to-resident",
+      "note": "retry of the message before the cutoff",
+      "message": {
+        "kind": "message",
+        "id": "00000000-0000-4000-8000-000000000031",
+        "encounter": "enc:ext:3f2a",
+        "to": {
+          "individualId": "individual:room-1-resident",
+          "host": {
+            "kind": "in-process",
+            "address": "fixture-host-1"
+          }
+        },
+        "from": {
+          "participant": {
+            "id": "p:ext:3f2a:person",
+            "kind": "human",
+            "name": "Visitor",
+            "standing": "guest",
+            "individualId": null
+          },
+          "aliases": [
+            "visitor-label-1"
+          ]
+        },
+        "occ": {
+          "source": "plc:thread-3f2a",
+          "id": "occ-31",
+          "digest": "sha256:462a343c4d416fc7a353ac8ddb320978b234e4fa91e30169118bd7e0b8c22def"
+        },
+        "words": "Before I leave.",
+        "audience": {
+          "kind": "encounter"
+        },
+        "expression": "typed",
+        "after": []
+      },
+      "expectedState": {
+        "running": true,
+        "byMessage": {
+          "00000000-0000-4000-8000-000000000031": "delivered"
+        },
+        "deliveredOrder": [
+          "00000000-0000-4000-8000-000000000031"
+        ]
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "original outcome",
+      "message": {
+        "kind": "receipt",
+        "state": "accepted",
+        "messageId": "00000000-0000-4000-8000-000000000031",
+        "encounter": "enc:ext:3f2a"
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "original outcome",
+      "message": {
+        "kind": "receipt",
+        "state": "delivered",
+        "messageId": "00000000-0000-4000-8000-000000000031",
+        "encounter": "enc:ext:3f2a",
+        "worldSeq": 1
+      }
+    }
+  ]
+}

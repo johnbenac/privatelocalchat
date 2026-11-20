@@ -1,0 +1,765 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sonalon.com/contracts/message-handoff/0/message-handoff.schema.json",
+  "title": "Sonalon and Private Local Chat message handoff, version 0",
+  "description": "What crosses the boundary between a sender (Private Local Chat) and a running resident's endpoint, in either direction. It names no transport and pins nothing a resident decides, says or when. See README.md.",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/message"
+    },
+    {
+      "$ref": "#/$defs/receipt"
+    },
+    {
+      "$ref": "#/$defs/statusQuery"
+    },
+    {
+      "$ref": "#/$defs/status"
+    },
+    {
+      "$ref": "#/$defs/refusal"
+    },
+    {
+      "$ref": "#/$defs/revocation"
+    },
+    {
+      "$ref": "#/$defs/revocationAck"
+    },
+    {
+      "$ref": "#/$defs/reply"
+    }
+  ],
+  "$defs": {
+    "messageId": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "description": "One UUID per attempt group, chosen by the sender, reused unchanged on every retry."
+    },
+    "encounterId": {
+      "type": "string",
+      "pattern": "^enc:(ext:)?[^\\s]+$"
+    },
+    "digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "label": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "occ": {
+      "type": "object",
+      "description": "The original occurrence in the sender's record: where it came from, its id there, and the digest of the words.",
+      "required": [
+        "source",
+        "id",
+        "digest"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "source": {
+          "$ref": "#/$defs/label"
+        },
+        "id": {
+          "$ref": "#/$defs/label"
+        },
+        "digest": {
+          "$ref": "#/$defs/digest"
+        }
+      }
+    },
+    "participant": {
+      "type": "object",
+      "description": "The sender's participant record. individualId is supplied by a trusted caller, stored unchanged, never inferred and never proof. Unknown fields are allowed and ignored by the endpoint.",
+      "required": [
+        "id",
+        "kind",
+        "name",
+        "standing",
+        "individualId"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/label"
+        },
+        "kind": {
+          "enum": [
+            "human",
+            "agent",
+            "tool",
+            "unknown"
+          ]
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "standing": {
+          "$ref": "#/$defs/label"
+        },
+        "individualId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "holders": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/label"
+          }
+        }
+      }
+    },
+    "audience": {
+      "type": "object",
+      "required": [
+        "kind"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "encounter",
+            "participants"
+          ]
+        },
+        "participants": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/label"
+          }
+        }
+      }
+    },
+    "address": {
+      "type": "object",
+      "description": "Resident address: the individual, the host that runs her, and the encounter. The host kind says which binding carries it.",
+      "required": [
+        "individualId",
+        "host"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "individualId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "host": {
+          "type": "object",
+          "required": [
+            "kind",
+            "address"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "enum": [
+                "in-process",
+                "own-computer",
+                "relay"
+              ]
+            },
+            "address": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    "state": {
+      "enum": [
+        "accepted",
+        "delivered",
+        "exposed",
+        "interpreted",
+        "persisted"
+      ]
+    },
+    "message": {
+      "type": "object",
+      "required": [
+        "kind",
+        "id",
+        "encounter",
+        "to",
+        "from",
+        "occ",
+        "words",
+        "audience",
+        "expression",
+        "after"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "kind": {
+          "const": "message"
+        },
+        "id": {
+          "$ref": "#/$defs/messageId"
+        },
+        "encounter": {
+          "$ref": "#/$defs/encounterId"
+        },
+        "to": {
+          "$ref": "#/$defs/address"
+        },
+        "from": {
+          "type": "object",
+          "required": [
+            "participant"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "participant": {
+              "$ref": "#/$defs/participant"
+            },
+            "aliases": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/label"
+              }
+            }
+          }
+        },
+        "occ": {
+          "$ref": "#/$defs/occ"
+        },
+        "words": {
+          "type": "string",
+          "minLength": 1
+        },
+        "audience": {
+          "$ref": "#/$defs/audience"
+        },
+        "expression": {
+          "$ref": "#/$defs/label"
+        },
+        "after": {
+          "type": "array",
+          "maxItems": 1,
+          "items": {
+            "$ref": "#/$defs/messageId"
+          },
+          "description": "The sender's earlier message this one follows (causation). In v0 at most one id; the array form may grow. Empty for none. Never a refused message."
+        },
+        "corrects": {
+          "$ref": "#/$defs/messageId"
+        },
+        "sentAt": {
+          "type": "string",
+          "description": "The sender's clock, informative only; never a cutoff."
+        }
+      }
+    },
+    "receipt": {
+      "type": "object",
+      "required": [
+        "kind",
+        "state",
+        "messageId",
+        "encounter"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "receipt"
+        },
+        "state": {
+          "$ref": "#/$defs/state"
+        },
+        "messageId": {
+          "$ref": "#/$defs/messageId"
+        },
+        "encounter": {
+          "$ref": "#/$defs/encounterId"
+        },
+        "worldSeq": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "On a delivered receipt: the place the world gave the message in what she perceives."
+        },
+        "waitingFor": {
+          "$ref": "#/$defs/messageId",
+          "description": "On the accepted receipt of a held message: the predecessor it waits for."
+        }
+      }
+    },
+    "statusQuery": {
+      "type": "object",
+      "required": [
+        "kind",
+        "messageId"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "status-query"
+        },
+        "messageId": {
+          "$ref": "#/$defs/messageId"
+        }
+      }
+    },
+    "status": {
+      "type": "object",
+      "required": [
+        "kind",
+        "messageId",
+        "known",
+        "states"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "status"
+        },
+        "messageId": {
+          "$ref": "#/$defs/messageId"
+        },
+        "known": {
+          "type": "boolean",
+          "description": "false means the endpoint never recorded this id, so the sender may send it again unchanged."
+        },
+        "states": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/state"
+          },
+          "uniqueItems": true
+        },
+        "waitingFor": {
+          "$ref": "#/$defs/messageId",
+          "description": "While the message is held: the predecessor it waits for."
+        }
+      }
+    },
+    "refusal": {
+      "type": "object",
+      "required": [
+        "kind",
+        "class",
+        "messageId",
+        "reason"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "refusal"
+        },
+        "class": {
+          "enum": [
+            "unavailable",
+            "not-admitted",
+            "revoked",
+            "malformed",
+            "over-limit"
+          ]
+        },
+        "messageId": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/messageId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "reason": {
+          "$ref": "#/$defs/label"
+        }
+      }
+    },
+    "revocation": {
+      "type": "object",
+      "required": [
+        "kind",
+        "encounter",
+        "participantId",
+        "cutoff"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "revocation"
+        },
+        "encounter": {
+          "$ref": "#/$defs/encounterId"
+        },
+        "participantId": {
+          "$ref": "#/$defs/label"
+        },
+        "cutoff": {
+          "type": "object",
+          "required": [
+            "lastAcceptedMessageId"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "lastAcceptedMessageId": {
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/messageId"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "revocationAck": {
+      "type": "object",
+      "required": [
+        "kind",
+        "participantId",
+        "cutoff"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "revocation-ack"
+        },
+        "participantId": {
+          "$ref": "#/$defs/label"
+        },
+        "cutoff": {
+          "type": "object",
+          "required": [
+            "lastAcceptedMessageId"
+          ],
+          "properties": {
+            "lastAcceptedMessageId": {
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/messageId"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "reply": {
+      "type": "object",
+      "description": "Her public speech, one event per completed utterance, as the body reports it. Never composing or private streams.",
+      "required": [
+        "kind",
+        "id",
+        "encounter",
+        "causes",
+        "speaker",
+        "occ",
+        "audience",
+        "expression",
+        "delivered",
+        "units",
+        "status"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "reply"
+        },
+        "id": {
+          "$ref": "#/$defs/label"
+        },
+        "encounter": {
+          "$ref": "#/$defs/encounterId"
+        },
+        "causes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/messageId"
+          }
+        },
+        "speaker": {
+          "type": "object",
+          "required": [
+            "individualId"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "individualId": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "occ": {
+          "$ref": "#/$defs/occ"
+        },
+        "audience": {
+          "$ref": "#/$defs/audience"
+        },
+        "expression": {
+          "const": "said"
+        },
+        "delivered": {
+          "type": "string",
+          "description": "The words as delivered. A receiver shows this text only."
+        },
+        "units": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "text"
+            ],
+            "properties": {
+              "text": {
+                "type": "string"
+              }
+            }
+          },
+          "description": "The units as the body reports them."
+        },
+        "status": {
+          "enum": [
+            "completed",
+            "interrupted",
+            "failed",
+            "unavailable"
+          ],
+          "description": "The body's status. An interrupted utterance is still one event."
+        },
+        "intended": {
+          "type": "string",
+          "description": "Present only if the body reports the intended text."
+        }
+      }
+    },
+    "initial": {
+      "type": "object",
+      "description": "The endpoint's starting condition for a fixture (not a wire type).",
+      "required": [
+        "running",
+        "resident",
+        "admitted",
+        "limit"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "running": {
+          "type": "boolean"
+        },
+        "resident": {
+          "type": "string"
+        },
+        "admitted": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Most code points in one message's words."
+        }
+      }
+    },
+    "hostEvent": {
+      "type": "object",
+      "description": "Something that happens at the host, not on the wire.",
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "tab-closed",
+            "tab-opened",
+            "progress",
+            "composing",
+            "speech-report"
+          ]
+        },
+        "messageId": {
+          "$ref": "#/$defs/messageId"
+        },
+        "state": {
+          "enum": [
+            "exposed",
+            "interpreted",
+            "persisted"
+          ]
+        },
+        "causes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/messageId"
+          }
+        },
+        "units": {
+          "type": "array"
+        },
+        "status": {
+          "enum": [
+            "completed",
+            "interrupted",
+            "failed",
+            "unavailable"
+          ]
+        },
+        "delivered": {
+          "type": "string"
+        },
+        "intended": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        }
+      }
+    },
+    "expectedState": {
+      "type": "object",
+      "required": [
+        "running",
+        "byMessage",
+        "deliveredOrder"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "running": {
+          "type": "boolean"
+        },
+        "byMessage": {
+          "type": "object",
+          "additionalProperties": {
+            "enum": [
+              "none",
+              "accepted",
+              "delivered",
+              "exposed",
+              "interpreted",
+              "persisted"
+            ]
+          }
+        },
+        "deliveredOrder": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/messageId"
+          }
+        }
+      }
+    },
+    "fixture": {
+      "type": "object",
+      "required": [
+        "fixture",
+        "title",
+        "note",
+        "initial",
+        "steps"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "fixture": {
+          "type": "string",
+          "pattern": "^F[0-9]{2}$"
+        },
+        "title": {
+          "type": "string"
+        },
+        "note": {
+          "type": "string",
+          "minLength": 1
+        },
+        "initial": {
+          "$ref": "#/$defs/initial"
+        },
+        "steps": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": [
+              "direction",
+              "note"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "direction": {
+                "enum": [
+                  "to-resident",
+                  "from-resident",
+                  "host"
+                ]
+              },
+              "note": {
+                "type": "string"
+              },
+              "message": {
+                "$ref": "#/$defs/wire"
+              },
+              "host": {
+                "$ref": "#/$defs/hostEvent"
+              },
+              "lost": {
+                "type": "boolean",
+                "description": "A from-resident step the sender never received."
+              },
+              "expectedState": {
+                "$ref": "#/$defs/expectedState"
+              }
+            },
+            "oneOf": [
+              {
+                "required": [
+                  "message"
+                ]
+              },
+              {
+                "required": [
+                  "host"
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    "wire": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/message"
+        },
+        {
+          "$ref": "#/$defs/receipt"
+        },
+        {
+          "$ref": "#/$defs/statusQuery"
+        },
+        {
+          "$ref": "#/$defs/status"
+        },
+        {
+          "$ref": "#/$defs/refusal"
+        },
+        {
+          "$ref": "#/$defs/revocation"
+        },
+        {
+          "$ref": "#/$defs/revocationAck"
+        },
+        {
+          "$ref": "#/$defs/reply"
+        }
+      ]
+    }
+  }
+}

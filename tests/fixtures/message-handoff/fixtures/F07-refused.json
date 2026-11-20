@@ -1,0 +1,177 @@
+{
+  "fixture": "F07",
+  "title": "refused",
+  "note": "The refusal classes other than unavailable and revoked. A refused message is not recorded and changes no state.",
+  "initial": {
+    "running": true,
+    "resident": "individual:room-1-resident",
+    "admitted": [
+      "p:ext:3f2a:person"
+    ],
+    "limit": 100
+  },
+  "steps": [
+    {
+      "direction": "to-resident",
+      "note": "digest does not cover the words (digest mismatch)",
+      "message": {
+        "kind": "message",
+        "id": "00000000-0000-4000-8000-000000000041",
+        "encounter": "enc:ext:3f2a",
+        "to": {
+          "individualId": "individual:room-1-resident",
+          "host": {
+            "kind": "in-process",
+            "address": "fixture-host-1"
+          }
+        },
+        "from": {
+          "participant": {
+            "id": "p:ext:3f2a:person",
+            "kind": "human",
+            "name": "Visitor",
+            "standing": "guest",
+            "individualId": null
+          },
+          "aliases": [
+            "visitor-label-1"
+          ]
+        },
+        "occ": {
+          "source": "plc:thread-3f2a",
+          "id": "occ-41",
+          "digest": "sha256:c5804a9603dcb9edf108ac928231c34b4d36ef5b05c79e675f0d0974c3c428fc"
+        },
+        "words": "x",
+        "audience": {
+          "kind": "encounter"
+        },
+        "expression": "typed",
+        "after": []
+      },
+      "expectedState": {
+        "running": true,
+        "byMessage": {},
+        "deliveredOrder": []
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "refused: malformed",
+      "message": {
+        "kind": "refusal",
+        "class": "malformed",
+        "messageId": "00000000-0000-4000-8000-000000000041",
+        "reason": "digest does not cover the words"
+      }
+    },
+    {
+      "direction": "to-resident",
+      "note": "a participant the resident's side has not admitted",
+      "message": {
+        "kind": "message",
+        "id": "00000000-0000-4000-8000-000000000042",
+        "encounter": "enc:ext:3f2a",
+        "to": {
+          "individualId": "individual:room-1-resident",
+          "host": {
+            "kind": "in-process",
+            "address": "fixture-host-1"
+          }
+        },
+        "from": {
+          "participant": {
+            "id": "p:ext:9999:person",
+            "kind": "human",
+            "name": "Visitor",
+            "standing": "guest",
+            "individualId": null
+          },
+          "aliases": [
+            "visitor-label-1"
+          ]
+        },
+        "occ": {
+          "source": "plc:thread-3f2a",
+          "id": "occ-42",
+          "digest": "sha256:185f8db32271fe25f561a6fc938b2e264306ec304eda518007d1764826381969"
+        },
+        "words": "Hello",
+        "audience": {
+          "kind": "encounter"
+        },
+        "expression": "typed",
+        "after": []
+      },
+      "expectedState": {
+        "running": true,
+        "byMessage": {},
+        "deliveredOrder": []
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "refused: not-admitted",
+      "message": {
+        "kind": "refusal",
+        "class": "not-admitted",
+        "messageId": "00000000-0000-4000-8000-000000000042",
+        "reason": "participant not admitted"
+      }
+    },
+    {
+      "direction": "to-resident",
+      "note": "more code points than the limit of this fixture",
+      "message": {
+        "kind": "message",
+        "id": "00000000-0000-4000-8000-000000000043",
+        "encounter": "enc:ext:3f2a",
+        "to": {
+          "individualId": "individual:room-1-resident",
+          "host": {
+            "kind": "in-process",
+            "address": "fixture-host-1"
+          }
+        },
+        "from": {
+          "participant": {
+            "id": "p:ext:3f2a:person",
+            "kind": "human",
+            "name": "Visitor",
+            "standing": "guest",
+            "individualId": null
+          },
+          "aliases": [
+            "visitor-label-1"
+          ]
+        },
+        "occ": {
+          "source": "plc:thread-3f2a",
+          "id": "occ-43",
+          "digest": "sha256:0ebdf822c9bcad7189fa0cbd92499d0c7c574be16544e6178741e23d39b73072"
+        },
+        "words": "abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc ",
+        "audience": {
+          "kind": "encounter"
+        },
+        "expression": "typed",
+        "after": []
+      },
+      "expectedState": {
+        "running": true,
+        "byMessage": {},
+        "deliveredOrder": []
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "refused: over-limit",
+      "message": {
+        "kind": "refusal",
+        "class": "over-limit",
+        "messageId": "00000000-0000-4000-8000-000000000043",
+        "reason": "too many code points"
+      }
+    }
+  ]
+}

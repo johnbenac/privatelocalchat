@@ -1,0 +1,158 @@
+{
+  "fixture": "F11",
+  "title": "edit-and-resend",
+  "note": "An edited message is a new message: new id, new attempt group, with `corrects` naming the earlier one. Both stay in history.",
+  "initial": {
+    "running": true,
+    "resident": "individual:room-1-resident",
+    "admitted": [
+      "p:ext:3f2a:person"
+    ],
+    "limit": 2000
+  },
+  "steps": [
+    {
+      "direction": "to-resident",
+      "note": "the original",
+      "message": {
+        "kind": "message",
+        "id": "00000000-0000-4000-8000-000000000081",
+        "encounter": "enc:ext:3f2a",
+        "to": {
+          "individualId": "individual:room-1-resident",
+          "host": {
+            "kind": "in-process",
+            "address": "fixture-host-1"
+          }
+        },
+        "from": {
+          "participant": {
+            "id": "p:ext:3f2a:person",
+            "kind": "human",
+            "name": "Visitor",
+            "standing": "guest",
+            "individualId": null
+          },
+          "aliases": [
+            "visitor-label-1"
+          ]
+        },
+        "occ": {
+          "source": "plc:thread-3f2a",
+          "id": "occ-81",
+          "digest": "sha256:95f87f1abaf52cb43e12f5b1e1d3ca73d3bda316727592cfc06ff4ca5f186a44"
+        },
+        "words": "Meet me at noon.",
+        "audience": {
+          "kind": "encounter"
+        },
+        "expression": "typed",
+        "after": []
+      },
+      "expectedState": {
+        "running": true,
+        "byMessage": {
+          "00000000-0000-4000-8000-000000000081": "delivered"
+        },
+        "deliveredOrder": [
+          "00000000-0000-4000-8000-000000000081"
+        ]
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "accepted",
+      "message": {
+        "kind": "receipt",
+        "state": "accepted",
+        "messageId": "00000000-0000-4000-8000-000000000081",
+        "encounter": "enc:ext:3f2a"
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "delivered",
+      "message": {
+        "kind": "receipt",
+        "state": "delivered",
+        "messageId": "00000000-0000-4000-8000-000000000081",
+        "encounter": "enc:ext:3f2a",
+        "worldSeq": 1
+      }
+    },
+    {
+      "direction": "to-resident",
+      "note": "the corrected message, new id",
+      "message": {
+        "kind": "message",
+        "id": "00000000-0000-4000-8000-000000000082",
+        "encounter": "enc:ext:3f2a",
+        "to": {
+          "individualId": "individual:room-1-resident",
+          "host": {
+            "kind": "in-process",
+            "address": "fixture-host-1"
+          }
+        },
+        "from": {
+          "participant": {
+            "id": "p:ext:3f2a:person",
+            "kind": "human",
+            "name": "Visitor",
+            "standing": "guest",
+            "individualId": null
+          },
+          "aliases": [
+            "visitor-label-1"
+          ]
+        },
+        "occ": {
+          "source": "plc:thread-3f2a",
+          "id": "occ-82",
+          "digest": "sha256:44634fb871ad2fbf5e00d5bff370464e5f45b606beb3afaa53d93da683f5fced"
+        },
+        "words": "Meet me at one.",
+        "audience": {
+          "kind": "encounter"
+        },
+        "expression": "typed",
+        "after": [
+          "00000000-0000-4000-8000-000000000081"
+        ],
+        "corrects": "00000000-0000-4000-8000-000000000081"
+      },
+      "expectedState": {
+        "running": true,
+        "byMessage": {
+          "00000000-0000-4000-8000-000000000081": "delivered",
+          "00000000-0000-4000-8000-000000000082": "delivered"
+        },
+        "deliveredOrder": [
+          "00000000-0000-4000-8000-000000000081",
+          "00000000-0000-4000-8000-000000000082"
+        ]
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "accepted",
+      "message": {
+        "kind": "receipt",
+        "state": "accepted",
+        "messageId": "00000000-0000-4000-8000-000000000082",
+        "encounter": "enc:ext:3f2a"
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "delivered; the earlier message is not rewritten",
+      "message": {
+        "kind": "receipt",
+        "state": "delivered",
+        "messageId": "00000000-0000-4000-8000-000000000082",
+        "encounter": "enc:ext:3f2a",
+        "worldSeq": 2
+      }
+    }
+  ]
+}

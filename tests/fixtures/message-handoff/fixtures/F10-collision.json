@@ -1,0 +1,211 @@
+{
+  "fixture": "F10",
+  "title": "collision",
+  "note": "The same id with different words (or audience or expression) is not a retry. It is refused as malformed and the original stays as it was.",
+  "initial": {
+    "running": true,
+    "resident": "individual:room-1-resident",
+    "admitted": [
+      "p:ext:3f2a:person"
+    ],
+    "limit": 2000
+  },
+  "steps": [
+    {
+      "direction": "to-resident",
+      "note": "first send",
+      "message": {
+        "kind": "message",
+        "id": "00000000-0000-4000-8000-000000000071",
+        "encounter": "enc:ext:3f2a",
+        "to": {
+          "individualId": "individual:room-1-resident",
+          "host": {
+            "kind": "in-process",
+            "address": "fixture-host-1"
+          }
+        },
+        "from": {
+          "participant": {
+            "id": "p:ext:3f2a:person",
+            "kind": "human",
+            "name": "Visitor",
+            "standing": "guest",
+            "individualId": null
+          },
+          "aliases": [
+            "visitor-label-1"
+          ]
+        },
+        "occ": {
+          "source": "plc:thread-3f2a",
+          "id": "occ-71",
+          "digest": "sha256:95f87f1abaf52cb43e12f5b1e1d3ca73d3bda316727592cfc06ff4ca5f186a44"
+        },
+        "words": "Meet me at noon.",
+        "audience": {
+          "kind": "encounter"
+        },
+        "expression": "typed",
+        "after": []
+      },
+      "expectedState": {
+        "running": true,
+        "byMessage": {
+          "00000000-0000-4000-8000-000000000071": "delivered"
+        },
+        "deliveredOrder": [
+          "00000000-0000-4000-8000-000000000071"
+        ]
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "accepted",
+      "message": {
+        "kind": "receipt",
+        "state": "accepted",
+        "messageId": "00000000-0000-4000-8000-000000000071",
+        "encounter": "enc:ext:3f2a"
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "delivered",
+      "message": {
+        "kind": "receipt",
+        "state": "delivered",
+        "messageId": "00000000-0000-4000-8000-000000000071",
+        "encounter": "enc:ext:3f2a",
+        "worldSeq": 1
+      }
+    },
+    {
+      "direction": "to-resident",
+      "note": "same id, different words",
+      "message": {
+        "kind": "message",
+        "id": "00000000-0000-4000-8000-000000000071",
+        "encounter": "enc:ext:3f2a",
+        "to": {
+          "individualId": "individual:room-1-resident",
+          "host": {
+            "kind": "in-process",
+            "address": "fixture-host-1"
+          }
+        },
+        "from": {
+          "participant": {
+            "id": "p:ext:3f2a:person",
+            "kind": "human",
+            "name": "Visitor",
+            "standing": "guest",
+            "individualId": null
+          },
+          "aliases": [
+            "visitor-label-1"
+          ]
+        },
+        "occ": {
+          "source": "plc:thread-3f2a",
+          "id": "occ-71",
+          "digest": "sha256:44634fb871ad2fbf5e00d5bff370464e5f45b606beb3afaa53d93da683f5fced"
+        },
+        "words": "Meet me at one.",
+        "audience": {
+          "kind": "encounter"
+        },
+        "expression": "typed",
+        "after": []
+      },
+      "expectedState": {
+        "running": true,
+        "byMessage": {
+          "00000000-0000-4000-8000-000000000071": "delivered"
+        },
+        "deliveredOrder": [
+          "00000000-0000-4000-8000-000000000071"
+        ]
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "refused: collision",
+      "message": {
+        "kind": "refusal",
+        "class": "malformed",
+        "messageId": "00000000-0000-4000-8000-000000000071",
+        "reason": "id reused with different content"
+      }
+    },
+    {
+      "direction": "to-resident",
+      "note": "the original retried",
+      "message": {
+        "kind": "message",
+        "id": "00000000-0000-4000-8000-000000000071",
+        "encounter": "enc:ext:3f2a",
+        "to": {
+          "individualId": "individual:room-1-resident",
+          "host": {
+            "kind": "in-process",
+            "address": "fixture-host-1"
+          }
+        },
+        "from": {
+          "participant": {
+            "id": "p:ext:3f2a:person",
+            "kind": "human",
+            "name": "Visitor",
+            "standing": "guest",
+            "individualId": null
+          },
+          "aliases": [
+            "visitor-label-1"
+          ]
+        },
+        "occ": {
+          "source": "plc:thread-3f2a",
+          "id": "occ-71",
+          "digest": "sha256:95f87f1abaf52cb43e12f5b1e1d3ca73d3bda316727592cfc06ff4ca5f186a44"
+        },
+        "words": "Meet me at noon.",
+        "audience": {
+          "kind": "encounter"
+        },
+        "expression": "typed",
+        "after": []
+      },
+      "expectedState": {
+        "running": true,
+        "byMessage": {
+          "00000000-0000-4000-8000-000000000071": "delivered"
+        },
+        "deliveredOrder": [
+          "00000000-0000-4000-8000-000000000071"
+        ]
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "original outcome",
+      "message": {
+        "kind": "receipt",
+        "state": "accepted",
+        "messageId": "00000000-0000-4000-8000-000000000071",
+        "encounter": "enc:ext:3f2a"
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "original outcome",
+      "message": {
+        "kind": "receipt",
+        "state": "delivered",
+        "messageId": "00000000-0000-4000-8000-000000000071",
+        "encounter": "enc:ext:3f2a",
+        "worldSeq": 1
+      }
+    }
+  ]
+}

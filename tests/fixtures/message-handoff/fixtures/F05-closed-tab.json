@@ -1,0 +1,173 @@
+{
+  "fixture": "F05",
+  "title": "closed-tab",
+  "note": "With no running resident the answer is unavailable. Nothing is queued as if she were alive; the sender sends again when she runs.",
+  "initial": {
+    "running": false,
+    "resident": "individual:room-1-resident",
+    "admitted": [
+      "p:ext:3f2a:person"
+    ],
+    "limit": 2000
+  },
+  "steps": [
+    {
+      "direction": "to-resident",
+      "note": "message to a closed tab",
+      "message": {
+        "kind": "message",
+        "id": "00000000-0000-4000-8000-000000000021",
+        "encounter": "enc:ext:3f2a",
+        "to": {
+          "individualId": "individual:room-1-resident",
+          "host": {
+            "kind": "in-process",
+            "address": "fixture-host-1"
+          }
+        },
+        "from": {
+          "participant": {
+            "id": "p:ext:3f2a:person",
+            "kind": "human",
+            "name": "Visitor",
+            "standing": "guest",
+            "individualId": null
+          },
+          "aliases": [
+            "visitor-label-1"
+          ]
+        },
+        "occ": {
+          "source": "plc:thread-3f2a",
+          "id": "occ-21",
+          "digest": "sha256:9d83ff719dded6f2099bffed51853f4c927ff8c2dab5622f604669292b485d1c"
+        },
+        "words": "Are you there?",
+        "audience": {
+          "kind": "encounter"
+        },
+        "expression": "typed",
+        "after": []
+      },
+      "expectedState": {
+        "running": false,
+        "byMessage": {},
+        "deliveredOrder": []
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "refused: unavailable, not recorded",
+      "message": {
+        "kind": "refusal",
+        "class": "unavailable",
+        "messageId": "00000000-0000-4000-8000-000000000021",
+        "reason": "no resident is running"
+      }
+    },
+    {
+      "direction": "to-resident",
+      "note": "the status of that id",
+      "message": {
+        "kind": "status-query",
+        "messageId": "00000000-0000-4000-8000-000000000021"
+      },
+      "expectedState": {
+        "running": false,
+        "byMessage": {},
+        "deliveredOrder": []
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "also unavailable",
+      "message": {
+        "kind": "refusal",
+        "class": "unavailable",
+        "messageId": "00000000-0000-4000-8000-000000000021",
+        "reason": "no resident is running"
+      }
+    },
+    {
+      "direction": "host",
+      "note": "the page is opened and she runs",
+      "host": {
+        "kind": "tab-opened"
+      },
+      "expectedState": {
+        "running": true,
+        "byMessage": {},
+        "deliveredOrder": []
+      }
+    },
+    {
+      "direction": "to-resident",
+      "note": "the same id sent again",
+      "message": {
+        "kind": "message",
+        "id": "00000000-0000-4000-8000-000000000021",
+        "encounter": "enc:ext:3f2a",
+        "to": {
+          "individualId": "individual:room-1-resident",
+          "host": {
+            "kind": "in-process",
+            "address": "fixture-host-1"
+          }
+        },
+        "from": {
+          "participant": {
+            "id": "p:ext:3f2a:person",
+            "kind": "human",
+            "name": "Visitor",
+            "standing": "guest",
+            "individualId": null
+          },
+          "aliases": [
+            "visitor-label-1"
+          ]
+        },
+        "occ": {
+          "source": "plc:thread-3f2a",
+          "id": "occ-21",
+          "digest": "sha256:9d83ff719dded6f2099bffed51853f4c927ff8c2dab5622f604669292b485d1c"
+        },
+        "words": "Are you there?",
+        "audience": {
+          "kind": "encounter"
+        },
+        "expression": "typed",
+        "after": []
+      },
+      "expectedState": {
+        "running": true,
+        "byMessage": {
+          "00000000-0000-4000-8000-000000000021": "delivered"
+        },
+        "deliveredOrder": [
+          "00000000-0000-4000-8000-000000000021"
+        ]
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "accepted now",
+      "message": {
+        "kind": "receipt",
+        "state": "accepted",
+        "messageId": "00000000-0000-4000-8000-000000000021",
+        "encounter": "enc:ext:3f2a"
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "delivered",
+      "message": {
+        "kind": "receipt",
+        "state": "delivered",
+        "messageId": "00000000-0000-4000-8000-000000000021",
+        "encounter": "enc:ext:3f2a",
+        "worldSeq": 1
+      }
+    }
+  ]
+}

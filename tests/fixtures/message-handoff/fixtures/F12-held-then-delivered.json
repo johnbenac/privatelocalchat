@@ -1,0 +1,216 @@
+{
+  "fixture": "F12",
+  "title": "held-then-delivered",
+  "note": "A message whose predecessor has not arrived is accepted and held, and says what it waits for; the status answer shows the same. It is delivered once the predecessor is.",
+  "initial": {
+    "running": true,
+    "resident": "individual:room-1-resident",
+    "admitted": [
+      "p:ext:3f2a:person"
+    ],
+    "limit": 2000
+  },
+  "steps": [
+    {
+      "direction": "to-resident",
+      "note": "the dependent arrives first",
+      "message": {
+        "kind": "message",
+        "id": "00000000-0000-4000-8000-000000000102",
+        "encounter": "enc:ext:3f2a",
+        "to": {
+          "individualId": "individual:room-1-resident",
+          "host": {
+            "kind": "in-process",
+            "address": "fixture-host-1"
+          }
+        },
+        "from": {
+          "participant": {
+            "id": "p:ext:3f2a:person",
+            "kind": "human",
+            "name": "Visitor",
+            "standing": "guest",
+            "individualId": null
+          },
+          "aliases": [
+            "visitor-label-1"
+          ]
+        },
+        "occ": {
+          "source": "plc:thread-3f2a",
+          "id": "occ-102",
+          "digest": "sha256:1c8c43b83e64199d047c2cc8d9dd3f24a40b21b8d6d6fcdf691a389bea440f1b"
+        },
+        "words": "Second, which follows the first.",
+        "audience": {
+          "kind": "encounter"
+        },
+        "expression": "typed",
+        "after": [
+          "00000000-0000-4000-8000-000000000101"
+        ]
+      },
+      "expectedState": {
+        "running": true,
+        "byMessage": {
+          "00000000-0000-4000-8000-000000000102": "accepted"
+        },
+        "deliveredOrder": []
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "accepted with waitingFor",
+      "message": {
+        "kind": "receipt",
+        "state": "accepted",
+        "messageId": "00000000-0000-4000-8000-000000000102",
+        "encounter": "enc:ext:3f2a",
+        "waitingFor": "00000000-0000-4000-8000-000000000101"
+      }
+    },
+    {
+      "direction": "to-resident",
+      "note": "the sender asks for the held id",
+      "message": {
+        "kind": "status-query",
+        "messageId": "00000000-0000-4000-8000-000000000102"
+      },
+      "expectedState": {
+        "running": true,
+        "byMessage": {
+          "00000000-0000-4000-8000-000000000102": "accepted"
+        },
+        "deliveredOrder": []
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "status shows waitingFor",
+      "message": {
+        "kind": "status",
+        "messageId": "00000000-0000-4000-8000-000000000102",
+        "known": true,
+        "states": [
+          "accepted"
+        ],
+        "waitingFor": "00000000-0000-4000-8000-000000000101"
+      }
+    },
+    {
+      "direction": "to-resident",
+      "note": "the predecessor arrives",
+      "message": {
+        "kind": "message",
+        "id": "00000000-0000-4000-8000-000000000101",
+        "encounter": "enc:ext:3f2a",
+        "to": {
+          "individualId": "individual:room-1-resident",
+          "host": {
+            "kind": "in-process",
+            "address": "fixture-host-1"
+          }
+        },
+        "from": {
+          "participant": {
+            "id": "p:ext:3f2a:person",
+            "kind": "human",
+            "name": "Visitor",
+            "standing": "guest",
+            "individualId": null
+          },
+          "aliases": [
+            "visitor-label-1"
+          ]
+        },
+        "occ": {
+          "source": "plc:thread-3f2a",
+          "id": "occ-101",
+          "digest": "sha256:9d9d872b5eba3b0a9d7cfd8d97be6d8fcb25e2ba67b795fae444eda97f196d1e"
+        },
+        "words": "First, in my own words.",
+        "audience": {
+          "kind": "encounter"
+        },
+        "expression": "typed",
+        "after": []
+      },
+      "expectedState": {
+        "running": true,
+        "byMessage": {
+          "00000000-0000-4000-8000-000000000101": "delivered",
+          "00000000-0000-4000-8000-000000000102": "delivered"
+        },
+        "deliveredOrder": [
+          "00000000-0000-4000-8000-000000000101",
+          "00000000-0000-4000-8000-000000000102"
+        ]
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "accepted",
+      "message": {
+        "kind": "receipt",
+        "state": "accepted",
+        "messageId": "00000000-0000-4000-8000-000000000101",
+        "encounter": "enc:ext:3f2a"
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "delivered",
+      "message": {
+        "kind": "receipt",
+        "state": "delivered",
+        "messageId": "00000000-0000-4000-8000-000000000101",
+        "encounter": "enc:ext:3f2a",
+        "worldSeq": 1
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "the held message follows",
+      "message": {
+        "kind": "receipt",
+        "state": "delivered",
+        "messageId": "00000000-0000-4000-8000-000000000102",
+        "encounter": "enc:ext:3f2a",
+        "worldSeq": 2
+      }
+    },
+    {
+      "direction": "to-resident",
+      "note": "status after delivery",
+      "message": {
+        "kind": "status-query",
+        "messageId": "00000000-0000-4000-8000-000000000102"
+      },
+      "expectedState": {
+        "running": true,
+        "byMessage": {
+          "00000000-0000-4000-8000-000000000101": "delivered",
+          "00000000-0000-4000-8000-000000000102": "delivered"
+        },
+        "deliveredOrder": [
+          "00000000-0000-4000-8000-000000000101",
+          "00000000-0000-4000-8000-000000000102"
+        ]
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "no waitingFor any more",
+      "message": {
+        "kind": "status",
+        "messageId": "00000000-0000-4000-8000-000000000102",
+        "known": true,
+        "states": [
+          "accepted",
+          "delivered"
+        ]
+      }
+    }
+  ]
+}

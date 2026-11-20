@@ -1,0 +1,294 @@
+{
+  "fixture": "F08",
+  "title": "reply",
+  "note": "Her own speech returns as one public-expression event per completed utterance, caused by the message id. Her composing stream never leaves. A reply is a thing she did, not something the contract promises.",
+  "initial": {
+    "running": true,
+    "resident": "individual:room-1-resident",
+    "admitted": [
+      "p:ext:3f2a:person"
+    ],
+    "limit": 2000
+  },
+  "steps": [
+    {
+      "direction": "to-resident",
+      "note": "message",
+      "message": {
+        "kind": "message",
+        "id": "00000000-0000-4000-8000-000000000051",
+        "encounter": "enc:ext:3f2a",
+        "to": {
+          "individualId": "individual:room-1-resident",
+          "host": {
+            "kind": "in-process",
+            "address": "fixture-host-1"
+          }
+        },
+        "from": {
+          "participant": {
+            "id": "p:ext:3f2a:person",
+            "kind": "human",
+            "name": "Visitor",
+            "standing": "guest",
+            "individualId": null
+          },
+          "aliases": [
+            "visitor-label-1"
+          ]
+        },
+        "occ": {
+          "source": "plc:thread-3f2a",
+          "id": "occ-51",
+          "digest": "sha256:38ea13d35e4555631892fde114096ca44f831d7a117710cb90b483e3cf7ba6d2"
+        },
+        "words": "What is on the table?",
+        "audience": {
+          "kind": "encounter"
+        },
+        "expression": "typed",
+        "after": []
+      },
+      "expectedState": {
+        "running": true,
+        "byMessage": {
+          "00000000-0000-4000-8000-000000000051": "delivered"
+        },
+        "deliveredOrder": [
+          "00000000-0000-4000-8000-000000000051"
+        ]
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "accepted",
+      "message": {
+        "kind": "receipt",
+        "state": "accepted",
+        "messageId": "00000000-0000-4000-8000-000000000051",
+        "encounter": "enc:ext:3f2a"
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "delivered",
+      "message": {
+        "kind": "receipt",
+        "state": "delivered",
+        "messageId": "00000000-0000-4000-8000-000000000051",
+        "encounter": "enc:ext:3f2a",
+        "worldSeq": 1
+      }
+    },
+    {
+      "direction": "host",
+      "note": "composing stream: nothing crosses",
+      "host": {
+        "kind": "composing",
+        "text": "a draft she has not said"
+      },
+      "expectedState": {
+        "running": true,
+        "byMessage": {
+          "00000000-0000-4000-8000-000000000051": "delivered"
+        },
+        "deliveredOrder": [
+          "00000000-0000-4000-8000-000000000051"
+        ]
+      }
+    },
+    {
+      "direction": "host",
+      "note": "the body reports completed speech",
+      "host": {
+        "kind": "speech-report",
+        "causes": [
+          "00000000-0000-4000-8000-000000000051"
+        ],
+        "units": [
+          {
+            "text": "A cup,"
+          },
+          {
+            "text": "I think."
+          }
+        ],
+        "status": "completed",
+        "delivered": "A cup, I think."
+      },
+      "expectedState": {
+        "running": true,
+        "byMessage": {
+          "00000000-0000-4000-8000-000000000051": "delivered"
+        },
+        "deliveredOrder": [
+          "00000000-0000-4000-8000-000000000051"
+        ]
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "one reply event, units inside, same encounter, causes = the message id",
+      "message": {
+        "kind": "reply",
+        "id": "reply:00000000-0000-4000-8000-000000000051:1",
+        "encounter": "enc:ext:3f2a",
+        "causes": [
+          "00000000-0000-4000-8000-000000000051"
+        ],
+        "speaker": {
+          "individualId": "individual:room-1-resident"
+        },
+        "occ": {
+          "source": "individual:room-1-resident",
+          "id": "reply:00000000-0000-4000-8000-000000000051:1",
+          "digest": "sha256:d9bc54b04e2d9815b09da9b54fb6998fb75090084035616117cce69b0ebbf922"
+        },
+        "audience": {
+          "kind": "encounter"
+        },
+        "expression": "said",
+        "delivered": "A cup, I think.",
+        "units": [
+          {
+            "text": "A cup,"
+          },
+          {
+            "text": "I think."
+          }
+        ],
+        "status": "completed"
+      }
+    },
+    {
+      "direction": "to-resident",
+      "note": "a second message in the same fixture",
+      "message": {
+        "kind": "message",
+        "id": "00000000-0000-4000-8000-000000000091",
+        "encounter": "enc:ext:3f2a",
+        "to": {
+          "individualId": "individual:room-1-resident",
+          "host": {
+            "kind": "in-process",
+            "address": "fixture-host-1"
+          }
+        },
+        "from": {
+          "participant": {
+            "id": "p:ext:3f2a:person",
+            "kind": "human",
+            "name": "Visitor",
+            "standing": "guest",
+            "individualId": null
+          },
+          "aliases": [
+            "visitor-label-1"
+          ]
+        },
+        "occ": {
+          "source": "plc:thread-3f2a",
+          "id": "occ-91",
+          "digest": "sha256:f6f9cff84a1e81d9982cdc3e1edf417731379ab1e640cdda393d584ee2e743fe"
+        },
+        "words": "Tell me about the river.",
+        "audience": {
+          "kind": "encounter"
+        },
+        "expression": "typed",
+        "after": []
+      },
+      "expectedState": {
+        "running": true,
+        "byMessage": {
+          "00000000-0000-4000-8000-000000000051": "delivered",
+          "00000000-0000-4000-8000-000000000091": "delivered"
+        },
+        "deliveredOrder": [
+          "00000000-0000-4000-8000-000000000051",
+          "00000000-0000-4000-8000-000000000091"
+        ]
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "accepted",
+      "message": {
+        "kind": "receipt",
+        "state": "accepted",
+        "messageId": "00000000-0000-4000-8000-000000000091",
+        "encounter": "enc:ext:3f2a"
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "delivered",
+      "message": {
+        "kind": "receipt",
+        "state": "delivered",
+        "messageId": "00000000-0000-4000-8000-000000000091",
+        "encounter": "enc:ext:3f2a",
+        "worldSeq": 2
+      }
+    },
+    {
+      "direction": "host",
+      "note": "the body reports an interrupted utterance; no intended text reported",
+      "host": {
+        "kind": "speech-report",
+        "causes": [
+          "00000000-0000-4000-8000-000000000091"
+        ],
+        "units": [
+          {
+            "text": "The river is wide"
+          }
+        ],
+        "status": "interrupted",
+        "delivered": "The river is wide and"
+      },
+      "expectedState": {
+        "running": true,
+        "byMessage": {
+          "00000000-0000-4000-8000-000000000051": "delivered",
+          "00000000-0000-4000-8000-000000000091": "delivered"
+        },
+        "deliveredOrder": [
+          "00000000-0000-4000-8000-000000000051",
+          "00000000-0000-4000-8000-000000000091"
+        ]
+      }
+    },
+    {
+      "direction": "from-resident",
+      "note": "still one event: units as delivered, status interrupted, no intended text invented",
+      "message": {
+        "kind": "reply",
+        "id": "reply:00000000-0000-4000-8000-000000000091:1",
+        "encounter": "enc:ext:3f2a",
+        "causes": [
+          "00000000-0000-4000-8000-000000000091"
+        ],
+        "speaker": {
+          "individualId": "individual:room-1-resident"
+        },
+        "occ": {
+          "source": "individual:room-1-resident",
+          "id": "reply:00000000-0000-4000-8000-000000000091:1",
+          "digest": "sha256:096f358c66827312395820d3801f3605f3b418cae8ae26c874325c5a30bdc2c1"
+        },
+        "audience": {
+          "kind": "encounter"
+        },
+        "expression": "said",
+        "delivered": "The river is wide and",
+        "units": [
+          {
+            "text": "The river is wide"
+          }
+        ],
+        "status": "interrupted"
+      }
+    }
+  ]
+}
