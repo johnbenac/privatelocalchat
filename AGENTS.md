@@ -109,7 +109,7 @@ program:
 [[free-opencode-run-state-location]] — State for free_opencode_run.py is in /var/lib/cosmoshot/relay/free-opencode/, outside git.
 [[host-fact-evidence-contract]] — Host facts and native execution evidence
 [[how-memory-is-kept]] — Where to find memory access, safe writes and sync, instruction rollout, and dream validation contracts.
-[9/56 entries shown; cosmo-mem read program _index.md]
+[9/57 entries shown; cosmo-mem read program _index.md]
 ```
 
 
