@@ -123,7 +123,12 @@ export function createChannelClient({ transport, resident, encounter, participan
   async function revoke() {
     const last = st.lastAccepted[participant.id];
     if (!last) return { ok: true, sent: false };
-    try { applyAll(await transport.request({ kind: 'revocation', participantId: participant.id, cutoff: { lastAcceptedMessageId: last } })); return { ok: true, sent: true }; }
+    try {
+      const frames = await transport.request({ kind: 'revocation', encounter, participantId: participant.id, cutoff: { lastAcceptedMessageId: last } });
+      applyAll(frames);
+      const refusal = (frames || []).find((f) => f.kind === 'refusal');   // a refused revocation is not a revocation: say so, never ok
+      return refusal ? { ok: false, sent: true, refusal: { class: refusal.class, reason: refusal.reason || '' } } : { ok: true, sent: true };
+    }
     catch { setAvailability('unreachable', 'no answer from the host'); return { ok: false, sent: false }; }
   }
 

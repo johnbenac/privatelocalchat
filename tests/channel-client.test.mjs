@@ -217,9 +217,17 @@ test('revoking sends the id of the last accepted message as the cutoff, and late
   const lp = loop(INIT);
   const a = await lp.client.send('first');
   await lp.client.revoke();
-  assert.deepEqual(lp.sent.at(-1), { kind: 'revocation', participantId: 'p:ext:3f2a:person', cutoff: { lastAcceptedMessageId: a.id } });
+  assert.deepEqual(lp.sent.at(-1), { kind: 'revocation', encounter: 'enc:ext:3f2a', participantId: 'p:ext:3f2a:person', cutoff: { lastAcceptedMessageId: a.id } });   // the schema requires the encounter
   const b = await lp.client.send('after revoke');
   assert.equal(b.state, 'refused'); assert.equal(b.refusal.class, 'revoked');
+});
+
+test('a revocation the endpoint refuses is reported as not done, with the refusal', async () => {
+  const lp = loop(INIT);
+  await lp.client.send('first');
+  lp.transport.request = async () => [{ kind: 'refusal', class: 'malformed', reason: 'bad frame' }];
+  const r = await lp.client.revoke();
+  assert.equal(r.ok, false); assert.deepEqual(r.refusal, { class: 'malformed', reason: 'bad frame' });
 });
 
 // ---- parallel use of one client and one store --------------------------------------------------------------------------------------------------------------------------------------------
