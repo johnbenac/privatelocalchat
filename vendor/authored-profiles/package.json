@@ -1,7 +1,7 @@
 {
   "name": "authored-profiles",
-  "version": "1.1.0",
-  "description": "Cosmogenitor content-bundle consumer and the authored-profiles extension, pure and self-contained, with a neutral entry for consumers that carry nothing of other projects",
+  "version": "1.2.0",
+  "description": "Cosmogenitor content-bundle consumer and the authored-profiles extension, pure and self-contained, with a neutral entry for consumers that carry nothing of other projects; a neutral rich entry for one receiver",
   "license": "AGPL-3.0-only",
   "type": "module",
   "engines": {
@@ -12,7 +12,8 @@
     "./authored-profiles": "./authored-profiles/index.mjs",
     "./neutral": "./neutral/index.mjs",
     "./content/*.json": "./content/*.json",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./neutral-rich": "./neutral/rich.mjs"
   },
   "files": [
     "LICENSE",

@@ -3,14 +3,14 @@
     {
       "files": {
         "LICENSE": "0d96a4ff68ad6d4b6f1f30f713b18d5184912ba8dd389f86aa7710db079abcb0",
-        "README.md": "6712c23f5c270b3f4ee19c7c5ac7b59dae0da4661ee80c1dbbb44e571d2b3e4f",
+        "README.md": "d633eb7186fa186aa3a5ac1d8258c3d36dcdc324a6cc02c19281950cbbecf424",
         "authored-profiles/MAPPINGS.md": "225dda5d823f51dbc5dab4c555685f7596b35669768f1c0669688dd0f3a7cc01",
         "authored-profiles/PROFILE.md": "d59430cbdf62126a0a6712b4e3898930c6f167c22e4d38a082de8c13999430d9",
         "authored-profiles/README.md": "84be04998829a851975b931c1b6eabf4a67aeb0cdc87ebc17fdd131a948f9128",
         "authored-profiles/acceptance.md": "b512b25b54a4d3e6ac57186227cf2de112e54950bae829348e311f1c25ef15e4",
         "authored-profiles/authored-engine.mjs": "160f2fa1b836942d311e052fde52b223773d2a9ceb49f6253b55d14cb88e32f1",
         "authored-profiles/authored-util.mjs": "9a5375535492fa89595eaab0202d9dd650c1764363afad413234f0fdf90f4da4",
-        "authored-profiles/authored.mjs": "40e82fb258d22bed3e23d5a47bcb79173198778c6a57dfbe99978590c09554d3",
+        "authored-profiles/authored.mjs": "37667b5e7a0f5612dbe860abd671b7747125a6caae0d5936e6f6c02e2ccbb795",
         "authored-profiles/definitions.mjs": "be5323bae64f7b10b6fd555781b08379cb0741b8bc4b86cf1555ec23c0691596",
         "authored-profiles/definitions.v1.json": "205c4146875f095b77b4d49cbe13c7129f75aa01069bf69231027b6ec12b9944",
         "authored-profiles/examples/bex.bundle.json": "96090b1ae3ba3fb717fed5de4529d4726ee6ad09e7c4f92a062b0777228a31c4",
@@ -26,8 +26,13 @@
         "authored-profiles/fixtures/neri.receiving.json": "3bbeb1a962ea354c300cb9d1025a53e5dfddc951351a8a58c794f0d0841ae575",
         "authored-profiles/fixtures/receiving-cases.json": "f0b912c701100c532885cf17594e834bb167c53eddfd47789c8dd65e4c0d7ab1",
         "authored-profiles/index.mjs": "be3208d70d438a78070e45587fdc4a954f3281350e4bec4848dbaa6161c49b2f",
-        "authored-profiles/receiving-definitions.mjs": "620675c69ce4695faa3f73208629d189a7da1620ec933816e9b987d1f57627fd",
+        "authored-profiles/receiving-definitions.mjs": "baec85e52733726cf4d5fe5f76c4021b6e281a2d488ca72fd387b9c091b66ea9",
+        "authored-profiles/receiving-engine.mjs": "3bed302e9b8f8f5cc02fc03e84359e3235040ca0b6f263ff5fec4f5095d4aeb7",
         "authored-profiles/receiving-sources.json": "56f9f8e32f284bd927448b413158dfb9717bdb43964cba2b5a751932cf3ddb52",
+        "authored-profiles/receiving/core.mjs": "4462d5f7a458fe4bd3bdc00eba8726e31eff8fa0f8e838615a56fed0b14e538c",
+        "authored-profiles/receiving/plc-bounds.mjs": "5a3b0fa63baac894a44aeca05d18230f6d1c722ba053612490836d65d110a741",
+        "authored-profiles/receiving/plc.mjs": "63841f139252d2f46018cc020106b3a508700664f199c98ce27e85b5a50f5867",
+        "authored-profiles/receiving/sonalon.mjs": "f9f801164ed9d7dd44409f6bd828edfaa6b56908f0069450e464ba7742315cb3",
         "authored-profiles/resources/NOTICE.md": "03caa63a59fbc3588c3c4da9f8d37132cd61346ffe3ca0b41d81f1752a042737",
         "authored-profiles/resources/chart.png": "dbb67ebcf4b72c96c7d6e9d93cabae41d201381cad8cd1bf9e31037dbf4b837f",
         "authored-profiles/resources/cue.wav": "f7236308298644cf4a743afa71bd2019f62aca4b87a7f8343d0d534a9af7c266",
@@ -53,7 +58,8 @@
         "content/starter-registry.json": "a521048bcde5be382e38f1c30dac05047b64c6373152281846657d3b520ba687",
         "index.mjs": "a8991a0085a4cd94819eafbe6768c36e22c57fabc103687510e6530eb23168fe",
         "neutral/index.mjs": "530c8604164383fe82ffa3054a431ba554e9276cb01e5f8236a2c8c4b7965342",
-        "package.json": "e3d4432b5daafb11eb79f92a37b473763db4d080fdeae0fd95b54c605747c6c5",
+        "neutral/rich.mjs": "80e47f75d1eafb6566707dd6a23cc2b4fee371861c33cdadf9cdea7389019b4f",
+        "package.json": "df34d8157e792143e3d923553f1e74fdc8837c7e340236ba37df25ae6bc67a6a",
         "scripts/neutral-closure.mjs": "6f9b4b78920b1e948ef5eca58e35f71098b2ad7ed38a7ba6f071821405174854",
         "scripts/print-content-schema.mjs": "310a260b72791a7c8a61dcde72fbcf917c78ae4190b723f1dc44862e5b74cf8d",
         "scripts/print-neutral-content-schema.mjs": "c4fba8aa791aca5940647be3abf4e3434a799ba33631c5f65d2810f076137e8b",
@@ -72,20 +78,21 @@
         "tests/core/content-examples.test.mjs": "16d7f74568fa95d250eb87cc9ae0317a37585834117272ac45621e1bf60c8a5b",
         "tests/core/content.test.mjs": "d3f6631711b3c5b6f4ae5817d972e9ad818ea54bb987f053ba040208fa8922fa",
         "tests/core/providers.test.mjs": "8feb088e90e89aa5d72bbd0ef552fbe6f9fa8f8847dc897811e89b9c2023e6e5",
+        "tests/neutral-rich.test.mjs": "df501254b15c54dfe1fc6b2ceeeaedf408c55b5f309e9a7bf56d5975a006486f",
         "tests/neutral.test.mjs": "e05fa20682956e5f9b296c95fd7e3ba31d9af8598f4c543dc2546f9632c09d82",
-        "tests/package.test.mjs": "7cf2ee8c6a693fa4287b48a6e29997f092311fceeec38eef76c04e9b649b707f"
+        "tests/package.test.mjs": "8fb22e77ab962355edb633b9f22917173c914a239832f3b9c5c0d877cdb0e35b"
       },
       "license": "AGPL-3.0-only",
       "name": "authored-profiles",
       "owner": "cosmogenitor",
       "package": {
-        "file": "authored-profiles-1.1.0.tar.gz",
-        "sha256": "772d8ada5e0d71bfe6275b539298e73b17abfd386e024f35b705c777d7dcd315",
+        "file": "authored-profiles-1.2.0.tar.gz",
+        "sha256": "f99e750a350bf3a6df5bd2efdaa4c8056f81d7a5a6fa16d9e74d7575154387f3",
         "type": "generic"
       },
       "path": "vendor/authored-profiles",
-      "tree_sha256": "c0a606b9d0a4e16b35a6692212751294b6d2d2e80424dfdedd06e73f9fc0c3f4",
-      "version": "1.1.0"
+      "tree_sha256": "9080ca30655c054d78d735f6373f9089a93aa0d5d0292fbc15fdce6e525c4cbe",
+      "version": "1.2.0"
     },
     {
       "files": {

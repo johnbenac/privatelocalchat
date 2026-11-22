@@ -20,7 +20,7 @@
 // Bytes: this module never fetches. Inline bytes are verified. External bytes need explicit trusted local adapters
 // (`openExternal` and `hasherFactory`) supplied by the caller; without them an external asset refuses.
 
-import { openAuthored, receivingFixture, LIMITS as PRODUCER_LIMITS } from '../../vendor/authored-profiles/authored-profiles/index.mjs';
+import { openAuthored, receivingFixture, LIMITS as PRODUCER_LIMITS } from '../../vendor/authored-profiles/neutral/rich.mjs';
 import { parsePresetCandidate } from '../assistant/preset-candidate.mjs';
 
 const producerFileMax = PRODUCER_LIMITS.maxMetadataBytes + Math.ceil(PRODUCER_LIMITS.maxInlineTotalBytes / 3) * 4 + 1024;

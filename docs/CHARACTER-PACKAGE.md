@@ -66,7 +66,7 @@ are named omissions, not errors.
 copied byte-exact from the accepted T415 source `de5e9231730cc2b0d3a6725d006a5d3d48878fd0`; `SOURCE.json` records source path, size and SHA-256 of each, and of the fixtures in
 `tests/fixtures/characters/` (the three real bundles, their content sources, definitions, the original CC0 resources and the producer's receiving fixtures).
 `tests/character-package.test.mjs` fails when any file differs. The source repository has no licence file; its fixture resources are CC0-1.0 (`resources/NOTICE.md`).
-The modules mention another receiver's vocabulary (`sonalon:`) and a `$schema` identifier (`json-schema.org`, never fetched): both are scoped entries in
+The modules mention another receiver's vocabulary (`sonalon:`): it is a scoped entry in
 `tests/neutrality.config.json` and `docs/evidence/split/network-origins.json`.
 
 ## Tests

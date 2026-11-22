@@ -30,6 +30,7 @@ import {openAuthored, projectPLCPreset} from 'authored-profiles/neutral';
 | `authored-profiles` | `index.mjs` |
 | `authored-profiles/authored-profiles` | `authored-profiles/index.mjs` |
 | `authored-profiles/neutral` | `neutral/index.mjs` (new in 1.1.0) |
+| `authored-profiles/neutral-rich` | `neutral/rich.mjs` (new in 1.2.0) |
 | `authored-profiles/content/*.json` | the content schema, starter registry, examples and bundle fixtures |
 | `authored-profiles/package.json` | the manifest |
 
@@ -46,6 +47,9 @@ import {openAuthored, projectPLCPreset} from 'authored-profiles/neutral';
 
 **`authored-profiles/neutral`** exports: `LIMITS`, `DEFINITIONS`, `parseDefinitions`, `loadRegistry`,
 `validateAuthored`, `openAuthored`, `projectPLCPreset`. See the next section.
+
+**`authored-profiles/neutral-rich`** exports: everything the neutral entry exports, plus `PLC_PROVISIONAL_LIMITS` and
+`receivingFixture`. See the section after next.
 
 The authored-profiles contract itself (`PROFILE.md`, `MAPPINGS.md`, `acceptance.md`, examples, fixtures,
 resources) is under `authored-profiles/`; start with `authored-profiles/README.md`.
@@ -158,3 +162,19 @@ The history of the files was extracted from the Cosmogenitor repository (`contra
 and the `site/src/core` content modules) with `git filter-repo`; the renames are:
 `contracts/authored-profiles/` to `authored-profiles/`, `site/src/core/` to `src/core/`,
 `site/content/` to `content/`, `site/tests/` to `tests/core/`, `site/scripts/` to `scripts/`.
+
+## The neutral rich entry (1.2.0)
+
+`authored-profiles/neutral-rich` is for a receiver that checks a whole authored package, not only its plain preset, and
+that must still carry **nothing of other projects**. It adds `receivingFixture(input, {target: 'plc', subjectId, purpose,
+route, presetId, validate, crypto, openExternal, hasherFactory})` to the neutral entry: the receiving check for the one
+target it carries, Private Local Chat, with that receiver's provisional size bounds (`PLC_PROVISIONAL_LIMITS`). Any other
+target is refused as unknown. The results are the same, value for value, as the main entry gives for that target
+(`tests/neutral-rich.test.mjs` compares them on all three example packages and both routes).
+
+Its closure (`node scripts/neutral-closure.mjs neutral/rich.mjs`) is the neutral entry's plus
+`authored-profiles/receiving-engine.mjs`, `authored-profiles/receiving/core.mjs`, `authored-profiles/receiving/plc.mjs`
+and `authored-profiles/receiving/plc-bounds.mjs`; the test checks that none of those files names another project or holds a
+web address, and that the main entry's receiver files, projections and content schema are not in it. The receiving
+definitions are now data per target under `authored-profiles/receiving/` (`core` shared, `plc`, `sonalon`); the main
+entry's `RECEIVING_DEFINITIONS` is composed from them and is unchanged.
