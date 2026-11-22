@@ -70,7 +70,7 @@ Browsers offer to clear the site data of an address. In current browsers that re
 | `user` | what the person wrote or chose to keep (chats, drafts, memory, documents, API keys): goes into the vault |
 | `vault` | the encrypted store itself: nothing in it is readable without the passphrase |
 
-**Keys in local and session storage (34)**
+**Keys in local and session storage (35)**
 
 | Key | Where | Class | What it holds | Format | First release |
 | --- | --- | --- | --- | --- | --- |
@@ -105,6 +105,7 @@ Browsers offer to clear the site data of an address. In current browsers that re
 | `plc.theme.v1` | local storage | `plain` | the resolved theme (light or dark), so the unlock screen matches it before anything is unlocked | 1 | v0.47.0 |
 | `plc.update.tried` | session storage | `plain` | an update reload was already tried | 1 | v0.11.0 |
 | `plc.vault.v1` | local storage | `plain` | says a vault exists (and its auto-lock minutes, whether it locks when the page is hidden, and when it was made), so the page can paint the locked state before IndexedDB answers | 1 | v0.47.0 |
+| `plc.vaultCompaction.v1` | local storage | `plain` | a deleted chat's key record is still waiting to be removed from the vault by compaction (a timestamp only, no content); the next unlock finishes it | 1 | unreleased |
 | `plc.voice.v1` | local storage | `setting` | the older voice record, read once and migrated | 1 | v0.19.0 |
 | `plc.voice.v2` | local storage | `setting` | chosen voice and its settings | 2 | v0.23.0 |
 | `promoDismissed` | session storage | `plain` | the banner was closed | 1 | v0.3.1 |

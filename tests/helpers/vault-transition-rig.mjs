@@ -15,7 +15,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 export const OLD_REV = '0b0ef27530a25e9d218ecae5460066162b07a6da';
 export const NEW_KEYS = ['plc.characters.v1', 'plc.syntheticGeneric.v1'];
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
-const FILES = ['vault-store.mjs', 'vault-control.mjs', 'vault.mjs', 'vault-db.mjs', 'data-formats.mjs', 'key-classes.mjs'];
+const FILES = ['vault-store.mjs', 'vault-control.mjs', 'vault.mjs', 'vault-db.mjs', 'data-formats.mjs', 'key-classes.mjs', 'compaction-scheduler.mjs'];
 const ANCHOR = '  "plc.shell.pins.v1": { store: "local", class: "user", format: 1 },\n';
 
 /**
@@ -55,6 +55,7 @@ export function buildModules(dir, kind = 'new') {
   const target = path.join(dir, 'chat', 'vault');
   fs.mkdirSync(target, { recursive: true });
   for (const file of FILES) {
+    if (kind.startsWith('old') && file === 'compaction-scheduler.mjs') continue; // the old release has no scheduler (it is new in this change)
     let text = kind.startsWith('old')
       ? execFileSync('git', ['show', `${OLD_REV}:chat/vault/${file}`], { cwd: ROOT, encoding: 'utf8', maxBuffer: 1 << 26 })
       : fs.readFileSync(path.join(ROOT, 'chat', 'vault', file), 'utf8');

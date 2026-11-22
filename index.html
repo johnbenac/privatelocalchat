@@ -483,6 +483,8 @@
       window.addEventListener('plc:vault-remote-change', () => showToast('Something changed in another tab. Reload to see it.', 8000));
       window.addEventListener('plc:vault-writer-free', () => showToast('The other tab was closed. Reload this one to make changes.', 10000));
       window.addEventListener('plc:vault-damaged', event => showToast(event.detail.count + ' saved item(s) in the encrypted vault could not be read. The rest is fine; an encrypted backup can restore them.', 12000));
+      // a deleted chat is already unreadable (its key is destroyed); this only says when the sealed key record is not yet gone from the vault (docs/VAULT-COMPACTION-ON-DELETE.md)
+      window.addEventListener('plc:vault-compaction', event => { if (event.detail?.name === 'gave-up' || event.detail?.name === 'blocked') showToast('A deleted chat is already unreadable. Its leftover encrypted key will be removed the next time you unlock the app.', 12000); });
       window.addEventListener('plc:vault-missing', () => window.setTimeout(() => showToast('The encrypted vault that was on this device is gone (the browser may have cleared its storage). Restore from an encrypted backup if you have one.', 15000), 1500));
       window.addEventListener('pagehide', () => { vaultApp.flush().catch(() => {}); }); // finish what is queued when the page goes away
       document.addEventListener('visibilitychange', () => { if (document.hidden) vaultApp.flush().catch(() => {}); });

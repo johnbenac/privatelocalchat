@@ -37,6 +37,7 @@ export const KEY_CLASSES = Object.freeze({
   "plc.vault.v1": { store: "local", class: "plain", format: 1 },
   "plc.theme.v1": { store: "local", class: "plain", format: 1 },
   "plc.formats.v1": { store: "local", class: "plain", format: 1 },
+  "plc.vaultCompaction.v1": { store: "local", class: "plain", format: 1 },
 });
 
 export const VAULTED_CLASSES = Object.freeze(["user", "setting", "transient"]);

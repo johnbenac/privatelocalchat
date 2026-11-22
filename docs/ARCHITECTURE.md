@@ -69,7 +69,7 @@ chat/documents/         attachments: reading, storing (IndexedDB), PDF text, ret
 chat/transfer/          moving things in and out: share, QR, settings transfer, other chatbots' exports, answer export, the public pages script
 chat/models/            model services (memory manager, shared embedder, voice choice) and the one vocabulary for model rows
 chat/lock/              the app lock and the not-locked reminder
-chat/vault/             the encrypted vault: keys and the append-only log (vault.mjs), where it lives (vault-db.mjs), the one storage interface the app uses (vault-store.mjs: appLocal / appSession), which key is kept where (key-classes.mjs), the unlock screen. See docs/ENCRYPTION-AT-REST-PLAN.md
+chat/vault/             the encrypted vault: keys and the append-only log (vault.mjs), where it lives (vault-db.mjs), the one storage interface the app uses (vault-store.mjs: appLocal / appSession), which key is kept where (key-classes.mjs), the unlock screen, the compaction that follows a permanent delete so the deleted chat's key record is really removed (compaction-scheduler.mjs, docs/VAULT-COMPACTION-ON-DELETE.md). See docs/ENCRYPTION-AT-REST-PLAN.md
 chat/history/           chat history in and out: export, import (with preview), clear
 chat/core/              the chat core, in slices: the page's own furniture (toast, About, sidebar, popup menus) so far, and the messages on screen
 chat/provider/          the connected provider: endpoint, token per destination, model list, theme, provider catalogue

@@ -10,6 +10,7 @@
 import { KEY_CLASSES, isVaulted } from "./key-classes.mjs";
 import { createVault, VaultError } from "./vault.mjs";
 import { createIndexedDbAdapter } from "./vault-db.mjs";
+import { createCompactionScheduler } from "./compaction-scheduler.mjs";
 import { REGISTRY_KEY, parseRegistry, findNewer, stampedRegistry } from "./data-formats.mjs";
 
 export const VAULT_MARKER = "plc.vault.v1"; // plain: "1" or JSON { autoMinutes }. Lets the page paint the locked state before IndexedDB answers.
@@ -35,7 +36,9 @@ const RECOVERED_KEYS = "meta/recoveredKeys"; // JSON list of keys whose raw copy
 /** The vaulted keys every earlier vault-capable reader (canonical dev 0b0ef275) already migrates itself. For these a raw value that the vault lacks is a stale retained copy, never recovered. */
 export const LEGACY_VAULT_KEYS = Object.freeze(["chatThreads", "plc.activeThread.v1", "plc.drafts.v1", "plc.prefs.v1", "plc.folders.v1", "plc.presets.v1", "plc.memory.v1", "plc.modelMemory.v1", "plc.voice.v2", "plc.voice.v1", "plc.inferenceMode.v1", "plc.models.v1", "plc.shell.pins.v1", "chatConfig", "chatModels", "chatEndpointTokens", "plc.draft", "plc.pendingToken.v1"]);
 
-export function createAppStorage({ realLocal, realSession, onWriteError = () => {}, onChange = () => {}, onReadOnly = () => {}, onRemote = () => {}, onBlockedWrite = () => {}, onHeldWrite = () => {}, channel = null } = {}) {
+export const COMPACTION_MARKER = "plc.vaultCompaction.v1"; // plain: { v:1, pending:true, since } - a deletion is waiting for the vault to be compacted (docs/VAULT-COMPACTION-ON-DELETE.md); holds no content
+
+export function createAppStorage({ realLocal, realSession, onRemoval = () => {}, onAttach = () => {}, onDetach = () => {}, onWriteError = () => {}, onChange = () => {}, onReadOnly = () => {}, onRemote = () => {}, onBlockedWrite = () => {}, onHeldWrite = () => {}, channel = null } = {}) {
   let session = null;                    // the unlocked vault session, or null (vault off)
   let docsBackend = null;
   let _adapter = null;                   // the adapter used for the attached session (for readback)
@@ -83,6 +86,8 @@ export function createAppStorage({ realLocal, realSession, onWriteError = () => 
   const threadsJson = () => JSON.stringify(order.map((id) => threadsById.get(id)).filter(Boolean));
   let threadsCache = null;
 
+  const removed = () => { try { onRemoval(); } catch { /* a listener must not stop the page */ } }; // a chat or document and its key are about to be removed: the compaction trigger marks it pending first
+
   function setThreads(json) {
     let list; try { list = JSON.parse(json); } catch { list = null; }
     if (!Array.isArray(list)) throw new TypeError("chatThreads must be a list");
@@ -93,7 +98,7 @@ export function createAppStorage({ realLocal, realSession, onWriteError = () => 
       const text = JSON.stringify(t);
       if (threadJson.get(id) !== text) { threadJson.set(id, text); threadsById.set(id, t); schedule("t:" + id, () => session.putThread(id, t)); }
     }
-    for (const id of [...threadsById.keys()]) if (!seen.has(id)) { threadsById.delete(id); threadJson.delete(id); schedule("t:" + id, () => session.delThread(id)); }
+    for (const id of [...threadsById.keys()]) if (!seen.has(id)) { threadsById.delete(id); threadJson.delete(id); removed(); schedule("t:" + id, () => session.delThread(id)); }
     if (nextOrder.join("\n") !== order.join("\n")) { order = nextOrder; schedule("order", () => session.setKv(THREAD_ORDER, JSON.stringify(order))); }
     threadsCache = null;
   }
@@ -149,9 +154,9 @@ export function createAppStorage({ realLocal, realSession, onWriteError = () => 
     return {
       async put(doc) { writable(); await session.putDoc(doc.id, doc); },
       async get(id) { return session.state.docs.get(String(id)); },
-      async remove(id) { writable(); await session.delDoc(id); },
+      async remove(id) { writable(); removed(); await session.delDoc(id); },
       async all() { return [...session.state.docs.values()]; },
-      async clear() { writable(); for (const id of [...session.state.docs.keys()]) await session.delDoc(id); }
+      async clear() { writable(); const ids = [...session.state.docs.keys()]; if (ids.length) removed(); for (const id of ids) await session.delDoc(id); }
     };
   }
 
@@ -171,8 +176,9 @@ export function createAppStorage({ realLocal, realSession, onWriteError = () => 
     docsBackend = makeDocsBackend();
     if (channel) channel.onmessage = (event) => { if (session && readOnly) { try { onRemote(event.data); } catch { /* ignore */ } } };
     onChange("*");
+    try { onAttach(); } catch { /* a listener must not stop the page */ }
   }
-  function detach() { epoch++; exclusive = false; lease = null; session = null; docsBackend = null; _adapter = null; held.clear(); heldValue.clear(); recovery = null; mirror.local.clear(); mirror.session.clear(); threadsById.clear(); threadJson.clear(); order = []; threadsCache = null; memoryOnly.clear(); }
+  function detach() { try { onDetach(); } catch { /* a listener must not stop the page */ } epoch++; exclusive = false; lease = null; session = null; docsBackend = null; _adapter = null; held.clear(); heldValue.clear(); recovery = null; mirror.local.clear(); mirror.session.clear(); threadsById.clear(); threadJson.clear(); order = []; threadsCache = null; memoryOnly.clear(); }
 
   return {
     local, session: sessionStore, attach, detach, flush,
@@ -240,8 +246,11 @@ export function createAppStorage({ realLocal, realSession, onWriteError = () => 
 
 const tell = (name, detail = {}) => { try { globalThis.dispatchEvent?.(new CustomEvent(name, { detail })); } catch { /* no window */ } };
 const safeStorage = (name) => { try { return globalThis[name]; } catch { return memoryStorage(); } };
+const pageLocal = safeStorage("localStorage") || memoryStorage();
+let compactor = null; // created below, once `app` exists
 export const app = createAppStorage({
-  realLocal: safeStorage("localStorage") || memoryStorage(), realSession: safeStorage("sessionStorage") || memoryStorage(),
+  realLocal: pageLocal, realSession: safeStorage("sessionStorage") || memoryStorage(),
+  onRemoval: () => compactor?.removalQueued(), onAttach: () => compactor?.attached(), onDetach: () => compactor?.detached(),
   onWriteError: (error) => { console.error("vault write failed", error); try { globalThis.dispatchEvent?.(new CustomEvent("plc:vault-write-failed", { detail: { message: String(error?.message || error) } })); } catch { /* no window */ } },
   onChange: () => { try { globalThis.dispatchEvent?.(new CustomEvent("plc:vault-changed")); } catch { /* no window */ } },
   onReadOnly: () => tell("plc:vault-readonly"),
@@ -251,6 +260,12 @@ export const app = createAppStorage({
   channel: typeof window !== "undefined" && typeof BroadcastChannel !== "undefined" ? new BroadcastChannel("plc-vault") : null // only in a page: in node an open channel would keep the process alive
 });
 export const appLocal = app.local, appSession = app.session;
+/** Compacts the vault soon after a permanent delete, so the deleted chat's key record is really gone (docs/VAULT-COMPACTION-ON-DELETE.md). */
+export const compaction = compactor = createCompactionScheduler({
+  store: app,
+  marker: { read: () => pageLocal.getItem(COMPACTION_MARKER), write: (text) => pageLocal.setItem(COMPACTION_MARKER, text), clear: () => pageLocal.removeItem(COMPACTION_MARKER) },
+  onEvent: (event) => tell("plc:vault-compaction", event)
+});
 
 /**
  * Only one tab may write to the vault. The first tab holds a Web Lock for as long as it lives; another tab gets { writer: false } and reads only.

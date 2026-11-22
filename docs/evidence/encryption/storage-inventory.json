@@ -366,6 +366,15 @@
       "note": "the highest format of each store any version has written here, so an older version leaves newer data alone",
       "format": 1,
       "since": "v0.57.0"
+    },
+    {
+      "key": "plc.vaultCompaction.v1",
+      "store": "localStorage",
+      "class": "plain",
+      "owner": "chat/vault/vault-store.mjs",
+      "note": "a deleted chat's key record is still waiting to be removed from the vault by compaction (a timestamp only, no content); the next unlock finishes it",
+      "format": 1,
+      "since": "unreleased"
     }
   ],
   "databases": [
