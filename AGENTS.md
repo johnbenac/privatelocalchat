@@ -95,9 +95,9 @@ plc:
 [[delivery-split-and-release-lessons]] — Who owns what in PLC's neutral delivery, why a release did or did not happen, how pins are refreshed, and what the clean-machine check needs.
 [[encrypted-derived-record-deletion]] — Preserve per-chat cryptographic deletion for derived encounter text and recovery journals; private T418 finding and evidence.
 [[intermittent-9b-installer-issue-left]] — John's decision 2026-11-18 to leave the rare 130-of-131 file failure of the 9B install; what is in place (model-runtime 1.0.0 refetch, 1.0.1 detail) and when to reopen.
+[[plc-site-deploy-needs-github-push]] — The PLC site deploys only when the app repo is pushed to GitHub main, and the site repo must also be on GitHub because the deploy fetches it from there.
 [[preset-import-and-standalone-qualification]] — Checked T465/T34/T519 delivery, evidence limits, and unfinished bounded T222/T418 orchestration.
-[[private-lines-vs-main-probe-20261119]] — A scratch merge of PLC's three private lines onto main: sizes, small textual and real semantic conflicts, the red tests and the one real defect at their own heads, and why T860 was added first.
-[6/10 entries shown; cosmo-mem read plc _index.md]
+[6/11 entries shown; cosmo-mem read plc _index.md]
 
 program:
 [[what-this-project-is]] — What Cosmoshot is and the near-term objectives for it.
@@ -109,7 +109,7 @@ program:
 [[free-opencode-run-state-location]] — State for free_opencode_run.py is in /var/lib/cosmoshot/relay/free-opencode/, outside git.
 [[host-fact-evidence-contract]] — Host facts and native execution evidence
 [[how-memory-is-kept]] — Where to find memory access, safe writes and sync, instruction rollout, and dream validation contracts.
-[9/55 entries shown; cosmo-mem read program _index.md]
+[9/56 entries shown; cosmo-mem read program _index.md]
 ```
 
 
