@@ -384,7 +384,7 @@ const ANCHOR = '  "plc.shell.pins.v1": { store: "local", class: "user", format: 
 async function classifiedModules() {
   const dir = mkdtempSync(path.join(tmpdir(), 'plc-classified-'));
   try {
-    for (const f of ['vault-store.mjs', 'vault.mjs', 'vault-db.mjs', 'data-formats.mjs', 'key-classes.mjs']) {
+    for (const f of ['vault-store.mjs', 'vault.mjs', 'vault-db.mjs', 'data-formats.mjs', 'key-classes.mjs', 'compaction-scheduler.mjs']) {
       let text = readFileSync(new URL('../chat/vault/' + f, import.meta.url), 'utf8');
       if (f === 'key-classes.mjs') { assert.ok(text.includes(ANCHOR), 'the key table anchor'); text = text.replace(ANCHOR, ANCHOR + '  "plc.encounters.v1": { store: "local", class: "user", format: 1 },\n'); }
       writeFileSync(path.join(dir, f), text);
