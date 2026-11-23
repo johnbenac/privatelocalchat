@@ -5,11 +5,13 @@ export const BUDGET_PROFILES = Object.freeze([
   {
     id: "ios-safari-stated",
     match: { os: "ios" },
-    // Set BELOW the lowest tab kill figure reported by the owning application (about 640 MB, method not given). OBSERVATION, not the limit: an iPhone 15 Pro (iOS 26.6, Safari) survived a 734 MB peak
-    // with one ONNX synthesiser and a 3D head, but a survival is not a limit and the kill depends on content. One phone, one content; two engines in one or two Workers were NEVER measured there. Two phones survived above this figure (iPhone 15 Pro 734 MB; iPhone 11 Pro 759 MB peak, 22 Nov), so a limit from a STATED figure only ever advises: see budget.mjs.
-    limitBytes: 600e6,
-    basis: "stated",   // the LIMIT is the owning application's stated kill figure (about 640 MB, method not given), lowered; the iPhone run below is evidence, not a limit
-    measuredOn: "limit stated from kills near 640 to 710 MB reported by the owning application (method not given); observation: iPhone 15 Pro, iOS 26.6, Safari, 20 Nov 2026, survived 734 MB peak / 684 MB steady (largest WebContent process)",
+    // ADVISORY ONLY (the budget refuses against a measured limit alone). No kill point has been found on any phone. Observed survivals: iPhone 11 Pro (4 GB class, iOS 27.2) head + Kokoro + the speech-to-text engine
+    // peaked at 992 MB in its largest WebContent process (1318 MB summed) and the tab survived (23 Nov 2026); the iPhone 15 Pro survived 734 MB with one engine (20 Nov). The owning application reported tab kills near
+    // 640 to 710 MB without a method. The advisory threshold is set at the highest figure a phone is KNOWN to have survived, rounded down, so a load beyond what has ever been seen to work is flagged and nothing the phones
+    // have run is. Other phones and other content are unmeasured.
+    limitBytes: 990e6,
+    basis: "stated",
+    measuredOn: "threshold from the highest survival observed (iPhone 11 Pro, iOS 27.2, 992 MB largest process, 23 Nov 2026); kills near 640 to 710 MB reported by the owning application are unexplained and contradicted by this survival",
     evidence: "docs/E-MEASUREMENTS.md#iphone"
   }
 ]);

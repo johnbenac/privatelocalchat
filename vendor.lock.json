@@ -129,10 +129,10 @@
         "adapters/wllama.mjs": "2ad93e31fa1b825314be0cd3bfe7bbb9baf2a370f5398424a0bfb914cc62f40b",
         "app-config.mjs": "71f41d87b848fe582ca5a4156520cd176d1b5633acab5b45e0854dd9a0a41ca3",
         "auto-tier.mjs": "266345693d831bc3a054bfdb3cde7266cf5d33b90c711efd90bcef3b9d01fb84",
-        "budget-profiles.mjs": "86acf395757eb58afb529f89b57363da105c06578935b0d419bb7bf98232c246",
+        "budget-profiles.mjs": "4fc02b51c8c25b7dd6b9e9a4c4c7c074ef96dabdb09dc0ccd21c7a5e69e62555",
         "budget.mjs": "3db6f48124d4296c295122a026d2012b90756c43155629e48ee15a2d83be6e08",
         "cache-api-backend.mjs": "99000d1032d8368735cc11ccfad32a15fbb45715959bb0f0ac25a3f8c80479dc",
-        "capability-probe.mjs": "a6a574f0c6dcefa76bc608fe11b424baa480e615b36d60bd134c041b709ac4cd",
+        "capability-probe.mjs": "94f45e897130cfefdae6322f7e602e0508cfe16a62540988e7bc168e92bc75ee",
         "catalog-core.mjs": "3ff17d1a1fd49e9be6fabda4be651c7d3ebb099955a97e7d0572c9b2cae6045d",
         "catalog-data.mjs": "24acb0c679c64bd4b211167bdbb03947eacdc918ca9b4cb68f95e5d4fad54692",
         "catalog-default.mjs": "708038f8ed7b530fac53fb9445d30334ba57ab68ad600c9e70f4e35e387e6cc6",
@@ -150,7 +150,7 @@
         "index.mjs": "b20b7f5fc052869ef8ac334c0abd48f444219bb618037a02b15b91cc3afed4c4",
         "manifest-shipped.mjs": "1f352dd7933041117db43dd5081f574a5b0cb20c3fc9a9f2c3dadf309cfbc040",
         "manifest-view.mjs": "a4346838a41af177112ad2147189f972fa62bb535f35158a1757349282cca8d3",
-        "model-host-core.mjs": "ed366d2566db70ca3986131a4ddb5256125f2bf36a78bd8abedeaabd8d127b65",
+        "model-host-core.mjs": "74e18aa58121baebb25712dbeed1334bf4797b986d84d0f36e6d66e5482c8c4f",
         "model-host.mjs": "d1e3e48d7adee2011808fdf65ee66e9a46d5a977d6f0da9b984640d1bdd38257",
         "model-selection.mjs": "9af207bb0d22fb718eb17e024cd6d3f42ed4e217b6f2401ac6b54b1504210a7f",
         "native-shutdown.mjs": "8c8f14207e79e01833d7be5ef152cb25dcc1e18c31f8457fe06aecc834080f10",
@@ -190,13 +190,13 @@
       "name": "model-runtime",
       "owner": "plc",
       "package": {
-        "file": "model-runtime-1.2.0.tar.gz",
-        "sha256": "33497b4e7d48ab0b1234e87f20324e7e5257490c40bb825814090f9ad83358c1",
+        "file": "model-runtime-1.3.0.tar.gz",
+        "sha256": "38a926ba0c94b635d6d4038fe600416565878b3ea630919c5bd353c0023ad2f8",
         "type": "generic"
       },
       "path": "runtime/providers",
-      "tree_sha256": "8da757940584e8c68c3f257d1d8f6963b3726e04a0745a8f696f8a32d954fda6",
-      "version": "1.2.0"
+      "tree_sha256": "c66fd917460e851cf0b00b51cf808fbd39881216847f1ba17ace2eb3eaef3f2d",
+      "version": "1.3.0"
     },
     {
       "files": {

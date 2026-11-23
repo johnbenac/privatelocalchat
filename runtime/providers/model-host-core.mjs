@@ -42,6 +42,7 @@ export function createModelHost({
   envProbe = () => gatherEnv(),
   userAgent = () => globalThis.navigator?.userAgent || "",
   maxTouchPoints = () => globalThis.navigator?.maxTouchPoints || 0,
+  readUserAgent = true,          // false: the host NEVER reads the user agent or the touch points (the functions above are not called; a backend policy and the packaged auto-tier see "" and 0), for a consumer whose own policy says nothing that ships reads them; the default reproduces today
   // page-side options of a consumer (functions cannot cross to the Worker, so these live here):
   probes = [],                   // async ({env}) => facts merged into env (a compute probe, a gpu-kernels check)
   deviceGate = null,             // async ({env, variant}) => {offered?: tierKey[], allow?: tierKey[], prefer?, chosenBy?, reasonFor?, tiers?}; the result goes into state.deviceGate unchanged; an empty list means NOTHING is offered (fail closed)
@@ -59,7 +60,7 @@ export function createModelHost({
   const loadConfigFor = (t, o) => catalog.loadConfigFor(t, o), isWllamaTier = (t) => catalog.runsOnProcessor(t);
   const src = resolveSources(sourceOverrides);
   const subscribers = new Set();
-  const ua = () => String(userAgent() ?? "");   // a null user agent is the empty string: the capability rules never need it
+  const ua = () => (readUserAgent ? String(userAgent() ?? "") : "");   // a null user agent is the empty string: the capability rules never need it
   let variant = DEFAULT_VARIANT;
   let offered = null;            // the tier keys the device gate offered, or null when there is no gate (no restriction)
   let gateResult = null;         // the gate's result as returned (it may carry functions such as reasonFor; the state keeps only its data)
@@ -116,7 +117,7 @@ export function createModelHost({
   async function chooseVariantFromGpu() {
     let env; try { env = await envProbe(); for (const probe of probes) { try { Object.assign(env, (await probe({ env })) ?? {}); } catch (e) { notice("probe", `A device probe failed (${e?.message || e}); the facts it measures are missing.`); } } } catch (e) { notice("probe", `Could not read the GPU's capabilities (${e?.message || e}); using the ${DEFAULT_VARIANT} build.`); return; }
     state.device = env;
-    const lb = backendPolicy ? backendPolicy(env, { tier: "light", userAgent: ua(), maxTouchPoints: maxTouchPoints() }) : lightBackend({ env, userAgent: ua(), maxTouchPoints: maxTouchPoints() });
+    const lb = backendPolicy ? backendPolicy(env, { tier: "light", userAgent: ua(), maxTouchPoints: readUserAgent ? maxTouchPoints() : 0 }) : lightBackend({ env, userAgent: ua(), maxTouchPoints: readUserAgent ? maxTouchPoints() : 0 });
     state.backend = { light: lb, why: backendPolicy ? "set by the consumer's backend policy" : lb === "cpu" ? "no usable graphics card here, so the small model runs on the processor (slower)" : "the graphics card runs the small model" };
     if (DEFAULT_VARIANT === null) return;   // a catalogue without builds has no variant to choose
     const v = chooseWebllmVariant(env);
@@ -304,7 +305,9 @@ export function createModelHost({
     provider() { if (!client) throw new Error("the model host has not been started; call init()"); return client; },
     /** A MessagePort wired to the shared host for one mind worker. Transfer it: mindWorker.postMessage({ port }, [port]). */
     openMindPort() { if (!worker || state.host.state !== "running") throw Object.assign(new Error("the model host is not running"), { class: "provider-unavailable", code: "host-not-running" }); return openPort(worker); },
-    tierConfig(tier = state.selection.tier) { const base = loadConfigFor(tier, { sources: src.sources, runtimeDir, variant, backend: isWllamaTier(tier) ? (state.device ? (backendPolicy ? backendPolicy(state.device, { tier, userAgent: ua(), maxTouchPoints: maxTouchPoints() }) : tierBackend({ env: state.device, userAgent: ua(), maxTouchPoints: maxTouchPoints(), tier })) : state.backend.light) : "gpu" }); return loadConfigOverride ? loadConfigOverride(tier, base) : base; },
+    /** Apply a build variant of the default model (the catalogue's variant key) as the chosen one, with the reason shown in state.variant. Refuses a key the catalogue does not have. */
+    applyVariant(v, why = "chosen by the application") { if (DEFAULT_VARIANT === null || !(v in (catalog.variantInfo ?? {}))) throw Object.assign(new RangeError(`unknown build ${String(v)}`), { code: "unknown-variant" }); applyVariant(v, why); emit(); return state.variant; },
+    tierConfig(tier = state.selection.tier, { variant: wanted = null } = {}) { const base = loadConfigFor(tier, { sources: src.sources, runtimeDir, variant: wanted ?? variant, backend: isWllamaTier(tier) ? (state.device ? (backendPolicy ? backendPolicy(state.device, { tier, userAgent: ua(), maxTouchPoints: readUserAgent ? maxTouchPoints() : 0 }) : tierBackend({ env: state.device, userAgent: ua(), maxTouchPoints: readUserAgent ? maxTouchPoints() : 0, tier })) : state.backend.light) : "gpu" }); return loadConfigOverride ? loadConfigOverride(tier, base) : base; },
 
     async init({ autoLoad = false } = {}) {
       readSettings();                 // the person's saved choice, read first as it always was (the notice order is unchanged)
@@ -395,14 +398,14 @@ export function createModelHost({
     },
 
     /** Startup/re-probe: real load attempts down the main ladder (catalogue tiers only). Leaves the first rung that works loaded. */
-    async probe({ humanChoice = state.selection.chosenBy === "human" && state.selection.tier === (catalog.ladderStartTier ?? catalog.defaultTier) ? tiers[state.selection.tier]?.modelId ?? null : null, embedderAttempt = null, rerankerAttempt = null } = {}) {
+    async probe({ timeoutMs = undefined, texts = undefined, humanChoice = state.selection.chosenBy === "human" && state.selection.tier === (catalog.ladderStartTier ?? catalog.defaultTier) ? tiers[state.selection.tier]?.modelId ?? null : null, embedderAttempt = null, rerankerAttempt = null } = {}) {
       const { runProbe } = await import("./capability-probe.mjs");
       const rung = (t, v = null) => { const vi = v ? VARIANT_INFO[v] : null; return { id: vi ? vi.modelId : tiers[t].modelId, tier: t, variant: v, needsF16: vi ? vi.needsF16 : false, peakBytes: (vi ? vi.memory : tiers[t].memory).peakBytes, downloadBytes: vi ? vi.downloadBytes : tiers[t].downloadBytes, installed: state.tiers[t].install.state === "complete" && (!v || v === variant) }; };
       const main = (catalog.ladder?.length ? catalog.ladder : TIER_ORDER.map((tier) => ({ tier }))).map((r) => (r.notCatalogued ? { id: r.id, notCatalogued: true } : rung(r.tier, r.variant ?? null)));
       const ladders = { main };
       if (embedderAttempt) ladders.embedder = [{ id: "memory-embedder", requiresWebGPU: false }];   // the memory loader (engine.js probeEmbedder / createEmbedClient) supplies the real attempt
       if (rerankerAttempt) ladders.reranker = [{ id: "memory-reranker", requiresWebGPU: false }];
-      const profile = await runProbe({ ladders, humanChoice, modelSource: globalThis.__cfpModelSource ?? null, attempt: async (name, r) => {
+      const profile = await runProbe({ ladders, humanChoice, ...(timeoutMs === undefined ? {} : { timeoutMs }), ...(texts === undefined ? {} : { texts }), modelSource: globalThis.__cfpModelSource ?? null, attempt: async (name, r) => {
         if (name === "embedder") return embedderAttempt(); if (name === "reranker") return rerankerAttempt();
         if (r.variant && r.variant !== variant) applyVariant(r.variant, "capability probe ladder"); const info = await api.load(r.tier); return { loadMs: info.loadMs };
       } });
@@ -415,8 +418,9 @@ export function createModelHost({
     cancelTransfer() { transferController?.abort(); },
 
     /** A load attempt. Never downloads. Rejects with the typed error and records it in state.load.lastError. */
-    async load(tier = state.selection.tier) {
+    async load(tier = state.selection.tier, { variant: wanted = null } = {}) {
       assertOffered(tier);
+      if (wanted !== null && wanted !== variant) api.applyVariant(wanted, "asked for by the load call");
       if (state.busy) throw Object.assign(new Error(`cannot load while ${state.busy}`), { class: "provider-unavailable", code: "manager-busy" });
       const attempt = ++loadAttempt;
       state.busy = "load";
