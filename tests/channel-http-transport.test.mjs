@@ -133,3 +133,87 @@ test('a poll that gets a refusal or a status passes it on as a record (the host 
     client.disconnect(); transport.stop();
   } finally { await srv.close(); }
 });
+
+// ---- the poll schedule: fast while something just happened, then the wait doubles to a ceiling; a hidden tab is not polled ------------------------------------------------------------------
+function fakeClock() {
+  let t = 0, id = 0; const q = new Map();
+  return { now: () => t, timers: { set: (fn, ms) => { q.set(++id, { fn, at: t + ms }); return id; }, clear: (i) => { q.delete(i); } },
+    async advance(ms) { const end = t + ms; for (;;) { const next = [...q.entries()].filter(([, v]) => v.at <= end).sort((a, b) => a[1].at - b[1].at)[0]; if (!next) break; q.delete(next[0]); t = next[1].at; next[1].fn(); for (let i = 0; i < 20; i += 1) await Promise.resolve(); } t = end; },
+    pending: () => q.size };
+}
+function scheduleRig(extra = {}) {
+  const clock = fakeClock(); const polls = [];
+  const listeners = {}; const doc = { hidden: false, addEventListener: (n, f) => { listeners[n] = f; }, removeEventListener: () => {} };
+  const fetch = async (_u, init) => { polls.push(clock.now()); return { ok: true, text: async () => lines([{ kind: 'status', messageId: JSON.parse(init.body).messageId, known: true, states: [] }]), headers: { get: () => ND } }; };
+  const transport = createHttpTransport({ url: 'http://127.0.0.1:1/message-handoff', fetch, timers: clock.timers, now: clock.now, doc, pollMs: 1500, probeId: '00000000-0000-4000-8000-0000000000aa', ...extra });
+  return { clock, polls, doc, listeners, transport };
+}
+test('poll schedule: 1.5 s for 30 s after anything happened, then the wait doubles up to 15 s', async () => {
+  const r = scheduleRig(); r.transport.subscribe({ after: 0 }, () => {}, () => {});
+  await r.clock.advance(30000);
+  const early = r.polls.length;
+  assert.ok(early >= 19 && early <= 22, 'about one poll per 1.5 s while fresh: ' + early);
+  const gaps = (from) => r.polls.slice(from).map((x, i, a) => (i ? x - a[i - 1] : null)).filter(Boolean);
+  await r.clock.advance(120000);
+  const g = gaps(early);
+  assert.ok(g.some((x) => x >= 12000) && Math.max(...g) <= 15000, 'it backs off to the ceiling and no further: ' + g.join(','));
+  assert.ok(g.every((x, i, a) => i === 0 || x >= a[i - 1]), 'the wait never shrinks while nothing arrives');
+  assert.ok(r.polls.length - early < 20, 'about 40 polls in a few minutes would be too many: ' + (r.polls.length));
+  r.transport.stop();
+});
+test('poll schedule: nudge (a send, Check status) and a reply reset it to fast', async () => {
+  const r = scheduleRig(); r.transport.subscribe({ after: 0 }, () => {}, () => {});
+  await r.clock.advance(150000);
+  const before = r.polls.length; const last = r.polls.at(-1);
+  r.transport.nudge();
+  await r.clock.advance(6000);
+  const after = r.polls.slice(before);
+  assert.ok(after.length >= 3 && after[0] === 150000, 'it asked at once and then quickly: ' + after.join(','));
+  assert.equal(r.transport.intervalMs(), 1500); assert.ok(last <= 150000);
+  r.transport.stop();
+});
+test('poll schedule: a tab hidden for more than a minute is not polled; it is asked at once when shown', async () => {
+  const r = scheduleRig(); r.transport.subscribe({ after: 0 }, () => {}, () => {});
+  await r.clock.advance(5000);
+  r.doc.hidden = true; r.listeners.visibilitychange();
+  await r.clock.advance(70000);
+  const mark = r.polls.length;
+  await r.clock.advance(120000);
+  assert.equal(r.polls.length, mark, 'no poll while hidden for long');
+  r.doc.hidden = false; r.listeners.visibilitychange();
+  await r.clock.advance(100);
+  assert.equal(r.polls.length, mark + 1, 'asked at once on visible');
+  r.transport.stop();
+});
+test('the same reply keeps the fast schedule', async () => {
+  const clock = fakeClock(); let n = 0;
+  const fetch = async (_u, init) => { const id = JSON.parse(init.body).messageId; n += 1; return { ok: true, text: async () => lines([{ kind: 'status', messageId: id, known: true }, ...(n % 20 === 0 ? [reply('r' + n, 'x')] : [])]), headers: { get: () => ND } }; };
+  const t = createHttpTransport({ url: 'http://127.0.0.1:1/message-handoff', fetch, timers: clock.timers, now: clock.now, doc: null, pollMs: 1500 });
+  t.track('m1'); const got = []; t.subscribe({ after: 0 }, (f) => got.push(f.delivered), () => {});
+  await clock.advance(200000);
+  assert.ok(got.length >= 2 && t.intervalMs() <= 15000);
+  t.stop();
+});
+
+test('a message whose reply arrived is still asked about: a later poll delivers the missing receipts, the meter grows, and the word is not shown twice', async () => {
+  let states = ['accepted', 'delivered', 'exposed'];
+  const srv = await server((frame, res) => {
+    res.writeHead(200, { 'Content-Type': ND });
+    if (frame.kind === 'message') return res.end(lines(states.slice(0, 2).map((state) => ({ kind: 'receipt', messageId: frame.id, state, encounter: 'enc:test' }))));
+    res.end(lines([{ kind: 'status', messageId: frame.messageId, known: true, states }, reply('r-late', 'the reply')]));
+  });
+  try {
+    const transport = createHttpTransport({ url: srv.url, pollMs: 20 });
+    const shown = []; let n = 0;
+    const client = createChannelClient({ transport, resident: { individualId: 'i', host: { kind: 'own-computer', address: srv.url } }, encounter: 'enc:test', participant: { id: 'p:t', kind: 'human', name: 'T', standing: 'guest', individualId: null }, source: 'plc:test', newId: () => '00000000-0000-4000-8000-' + String(++n).padStart(12, '0'), onReply: (r) => shown.push(r.text) });
+    client.connect();
+    const m = await client.send('hi'); transport.track(m.id);
+    await new Promise((r) => setTimeout(r, 200));
+    assert.deepEqual(shown, ['the reply']); assert.deepEqual(client.view().messages[0].states, ['accepted', 'delivered', 'exposed']);
+    states = ['accepted', 'delivered', 'exposed', 'interpreted', 'persisted'];   // the host records the later stages minutes after the reply
+    await new Promise((r) => setTimeout(r, 200));
+    assert.deepEqual(client.view().messages[0].states, states, 'the meter filled in from a later poll');
+    assert.deepEqual(shown, ['the reply'], 'and the word was not shown again');
+    client.disconnect(); transport.stop();
+  } finally { await srv.close(); }
+});

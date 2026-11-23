@@ -10,6 +10,8 @@
 //                   refusal) is passed to onRecord(frame) with no seq, so the client learns the receipts, and that the host answered at all (or refused: a refusal is an answer)
 //                   onClose('unreachable') means a poll got NO answer (a refusal is never that); the client says `unreachable`, not `unavailable`
 //   probeId         a message id nobody sent (a UUID): while nothing is tracked, the loop asks about it, so the state of the host is known before the first message
+//   nudge()         ask quickly now and for a while (a send, Check status, the tab shown again); with nothing happening the wait doubles from pollMs up to maxMs (15 s), and a tab hidden
+//                   for more than hiddenPauseMs (60 s) is not polled until it is shown
 //   track(ids)      the message ids to ask about (the page adds the ids of messages it sent, also after a reload)
 export const DEFAULT_POLL_MS = 1500;
 export const DEFAULT_TIMEOUT_MS = 15000;
@@ -28,12 +30,12 @@ export function parseRecords(text) {
   return out;
 }
 
-export function createHttpTransport({ url, fetch: fetchImpl = globalThis.fetch?.bind(globalThis), pollMs = DEFAULT_POLL_MS, timeoutMs = DEFAULT_TIMEOUT_MS, probeId = null,
+export function createHttpTransport({ url, fetch: fetchImpl = globalThis.fetch?.bind(globalThis), pollMs = DEFAULT_POLL_MS, timeoutMs = DEFAULT_TIMEOUT_MS, probeId = null, quietMs = 30000, maxMs = 15000, hiddenPauseMs = 60000, now = () => Date.now(), doc = globalThis.document,
   timers = { set: (fn, ms) => globalThis.setTimeout(fn, ms), clear: (id) => globalThis.clearTimeout(id) } } = {}) {
   if (typeof url !== 'string' || !/^https?:\/\//.test(url)) throw new TypeError('url must be the http(s) address of the message handoff route');
   if (typeof fetchImpl !== 'function') throw new TypeError('a fetch function is required');
   const tracked = new Set(), seen = new Set(), log = [];
-  let seq = 0, loop = null, onFrameFn = null, onCloseFn = null, onRecordFn = null, stopped = false, running = false;
+  let seq = 0, loop = null, interval = pollMs, activeAt = now(), hiddenSince = null, visListener = null, tickFn = null, onFrameFn = null, onCloseFn = null, onRecordFn = null, stopped = false, running = false;
 
   async function post(frame, signal) {
     const controller = new AbortController();
@@ -69,6 +71,7 @@ export function createHttpTransport({ url, fetch: fetchImpl = globalThis.fetch?.
           const key = occKey(frame);
           if (key === null || seen.has(key)) continue;
           seen.add(key);
+          activeAt = now(); interval = pollMs;   // she spoke: ask quickly again
           log.push({ frame, seq: ++seq });
           onFrameFn?.(frame, seq);
         }
@@ -76,18 +79,38 @@ export function createHttpTransport({ url, fetch: fetchImpl = globalThis.fetch?.
     } finally { running = false; }
   }
 
-  return {
+  const dropVis = () => { if (visListener && doc?.removeEventListener) doc.removeEventListener('visibilitychange', visListener); visListener = null; };
+  const api = {
     request: (frame) => post(frame),
     subscribe({ after = 0 } = {}, onFrame, onClose, onRecord) {
       onFrameFn = onFrame; onCloseFn = onClose || null; onRecordFn = onRecord || null; stopped = false;
       for (const item of log) if (item.seq > after) onFrame(item.frame, item.seq);   // what this transport already saw, after the cursor
-      const tick = () => { if (stopped) return; void pollOnce().finally(() => { if (!stopped) loop = timers.set(tick, pollMs); }); };
+      // The schedule: fast (pollMs) for quietMs after anything happened (a send, a nudge, a reply, the tab coming back), then the wait doubles up to maxMs while nothing arrives.
+      // A tab hidden for more than hiddenPauseMs is not polled at all; it is asked at once when it is shown again.
+      const tick = () => {
+        if (stopped) return;
+        const hiddenLong = doc?.hidden && hiddenSince !== null && now() - hiddenSince > hiddenPauseMs;
+        const next = () => { if (stopped) return; if (now() - activeAt >= quietMs) interval = Math.min(maxMs, interval * 2); else interval = pollMs; loop = timers.set(tick, hiddenLong ? maxMs : interval); };
+        if (hiddenLong) { next(); return; }
+        void pollOnce().finally(next);
+      };
+      tickFn = tick;
+      if (doc?.addEventListener) {
+        visListener = () => { if (doc.hidden) { hiddenSince = now(); return; } hiddenSince = null; api.nudge(); };
+        doc.addEventListener('visibilitychange', visListener);
+        if (doc.hidden) hiddenSince = now();
+      }
+      interval = pollMs; activeAt = now();
       loop = timers.set(tick, 0);
       return { close: () => { stopped = true; if (loop !== null) timers.clear(loop); loop = null; onFrameFn = null; } };
     },
     track(ids) { for (const id of [].concat(ids)) tracked.add(String(id)); },
     untrack(ids) { for (const id of [].concat(ids)) tracked.delete(String(id)); },
     pollNow: pollOnce,
-    stop() { stopped = true; if (loop !== null) timers.clear(loop); loop = null; onFrameFn = null; onRecordFn = null; }
+    /** Something happened that makes an answer likely (a message was sent, the person asked for the status, the tab is back): ask quickly now and keep asking quickly for a while. */
+    nudge() { activeAt = now(); interval = pollMs; if (!stopped && tickFn && loop !== null) { timers.clear(loop); loop = timers.set(tickFn, 0); } },
+    intervalMs: () => interval,
+    stop() { stopped = true; if (loop !== null) timers.clear(loop); loop = null; onFrameFn = null; onRecordFn = null; dropVis(); }
   };
+  return api;
 }
