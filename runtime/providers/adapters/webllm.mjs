@@ -12,6 +12,7 @@
 import { createThinkFilter } from "../think.mjs";
 import { compareInventory, planInstall, createRateTracker, hex } from "../verify.mjs";
 import {retryDownload} from '../download-retry.mjs';
+import { candidatesFor, fetchVerified } from "../sources-core.mjs";
 
 const WEBLLM_URL = new URL("../vendor/webllm/web-llm-0.2.86.js", import.meta.url).href;
 const SCOPES = ["webllm/model", "webllm/config", "webllm/wasm"];
@@ -87,7 +88,17 @@ async function removeFiles({ files, paths = null }) {
   return { removed, requested: wanted.length };
 }
 
-async function downloadOne(f, { signal, onBytes, verifyHash }) {
+// a list of sources (mirrors, a picked folder, an archive) goes through the SAME size and SHA-256 check as the catalogue's own address; the file is stored under the catalogue's address (the cache key)
+// whichever source served it, because the engine looks for its files under the address it expects. Without a list this is exactly the download it always was.
+async function downloadFromSources(f, ctx, { signal, onBytes, verifyHash }) {
+  const r = await fetchVerified(f, candidatesFor(f, { sources: ctx.sourceList, fallback: ctx.fallback }), { fetch: (u, i) => fetch(u, i), requestCredential: ctx.requestCredential }, { hash: verifyHash ? sha256Of : async () => f.sha256, signal, onBytes, sourcesById: ctx.byId, posture: { refused: ctx.refused }, dead: ctx.dead });
+  const cache = await caches.open(f.scope);
+  await cache.put(new Request(f.url), new Response(r.blob, { status: 200, headers: { "content-length": String(f.bytes), "content-type": r.blob.type || "application/octet-stream", "x-cfp-sha256": f.sha256 || "" } }));
+  return r.servedBy;
+}
+
+async function downloadOne(f, { signal, onBytes, verifyHash, ctx = null }) {
+  if (ctx) return downloadFromSources(f, ctx, { signal, onBytes, verifyHash });
   const res = await fetch(f.url, { signal, credentials: "omit", cache: "no-store" });
   if (!res.ok || !res.body) throw Object.assign(new Error(`HTTP ${res.status} for ${f.url}`), { name: "DownloadError", code: "download-failed" });
   const reader = res.body.getReader(); const chunks = []; let n = 0;
@@ -104,6 +115,7 @@ async function downloadOne(f, { signal, onBytes, verifyHash }) {
   }
   const cache = await caches.open(f.scope);
   await cache.put(new Request(f.url), new Response(blob, { status: 200, headers: { "content-length": String(n), "content-type": blob.type || "application/octet-stream", "x-cfp-sha256": f.sha256 || "" } }));
+  return "canonical";
 }
 
 /**
@@ -111,7 +123,9 @@ async function downloadOne(f, { signal, onBytes, verifyHash }) {
  * (the Cache API cannot append, and the largest file is 311 MB). Bad entries are deleted FIRST and reported in `replaced`.
  * Progress objects carry cumulative bytes including the kept ones, so a resumed install starts above zero.
  */
-async function install({ files, parallel = 3, verifyHash = true, deep = false }, { onProgress, signal } = {}) {
+async function install({ files, parallel = 3, verifyHash = true, deep = false, sourceList = null, fallback = true, refusedSources = [] }, { onProgress, signal, requestCredential = null } = {}) {
+  const ctx = sourceList?.length ? { sourceList, fallback, refused: refusedSources, byId: new Map(sourceList.map((s) => [s.id, s])), requestCredential, dead: new Map() } : null;
+  const servedBy = [];
   // deep: also hash every stored file, so a same-size damaged file is found and replaced (repair uses this; a plain install does not need it)
   const inv = deep ? await verify({ files, deep: true }, { signal }) : await inspect({ files }, { signal });
   const plan = planInstall(files, inv);
@@ -131,7 +145,7 @@ async function install({ files, parallel = 3, verifyHash = true, deep = false },
     let mine = 0;
     report();
     try {
-      await downloadOne(f, { signal, verifyHash, onBytes: (b) => { mine += b; fetched += b; const t = performance.now(); if (t - last > 400) { last = t; report(); } } });
+      servedBy.push({ name: f.path, source: await downloadOne(f, { signal, verifyHash, ctx, onBytes: (b) => { mine += b; fetched += b; const t = performance.now(); if (t - last > 400) { last = t; report(); } } }) });
     } catch (e) { fetched -= mine; throw e; } // a failed file leaves nothing behind and is not counted
   },{signal,onRetry:extra=>{rate.reset();report(extra);}});
   await mapLimit(plan.todo, parallel, async (f) => {
@@ -157,7 +171,7 @@ async function install({ files, parallel = 3, verifyHash = true, deep = false },
     after = await inspect({ files }, { signal });
   }
   if (!after.ok) throw Object.assign(new Error(`cache-incomplete after install: ${after.missing.length} missing, ${after.bad.length} bad`), { code: "cache-corrupt", detail: { missing: after.missing.slice(0, 20), bad: after.bad.slice(0, 20), refetchDetail, storage: await storageSnapshot() } });
-  return { ...after, fetchedBytes: fetched, keptBytes: plan.bytesKept, replaced: plan.deleteFirst, filesFetched: plan.todo.length, refetched, refetchDetail };
+  return { ...after, fetchedBytes: fetched, keptBytes: plan.bytesKept, replaced: plan.deleteFirst, filesFetched: plan.todo.length, refetched, refetchDetail, servedBy: servedBy.sort((a, b) => (a.name < b.name ? -1 : 1)) };
 }
 
 export const storageOps = {

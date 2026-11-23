@@ -158,7 +158,7 @@
       "key": "plc.models.v1",
       "store": "localStorage",
       "class": "setting",
-      "owner": "runtime/providers/model-host.mjs",
+      "owner": "runtime/providers/catalog.mjs",
       "note": "which on-device model is chosen",
       "format": 1,
       "since": "v0.6.0"
@@ -472,7 +472,7 @@
       "runtime/providers/adapters/wllama.mjs",
       "runtime/providers/cache-api-backend.mjs",
       "runtime/providers/capability-probe.mjs",
-      "runtime/providers/model-host.mjs",
+      "runtime/providers/model-host-core.mjs",
       "runtime/providers/opfs-write-worker.mjs",
       "runtime/voice-pick.mjs",
       "scripts/service-worker.js"

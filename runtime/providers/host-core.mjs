@@ -15,7 +15,7 @@
 // No time limit exists anywhere (ADR-0001). Nothing on the token path is a native async generator (Safari 27.0 crash, see
 // spikes/llm/RESULTS.md): adapters push parts through a callback.
 import { judgeStructured } from "./structured.mjs";
-import { classifyEngineError, parseOverflow, serializeError, estimateTokens } from "./errors.mjs";
+import { classifyEngineError, parseOverflow, serializeError, estimateTokens, ERROR_CLASSES } from "./errors.mjs";
 
 const now = () => (typeof performance !== "undefined" ? performance.now() : Date.now());
 const KNOWN_FORMATS = new Set(["text", "json_object", "json_schema"]);
@@ -24,8 +24,19 @@ const KNOWN_FORMATS = new Set(["text", "json_object", "json_schema"]);
  * adapters: { [name]: () => Adapter }        engine factories (lazy)
  * storage:  { [name]: { inspect, install, verify, remove } }   per-engine cache operations that need no loaded model
  * livenessLock: string | null                 announced to clients; the entry script holds that Web Lock for the Worker's life
+ * hooks (all optional; they only ADD to the built-in behaviour, never weaken a built-in refusal):
+ *   validateRequest(request) -> null | {code, class, message}   a consumer's request rule, run BEFORE the built-in checks (for example maxTokens required)
+ *   errorClasses: string[]                                       extra error classes the consumer may report
+ *   classifyError(err, {phase}, base) -> fields | undefined      may replace the built-in classification (see errors.mjs)
+ *   afterGenerate({text, finishReason, responseFormat, judged, usage, request}) -> undefined | {error:{code, class, message, advice?, retryable?}}
+ *                                                                runs before the terminal event, also when the structured result is invalid
+ *   structuredFormats: string[]                                  extra responseFormat.type values accepted (judged by the consumer's hook)
+ *   validateRequestStage: "first" (default) | "after-messages"  where validateRequest runs: before every built-in check, or after the messages checks and before maxTokens and the format checks
+ * diagnostics: true (default) | false   false drops the debug objects an adapter emits (the adapters' debug blocks are switched by the same flag: the host forces their knobs off when it is false; a release artifact has them removed)
  */
-export function createHost({ adapters, storage = {}, providerId = "provider", livenessLock = null }) {
+export function createHost({ adapters, storage = {}, providerId = "provider", livenessLock = null, hooks = {}, diagnostics = true, credentialTimeoutMs = 30000 }) {
+  const knownFormats = new Set([...KNOWN_FORMATS, ...(hooks.structuredFormats || [])]);
+  const errorClasses = new Set(hooks.errorClasses || []);
   let adapter = null;
   let adapterName = null;
   let loadedInfo = null;
@@ -40,12 +51,15 @@ export function createHost({ adapters, storage = {}, providerId = "provider", li
   const counters = { received: 0, completed: 0, failed: 0, aborted: 0, tokens: 0, recoveries: 0 };
 
   const ports = new Set();
-  const send = (p, msg) => p.postMessage(msg);
+  const send = (p, msg, transfer) => (transfer && transfer.length ? p.postMessage(msg, transfer) : p.postMessage(msg));
   const broadcast = (msg) => { for (const p of ports) p.postMessage(msg); };
   const setState = (s, detail = null) => { state = s; stateDetail = detail; broadcast({ type: "provider-state", state: s, detail, at: Date.now() }); };
 
   // ---- load ------------------------------------------------------------------------------------------------------
+  // the diagnostics switch reaches the adapters through the load config: with it off, their debug knobs are forced off whatever a catalogue or caller asked for
+  const withDiagnostics = (c) => (diagnostics || !c?.knobs ? c : { ...c, knobs: Object.fromEntries(Object.entries(c.knobs).map(([k, v]) => [k, k.startsWith("dev") && k.includes("Diagnostics") ? false : v])) });   // every dev*Diagnostics* knob (named by pattern so a release build carries no debug name)
   async function onLoad(port, id, config) {
+    config = withDiagnostics(config);
     if (state === "loading" || state === "unloading") return send(port, { id, type: "error", error: { name: "ProviderBusy", code: "provider-busy", class: "provider-unavailable", message: `cannot load while ${state}` } });
     if (running) return send(port, { id, type: "error", error: { name: "ProviderBusy", code: "provider-busy", class: "provider-unavailable", message: "cannot load while an attempt is running; unload first" } });
     const loadAttempt = Number.isInteger(config.loadAttempt) ? config.loadAttempt : ++loadAttempts;
@@ -65,7 +79,7 @@ export function createHost({ adapters, storage = {}, providerId = "provider", li
     } catch (err) {
       try { await adapter?.unload?.(); } catch { /* the load failed already; the original error is the one to report */ }
       adapter = null; loadedInfo = null; loadedConfig = null;
-      const c = classifyEngineError(err, { phase: "load" });
+      const c = classifyEngineError(err, { phase: "load" }, hooks);
       const typed = err?.typed ? { ...c, ...err.typed } : c;
       setState("faulted", { phase: "load", loadAttempt, class: typed.class, code: typed.code, message: typed.message.slice(0, 300) });
       // Nothing retries here. Calling load() again is a NEW load attempt (the caller supplies the next number).
@@ -100,11 +114,23 @@ export function createHost({ adapters, storage = {}, providerId = "provider", li
   }
 
   function validateRequest(r) {
+    // The consumer's rule runs FIRST by default, with its own text and order (validateRequestStage "after-messages" runs it after the messages checks instead); when it finds nothing
+    // the built-in checks still run, so a hook can add a refusal but never remove one.
+    const ownRule = () => {
+      if (typeof hooks.validateRequest !== "function") return null;
+      let own; try { own = hooks.validateRequest(r); } catch (e) { own = { code: "request-hook-failed", class: "invalid-request", message: String(e?.message || e) }; }
+      if (!own) return null;
+      const cls = ERROR_CLASSES.includes(own.class) || errorClasses.has(own.class) ? own.class : "invalid-request";
+      return { code: String(own.code || "bad-request"), class: cls, message: String(own.message || "the request was refused by the consumer's validation") };
+    };
+    const afterMessages = hooks.validateRequestStage === "after-messages";
+    if (!afterMessages) { const p = ownRule(); if (p) return p; }
     if (!Array.isArray(r.messages) || r.messages.length === 0) return { code: "bad-request", class: "invalid-request", message: "messages[] required" };
     if (!r.messages.every((m) => m && ["system", "user", "assistant"].includes(m.role) && typeof m.content === "string")) return { code: "bad-request", class: "invalid-request", message: "messages must be {role, content:string}" };
+    if (afterMessages) { const p = ownRule(); if (p) return p; }
     if (r.maxTokens !== undefined && (!Number.isInteger(r.maxTokens) || r.maxTokens < 1)) return { code: "bad-request", class: "invalid-request", message: "maxTokens must be a positive integer when given; omit it for no limit" };
     const t = r.responseFormat?.type;
-    if (t !== undefined && !KNOWN_FORMATS.has(t)) return { code: "unsupported-structured-mode", class: "unsupported", message: `responseFormat.type ${JSON.stringify(t)} is not supported; use text, json_object or json_schema` };
+    if (t !== undefined && !knownFormats.has(t)) return { code: "unsupported-structured-mode", class: "unsupported", message: `responseFormat.type ${JSON.stringify(t)} is not supported; use text, json_object or json_schema` };
     if (t === "json_schema" && (!r.responseFormat.schema || typeof r.responseFormat.schema !== "object")) return { code: "bad-request", class: "invalid-request", message: "responseFormat json_schema needs a schema object" };
     return null;
   }
@@ -161,7 +187,7 @@ export function createHost({ adapters, storage = {}, providerId = "provider", li
     } catch (err) {
       try { await adapter?.unload?.(); } catch { /* already failed */ }
       adapter = null; loadedInfo = null;
-      const c2 = classifyEngineError(err, { phase: "load" });
+      const c2 = classifyEngineError(err, { phase: "load" }, hooks);
       setState("faulted", { phase: "load", recovering: true, class: c2.class, code: c2.code, message: c2.message.slice(0, 300) });
     } finally {
       recovering = false;
@@ -184,7 +210,7 @@ export function createHost({ adapters, storage = {}, providerId = "provider", li
     try {
       const onPart = (part) => {
         /* DEV_DIAGNOSTICS_START */
-        if(part.diagnostic){emit(attempt,'debug-object',part.diagnostic);return;}
+        if(diagnostics&&part.diagnostic){emit(attempt,'debug-object',part.diagnostic);return;}
         /* DEV_DIAGNOSTICS_END */
         if (attempt.controller.signal.aborted) return;
         if (part.delta) {
@@ -206,6 +232,15 @@ export function createHost({ adapters, storage = {}, providerId = "provider", li
       const usage = usageOf(attempt, index);
       const structured = judgeStructured(attempt.text, r.responseFormat);
       if (structured) structured.enforcement = loadedInfo?.capabilities?.structuredEnforcement?.[r.responseFormat.type] ?? "validated";
+      if (typeof hooks.afterGenerate === "function") {
+        let own; let hookFailure = null;
+        try { own = hooks.afterGenerate({ text: attempt.text, finishReason: finishReason || "stop", responseFormat: r.responseFormat ?? null, judged: structured, usage, request: r }); } catch (e) { hookFailure = e; }
+        if (hookFailure) return finish(attempt, "attempt-failed", { error: { code: "after-generate-hook-failed", class: "runtime-fault", message: String(hookFailure?.message || hookFailure).slice(0, 300), phase: "structured", retryable: false }, partialText: attempt.text, usage, structured });
+        if (own?.error) {
+          const cls = ERROR_CLASSES.includes(own.error.class) || errorClasses.has(own.error.class) ? own.error.class : "output-invalid";
+          return finish(attempt, "attempt-failed", { error: { code: String(own.error.code || "after-generate"), class: cls, message: String(own.error.message || "the reply was refused by the consumer"), phase: "structured", retryable: own.error.retryable ?? true, ...(own.error.advice ? { advice: own.error.advice } : {}) }, partialText: attempt.text, usage, structured });
+        }
+      }
       if (structured && !structured.valid) {
         // The text was generated but the requested structure was not met: a failed attempt, loudly, raw text preserved, nothing repaired.
         return finish(attempt, "attempt-failed", { error: { code: "structured-output-invalid", class: "output-invalid", message: `${structured.stage}: ${structured.error || structured.errors.join("; ")}`, phase: "structured", retryable: true, advice: "The model's reply did not match the requested structure. The raw reply is kept. The mind may retry as a new attempt." }, partialText: attempt.text, usage, structured });
@@ -220,7 +255,7 @@ export function createHost({ adapters, storage = {}, providerId = "provider", li
       if (overflow) {
         return finish(attempt, "attempt-failed", { error: { code: "context-overflow", class: "context-overflow", name: err?.name || "Error", message: message.slice(0, 300), phase: "prefill", retryable: false, providerFault: false, detail: overflow }, partialText: "", usage: usageOf(attempt, index) });
       }
-      const c = classifyEngineError(err, { phase: "generate" });
+      const c = classifyEngineError(err, { phase: "generate" }, hooks);
       // Any unrecognised exception from the engine mid-generation is treated as a provider fault: the engine state is unknown.
       if (c.providerFault) {
         setState("faulted", { phase: "generate", class: c.class, code: c.code, message: c.message.slice(0, 300) });
@@ -279,6 +314,14 @@ export function createHost({ adapters, storage = {}, providerId = "provider", li
   }
 
   // ---- storage operations (no model needs to be loaded) --------------------------------------------------------------
+  // a storage job may need a credential for a source: it asks the page over this port, waits (with a timeout), and keeps nothing; the answer is never put in state, logs or errors
+  const credentialWaits = new Map();
+  const requestCredentialOver = (port, jobId, timeoutMs = credentialTimeoutMs) => (endpoint) => new Promise((resolve) => {
+    const rid = `credential-${globalThis.crypto.randomUUID()}`;   // unguessable, and only the port that was asked may answer
+    const timer = setTimeout(() => { credentialWaits.delete(rid); resolve({ refused: true, timedOut: true }); }, timeoutMs);
+    credentialWaits.set(rid, { port, resolve: (a) => { clearTimeout(timer); credentialWaits.delete(rid); resolve(a); } });
+    send(port, { type: "credential-request", id: rid, job: jobId, endpoint });
+  });
   async function onStorage(port, id, m) {
     const ops = storage[m.engine];
     const fn = ops?.[m.action];
@@ -288,25 +331,130 @@ export function createHost({ adapters, storage = {}, providerId = "provider", li
     if (sameModelLoaded) return send(port, { id, type: "error", error: { name: "ProviderBusy", code: "provider-busy", class: "provider-unavailable", message: `cannot ${m.action} the files of a model that is ${state}; unload it first` } });
     const controller = new AbortController(); jobs.set(id, controller);
     try {
-      const value = await fn(m.args || {}, { onProgress: (p) => send(port, { id, type: "progress", progress: p }), signal: controller.signal });
+      const value = await fn(m.args || {}, { onProgress: (p) => send(port, { id, type: "progress", progress: p }), signal: controller.signal, requestCredential: requestCredentialOver(port, id) });
       send(port, { id, type: "result", value });
     } catch (err) {
       if (controller.signal.aborted) return send(port, { id, type: "error", error: { name: "AbortError", class: "aborted", code: "storage-cancelled", message: `${m.action} cancelled`, detail: err?.detail } });
-      const c = classifyEngineError(err, { phase: "install" });
+      const c = classifyEngineError(err, { phase: "install" }, hooks);
       send(port, { id, type: "error", error: { ...serializeError(err), message: c.message, code: err?.code || c.code, class: c.class, reason: c.reason, advice: c.advice, phase: mutating ? "install" : "inspect", ...(err?.detail ? { detail: err.detail } : {}) } });
     } finally { jobs.delete(id); }
+  }
+
+  // ---- other engine families (speech, recognition, embeddings, image) ---------------------------------------------
+  // The text engine above is one loaded model at a time. A family is loaded SIDE BY SIDE ("engine-load"), then invoked by operation
+  // name ("invoke"). The guarantees match generate(): the caller mints `invocationId`, exactly one terminal event per invocation
+  // (invoke-completed | invoke-failed | invoke-aborted), strictly increasing seq, no retry, no fallback. Invocations of one engine run
+  // in order (an engine is one instance); different engines run side by side. The typed request and result of each operation are
+  // the family's business, not this host's.
+  const families = new Map();      // engine -> { adapter, info, config, chain }
+  const invocations = new Map();   // invocationId -> invocation
+
+  async function onEngineLoad(port, id, m) {
+    const engine = m.engine; const factory = typeof engine === "string" ? adapters[engine] : null;
+    if (!factory) return send(port, { id, type: "error", error: { name: "ConfigError", class: "invalid-request", code: "unknown-engine", message: `unknown engine ${String(engine)}` } });
+    if (engine === adapterName && adapter) return send(port, { id, type: "error", error: { name: "ConfigError", class: "invalid-request", code: "engine-is-text-engine", message: `${engine} is the loaded text engine; use load, not engine-load` } });
+    const config = withDiagnostics({ ...(m.config || {}), adapter: engine });
+    const steady = Number.isFinite(m.needs?.steadyBytes) ? m.needs.steadyBytes : 0;
+    if (Number.isFinite(m.maxBytes)) {
+      const others = [...families.entries()].filter(([name]) => name !== engine).reduce((n, [, f]) => n + (f.needs?.steadyBytes || 0), 0);
+      const declared = others + (Number.isFinite(m.usedBytes) ? m.usedBytes : 0) + steady;
+      if (declared > m.maxBytes) return send(port, { id, type: "error", error: { name: "BudgetError", class: "out-of-memory", code: "memory-over-budget", reason: "memory-over-budget", message: `loading ${engine} would hold about ${declared} bytes, over the ${m.maxBytes} the consumer allows`, advice: "Unload another model first, or choose a smaller one. Nothing was unloaded for you.", phase: "load", retryable: true, detail: { declaredBytes: declared, maxBytes: m.maxBytes, engine } } });
+    }
+    const previous = families.get(engine);
+    if (previous) { try { await previous.adapter.unload?.(); } catch { /* replaced anyway */ } families.delete(engine); }
+    let instance = null;
+    try {
+      instance = factory();
+      await instance.preflight?.(config);
+      const info = await instance.load(config, { onProgress: (p) => send(port, { id, type: "progress", progress: p }) });
+      families.set(engine, { adapter: instance, info, config, needs: m.needs || null, chain: Promise.resolve(), ahead: 0 });
+      broadcast({ type: "engine-state", engine, state: "ready", at: Date.now() });
+      send(port, { id, type: "result", value: { engine, ...info } });
+    } catch (err) {
+      try { await instance?.unload?.(); } catch { /* the load failed already */ }
+      const c = classifyEngineError(err, { phase: "load" }, hooks);
+      broadcast({ type: "engine-state", engine, state: "faulted", detail: { class: c.class, code: c.code, message: c.message.slice(0, 300) }, at: Date.now() });
+      send(port, { id, type: "error", error: { ...serializeError(err), message: c.message, code: c.code, class: c.class, reason: c.reason, advice: c.advice, phase: "load", retryable: true } });
+    }
+  }
+
+  async function onEngineUnload(port, id, m) {
+    const f = families.get(m.engine);
+    if (!f) return send(port, { id, type: "result", value: { unloaded: false, engine: m.engine } });
+    for (const inv of [...invocations.values()]) if (inv.engine === m.engine) abortInvocation(inv.invocationId, { by: "supervisor", reason: "engine-unload" });
+    try { await f.adapter.unload?.(); families.delete(m.engine); broadcast({ type: "engine-state", engine: m.engine, state: "unloaded", at: Date.now() }); send(port, { id, type: "result", value: { unloaded: true, engine: m.engine } }); }
+    catch (err) { families.delete(m.engine); broadcast({ type: "engine-state", engine: m.engine, state: "faulted", detail: { phase: "unload", message: String(err?.message || err) }, at: Date.now() }); send(port, { id, type: "error", error: { ...serializeError(err), class: "runtime-fault" } }); }
+  }
+
+  function emitInv(inv, type, data = {}, transfer = null) {
+    if (inv.terminal) return;
+    send(inv.port, { id: inv.id, type: "event", event: { type, invocationId: inv.invocationId, engine: inv.engine, name: inv.name, seq: inv.seq++, at: Date.now(), tMs: Math.round((now() - inv.receivedAt) * 100) / 100, ...data } }, transfer);
+  }
+  function finishInv(inv, type, data) {
+    if (inv.terminal) return;
+    emitInv(inv, type, data); inv.terminal = true; invocations.delete(inv.invocationId);
+    if (inv.fam) { inv.fam.ahead = Math.max(0, inv.fam.ahead - 1); inv.fam = null; }
+    if (type === "invoke-completed") counters.completed++; else if (type === "invoke-failed") counters.failed++; else counters.aborted++;
+    send(inv.port, { id: inv.id, type: "done" });
+  }
+
+  function onInvoke(port, id, m) {
+    const request = m.request && typeof m.request === "object" ? m.request : {};
+    if (typeof request.invocationId !== "string" || !request.invocationId) return send(port, { id, type: "error", error: { name: "TypeError", class: "invalid-request", message: "invoke(request): request.invocationId (string) is required; the caller mints invocation ids" } });
+    if (invocations.has(request.invocationId)) return send(port, { id, type: "error", error: { name: "DuplicateInvocation", class: "invalid-request", message: `invocationId ${request.invocationId} already in flight; a retry needs a new invocationId` } });
+    const inv = { port, id, engine: m.engine, name: String(m.name ?? ""), invocationId: request.invocationId, request, seq: 0, terminal: false, controller: new AbortController(), abort: null, receivedAt: now(), started: false };
+    invocations.set(inv.invocationId, inv); counters.received++;
+    const fam = families.get(m.engine);
+    const refuse = !fam ? { code: "engine-not-loaded", class: "provider-unavailable", message: `engine ${String(m.engine)} is not loaded; engine-load it first`, retryable: true }
+      : typeof fam.adapter.invoke !== "function" ? { code: "engine-cannot-invoke", class: "unsupported", message: `engine ${m.engine} has no invoke operation`, retryable: false }
+      : null;
+    if (refuse) { emitInv(inv, "invoke-queued", { position: 0 }); return finishInv(inv, "invoke-failed", { error: { ...refuse, phase: "queued" } }); }
+    // the real queue position: how many invocations of this engine are ahead (running or waiting)
+    emitInv(inv, "invoke-queued", { position: fam.ahead });
+    fam.ahead++; inv.fam = fam;
+    fam.chain = fam.chain.then(() => runInvocation(inv, fam)).catch(() => {});
+  }
+
+  async function runInvocation(inv, fam) {
+    if (inv.terminal) return;   // aborted while queued
+    inv.started = true; emitInv(inv, "invoke-started", {});
+    // a streamed partial result (an audio chunk, an image tile); `transfer` moves its buffers without copying them
+    const part = (p, transfer) => { if (!inv.controller.signal.aborted) emitInv(inv, "invoke-part", { part: p }, transfer); };
+    try {
+      const result = await fam.adapter.invoke(inv.name, inv.request, inv.controller.signal, part);
+      if (inv.controller.signal.aborted) return finishInv(inv, "invoke-aborted", { ...(inv.abort || normalizeAbort("aborted")), phase: "invoke" });
+      return finishInv(inv, "invoke-completed", { result: result ?? null });
+    } catch (err) {
+      if (inv.controller.signal.aborted || err?.name === "AbortError") return finishInv(inv, "invoke-aborted", { ...(inv.abort || normalizeAbort("aborted")), phase: "invoke" });
+      const c = classifyEngineError(err, { phase: "generate" }, hooks);
+      if (c.providerFault) broadcast({ type: "engine-state", engine: inv.engine, state: "faulted", detail: { class: c.class, code: c.code, message: c.message.slice(0, 300) }, at: Date.now() });
+      return finishInv(inv, "invoke-failed", { error: { code: c.code, class: c.class, reason: c.reason, message: String(err?.message || err).slice(0, 600), advice: c.advice, phase: "invoke", retryable: !c.providerFault, providerFault: c.providerFault } });
+    }
+  }
+
+  function abortInvocation(invocationId, reason = "caller-abort") {
+    const inv = invocations.get(invocationId);
+    if (!inv || inv.terminal) return false;
+    inv.abort = normalizeAbort(reason);
+    if (!inv.started) { finishInv(inv, "invoke-aborted", { ...inv.abort, phase: "queued" }); return true; }
+    inv.controller.abort(inv.abort.reason);
+    return true;
   }
 
   async function handle(port, m) {
     if (!m || typeof m !== "object") return;
     switch (m.op) {
-      case "hello": return send(port, { id: m.id, type: "result", value: { providerId, adapters: Object.keys(adapters), state, livenessLock } });
+      case "hello": return send(port, { id: m.id, type: "result", value: { providerId, adapters: Object.keys(adapters), state, livenessLock, families: [...families.keys()] } });
+      case "engine-load": return onEngineLoad(port, m.id, m);
+      case "engine-unload": return onEngineUnload(port, m.id, m);
+      case "invoke": return onInvoke(port, m.id, m);
       case "load": return onLoad(port, m.id, m.config || {});
       case "generate": return enqueue(port, m.id, m.request);
-      case "abort": abortAttempt(m.target, m.reason || "caller-abort"); return send(port, { id: m.id, type: "result", value: { aborted: true } });
+      case "abort": { const hit = abortAttempt(m.target, m.reason || "caller-abort") || abortInvocation(m.target, m.reason || "caller-abort"); return send(port, { id: m.id, type: "result", value: { aborted: true, found: hit } }); }
       case "unload": return onUnload(port, m.id);
       case "capabilities": return send(port, { id: m.id, type: "result", value: capabilities() });
       case "storage": return onStorage(port, m.id, m);
+      case "credential-response": { const w = credentialWaits.get(m.id); if (w && w.port === port) w.resolve(m.unavailable ? { unavailable: true } : m.refused ? { refused: true } : m.headers ? { headers: m.headers } : { none: true }); return; }   // an answer from any other port (a mind worker) is ignored
       case "storage-cancel": { const c = jobs.get(m.target); c?.abort(); return send(port, { id: m.id, type: "result", value: { cancelled: Boolean(c) } }); }
       case "count-tokens": {
         try { const r = adapter?.countTokens ? await adapter.countTokens(m.messages || []) : null; return send(port, { id: m.id, type: "result", value: r || estimateTokens(m.messages || []) }); }

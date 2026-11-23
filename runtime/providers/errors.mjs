@@ -5,7 +5,7 @@
 // `advice` is for the model manager UI; it is not part of the contract's ProviderError (which has no such field), so the mind
 // adapter puts the raw message in ProviderError.message and may append the advice.
 
-export const ERROR_CLASSES = Object.freeze(["provider-unavailable", "load-failed", "out-of-memory", "context-overflow", "output-invalid", "unsupported", "runtime-fault", "invalid-request", "aborted"]);
+export const ERROR_CLASSES = Object.freeze(["provider-unavailable", "load-failed", "out-of-memory", "context-overflow", "output-invalid", "output-truncated", "unsupported", "runtime-fault", "invalid-request", "aborted"]);
 
 const LIGHT_TIER_HINT = "If this keeps happening you can choose the Light tier in Settings > Models. The app will never switch models by itself.";
 
@@ -38,8 +38,26 @@ const RULES = [
     advice: "Fetching a model file failed. Check the connection and press Download again: files that are already complete are kept and only the missing ones are fetched." },
 ];
 
-/** Classify an engine/host error. `phase` is "load" | "generate" | "install". Returns a plain, cloneable description. */
-export function classifyEngineError(err, { phase = "generate" } = {}) {
+/**
+ * Classify an engine/host error. `phase` is "load" | "generate" | "install". Returns a plain, cloneable description.
+ * `hooks.classifyError(err, {phase}, base)` (optional) sees the built-in classification and may return fields that replace
+ * it (class, code, reason, providerFault, recoverable, advice). A class outside `hooks.errorClasses` and ERROR_CLASSES is ignored,
+ * so a consumer can add a class (for example "output-truncated") but never smuggle in an unknown one by accident.
+ */
+export function classifyEngineError(err, { phase = "generate" } = {}, hooks = null) {
+  const base = classifyBuiltin(err, { phase });
+  if (!hooks || typeof hooks.classifyError !== "function") return base;
+  let own;
+  try { own = hooks.classifyError(err, { phase }, base); } catch { own = undefined; }
+  if (!own || typeof own !== "object") return base;
+  const allowed = new Set([...ERROR_CLASSES, ...(hooks.errorClasses || [])]);
+  const merged = { ...base };
+  for (const k of ["class", "code", "reason", "providerFault", "recoverable", "advice"]) if (own[k] !== undefined) merged[k] = own[k];
+  if (!allowed.has(merged.class)) merged.class = base.class;
+  return merged;
+}
+
+function classifyBuiltin(err, { phase = "generate" } = {}) {
   const message = String(err?.message ?? err ?? "unknown error");
   const name = String(err?.name ?? "Error");
   const probe = `${name}: ${message}`;
@@ -75,8 +93,8 @@ export function hostDiedError(rawMessage, { how = "unknown" } = {}) {
 }
 
 /** Terminal event error -> the fields of a contract ProviderError (class, message, detail). `advice` is returned separately. */
-export function toProviderErrorFields(error, partialText = "") {
-  const cls = ERROR_CLASSES.includes(error?.class) ? error.class : (error?.providerFault ? "runtime-fault" : "runtime-fault");
+export function toProviderErrorFields(error, partialText = "", extraClasses = []) {
+  const cls = ERROR_CLASSES.includes(error?.class) || extraClasses.includes(error?.class) ? error.class : "runtime-fault";
   const detail = {};
   const phase = error?.phase === "queued" ? "queue" : error?.phase === "structured" ? "validate" : error?.phase;
   if (["queue", "load", "prefill", "decode", "validate"].includes(phase)) detail.phase = phase;
@@ -84,7 +102,7 @@ export function toProviderErrorFields(error, partialText = "") {
     if (Number.isInteger(error?.detail?.neededTokens)) detail.neededTokens = error.detail.neededTokens;
     if (Number.isInteger(error?.detail?.availableTokens)) detail.availableTokens = error.detail.availableTokens;
   }
-  if (cls === "output-invalid") detail.rawOutputChars = String(partialText).length;
+  if (cls === "output-invalid" || cls === "output-truncated") detail.rawOutputChars = String(partialText).length;
   return { class: cls, message: String(error?.message || "the generation failed"), ...(Object.keys(detail).length ? { detail } : {}), advice: error?.advice ?? null };
 }
 

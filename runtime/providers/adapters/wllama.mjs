@@ -15,6 +15,7 @@ import {retryDownload} from '../download-retry.mjs';
 import {writeOpfsStream} from '../opfs-stream-writer.mjs';
 import {createCacheApiBackend} from '../cache-api-backend.mjs';
 import {createThinkFilter} from '../think.mjs';
+import { candidatesFor, fetchVerified } from '../sources-core.mjs';
 export async function preflight(config) {
   if (config?.backend === "cpu") { // the processor runs the model: only WebAssembly is needed, not a graphics card
     if (typeof WebAssembly === "undefined") throw Object.assign(new Error("This browser cannot run WebAssembly, which running the model on the processor needs."), { name: "WebGpuUnavailable" });
@@ -133,8 +134,10 @@ async function removeFiles({ files, runtimeDir, paths = null }) {
   return { removed, requested: removed };
 }
 
-async function install({ files, runtimeDir, verifyHash = true, deep = false }, { onProgress, signal } = {}) {
+async function install({ files, runtimeDir, verifyHash = true, deep = false, sourceList = null, fallback = true, refusedSources = [] }, { onProgress, signal, requestCredential = null } = {}) {
   const cm = await cacheManagerFor(runtimeDir);
+  const ctx = sourceList?.length ? { sourceList, fallback, refused: refusedSources, byId: new Map(sourceList.map((s) => [s.id, s])), dead: new Map() } : null;
+  const servedBy = [];
   const inv = deep ? await verify({ files, runtimeDir, deep: true }, { signal }) : await inspect({ files, runtimeDir });
   const plan = planInstall(files, inv);
   const total = files.reduce((n, f) => n + f.bytes, 0);
@@ -151,7 +154,17 @@ async function install({ files, runtimeDir, verifyHash = true, deep = false }, {
     let mine = 0; let lastT = 0;
     report(f.path);
     try {
+      if (ctx) {
+        // a source list: the file is fetched and checked through the same size and SHA-256 path, then stored under the CATALOGUE's address (the cache key the runtime looks for), whichever source served it
+        const name = await cm.getNameFromURL(f.url);
+        // streamed into the store while hashed incrementally: memory is a chunk, not the file (a wllama shard is up to hundreds of MB)
+        const sink = { write: (stream) => cm.write(name, stream, { originalURL: f.url, originalSize: f.bytes, etag: "", sha256: f.sha256 }), discard: () => cm.delete(f.url).catch(() => {}) };
+        const r = await fetchVerified(f, candidatesFor(f, { sources: ctx.sourceList, fallback: ctx.fallback }), { fetch: (u, i) => fetch(u, i), requestCredential }, { hash: verifyHash ? (b) => sha256OfBlob(b, { signal }) : null, signal, onBytes: (n) => { fetched += n; mine += n; }, sourcesById: ctx.byId, posture: { refused: ctx.refused }, dead: ctx.dead, sink });
+        servedBy.push({ name: f.path, source: r.servedBy });
+      } else {
+      servedBy.push({ name: f.path, source: "canonical" });
       await cm.download(f.url, { signal, progressCallback: ({ loaded }) => { fetched += loaded - mine; mine = loaded; const t = performance.now(); if (t - lastT > 400) { lastT = t; report(f.path); } } });
+      }
       const m = await cm.getMetadata(await cm.getNameFromURL(f.url));
       const size = await cm.getSize(await cm.getNameFromURL(f.url));
       if (size !== f.bytes || (m && m.originalSize && m.originalSize !== f.bytes)) throw Object.assign(new Error(`download size mismatch for ${f.path}: stored ${size} bytes, the catalogue says ${f.bytes}`), { code: "cache-corrupt" });
@@ -170,7 +183,7 @@ async function install({ files, runtimeDir, verifyHash = true, deep = false }, {
   }
   const after = await inspect({ files, runtimeDir });
   if (!after.ok) throw Object.assign(new Error(`cache-incomplete after install: ${after.missing.length} missing, ${after.bad.length} bad`), { code: "cache-corrupt", detail: { missing: after.missing.slice(0, 20), bad: after.bad.slice(0, 20) } });
-  return { ...after, fetchedBytes: fetched, keptBytes: plan.bytesKept, replaced: plan.deleteFirst, filesFetched: plan.todo.length };
+  return { ...after, fetchedBytes: fetched, keptBytes: plan.bytesKept, replaced: plan.deleteFirst, filesFetched: plan.todo.length, servedBy: servedBy.sort((a, b) => (a.name < b.name ? -1 : 1)) };
 }
 
 export const storageOps = { inspect, verify, install, remove: removeFiles, repair: (args, hooks) => install({ ...args, deep: true }, hooks) };

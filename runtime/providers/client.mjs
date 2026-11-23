@@ -20,13 +20,14 @@ function abortReasonOf(r) {
 }
 
 const TERMINAL = /^attempt-(completed|failed|aborted)$/;
+const INV_TERMINAL = /^invoke-(completed|failed|aborted)$/;
 
 function typedError(fields) {
   const err = new Error(fields.message);
   return Object.assign(err, fields);
 }
 
-export function createProvider(target, { onProviderEvent } = {}) {
+export function createProvider(target, { onProviderEvent, diagnostics = true, credentials = null } = {}) {
   let nextId = 1;
   const pending = new Map();   // id -> { resolve, reject, onProgress, stream, kind }
   let readyResolve; let readyReject; const ready = new Promise((res, rej) => { readyResolve = res; readyReject = rej; });
@@ -42,6 +43,7 @@ export function createProvider(target, { onProviderEvent } = {}) {
 
   function failStream(p, id, fault, how) {
     const s = p.stream; if (!s || s.ended) return;
+    if (s.invoke) return s.forceTerminal({ type: "invoke-failed", invocationId: s.invocationId, seq: s.lastSeq + 1, at: Date.now(), tMs: null, error: { code: fault.code, class: fault.class, reason: fault.reason, name: fault.name, message: fault.message, advice: fault.advice, phase: "invoke", retryable: false, providerFault: true, how } });
     s.forceTerminal({
       type: "attempt-failed", attemptId: s.attemptId, retryOf: s.retryOf, activityId: s.activityId, mindId: s.mindId, seq: s.lastSeq + 1, at: Date.now(), tMs: null,
       error: { code: fault.code, class: fault.class, reason: fault.reason, name: fault.name, message: fault.message, advice: fault.advice, phase: s.firstToken ? "decode" : "prefill", retryable: false, providerFault: true, how },
@@ -82,10 +84,17 @@ export function createProvider(target, { onProviderEvent } = {}) {
   target.onmessage = (e) => {
     const m = e.data; if (!m) return;
     /* DEV_DIAGNOSTICS_START */
-    if(m.type==='native-device-error'){notify(m);return;}
+    if(diagnostics&&m.type==='native-device-error'){notify(m);return;}
     /* DEV_DIAGNOSTICS_END */
+    // the host Worker asks the PAGE for a credential for one endpoint: the answer is {headers}, {none} or {refused}; the token lives on the page and is handed over for that one request only
+    if (m.type === "credential-request") {
+      const reply = (a) => { try { target.postMessage({ op: "credential-response", id: m.id, ...a }); } catch { /* the host is gone */ } };
+      Promise.resolve().then(() => (credentials ? credentials({ endpoint: m.endpoint }) : { unavailable: true })).then((a) => reply(a?.unavailable ? { unavailable: true } : a === "refused" || a?.refused ? { refused: true } : a?.headers && typeof a.headers === "object" ? { headers: a.headers } : { none: true }), () => reply({ refused: true }));
+      return;
+    }
     if (m.type === "ready") { hostState = m.state || "unloaded"; watchLiveness(m.livenessLock); return readyResolve(m); }
     if (m.type === "provider-state") { hostState = m.state; notify(m); return; }
+    if (m.type === "engine-state") { notify(m); return; }
     const p = pending.get(m.id); if (!p) return;
     if (m.type === "progress") return p.onProgress?.(m.progress);
     if (m.type === "result") { pending.delete(m.id); return p.resolve(m.value); }
@@ -107,11 +116,11 @@ export function createProvider(target, { onProviderEvent } = {}) {
 
   const refuseIfDead = () => (dead ? typedError({ ...dead, phase: "call" }) : null);
 
-  const call = (op, extra = {}, { onProgress, kind = op } = {}) => new Promise((resolve, reject) => {
+  const call = (op, extra = {}, { onProgress, kind = op, transfer = null } = {}) => new Promise((resolve, reject) => {
     const d = refuseIfDead(); if (d) return reject(d);
     if (closed) return reject(typedError({ class: "provider-unavailable", code: "provider-closed", message: "the provider was closed", name: "ProviderClosed" }));
     const id = nextId++; pending.set(id, { resolve, reject, onProgress, kind });
-    target.postMessage({ id, op, ...extra });
+    if (transfer?.length) target.postMessage({ id, op, ...extra }, transfer); else target.postMessage({ id, op, ...extra });
   });
 
   return {
@@ -201,13 +210,50 @@ export function createProvider(target, { onProviderEvent } = {}) {
       };
     },
 
+    /** Load another engine family side by side with the text engine (speech, recognition, embeddings, image). */
+    /** `needs.steadyBytes` declares what the engine will hold; with `maxBytes` the host refuses (memory-over-budget) when the declared total of the loaded families, `usedBytes` (what the consumer already holds, for example a language model) and this engine exceeds it. `transfer` moves large buffers in `config`. This is a guard until the measured budget exists, not a policy. */
+    loadEngine: (engine, config, { onProgress, transfer, needs, maxBytes, usedBytes } = {}) => call("engine-load", { engine, config, ...(needs ? { needs } : {}), ...(maxBytes != null ? { maxBytes } : {}), ...(usedBytes != null ? { usedBytes } : {}) }, { onProgress, kind: "load", transfer }),
+    unloadEngine: (engine) => call("engine-unload", { engine }),
+
+    /**
+     * Run one operation of a loaded engine. The caller mints request.invocationId. Partial results arrive through onPart(part, event) in order;
+     * `done` never rejects: it resolves with exactly one of invoke-completed | invoke-failed | invoke-aborted.
+     */
+    invoke(engine, name, request, { onPart, onEvent, signal, transfer } = {}) {
+      const id = nextId++;
+      let doneResolve; const done = new Promise((r) => { doneResolve = r; });
+      const stream = {
+        invoke: true, ended: false, terminal: null, lastSeq: -1, invocationId: request?.invocationId ?? null,
+        push(ev) {
+          if (this.terminal) return;
+          if (typeof ev.seq === "number") this.lastSeq = ev.seq;
+          if (ev.type === "invoke-part") { try { onPart?.(ev.part, ev); } catch (e) { queueMicrotask(() => { throw e; }); } }
+          else { try { onEvent?.(ev); } catch (e) { queueMicrotask(() => { throw e; }); } }   // invoke-queued (with the real position), invoke-started, and the terminal event
+          if (INV_TERMINAL.test(ev.type)) this.terminal = ev;
+        },
+        forceTerminal(ev) { if (this.terminal) return; this.terminal = ev; this.end(); },
+        end() { if (this.ended) return; this.ended = true; doneResolve(this.terminal); },
+        fail(err) { this.forceTerminal({ type: "invoke-failed", invocationId: this.invocationId, seq: this.lastSeq + 1, at: Date.now(), tMs: null, error: { code: err.code || "bad-request", class: err.class || "invalid-request", message: err.message, phase: "request", retryable: false } }); }
+      };
+      const d = refuseIfDead();
+      if (d) queueMicrotask(() => stream.forceTerminal({ type: "invoke-failed", invocationId: stream.invocationId, seq: 0, at: Date.now(), tMs: null, error: { code: "provider-faulted", class: "runtime-fault", reason: "host-died", message: d.message, advice: d.advice, phase: "queued", retryable: false, providerFault: true } }));
+      else if (closed) queueMicrotask(() => stream.forceTerminal({ type: "invoke-failed", invocationId: stream.invocationId, seq: 0, at: Date.now(), tMs: null, error: { code: "provider-closed", class: "provider-unavailable", message: "the provider was closed", phase: "queued", retryable: false } }));
+      else { pending.set(id, { stream, resolve() {}, reject() {}, kind: "invoke" }); if (transfer?.length) target.postMessage({ id, op: "invoke", engine, name, request }, transfer); else target.postMessage({ id, op: "invoke", engine, name, request }); }
+      const abort = (reason) => { if (!dead && !closed) target.postMessage({ id: nextId++, op: "abort", target: request?.invocationId, reason: abortReasonOf(reason) }); };
+      if (signal) { const onAbort = () => abort(signal.reason); if (signal.aborted) onAbort(); else signal.addEventListener("abort", onAbort, { once: true }); done.then(() => signal.removeEventListener("abort", onAbort)); }
+      return { invocationId: request?.invocationId, done, abort };
+    },
+
     /** Deliberate close by the owner (not a fault): in-flight attempts end as aborted by the supervisor, then the Worker is terminated. */
     terminate(reason = "host-terminated") {
       if (closed || dead) { target.terminate?.(); target.close?.(); return; }
       closed = true;
       const all = [...pending.entries()]; pending.clear();
       for (const [, p] of all) {
-        if (p.stream) {
+        if (p.stream?.invoke) {
+          const s = p.stream;
+          s.forceTerminal({ type: "invoke-aborted", invocationId: s.invocationId, seq: s.lastSeq + 1, at: Date.now(), tMs: null, reason, by: "supervisor", deliberate: true, phase: "invoke" });
+        } else if (p.stream) {
           const s = p.stream;
           s.forceTerminal({ type: "attempt-aborted", attemptId: s.attemptId, retryOf: s.retryOf, activityId: s.activityId, mindId: s.mindId, seq: s.lastSeq + 1, at: Date.now(), tMs: null, reason, by: "supervisor", deliberate: true, partialText: s.text, phase: s.firstToken ? "decode" : "prefill" });
         } else p.reject(typedError({ class: "provider-unavailable", code: "provider-closed", message: `the provider was closed (${reason})`, name: "ProviderClosed" }));
