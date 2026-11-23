@@ -23,7 +23,12 @@ export const RECEIPT_STATES = Object.freeze(['accepted', 'delivered', 'exposed',
 export const REACH_ONLY = 'Reached on this computer only. Phones and other computers cannot reach it.';
 export const ENTRY_LABEL = 'Talk with a mind on this computer';
 export const ENTRY_DESCRIPTION = 'A running mind on this computer. It is not a model: only the mind answers.';
+export const ENTRY_DESCRIPTION_RELAY = 'A running mind, reached through a relay. It is not a model: only the mind answers.';
 export const DEFAULT_NAME = 'a mind on this computer';
+export const RELAY_DEFAULT_NAME = 'a mind';
+export const RELAY_REACH = 'Reached through a relay.';
+export const RELAY_REACH_NOTE = 'A relay is a go-between that both you and the mind connect to. It is meant to pass messages along without keeping them.';
+export const nameOf = (cfg) => (cfg?.name || (cfg?.via === 'relay' ? RELAY_DEFAULT_NAME : DEFAULT_NAME));
 export const UNPROMPTED_LABEL = 'Unprompted';
 
 /** The sentences, exactly as designed. `name` and `address` are filled in. */
@@ -44,7 +49,20 @@ export const COPY = Object.freeze({
   said: (speaker) => `${speaker.charAt(0).toUpperCase()}${speaker.slice(1)} said something`
 });
 
+/** The same states as COPY, said for a mind reached through a relay (nothing here claims the mind is on this computer). */
+export const RELAY_COPY = Object.freeze({
+  available: (name) => `Connected to ${name} through a relay.`,
+  unavailable: () => 'The mind is not connected to the relay right now. Nothing can be sent.',
+  unreachable: (address) => `No answer from the relay at ${address}. Nothing was sent. It may be slow, the address may be wrong, or your access token may have run out.`,
+  insecure: () => 'Could not connect securely.',
+  insecureDetail: () => 'The browser does not say why. Nothing was sent.',
+  superseded: () => 'This conversation was opened in another tab, so it stopped here.',
+  revoked: () => 'You are not allowed to use this connection any more. Nothing can be sent.',
+  needsToken: () => 'Add your access token to connect. Nothing can be sent.'
+});
+
 export const ACTIONS = Object.freeze({
+  useHere: 'Use it here',
   checkAgain: 'Check again',
   tryAgain: 'Try again',
   changeAddress: 'Change address',
@@ -60,8 +78,14 @@ const REASONS = Object.freeze({
   unreachable: 'No answer from the host. Nothing can be sent.',
   blocked: 'This browser blocks the connection from this page. Nothing can be sent.',
   unknown: 'The last message is unconfirmed. Check its status before writing again.',
-  'not-admitted': 'The host does not know this participant id. Nothing can be sent.'
+  'not-admitted': 'The host does not know this participant id. Nothing can be sent.',
+  insecure: 'The connection to the relay could not be made securely. Nothing can be sent.',
+  superseded: 'This conversation is open in another tab. Nothing can be sent from here.',
+  revoked: 'You are not allowed to use this connection any more. Nothing can be sent.',
+  'needs-token': 'There is no access token. Nothing can be sent.'
 });
+
+const RELAY_REASONS = Object.freeze({ unavailable: 'The mind is not connected to the relay. Nothing can be sent.', unreachable: 'No answer from the relay. Nothing can be sent.' });
 
 // ---- the status line --------------------------------------------------------------------------------------------------------------------------------------------------------------------
 /**
@@ -72,19 +96,26 @@ const REASONS = Object.freeze({
  * @param {number} [p.ignoreRefusalsBefore]  a refusal older than this is the past: the person changed the connection since
  * @returns {{kind:string, shape:string, tone:string, sentence:string, assertive:boolean, actions:string[], composerDisabled:boolean, reason:string|null}}
  */
-export function statusOf({ availability, messages = [], name, address, ignoreRefusalsBefore = 0, blocked = false }) {
+export function statusOf({ availability, messages = [], name, address, ignoreRefusalsBefore = 0, blocked = false, via = 'computer' }) {
+  const relay = via === 'relay';
   const mine = messages.filter((m) => m && typeof m === 'object');
   const unknown = mine.some((m) => m.state === 'unknown');
   const last = [...mine].reverse().find((m) => (m.at ?? Infinity) >= ignoreRefusalsBefore);
   const notAdmitted = Boolean(last && last.state === 'refused' && last.refusal?.class === 'not-admitted');
-  const make = (kind, shape, tone, sentence, assertive, actions, composerDisabled, detail = null) => ({ kind, shape, tone, sentence, assertive, actions, composerDisabled, detail, reason: composerDisabled ? REASONS[kind] : null });
+  const make = (kind, shape, tone, sentence, assertive, actions, composerDisabled, detail = null) => ({ kind, shape, tone, sentence, assertive, actions, composerDisabled, detail, reason: composerDisabled ? ((relay && RELAY_REASONS[kind]) || REASONS[kind]) : null });
   if (unknown) return make('unknown', 'hatched', 'warn', COPY.unknown(), true, [ACTIONS.checkStatus], true);
   if (notAdmitted) return make('not-admitted', 'cross', 'bad', COPY.notAdmitted(), true, [ACTIONS.changeConnection], true);
   switch (availability?.state) {
-    case 'available': return make('available', 'dot', 'good', COPY.available(name), false, [], false);
-    case 'unavailable': return make('unavailable', 'slash', 'bad', COPY.unavailable(), true, [ACTIONS.checkAgain], true);
-    case 'unreachable': if (blocked) return make('blocked', 'barred', 'bad', COPY.blocked(), true, [ACTIONS.tryAgain], true, COPY.blockedDetail());
+    case 'available': return make('available', 'dot', 'good', relay ? RELAY_COPY.available(name) : COPY.available(name), false, [], false);
+    case 'unavailable': return relay ? make('unavailable', 'slash', 'bad', RELAY_COPY.unavailable(), true, [ACTIONS.checkAgain], true) : make('unavailable', 'slash', 'bad', COPY.unavailable(), true, [ACTIONS.checkAgain], true);
+    case 'unreachable':
+      if (relay && availability.reason === 'insecure') return make('insecure', 'ring', 'warn', RELAY_COPY.insecure(), true, [ACTIONS.tryAgain, ACTIONS.changeConnection], true, RELAY_COPY.insecureDetail());
+      if (relay) return make('unreachable', 'ring', 'warn', RELAY_COPY.unreachable(address), true, [ACTIONS.tryAgain, ACTIONS.changeConnection], true);
+      if (blocked) return make('blocked', 'barred', 'bad', COPY.blocked(), true, [ACTIONS.tryAgain], true, COPY.blockedDetail());
       return make('unreachable', 'ring', 'warn', COPY.unreachable(address), true, [ACTIONS.tryAgain, ACTIONS.changeAddress], true);
+    case 'superseded': return make('superseded', 'slash', 'warn', RELAY_COPY.superseded(), true, [ACTIONS.useHere], true);
+    case 'revoked': return make('revoked', 'cross', 'bad', RELAY_COPY.revoked(), true, [ACTIONS.changeConnection], true);
+    case 'needs-token': return make('needs-token', 'ring', 'warn', RELAY_COPY.needsToken(), true, [ACTIONS.changeConnection], true);
     default: return make('checking', 'ring-dashed', 'quiet', COPY.checking(name), false, [], true);
   }
 }

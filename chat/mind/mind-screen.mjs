@@ -127,6 +127,7 @@ export function createMindScreen({ doc = document, onSend, onAction, onConnectio
     /** Draw. `model`: { name, status, waiting, items, composer, announce }. Everything is updated in place; nothing is rebuilt that has not changed. */
     render(model) {
       if (title.textContent !== model.name) title.textContent = model.name;
+      if (model.reach && reach.textContent !== model.reach) reach.textContent = model.reach;
       root.setAttribute('aria-labelledby', 'mindTitle');
       log.setAttribute('aria-label', 'Conversation with ' + model.name);
       input.setAttribute('aria-label', 'Message to ' + model.name);

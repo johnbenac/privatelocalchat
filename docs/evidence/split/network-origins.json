@@ -192,6 +192,9 @@
   "plc-model-files.invalid": [
    "runtime/providers/cache-api-backend.mjs"
   ],
+  "relay.example": [
+   "chat/mind/mind-setup.mjs"
+  ],
   "router.huggingface.co": [
    "chat/provider/endpoint-options.mjs"
   ],
