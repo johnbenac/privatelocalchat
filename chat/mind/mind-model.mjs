@@ -23,7 +23,7 @@ export const RECEIPT_STATES = Object.freeze(['accepted', 'delivered', 'exposed',
 export const REACH_ONLY = 'Reached on this computer only. Phones and other computers cannot reach it.';
 export const ENTRY_LABEL = 'Talk with a mind on this computer';
 export const ENTRY_DESCRIPTION = 'A running mind on this computer. It is not a model: only the mind answers.';
-export const DEFAULT_NAME = 'The mind';
+export const DEFAULT_NAME = 'a mind on this computer';
 export const UNPROMPTED_LABEL = 'Unprompted';
 
 /** The sentences, exactly as designed. `name` and `address` are filled in. */

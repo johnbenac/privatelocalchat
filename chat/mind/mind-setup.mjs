@@ -28,6 +28,28 @@ export async function checkHost({ address, timeoutMs = 15000, fetch: fetchImpl =
   return { kind: 'refused', sentence: 'The host answered, but not in a way this app understands. Nothing was sent.' };
 }
 
+const isLoopbackHost = (h) => h === 'localhost' || h === '127.0.0.1' || h === '[::1]' || h.endsWith('.localhost');
+/**
+ * When this page is itself served from a plain http address on this computer, the host is most likely the same address: offer it, and when the host describes itself at /host.json
+ * ({ messageEndpoint, origin, individualId, name }) use that. Anything else (another origin, no answer, a document that is not that) leaves the fields empty. Nothing is sent but a GET.
+ */
+export async function discoverHost({ page = globalThis.location, fetch: fetchImpl = globalThis.fetch?.bind(globalThis), timeoutMs = 2000 } = {}) {
+  if (!page || page.protocol !== 'http:' || !isLoopbackHost(page.hostname)) return {};
+  const found = { address: page.origin };
+  try {
+    const controller = new AbortController(); const timer = setTimeout(() => controller.abort(), timeoutMs);
+    const response = await fetchImpl(page.origin + '/host.json', { cache: 'no-store', credentials: 'omit', signal: controller.signal }).finally(() => clearTimeout(timer));
+    if (!response.ok) return found;
+    const doc = await response.json();
+    if (doc && typeof doc === 'object') {
+      if (typeof doc.messageEndpoint === 'string') { try { const u = new URL(doc.messageEndpoint, page.origin); if (u.protocol === 'http:' && isLoopbackHost(u.hostname)) found.address = u.origin; } catch { /* keep the page's own */ } }
+      if (typeof doc.individualId === 'string' && doc.individualId.length <= 200) found.resident = doc.individualId;
+      if (typeof doc.name === 'string' && doc.name.trim() && doc.name.length <= 200) found.name = doc.name.trim();
+    }
+  } catch { /* no description: the address alone */ }
+  return found;
+}
+
 const FIELDS = [
   { key: 'name', label: 'Name of the mind', hint: 'How she is called here. Only a label.', placeholder: DEFAULT_NAME },
   { key: 'address', label: 'Host address', hint: 'Where the host listens on this computer, for example the address and port it printed when it started.', placeholder: 'http://' },
@@ -83,7 +105,7 @@ export function openSetup({ dialogs, initial = {}, check = checkHost, doc = docu
         try { const r = await check({ address: v.config.address, timeoutMs: v.config.timeoutSeconds * 1000 }); say(r.sentence, r.kind !== 'available'); }
         finally { button.removeAttribute('aria-busy'); }
       } },
-      { label: initial.address ? 'Save' : 'Open the conversation', primary: true, close: false, run: (handle) => {
+      { label: initial.encounter ? 'Save' : 'Open the conversation', primary: true, close: false, run: (handle) => {
         const v = validateConfig(values()); flag(v.problems);
         if (!v.ok) { say('Fill in the fields marked invalid: ' + v.problems.map((p) => FIELDS.find((f) => f.key === p)?.label || p).join(', ') + '.', true); inputs[v.problems[0]]?.focus(); return; }
         finish(v.config); handle.close();

@@ -11,7 +11,7 @@ import { createChannelClient } from '../channel/client.mjs';
 import { createHttpTransport } from '../channel/http-transport.mjs';
 import { createMindStore, pruneOrphans } from './mind-store.mjs';
 import { createMindScreen } from './mind-screen.mjs';
-import { openSetup } from './mind-setup.mjs';
+import { discoverHost, openSetup } from './mind-setup.mjs';
 import { ACTIONS, COPY, ENTRY_DESCRIPTION, ENTRY_LABEL, REACH_ONLY, blockedByBrowser, canReachLoopback, classifyReply, handoffUrl, markerOf, occKey, receiptView, replyMessageId, replyToMessage, statusOf, threadOccKeys, waitingLine, DEFAULT_NAME } from './mind-model.mjs';
 
 const MAX_TRACKED = 20;       // the latest messages of the person that are asked about (a reply names the message it answers)
@@ -180,7 +180,7 @@ export function createMind({ app, events, doc = document, win = window, options 
     if (!reachable()) return;
     const existing = app.threads().find((t) => isMindThread(t) && t.deletedAt == null);
     if (existing) { app.selectThread(existing.id); return; }
-    const config = await openSetup({ dialogs: app.dialogs, initial: {}, doc });
+    const config = await openSetup({ dialogs: app.dialogs, initial: await discoverHost({ page: win.location }), doc });
     if (!config) return;
     const id = app.createThread({ title: config.name });
     const t = app.threads().find((x) => x.id === id);
