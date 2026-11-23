@@ -53,7 +53,7 @@ remain cached. Receipts and screenshots are written under `work/evidence/`.
 ## Offline checks
 
 - **Every push** (`.github/workflows/offline-e2e.yml`): `node tests/e2e/offline.e2e.mjs`. The saved app opens cold with no
-  connection, keeps and finds its conversations, opens the public pages and Settings, shows the connection pill and the
+  connection, keeps and finds its conversations, opens the public pages and Settings, shows the connection note and the
   offline checklist, and a provider failure while offline says so in words. No model is downloaded. `npm test` also builds
   the app and fails if the service worker leaves a shipped file or an imported file out of its list
   (`tests/offline-precache.test.mjs`), and if Help and the app stop using the same words (`tests/offline-help.test.mjs`).

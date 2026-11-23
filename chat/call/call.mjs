@@ -16,7 +16,7 @@ export function createCall(host) {
   const call = { startedAt: null, ticker: null, endedTimer: null, prev: 'idle', failed: false, log: [], noticeTimer: null, lastVoiceNotice: 0 };
   const callSoundsOn = () => host.callSoundsOn();
   const buzz = ms => { try { if (callSoundsOn()) navigator.vibrate?.(ms); } catch { /* not supported */ } };
-  const callIcon = (name, fallback) => { const icons = host.icons(), n = icons ? icons.iconNode(name) : null; if (n) return n; const f = el('span', null, fallback); f.setAttribute('aria-hidden', 'true'); return f; };
+  const callIcon = (name, fallback) => { const icons = host.icons(), n = icons ? icons.iconNode(name) : null; if (n) return n; const f = el('span'); f.setAttribute('aria-hidden', 'true'); return f; };
   // The picture in the middle of the orb says what the call is doing: it changes with the state (see the call glyphs in chat/brand.css).
   const SVG_NS = 'http://www.w3.org/2000/svg';
   function svgNode(tag, attrs = {}, kids = []) { const n = document.createElementNS(SVG_NS, tag); for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v); kids.forEach(c => n.appendChild(c)); return n; }
@@ -80,9 +80,9 @@ export function createCall(host) {
       const wrap = el('div', 'call-control'); const b = el('button', 'call-btn' + (cls ? ' ' + cls : '')); b.type = 'button'; b.id = id;
       b.appendChild(callIcon(icon, fallback)); const text = el('span', 'call-control-label', label); wrap.append(b, text); return { wrap, b, text };
     };
-    const mute = control('voiceMute', 'mic', '🎙', 'Mute'); mute.b.setAttribute('aria-pressed', 'false'); mute.b.setAttribute('aria-label', 'Mute microphone');
-    const skip = control('voiceInterrupt', 'skip', '⏭', 'Skip'); skip.b.setAttribute('aria-label', 'Skip what is being said');
-    const end = control('voiceEnd', 'hangup', '✕', 'End call', 'call-end'); end.b.setAttribute('aria-label', 'End call');
+    const mute = control('voiceMute', 'mic', '@mic', 'Mute'); mute.b.setAttribute('aria-pressed', 'false'); mute.b.setAttribute('aria-label', 'Mute microphone');
+    const skip = control('voiceInterrupt', 'skip', '@skip', 'Skip'); skip.b.setAttribute('aria-label', 'Skip what is being said');
+    const end = control('voiceEnd', 'hangup', '@close', 'End call', 'call-end'); end.b.setAttribute('aria-label', 'End call');
     const row = el('div', 'call-controls'); row.append(mute.wrap, skip.wrap, end.wrap);
     root.append(top, models, avatar, log, captionBox, notice, hint, sendNow, resume, row);
     messageForm.parentNode.insertBefore(root, messageForm);
@@ -264,7 +264,7 @@ export function createCall(host) {
     ui.mute.b.setAttribute('aria-pressed', String(micOff)); ui.mute.b.setAttribute('aria-label', micOff ? 'Unmute microphone' : 'Mute microphone');
     ui.mute.text.textContent = micOff ? 'Unmute' : 'Mute';
     const want = micOff ? 'mic-off' : 'mic';
-    if (ui.mute.b.dataset.icon !== want) { ui.mute.b.dataset.icon = want; ui.mute.b.replaceChildren(callIcon(want, '🎙')); }
+    if (ui.mute.b.dataset.icon !== want) { ui.mute.b.dataset.icon = want; ui.mute.b.replaceChildren(callIcon(want, '@mic')); }
   }
   async function keepScreenOn(on) {
     try {

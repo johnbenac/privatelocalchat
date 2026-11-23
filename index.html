@@ -188,11 +188,11 @@
       <div class="sidebar-header">
         <a class="brand" href="/" aria-label="Private Local Chat home"><span class="brand-logo"><img class="logo-light" src="/brand/wordmark-light.svg" alt="PrivateLocal.Chat" width="198" height="25" /><img class="logo-dark" src="/brand/wordmark-dark.svg" alt="" aria-hidden="true" width="198" height="25" /></span></a>
         <button type="button" id="closeSidebarBtn" class="sidebar-close icon-btn" aria-label="Close navigation">
-          <span class="emoji-icon" aria-hidden="true">❌</span>
+          <span class="emoji-icon" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span>
         </button>
       </div>
       <div class="new-chat-row">
-        <button type="button" id="newChatBtn" class="new-thread-button primary"><span class="emoji-icon" aria-hidden="true">➕</span><span class="btn-label">New chat</span></button>
+        <button type="button" id="newChatBtn" class="new-thread-button primary"><span class="emoji-icon" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></span><span class="btn-label">New chat</span></button>
       </div>
       <div class="sidebar-scroll">
       <section class="chats-section" aria-labelledby="chatsHeading">
@@ -229,7 +229,7 @@
         <label for="modelSelect">Model</label>
         <div class="model-select-row">
           <button type="button" id="refreshModelsBtn">
-            <span class="emoji-icon" aria-hidden="true">🔄</span>
+            <span class="emoji-icon" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 5v6h-6"/></svg></span>
             <span class="btn-label">Refresh model list</span>
           </button>
           <select id="modelSelect"></select>
@@ -273,7 +273,7 @@
             aria-label="Copy token"
             title="Copy token"
           >
-            <span class="emoji-icon" aria-hidden="true">📋</span>
+            <span class="emoji-icon" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h8"/></svg></span>
             <span class="sr-only">Copy token to clipboard</span>
           </button>
         </div>
@@ -310,7 +310,7 @@
       </div>
       <footer class="side-footer">
           <button type="button" id="themeToggleBtn" class="theme-toggle-btn icon-btn" aria-label="Toggle theme" aria-pressed="false">
-            <span class="emoji-icon" aria-hidden="true">☀️</span>
+            <span class="emoji-icon" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6L7 7M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4"/></svg></span>
             <span class="sr-only">Toggle theme</span>
           </button>
         <p id="releaseInfo" class="hint-text"></p>
@@ -369,7 +369,7 @@
       </div>
       <div class="messages-wrap">
         <div id="messages" class="messages" role="log" aria-label="Conversation" aria-live="off" tabindex="0"></div>
-        <button type="button" id="jumpLatest" class="jump-latest" hidden>↓ Jump to latest</button>
+        <button type="button" id="jumpLatest" class="jump-latest" hidden><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg> Jump to latest</button>
       </div>
       <p id="generationStatus" role="status" aria-live="polite" hidden></p>
       <form id="messageForm" class="message-form">
@@ -382,9 +382,9 @@
           <div class="composer-bar">
             <div id="composerTools" class="composer-tools"></div>
             <div class="composer-actions">
-              <button type="button" id="stopGeneration" class="stop-btn" hidden><span class="emoji-icon" aria-hidden="true">⏹</span><span class="btn-label">Stop</span></button>
+              <button type="button" id="stopGeneration" class="stop-btn" hidden><span class="emoji-icon" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="2"/></svg></span><span class="btn-label">Stop</span></button>
               <button type="submit" id="sendBtn" class="send-btn">
-                <span class="emoji-icon" aria-hidden="true">📩</span>
+                <span class="emoji-icon" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg></span>
                 <span class="btn-label">Send</span>
               </button>
             </div>
@@ -403,7 +403,7 @@
       <div class="modal-header">
         <h2 id="aboutTitle">About Private Local Chat</h2>
         <button type="button" class="modal-close" id="aboutCloseBtn" aria-label="Close">
-          <span class="emoji-icon" aria-hidden="true">❌</span>
+          <span class="emoji-icon" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span>
         </button>
       </div>
       <div class="modal-body">
@@ -532,21 +532,15 @@
       const peekTokenBtn = document.getElementById('peekTokenBtn');
       const copyTokenBtn = document.getElementById('copyTokenBtn');
 
-      // Icons: the app's emoji are drawn as one consistent set of stroke icons once the icon module is loaded.
-      const createEmoji = char => {
+      // Icons: every control is a drawn stroke icon from chat/icons.mjs ("@name" or a bare name); the static ones are inline SVG in the markup.
+      const createEmoji = key => {
         const span = document.createElement('span');
         span.className = 'emoji-icon';
         span.setAttribute('aria-hidden', 'true');
-        const name = typeof M !== 'undefined' && M ? M.icons.EMOJI_ICON[char] : null;
-        if (name) span.appendChild(M.icons.iconNode(name)); else span.textContent = char;
+        const name = String(key).replace(/^@/, '');
+        if (M && M.icons.ICON_NAMES.includes(name)) span.appendChild(M.icons.iconNode(name));
         return span;
       };
-      function upgradeStaticIcons() {
-        document.querySelectorAll('.emoji-icon').forEach(node => {
-          const name = M.icons.EMOJI_ICON[node.textContent.trim()];
-          if (name && !node.querySelector('svg')) node.replaceChildren(M.icons.iconNode(name));
-        });
-      }
 
       let threads = [];
       let currentThreadId = null;
@@ -1082,7 +1076,6 @@
        */
       async function init() {
         await loadChatModules();
-        upgradeStaticIcons();
         document.querySelectorAll('[data-flow-icon]').forEach(node => { if (!node.firstChild) node.appendChild(M.icons.iconNode(node.dataset.flowIcon)); });
         updateComposerHint();
         if (appSession.getItem('plc.pendingToken.v1')) loadTransferUi();

@@ -4,13 +4,15 @@
 // host: el, events, createEmoji, actionButton, messageDecorators, messageActionHandlers, messageInput, headerTools (the element the editor's button joins),
 //       openAppDialog, promptDialog, currentThread(), saveThreads, generating(), growComposer(), sendMessage(), copyText, downloadText, loadExports() (chat/transfer/exports.mjs)
 
+import { setIconLabel } from "../icons.mjs";
+
 export function createDrafts(host) {
   const { el, events, createEmoji, actionButton, messageDecorators, messageActionHandlers, messageInput, openAppDialog, saveThreads } = host;
   // save an answer as a file
   messageDecorators.push((thread, msg, index, ctx, actions) => {
     if (msg.role !== 'assistant' || !msg.content || ctx.streaming) return;
-    actions.appendChild(actionButton('save-message', '⬇ Save as a file', 'Save this response as a file'));
-    actions.appendChild(actionButton('open-canvas', '📝 Open in editor', 'Open this response in the draft editor'));
+    actions.appendChild(actionButton('save-message', '@download Save as a file', 'Save this response as a file'));
+    actions.appendChild(actionButton('open-canvas', '@edit Open in editor', 'Open this response in the draft editor'));
   });
   messageActionHandlers['save-message'] = async (thread, msg) => {
     const ex = await host.loadExports();
@@ -29,7 +31,7 @@ export function createDrafts(host) {
     if (canvas) return canvas;
     const pane = el('aside', 'canvas-pane'); pane.hidden = true; pane.setAttribute('aria-label', 'Draft editor'); pane.id = 'canvasPane';
     const head = el('div', 'dialog-head'); head.appendChild(el('strong', null, 'Draft editor'));
-    const close = el('button', 'icon-action', '✕'); close.type = 'button'; close.setAttribute('aria-label', 'Close editor'); head.appendChild(close);
+    const close = el('button', 'icon-action'); setIconLabel(close, '@close'); close.type = 'button'; close.setAttribute('aria-label', 'Close editor'); head.appendChild(close);
     const area = el('textarea'); area.setAttribute('aria-label', 'Draft text'); area.id = 'canvasText';
     const bar = el('div', 'dialog-actions');
     const mk = (label, fn) => { const b = el('button', 'secondary', label); b.type = 'button'; b.addEventListener('click', fn); bar.appendChild(b); return b; };
@@ -56,7 +58,7 @@ export function createDrafts(host) {
     if (text != null && th) { th.canvas = { text, updatedAt: Date.now() }; await saveThreads(); syncCanvasBtn(th); }
     c.pane.hidden = false; canvasBtn.setAttribute('aria-pressed', 'true'); c.area.focus();
   }
-  const canvasBtn = el('button', 'icon-btn'); canvasBtn.appendChild(createEmoji('📝')); canvasBtn.hidden = true; canvasBtn.type = 'button'; canvasBtn.id = 'canvasBtn'; canvasBtn.title = 'Draft editor for this chat';
+  const canvasBtn = el('button', 'icon-btn'); canvasBtn.appendChild(createEmoji('@edit')); canvasBtn.hidden = true; canvasBtn.type = 'button'; canvasBtn.id = 'canvasBtn'; canvasBtn.title = 'Draft editor for this chat';
   canvasBtn.setAttribute('aria-label', 'Open draft editor'); canvasBtn.setAttribute('aria-pressed', 'false');
   canvasBtn.addEventListener('click', () => { const c = ensureCanvas(); if (c.pane.hidden) openCanvas(); else c.pane.querySelector('[aria-label="Close editor"]').click(); });
   host.headerTools.appendChild(canvasBtn); // shown only for a chat that has a draft

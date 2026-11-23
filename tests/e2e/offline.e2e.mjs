@@ -17,37 +17,38 @@ try{
  ok('online: a conversation exists and the app is saved');
 
  // ---- the checklist in Settings and the connection pill, on the page that is already open
- assert(await page.locator('#connectionPill').isHidden(),'no connection pill while online');
+ assert(await page.locator('#connectionNote').isHidden(),'no connection note while online');
  await page.waitForFunction(()=>Boolean(window.plcShell),null,{timeout:15000}); // the shell is drawn a moment after the page starts
  await page.evaluate(()=>window.plcShell.openSettings('models'));
  await page.waitForSelector('#offlineSection .off-item[data-id="app"]');
  await page.waitForFunction(()=>document.querySelector('#offlineSection .off-item[data-id="app"]')?.dataset.state==='ready',null,{timeout:20000});
  assert(/Ready for offline use|connected provider/i.test(await page.locator('#offlineSummary').innerText()),'the checklist has a one-line summary: '+await page.locator('#offlineSummary').innerText());
  await page.keyboard.press('Escape');
- ok('online: no pill, and Settings lists what is ready for offline use');
- const goOffline=async()=>{await context.setOffline(true);await page.waitForSelector('#connectionPill',{state:'visible',timeout:8000});};
- const comeBack=async()=>{await context.setOffline(false);await page.waitForFunction(()=>/Back online/.test(document.querySelector('#connectionPill')?.innerText||''),null,{timeout:8000});await page.waitForSelector('#connectionPill',{state:'hidden',timeout:10000});};
+ ok('online: no connection note, and Settings lists what is ready for offline use');
+ const goOffline=async()=>{await context.setOffline(true);await page.waitForSelector('#connectionNote',{state:'visible',timeout:8000});};
+ const comeBack=async()=>{await context.setOffline(false);await page.waitForFunction(()=>/Back online/.test(document.querySelector('#connectionNote')?.innerText||''),null,{timeout:8000});await page.waitForSelector('#connectionNote',{state:'hidden',timeout:10000});};
  const sendAndRead=async text=>{const n=await page.locator('.message.assistant').count();await page.fill('#messageInput',text);await page.click('#sendBtn');await page.waitForFunction(n=>{const all=[...document.querySelectorAll('.message.assistant')];const a=all[all.length-1];return all.length>n&&a&&!a.classList.contains('streaming')&&a.innerText.trim();},n,{timeout:15000});return page.locator('.message.assistant').last().innerText();};
 
  // a provider that runs on this device (the test's fake API is on 127.0.0.1) can still answer offline: the app must not call that a problem
  await goOffline();
- assert(/Offline/.test(await page.locator('#connectionPill').innerText()),'the pill says Offline');
- assert(/runs on this device/i.test(await page.locator('#connectionPill').getAttribute('title')),'a provider on this device is said to keep working: '+await page.locator('#connectionPill').getAttribute('title'));
+ assert(/You are offline/.test(await page.locator('#connectionNote').innerText()),'the note says You are offline');
+ assert(await page.locator('.shell-conn').count()===0,'no pill is drawn for the connection');
+ assert(/runs on this device/i.test(await page.locator('#connectionNote').innerText()),'a provider on this device is said to keep working: '+await page.locator('#connectionNote').innerText());
  assert(await page.locator('#refreshModelsBtn').isEnabled(),'refreshing the model list of a provider on this device stays possible');
- assert(/offline/i.test(await page.locator('#connectionAnnounce').innerText()),'the change is announced to screen readers');
- await page.click('#connectionPill');await page.waitForSelector('.shell-pop');
- assert(/You are offline/.test(await page.locator('.shell-pop').innerText())&&/Offline settings/.test(await page.locator('.shell-pop').innerText()),'the pill opens an explanation and a way to the offline settings');
+ assert(await page.locator('#connectionNote').getAttribute('role')==='status','the note is a live region, so the change is announced to screen readers');
+ assert(/Offline settings/.test(await page.locator('#connectionNote').innerText()),'the note has a way to the offline settings');
+ await page.click('#connectionNote .connection-note-link');await page.waitForSelector('#offlineSection');
  await page.keyboard.press('Escape');
  const unreachable=await sendAndRead('are you there');
  assert(/Could not reach the provider/.test(unreachable)&&!/Failed to fetch/i.test(unreachable),'a failure of a provider on this device is "could not reach", in words: '+unreachable);
- ok('offline with a provider on this device: calm pill, honest failure');
+ ok('offline with a provider on this device: calm note, honest failure');
  await comeBack();
 
  // a provider on the internet needs a connection, and everything says so
  await page.evaluate(()=>{const c=JSON.parse(sessionStorage.getItem('chatConfig'));c.endpoint='https://api.example.test/v1';sessionStorage.setItem('chatConfig',JSON.stringify(c));});
  await page.reload();await page.waitForSelector('#messageInput');
  await goOffline();
- assert(/provider needs a connection/i.test(await page.locator('#connectionPill').getAttribute('title')),'with a provider on the internet the pill says what will not work');
+ assert(/provider needs a connection/i.test(await page.locator('#connectionNote').innerText()),'with a provider on the internet the note says what will not work');
  assert(await page.locator('#refreshModelsBtn').isDisabled(),'refreshing the provider\'s model list is disabled while offline');
  assert(/connection/i.test(await page.locator('#refreshModelsBtn').getAttribute('title')),'and says why');
  await page.waitForFunction(()=>Boolean(window.plcShell),null,{timeout:15000}); // the shell is drawn a moment after the page starts
@@ -57,21 +58,21 @@ try{
  await page.keyboard.press('Escape');
  const failedText=await sendAndRead('hello again');
  assert(/You are offline/.test(failedText)&&/needs a connection/.test(failedText)&&!/Failed to fetch/i.test(failedText),'a provider failure while offline says so in words: '+failedText);
- ok('offline with a provider on the internet: the pill, the disabled refresh, the note and the failure all say so');
+ ok('offline with a provider on the internet: the note, the disabled refresh, the note and the failure all say so');
  await comeBack();
  assert(await page.locator('#refreshModelsBtn').isEnabled(),'refresh works again when back online');
- ok('back online: the pill says so for a moment, then goes away');
+ ok('back online: the note says so for a moment, then goes away');
 
  // a dead connection that the browser still calls online (a dead Wi-Fi): the check of the app's own origin notices it
  await context.route('**/version.json?probe=*',route=>route.abort('connectionfailed'));
  await page.evaluate(()=>window.dispatchEvent(new Event('focus')));
- await page.waitForSelector('#connectionPill',{state:'visible',timeout:8000});
+ await page.waitForSelector('#connectionNote',{state:'visible',timeout:8000});
  assert(await page.evaluate(()=>navigator.onLine===true),'the browser still says it is online');
- assert(/Offline/.test(await page.locator('#connectionPill').innerText()),'the pill says Offline anyway');
+ assert(/You are offline/.test(await page.locator('#connectionNote').innerText()),'the note says You are offline anyway');
  await context.unroute('**/version.json?probe=*');
  await page.evaluate(()=>window.dispatchEvent(new Event('focus')));
- await page.waitForFunction(()=>/Back online/.test(document.querySelector('#connectionPill')?.innerText||''),null,{timeout:8000});
- await page.waitForSelector('#connectionPill',{state:'hidden',timeout:10000});
+ await page.waitForFunction(()=>/Back online/.test(document.querySelector('#connectionNote')?.innerText||''),null,{timeout:8000});
+ await page.waitForSelector('#connectionNote',{state:'hidden',timeout:10000});
  ok('a connection that is dead while the browser says online is noticed, and its return too');
 
  // ---- offline, in a brand-new page (the page and its workers start from the saved files)
@@ -92,11 +93,11 @@ try{
  ok('offline: the app opens cold');
  assert(await off.evaluate(m=>(localStorage.getItem('chatThreads')||'').includes(m),MARKER),'the conversation is kept');
  // opened on a connection the browser calls online but that is dead: the start-up check says so (the page's first request to its own origin fails)
- await off.waitForSelector('#connectionPill',{state:'visible',timeout:30000}).catch(async e=>{
+ await off.waitForSelector('#connectionNote',{state:'visible',timeout:30000}).catch(async e=>{
   const d=await off.evaluate(()=>({state:window.plcApp?.offline?.connection?.state,reason:window.plcApp?.offline?.connection?.reason,vis:document.visibilityState,online:navigator.onLine,controlled:!!navigator.serviceWorker.controller,shell:Boolean(window.plcShell)})).catch(x=>String(x));
-  throw new Error('no Offline pill on a cold offline page: '+JSON.stringify(d)+' failed='+JSON.stringify(failed)+' errors='+JSON.stringify(errors));
+  throw new Error('no offline note on a cold offline page: '+JSON.stringify(d)+' failed='+JSON.stringify(failed)+' errors='+JSON.stringify(errors));
  });
- assert(/Offline/.test(await off.locator('#connectionPill').innerText()),'a page opened with no connection shows the Offline pill');
+ assert(/You are offline/.test(await off.locator('#connectionNote').innerText()),'a page opened with no connection shows the offline note');
  await off.keyboard.press('Control+k');await off.fill('.search-input',MARKER);
  await off.waitForSelector('.search-item',{timeout:8000});
  assert(/kumquat-harbour/.test(await off.locator('.search-item').first().innerText()),'search finds it by its words');

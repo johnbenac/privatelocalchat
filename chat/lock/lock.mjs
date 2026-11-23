@@ -76,7 +76,7 @@ export function createLock({ el, createEmoji, readJson, writeJson, openAppDialog
     if (document.hidden) hiddenAt = Date.now();
     else if (lockCfg.autoMinutes && hiddenAt && Date.now() - hiddenAt > lockCfg.autoMinutes * 60000) lockNow({ quiet: true });
   });
-  const lockBtn = el('button', 'icon-btn'); lockBtn.appendChild(createEmoji('🔒')); lockBtn.type = 'button'; lockBtn.id = 'lockNowBtn'; lockBtn.title = 'Lock now'; lockBtn.setAttribute('aria-label', 'Lock now');
+  const lockBtn = el('button', 'icon-btn'); lockBtn.appendChild(createEmoji('@lock')); lockBtn.type = 'button'; lockBtn.id = 'lockNowBtn'; lockBtn.title = 'Lock now'; lockBtn.setAttribute('aria-label', 'Lock now');
   lockBtn.addEventListener('click', lockNow);
   function syncLockUi() {
     if (lockCfg && !lockBtn.isConnected) document.getElementById('headerTools').appendChild(lockBtn); else if (!lockCfg) lockBtn.remove();

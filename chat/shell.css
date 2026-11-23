@@ -327,15 +327,10 @@ body.shell .composer-bar .shell-voicepick { margin-left: 0 !important; }
 .shell-pop-text progress { display: block; width: 100%; margin-top: 4px; }
 @media (prefers-reduced-motion: reduce) { .shell-pop-dot { animation: none !important; } }
 
-/* ---- connection pill and the offline checklist (offline plan, phase 3) ---- */
-.shell-conn[hidden] { display: none; }
-.shell-conn .shell-model-dot { background: transparent; box-shadow: inset 0 0 0 2px var(--color-muted-text); }
-.shell-conn[data-state="offline"][data-mode="local"] .shell-model-dot { box-shadow: inset 0 0 0 2px var(--plc-success); }
-.shell-conn[data-state="offline"][data-mode="internet"] .shell-model-dot { background: var(--plc-warning); box-shadow: none; }
-.shell-conn[data-state="back"] .shell-model-dot { background: var(--plc-success); box-shadow: none; animation: plc-conn-in .6s ease-out 1; }
-@keyframes plc-conn-in { from { transform: scale(2.2); opacity: .3; } to { transform: scale(1); opacity: 1; } }
-@media (prefers-reduced-motion: reduce) { .shell-conn .shell-model-dot { animation: none !important; } }
-@media (max-width: 520px) { .shell-conn .shell-model-name { max-width: 6em; } }
+/* ---- connection note (plain text, no pill or alarm colour) and the offline checklist (offline plan, phase 3) ---- */
+.connection-note { margin: 0 0 6px; font-size: .9rem; line-height: 1.4; color: var(--color-muted-text); }
+.connection-note[hidden], .connection-note-link[hidden] { display: none; }
+.connection-note-link { min-height: 44px; min-width: 44px; }
 .shell-pop-dot[data-state="partial"] { background: var(--plc-warning); }
 .shell-pop-note.ok { background: var(--plc-success-tint); color: var(--plc-success); }
 .off-list { list-style: none; margin: 0; padding: 0; }
@@ -352,9 +347,6 @@ body.shell .composer-bar .shell-voicepick { margin-left: 0 !important; }
 .off-detail { flex-basis: 100%; font-size: .875rem; color: var(--color-muted-text); }
 .off-summary { margin: 0 0 10px; }
 .shell-pop-right { margin-left: auto; padding-left: 12px; white-space: nowrap; font-weight: 600; color: var(--color-primary, var(--plc-accent, #2557d6)); }
-body.shell .composer-bar .shell-conn { margin-left: 0 !important; flex: none !important; min-width: auto !important; max-width: none; }
-body.shell .composer-bar .shell-conn .shell-model-name { max-width: none; overflow: visible; }
-.shell-conn[data-state="offline"][data-mode="device"] .shell-model-dot, .shell-conn[data-state="offline"][data-mode="network"] .shell-model-dot { box-shadow: inset 0 0 0 2px var(--plc-success); }
 .off-note { margin-bottom: 14px; }
 .off-note[hidden] { display: none; }
 /* a row with an action label on its right wraps it under the text when there is no room (narrow screens, large text) */

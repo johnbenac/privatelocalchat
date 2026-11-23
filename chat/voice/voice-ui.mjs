@@ -28,7 +28,7 @@ export function createVoiceUi(host) {
   const loadSpeech = async () => (speechMod ||= await import(host.moduleBase() + 'chat/voice/speech.mjs'));
   const loadVoice = async () => (voiceMod ||= await import(host.moduleBase() + 'runtime/voice-loop/session.mjs'));
   let speaking = null;
-  const setListenButton = (btn, on) => { btn.setAttribute('aria-pressed', String(on)); host.icons().setIconLabel(btn, on ? '⏹ Stop' : '🔊 Listen'); };
+  const setListenButton = (btn, on) => { btn.setAttribute('aria-pressed', String(on)); host.icons().setIconLabel(btn, on ? '@stop Stop' : '@volume Listen'); };
   function stopSpeaking() { if (speaking) { speaking.handle.stop(); speaking = null; document.querySelectorAll('[data-action="speak"][aria-pressed="true"]').forEach(b => setListenButton(b, false)); } }
   async function speakText(text, onDone) {
     const sp = await loadSpeech();
@@ -43,8 +43,8 @@ export function createVoiceUi(host) {
   if (speechAvailable.synth) {
     messageDecorators.push((thread, msg, index, ctx, actions) => {
       if (msg.role !== 'assistant' || !msg.content || ctx.streaming) return;
-      actions.appendChild(actionButton('speak', '🔊 Listen', 'Read this answer aloud'));
-      actions.appendChild(actionButton('voice-note', msg.voiceNote ? '📄 Show as text' : '🎙️ Voice note', msg.voiceNote ? 'Show this reply as text again' : 'Turn this reply into a voice note you can play'));
+      actions.appendChild(actionButton('speak', '@volume Listen', 'Read this answer aloud'));
+      actions.appendChild(actionButton('voice-note', msg.voiceNote ? '@file Show as text' : '@mic Voice note', msg.voiceNote ? 'Show this reply as text again' : 'Turn this reply into a voice note you can play'));
     });
     messageActionHandlers['voice-note'] = async (thread, msg) => {
       await loadNoteModules();
@@ -62,7 +62,7 @@ export function createVoiceUi(host) {
 
   const toolButton = (id, icon, label) => {
     const b = el('button', 'tool-btn'); b.type = 'button'; b.id = id; b.title = label; b.setAttribute('aria-label', label); b.setAttribute('aria-pressed', 'false');
-    b.appendChild(createEmoji(icon === 'mic' ? '🎙️' : icon === 'phone' ? '📞' : icon === 'waveform' ? '🎚️' : '🎧')); return b;
+    b.appendChild(createEmoji(icon === 'mic' ? '@mic' : icon === 'phone' ? '@phone' : icon === 'waveform' ? '@waveform' : '@headphones')); return b;
   };
   let recordAvailable = false;
   let micBtn = speechInputOk ? toolButton('micBtn', 'mic', 'Dictate') : null;

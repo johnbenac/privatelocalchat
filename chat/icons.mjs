@@ -54,6 +54,7 @@ const P = {
   waveform: '<path d="M3 12h1.5M7.5 8v8M12 4v16M16.5 8v8M20 12h1"/>',
   compose: '<path d="M12 5H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-6"/><path d="M17.5 3.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4z"/>',
   panel: '<rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16"/>',
+  down: '<path d="M12 5v14M6 13l6 6 6-6"/>',
   chevron: '<path d="M6 9l6 6 6-6"/>',
   gear: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
   sliders: '<path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/>',
@@ -67,15 +68,6 @@ const P = {
 };
 export const ICON_NAMES = Object.keys(P);
 
-// emoji the app used before; mapping them keeps old and new code visually identical
-export const EMOJI_ICON = {
-  "➕": "plus", "➖": "minus", "🕶️": "ghost", "📁": "folder", "⋮": "more", "✏️": "edit", "📋": "copy", "📤": "download", "🗑️": "trash", "🔗": "link",
-  "📌": "pin", "📍": "pin", "🗄️": "archive", "🧬": "copy", "♻️": "refresh", "🌿": "branch", "⬇": "download", "📝": "edit", "🔊": "volume", "⏹": "stop",
-  "🧠": "bookmark", "📚": "book", "💾": "storage", "🔒": "lock", "🧮": "calc", "📎": "paperclip", "🖼️": "image", "🎙️": "mic", "🎧": "headphones", "📞": "phone", "🎚️": "waveform", "📵": "hangup",
-  "🔄": "refresh", "☀️": "sun", "🌙": "moon", "ℹ️": "info", "❌": "close", "☠️": "trash", "🗜": "summarize", "↻": "refresh", "▶": "play", "✕": "close",
-  "📩": "send", "☰": "menu", "‹": "left", "›": "right"
-};
-
 const NS = "http://www.w3.org/2000/svg";
 export function iconNode(name, { doc = globalThis.document, size = null } = {}) {
   const svg = doc.createElementNS(NS, "svg");
@@ -85,13 +77,14 @@ export function iconNode(name, { doc = globalThis.document, size = null } = {}) 
   svg.innerHTML = P[name] || P.info;
   return svg;
 }
-/** "📋 Copy" -> { name: "copy", rest: "Copy" } ; null name when the text does not start with a known emoji. */
+/** "@copy Copy" -> { name: "copy", rest: "Copy" } ; null name when the text does not start with "@" and a known icon name. */
 export function splitIcon(text) {
   const s = String(text);
-  for (const e of Object.keys(EMOJI_ICON).sort((a, b) => b.length - a.length)) if (s.startsWith(e)) return { name: EMOJI_ICON[e], rest: s.slice(e.length).trim() };
+  const m = /^@([a-z-]+)(?:\s+([\s\S]*))?$/.exec(s);
+  if (m && ICON_NAMES.includes(m[1])) return { name: m[1], rest: (m[2] || "").trim() };
   return { name: null, rest: s };
 }
-/** Replace a node's content with an icon plus its label ("📋 Copy"), or just the icon when there is no label. */
+/** Replace a node's content with an icon plus its label ("@copy Copy"), or just the icon when there is no label. */
 export function setIconLabel(node, text, { doc = globalThis.document } = {}) {
   const { name, rest } = splitIcon(text);
   node.textContent = "";

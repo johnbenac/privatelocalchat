@@ -49,8 +49,7 @@ export function createProviderSettings(host) {
     if (!themeToggleBtn) return;
     const themeIcon = themeToggleBtn.querySelector('.emoji-icon');
     if (themeIcon) {
-      const glyph = resolvedTheme === 'dark' ? '🌙' : '☀️';
-      const M = host.M(); if (M) themeIcon.replaceChildren(M.icons.iconNode(M.icons.EMOJI_ICON[glyph])); else themeIcon.textContent = glyph;
+      const M = host.M(); if (M) themeIcon.replaceChildren(M.icons.iconNode(resolvedTheme === 'dark' ? 'moon' : 'sun'));
     }
     const followingSystem = preference !== 'light' && preference !== 'dark';
     const labelAction = resolvedTheme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';

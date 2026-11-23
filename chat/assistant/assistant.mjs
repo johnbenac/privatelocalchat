@@ -160,7 +160,7 @@ export function createAssistant(host) {
   }
   messageDecorators.push((thread, msg, index, ctx, actions) => {
     if (msg.notice || msg.role === 'system' || ctx.streaming || thread.temporary || msg.local) return;
-    actions.appendChild(actionButton('remember', '🧠 Remember this', 'Remember this in future chats'));
+    actions.appendChild(actionButton('remember', '@bookmark Remember this', 'Remember this in future chats'));
   });
   messageActionHandlers['remember'] = async (thread, msg) => {
     const text = await promptDialog('Remember this', 'You can edit it before it is saved. It will be available in future chats (not temporary ones).', msg.content.slice(0, 400), { multiline: true, confirmLabel: 'Remember' });

@@ -1,6 +1,7 @@
 // The page's own dialogs: a titled, focus-trapped modal (Escape closes it, focus goes back to what opened it) and the questions built on it. Nothing in the app uses
 // the browser's confirm / alert / prompt (tests/no-native-dialogs.test.mjs). The page creates one set with createDialogs({ el, showToast }) and passes the
 // functions to the features that need them; window.plcDialogs is the same set for the modules that cannot be handed it.
+import { setIconLabel } from "./icons.mjs";
 
 export function createDialogs({ el, showToast }) {
   // ---- dialogs ---------------------------------------------------------------------------------------------------
@@ -14,7 +15,7 @@ export function createDialogs({ el, showToast }) {
     sheet.setAttribute('aria-labelledby', heading.id);
     if (wide) sheet.style.width = 'min(60rem, 100%)';
     const head = el('div', 'dialog-head'); head.appendChild(heading);
-    const x = el('button', 'icon-action', '✕'); x.type = 'button'; x.setAttribute('aria-label', 'Close');
+    const x = el('button', 'icon-action'); setIconLabel(x, '@close'); x.type = 'button'; x.setAttribute('aria-label', 'Close');
     head.appendChild(x);
     sheet.appendChild(head);
     const body = el('div', 'dialog-body');

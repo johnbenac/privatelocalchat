@@ -31,12 +31,12 @@ export function createConversationList(host) {
       const projectsHead = el('li', 'list-heading heading-with-action');
       projectsHead.appendChild(el('span', null, 'Projects'));
       const addProject = el('button', 'list-add'); addProject.type = 'button'; addProject.title = 'New project'; addProject.setAttribute('aria-label', 'New project');
-      addProject.appendChild(createEmoji('➕')); addProject.addEventListener('click', event => { event.stopPropagation(); createFolder(); });
+      addProject.appendChild(createEmoji('@plus')); addProject.addEventListener('click', event => { event.stopPropagation(); createFolder(); });
       projectsHead.appendChild(addProject); threadList.appendChild(projectsHead);
       folders.forEach(f => {
         const h = el('li', 'folder-heading');
         h.appendChild(el('span', 'thread-name', f.name));
-        const mb = el('button', 'thread-menu-btn'); mb.type = 'button'; mb.setAttribute('aria-label', 'Options for project ' + f.name); mb.appendChild(createEmoji('⋮'));
+        const mb = el('button', 'thread-menu-btn'); mb.type = 'button'; mb.setAttribute('aria-label', 'Options for project ' + f.name); mb.appendChild(createEmoji('@more'));
         mb.addEventListener('click', event => { event.stopPropagation(); toggleFolderMenu(f.id, mb); });
         h.appendChild(mb); threadList.appendChild(h);
         visible.filter(t => t.folderId === f.id).forEach(t => { const li = threadItem(t); li.classList.add('in-project'); threadList.appendChild(li); });
@@ -58,8 +58,8 @@ export function createConversationList(host) {
     const li = el('li'); li.dataset.id = thread.id;
     if (thread.id === host.currentThreadId()) li.classList.add('selected');
     const pick = el('button', 'thread-name'); pick.type = 'button';
-    if (thread.pinned) pick.appendChild(el('span', 'pin-mark', '📌'));
-    if (thread.temporary) pick.appendChild(el('span', 'pin-mark', '🕶️'));
+    if (thread.pinned) pick.appendChild(iconMark('pin'));
+    if (thread.temporary) pick.appendChild(iconMark('ghost'));
     if (thread.mind) { const mark = el('span', 'pin-mark mind-mark'); mark.setAttribute('aria-hidden', 'true'); mark.append(iconNode('mind')); pick.appendChild(mark); }   // a conversation with a mind on this computer (chat/mind/)
     pick.append(name);
     pick.title = name;
@@ -68,13 +68,14 @@ export function createConversationList(host) {
     li.appendChild(pick);
     const menuBtn = el('button', 'thread-menu-btn'); menuBtn.type = 'button';
     menuBtn.setAttribute('aria-label', 'Options for ' + name); menuBtn.setAttribute('aria-haspopup', 'menu');
-    menuBtn.appendChild(createEmoji('⋮'));
+    menuBtn.appendChild(createEmoji('@more'));
     menuBtn.addEventListener('click', event => { event.stopPropagation(); toggleThreadMenu(thread.id, menuBtn); });
     li.appendChild(menuBtn);
     li.addEventListener('click', () => selectThread(thread.id));
     return li;
   }
 
+  const iconMark = name => { const m = el('span', 'pin-mark'); m.setAttribute('aria-hidden', 'true'); m.appendChild(iconNode(name)); return m; };
   function menuItem(menu, emoji, label, run, cls) {
     const b = el('button'); b.type = 'button'; b.setAttribute('role', 'menuitem');
     b.appendChild(createEmoji(emoji)); b.appendChild(el('span', 'btn-label', label));
@@ -86,9 +87,9 @@ export function createConversationList(host) {
     if (host.openThreadMenu() && host.openThreadMenu().anchor === anchor) { closeThreadMenu(); return; }
     closeThreadMenu();
     const menu = el('div', 'thread-menu'); menu.setAttribute('role', 'menu');
-    menuItem(menu, '✏️', 'Rename project', async () => { const f = folders.find(x => x.id === folderId); const n = await promptDialog('Rename project', 'Name', f.name); if (n && n.trim()) { f.name = n.trim(); saveFolders(); renderThreadList(); } });
-    menuItem(menu, '📝', 'Project instructions', async () => { const f = folders.find(x => x.id === folderId); const n = await promptDialog('Project instructions', 'Added to the instructions of every chat in this project', f.instructions || '', { multiline: true }); if (n !== null) { f.instructions = n.trim(); saveFolders(); showToast('Project instructions saved'); } });
-    menuItem(menu, '🗑️', 'Delete project (keeps its chats)', async () => {
+    menuItem(menu, '@edit', 'Rename project', async () => { const f = folders.find(x => x.id === folderId); const n = await promptDialog('Rename project', 'Name', f.name); if (n && n.trim()) { f.name = n.trim(); saveFolders(); renderThreadList(); } });
+    menuItem(menu, '@edit', 'Project instructions', async () => { const f = folders.find(x => x.id === folderId); const n = await promptDialog('Project instructions', 'Added to the instructions of every chat in this project', f.instructions || '', { multiline: true }); if (n !== null) { f.instructions = n.trim(); saveFolders(); showToast('Project instructions saved'); } });
+    menuItem(menu, '@trash', 'Delete project (keeps its chats)', async () => {
       if (!await confirmDialog('Delete project?', 'The chats inside stay in your list; only the grouping and its instructions are removed.', 'Delete project', { danger: true })) return;
       const folder = folders.find(x => x.id === folderId); if (!folder) return;
       // Two stores, no shared transaction: the chats' references are saved first (through the one commit) and the folder is removed only after they are durable. The folder object is never
@@ -137,7 +138,7 @@ export function createConversationList(host) {
 
   events.on('context:collect', async thread => ({ preamble: [selectedFolderInstructions(thread)] }));
   messageDecorators.push((thread, msg, index, ctx, actions) => {
-    if (!ctx.streaming && index < thread.messages.length) actions.appendChild(actionButton('branch-here', '🌿 Start a branch here', 'Start a branch here'));
+    if (!ctx.streaming && index < thread.messages.length) actions.appendChild(actionButton('branch-here', '@branch Start a branch here', 'Start a branch here'));
   });
   messageActionHandlers['branch-here'] = (thread, msg) => duplicateThread(thread.id, thread.messages.indexOf(msg));
 
@@ -211,18 +212,18 @@ export function createConversationList(host) {
     closeThreadMenu();
     const menu = el('div', 'thread-menu'); menu.setAttribute('role', 'menu');
     if (thread.deletedAt != null) {
-      menuItem(menu, '♻️', 'Restore', async () => { const back = keepFields(thread, ['deletedAt']); delete thread.deletedAt; const o = await persist(threadId, 'The chat was not restored'); if (!o.saved) back(); renderThreadList(); });
-      menuItem(menu, '🗑️', 'Delete permanently', () => deleteForever(threadId), 'delete');
+      menuItem(menu, '@refresh', 'Restore', async () => { const back = keepFields(thread, ['deletedAt']); delete thread.deletedAt; const o = await persist(threadId, 'The chat was not restored'); if (!o.saved) back(); renderThreadList(); });
+      menuItem(menu, '@trash', 'Delete permanently', () => deleteForever(threadId), 'delete');
       placeMenu(menu, anchor); return;
     }
-    menuItem(menu, '✏️', 'Rename', () => renameThread(threadId));
-    menuItem(menu, thread.pinned ? '📍' : '📌', thread.pinned ? 'Unpin' : 'Pin to top', async () => { const back = keepFields(thread, ['pinned']); if (thread.pinned) delete thread.pinned; else thread.pinned = true; const o = await persist(threadId, 'The pin was not saved'); if (!o.saved) back(); renderThreadList(); });
-    menuItem(menu, '🗄️', thread.archived ? 'Unarchive' : 'Archive', async () => { const back = keepFields(thread, ['archived']); if (thread.archived) delete thread.archived; else thread.archived = true; const o = await persist(threadId, 'The archive change was not saved'); if (!o.saved) { back(); renderThreadList(); return; } renderThreadList(); showToast(thread.archived ? 'Archived' : 'Moved back to your chats'); });
-    menuItem(menu, '📁', 'Move to project…', async () => { await moveToFolder(threadId); });
-    if (!thread.mind) menuItem(menu, '🧬', 'Duplicate', () => duplicateThread(threadId));   // a copy would speak to the same host as the same participant
-    menuItem(menu, '📤', 'Export (.md)', () => exportThreadMarkdown(threadId));
-    menuItem(menu, '🔗', 'Copy link with current title/system/prompt', async () => { const url = buildPreloadUrl(); try { await navigator.clipboard.writeText(url); showToast('Link copied to clipboard'); } catch (err) { copyTextDialog('Copy this link', url); } });
-    menuItem(menu, '🗑️', 'Delete', () => trashThread(threadId), 'delete');
+    menuItem(menu, '@edit', 'Rename', () => renameThread(threadId));
+    menuItem(menu, '@pin', thread.pinned ? 'Unpin' : 'Pin to top', async () => { const back = keepFields(thread, ['pinned']); if (thread.pinned) delete thread.pinned; else thread.pinned = true; const o = await persist(threadId, 'The pin was not saved'); if (!o.saved) back(); renderThreadList(); });
+    menuItem(menu, '@archive', thread.archived ? 'Unarchive' : 'Archive', async () => { const back = keepFields(thread, ['archived']); if (thread.archived) delete thread.archived; else thread.archived = true; const o = await persist(threadId, 'The archive change was not saved'); if (!o.saved) { back(); renderThreadList(); return; } renderThreadList(); showToast(thread.archived ? 'Archived' : 'Moved back to your chats'); });
+    menuItem(menu, '@folder', 'Move to project…', async () => { await moveToFolder(threadId); });
+    if (!thread.mind) menuItem(menu, '@copy', 'Duplicate', () => duplicateThread(threadId));   // a copy would speak to the same host as the same participant
+    menuItem(menu, '@download', 'Export (.md)', () => exportThreadMarkdown(threadId));
+    menuItem(menu, '@link', 'Copy link with current title/system/prompt', async () => { const url = buildPreloadUrl(); try { await navigator.clipboard.writeText(url); showToast('Link copied to clipboard'); } catch (err) { copyTextDialog('Copy this link', url); } });
+    menuItem(menu, '@trash', 'Delete', () => trashThread(threadId), 'delete');
     placeMenu(menu, anchor);
   }
   return { selectedFolderInstructions, folders: () => folders, view: () => threadView, setView, render: renderThreadList, threadTitle, newThread, createFolder, moveToFolder, toggleThreadMenu, duplicateThread, saveFolders };
