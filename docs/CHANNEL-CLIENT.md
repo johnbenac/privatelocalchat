@@ -40,3 +40,9 @@ known before the first message).
   `causes` are not messages of the person; the screen shows exactly that case as an unasked word. A binding with a subscription would not have this limit.
 * `client.adopt(...)` takes over a message the page holds but the client has no record of (its outcome is unknown, never assumed); `client.checkStatus(id)` asks once.
 * A page served over https cannot call a plain http address on this computer (see the loopback matrix of the UI team); the screen says BLOCKED, never unreachable, when it can tell.
+
+## The poll schedule (T953)
+
+The loop asks every `pollMs` (1.5 s) for 30 s after anything happened (a send, `transport.nudge()` for Check status, a reply, the tab shown again); then the wait doubles up to 15 s while nothing arrives. A tab hidden for
+more than a minute is not polled and is asked at once when shown. The page tracks only the last 20 sent message ids, and keeps asking about a message after its reply came, because the host records the
+later receipts (Understood, Saved) only when her own cognition does, minutes later or never: not reached is "not yet", never a failure.

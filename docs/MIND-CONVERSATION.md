@@ -11,3 +11,8 @@ contract over HTTP on the same computer (`chat/channel/`). The mind is not a mod
 * **Storage** (T966): both sides are ordinary messages of the chat; hers carry `mind.occ` (source + id) and a message id made from it, so a reload, a repeated poll or a second tab writes a word once. Deleting the chat
   deletes her words (the vault compacts as for any chat). `plc.mind.v1` holds bookkeeping only (ids, receipts, cursor): no words. The encounter ledger does not observe these chats.
 * **Tests**: `tests/mind-model.test.mjs`, `tests/mind-store.test.mjs`, `tests/channel-*.test.mjs`, `node scripts/e2e.mjs mind-conversation`, and the optional `scripts/mind-host-check.mjs` (a real host).
+
+* **Wording of the status**: a configured name reads "Connected to Ada on this computer."; the neutral default "a mind on this computer" reads "Connected to a mind on this computer."
+* **Setup**: Check sits directly above its answer in the scrolling part of the dialog (assertive for a failure, scrolled into view). On a plain http page on this computer the address is prefilled, and `/host.json` names her.
+* **Top bar**: the thread title and the pill are filled as for any chat; the screen's own h1 is in the page only while shown.
+* **Receipts**: the highest stage is shown calmly; stages not reached are listed as "not reached yet", without alarm.
