@@ -109,11 +109,13 @@ program:
 [[free-opencode-run-state-location]] — State for free_opencode_run.py is in /var/lib/cosmoshot/relay/free-opencode/, outside git.
 [[host-fact-evidence-contract]] — Host facts and native execution evidence
 [[how-memory-is-kept]] — Where to find memory access, safe writes and sync, instruction rollout, and dream validation contracts.
-[9/57 entries shown; cosmo-mem read program _index.md]
+[9/58 entries shown; cosmo-mem read program _index.md]
 ```
 
 
-- Planning: The planning board (https://cosmoshot.benac.dev) is the source of objectives and tasks. Record the work you do as notes on its task.
+- Planning: The planning board (https://cosmoshot.benac.dev) is the source of objectives and tasks. Keeping the board current is your job: note what you did, set the status as you go. If you wait long
+  on another agent's part, you may split the task (yours done, the rest not started) or give their part to them as a new
+  in-progress task, but only after agreeing it with every agent involved.
 - Read the applicable shared skill before answering questions about programme procedures or carrying them out.
 - Housing: read `docs/HOUSING.md` (how this clone is made ready, the test commands, what it leans on).
 - Commits (this machine's hook): `type(scope): text` with lower-case text, a blank line, a body; every line under 100 characters;

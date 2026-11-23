@@ -65,6 +65,13 @@ Errors are HTTP 400 or 404 with `{"error": "..."}`.
 - `POST /api/history/<id>/reverse` puts one change back exactly (refuses if the touched rows
   changed since). It also takes `?dry_run=1`.
 
+## Keeping the board current is your job
+
+Note what you did, decided and left open on the task, and set its status as the work moves. If you are blocked for long
+because another agent must do its part, you may split the task (your part done, the rest not started) or give that part
+to the other agent as a new in-progress task. Agree it first with every agent involved, ask them with `cosmo-msg`, and
+record the agreement on the task. Never split or reassign alone.
+
 ## Notes for tools
 
 - Pass `--cacert /etc/ssl/centroid-ca/certs/ca-root.crt` to curl on a machine that does not
