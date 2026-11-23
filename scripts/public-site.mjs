@@ -7,7 +7,7 @@
 //   <!--plc:name--> ... <!--/plc:name-->
 // and the build replaces what is between them. The committed pages hold the unconfigured rendering, so they are complete documents
 // as they stand, and a test fails when they drift from the data they are generated from (the site's updates/entries.json, and content/known-issues.json).
-import {readFile, writeFile, access, mkdir} from 'node:fs/promises';
+import {readFile, writeFile, access, mkdir, copyFile} from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 
@@ -269,6 +269,8 @@ export async function buildPublicSite({siteDir, outDir, releasePath, config, roo
   const urls = origin ? [{loc: origin + '/', lastmod: rootLastmod}] : [];
   const written = [];
   for (const page of pages) await mkdir(path.join(outDir, page.name), {recursive: true});
+  // A site may bring its own colours: <site>/theme.css is served as /site-theme.css and a page of the site links it after the shared stylesheet (a copy without the file names none).
+  try { await access(path.join(siteDir, 'theme.css')); await copyFile(path.join(siteDir, 'theme.css'), path.join(outDir, 'site-theme.css')); } catch { /* this site has no theme of its own */ }
   const hasUpdates = pages.some(p => p.name === 'updates') && data.entries.length > 0;
   if (hasUpdates && origin) { await mkdir(path.join(outDir, 'updates'), {recursive: true}); await writeFile(path.join(outDir, 'updates/rss.xml'), renderRss(data, origin)); }
   for (const page of pages) {
