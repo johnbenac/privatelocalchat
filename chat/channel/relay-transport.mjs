@@ -23,7 +23,7 @@
 // the same way, so the client says UNAVAILABLE, never unreachable. A frame larger than 1 MiB is never sent: it resolves as a refusal `over-limit`.
 export const SUBPROTOCOL = 'relay.v1';
 export const MAX_FRAME_BYTES = 1024 * 1024;
-export const CLOSE = Object.freeze({ superseded: 4000, revoked: 4001 });
+export const CLOSE = Object.freeze({ superseded: 4000, revoked: 4001, tokenRefused: 4401 });
 export const BACKOFF_START_MS = 1500;
 export const BACKOFF_MAX_MS = 15000;
 export const DEFAULT_TIMEOUT_MS = 15000;
@@ -33,8 +33,8 @@ const MAX_QUERIES = 20;
 const encoder = new TextEncoder();
 const isLoopback = (h) => h === 'localhost' || h === '127.0.0.1' || h === '[::1]' || h.endsWith('.localhost');
 
-/** The channel's address on a relay. The scheme is always the secure one (https or wss given); plain http or ws is taken only for the loopback address of this computer. Never holds a token. */
-export function relayUrl({ address, channel } = {}) {
+/** The channel's address on a relay. With `readableRefusal` the relay answers a refused token INSIDE the socket (a control line and close 4401), which a page can read; without it a refused token is a bare 401 the page cannot tell from a dead network. The scheme is always the secure one (https or wss given); plain http or ws is taken only for the loopback address of this computer. Never holds a token. */
+export function relayUrl({ address, channel, readableRefusal = false } = {}) {
   let u;
   try { u = new URL(String(address || '').trim()); } catch { return null; }
   if (!['http:', 'https:', 'ws:', 'wss:'].includes(u.protocol) || u.username || u.password || u.search || u.hash) return null;
@@ -42,7 +42,7 @@ export function relayUrl({ address, channel } = {}) {
   if (!secure && !isLoopback(u.hostname)) return null;
   const id = String(channel || '').trim();
   if (!CHANNEL.test(id)) return null;
-  return (secure ? 'wss:' : 'ws:') + '//' + u.host + (u.pathname.replace(/\/+$/, '')) + '/channel/' + encodeURIComponent(id) + '?as=surface';
+  return (secure ? 'wss:' : 'ws:') + '//' + u.host + (u.pathname.replace(/\/+$/, '')) + '/channel/' + encodeURIComponent(id) + '?as=surface' + (readableRefusal ? '&refusal=socket' : '');
 }
 
 export function createRelayTransport({ url, getToken, WebSocket: WS = globalThis.WebSocket, timeoutMs = DEFAULT_TIMEOUT_MS, connectTimeoutMs = DEFAULT_TIMEOUT_MS, probeId = null, hiddenPauseMs = 60000, now = () => Date.now(),
@@ -53,7 +53,7 @@ export function createRelayTransport({ url, getToken, WebSocket: WS = globalThis
   const tokenOf = typeof getToken === 'function' ? getToken : () => getToken;
   const secureUrl = url.startsWith('wss:');
   const tracked = new Set(), seenIds = new Set(), seenOcc = new Set(), pending = new Set();
-  let ws = null, opened = false, wantOpen = false, stopped = false, suspended = false, terminal = null, seq = 0, backoff = BACKOFF_START_MS, reconnectTimer = null, connectTimer = null, lastClose = null;
+  let ws = null, opened = false, wantOpen = false, stopped = false, suspended = false, terminal = null, tokenRefusedSeen = false, seq = 0, backoff = BACKOFF_START_MS, reconnectTimer = null, connectTimer = null, lastClose = null;
   let onFrameFn = null, onCloseFn = null, onRecordFn = null, visListener = null, hiddenSince = null, deferred = false;
 
   const remember = (set, key) => { set.add(key); if (set.size > MAX_SEEN) set.delete(set.values().next().value); };
@@ -96,6 +96,7 @@ export function createRelayTransport({ url, getToken, WebSocket: WS = globalThis
       const code = Number(event?.code);
       if (code === CLOSE.superseded) { terminal = 'superseded'; emitClose('superseded'); return; }
       if (code === CLOSE.revoked) { terminal = 'revoked'; emitClose('revoked'); return; }
+      if (code === CLOSE.tokenRefused || tokenRefusedSeen) { terminal = 'token-refused'; emitClose('token-refused'); return; }   // the relay said the TOKEN was refused (expired, revoked, forged, wrong channel: it does not say which): the person's act, never a loop
       if (stopped || !wantOpen || suspended) return;
       emitClose(!wasOpen && secureUrl ? 'insecure' : 'unreachable');
       scheduleReconnect();
@@ -110,6 +111,7 @@ export function createRelayTransport({ url, getToken, WebSocket: WS = globalThis
   function onControl(routing) {
     if (routing.code === 'host-present') { record({ kind: 'presence', present: true }); askAboutTracked(); }
     else if (routing.code === 'host-absent') record(refusalFor('host-absent'));
+    else if (routing.code === 'refused' && routing.reason === 'token' && routing.for === 'connect') tokenRefusedSeen = true;   // the readable refusal of a connection (the close follows)
     else if (routing.code === 'refused') {   // a message the relay did NOT forward: said to the newest request that waits for an answer; the relay answered, so it is a refusal and never a silence
       const waiting = [...pending].reverse()[0];
       if (waiting) settle(waiting, [refusalFor(routing.reason, waiting.messageId)]);
@@ -166,7 +168,7 @@ export function createRelayTransport({ url, getToken, WebSocket: WS = globalThis
     },
     subscribe(_cursor, onFrameCb, onClose, onRecord) {   // no cursor: the relay replays nothing
       onFrameFn = onFrameCb; onCloseFn = onClose || null; onRecordFn = onRecord || null;
-      stopped = false; suspended = false; wantOpen = true; terminal = null; lastClose = null; backoff = BACKOFF_START_MS; deferred = false;
+      stopped = false; suspended = false; wantOpen = true; terminal = null; tokenRefusedSeen = false; lastClose = null; backoff = BACKOFF_START_MS; deferred = false;
       if (doc?.addEventListener && !visListener) {
         visListener = () => { if (doc.hidden) { hiddenSince = now(); return; } hiddenSince = null; api.nudge(); };
         doc.addEventListener('visibilitychange', visListener);

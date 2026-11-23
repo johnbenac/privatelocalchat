@@ -70,6 +70,7 @@ relay** that both this page and the mind's host dial out to, so a page served ov
   | failed before opening on a secure address | unreachable (insecure), reconnects | Could not connect securely. (The browser does not say why. Nothing was sent.) |
   | close 4000 `superseded` | superseded, never retried | This conversation was opened in another tab, so it stopped here. (Use it here) |
   | close 4001 `revoked` | revoked, never retried | You are not allowed to use this connection any more. Nothing can be sent. |
+  | control line `refused` reason `token` then close 4401 (only when the address asks for `readableRefusal`, i.e. `&refusal=socket`) | token-refused, never retried | The relay did not accept your access token. Nothing can be sent. (it does not say whether the token expired, was revoked or was forged) |
   | no token | needs-token, nothing opened | Add your access token to connect. Nothing can be sent. |
 
   A browser tells a page nothing about WHY a WebSocket failed to open: an expired token (the relay's bare 401), a wrong address and a certificate it does not trust all look alike. The unreachable sentence therefore names

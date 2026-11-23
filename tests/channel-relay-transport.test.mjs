@@ -287,3 +287,21 @@ test('checkRelay: one look at the relay, the token only as a subprotocol, every 
   let sock; await run((x) => { sock = x.sock; x.sock.open().ctl('host-present'); });
   assert.deepEqual(sock.protocols, [SUBPROTOCOL, 'bearer.' + TOKEN]); assert.ok(!sock.url.includes(TOKEN)); assert.equal(sock.sent.length, 0, 'nothing is sent'); assert.equal(sock.closedWith, 1000);
 });
+
+test('relayUrl: readableRefusal adds the one query option the relay documents, and nothing else changes', () => {
+  assert.equal(relayUrl({ address: 'https://relay.example', channel: 'chan-test-0001', readableRefusal: true }), URL_OK + '&refusal=socket');
+  assert.equal(relayUrl({ address: 'https://relay.example', channel: 'chan-test-0001' }), URL_OK);
+});
+
+test('a readable token refusal (the control line, then close 4401): its own terminal state, never reconnected, and a different state from revoked and superseded', () => {
+  const r = rig(); const sock = r.sock(); sock.open();
+  sock.ctl('refused', { reason: 'token', for: 'connect' }); sock.shut(4401);
+  assert.deepEqual(r.log.closes, ['token-refused']);
+  r.timers.tick(600000); assert.equal(r.WebSocket.all.length, 1, 'no second connection, however long it waits');
+  assert.equal(r.transport.state().terminal, 'token-refused');
+  // the close code alone is enough too
+  const q = rig(); q.sock().open(); q.sock().shut(4401); assert.deepEqual(q.log.closes, ['token-refused']);
+  // a person's act begins again
+  r.transport.subscribe({}, () => {}, (x) => r.log.closes.push(x), () => {});
+  assert.equal(r.WebSocket.all.length, 2);
+});

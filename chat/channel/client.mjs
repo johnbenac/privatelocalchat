@@ -181,7 +181,7 @@ export function createChannelClient({ transport, resident, encounter, participan
         if (reason === 'unreachable') { setAvailability('unreachable', 'no answer from the host'); return; }
         // the relay binding (docs/CHANNEL-CLIENT.md): a lost link that the transport reopens by itself, and the endings it never retries (each is a state of its own, left only by the person)
         if (reason === 'insecure') { setAvailability('unreachable', 'insecure'); return; }
-        if (reason === 'superseded' || reason === 'revoked' || reason === 'no-token') { setAvailability(reason === 'no-token' ? 'needs-token' : reason, reason); return; }
+        if (reason === 'superseded' || reason === 'revoked' || reason === 'no-token' || reason === 'token-refused') { setAvailability(reason === 'no-token' ? 'needs-token' : reason, reason); return; }
         subscription = null; setAvailability('unavailable', reason ? String(reason) : 'connection closed');
       }, onRecord);
     } catch (error) { subscription = null; setAvailability('unreachable', String(error?.message || error)); }

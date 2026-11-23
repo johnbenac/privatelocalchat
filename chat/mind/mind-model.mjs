@@ -58,6 +58,7 @@ export const RELAY_COPY = Object.freeze({
   insecureDetail: () => 'The browser does not say why. Nothing was sent.',
   superseded: () => 'This conversation was opened in another tab, so it stopped here.',
   revoked: () => 'You are not allowed to use this connection any more. Nothing can be sent.',
+  tokenRefused: () => 'The relay did not accept your access token. Nothing can be sent.',
   needsToken: () => 'Add your access token to connect. Nothing can be sent.'
 });
 
@@ -115,6 +116,7 @@ export function statusOf({ availability, messages = [], name, address, ignoreRef
       return make('unreachable', 'ring', 'warn', COPY.unreachable(address), true, [ACTIONS.tryAgain, ACTIONS.changeAddress], true);
     case 'superseded': return make('superseded', 'slash', 'warn', RELAY_COPY.superseded(), true, [ACTIONS.useHere], true);
     case 'revoked': return make('revoked', 'cross', 'bad', RELAY_COPY.revoked(), true, [ACTIONS.changeConnection], true);
+    case 'token-refused': return make('token-refused', 'cross', 'bad', RELAY_COPY.tokenRefused(), true, [ACTIONS.changeConnection], true);
     case 'needs-token': return make('needs-token', 'ring', 'warn', RELAY_COPY.needsToken(), true, [ACTIONS.changeConnection], true);
     default: return make('checking', 'ring-dashed', 'quiet', COPY.checking(name), false, [], true);
   }
