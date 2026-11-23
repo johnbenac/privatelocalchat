@@ -77,7 +77,7 @@ const asMap = (inv) => (inv instanceof Map ? inv : new Map(Object.entries(inv ||
  * The model's runtime dependencies (descriptor.dependencies with a name) are judged exactly like its own artifacts: a model without its runtime is not complete.
  * A user-supplied slot is `filled` ONLY when its file is in the inventory and matches what the slot expects: `filled` is produced here, never set by a caller.
  */
-export function verifyManifest(manifest, inventory, { release = false, deep = true, closure = null, expectedClosure = null, validateSlot = null } = {}) {
+export function verifyManifest(manifest, inventory, { release = false, deep = true, closure = null, expectedClosure = null, validateSlot = null, bundleRoot = null } = {}) {
   const inv = asMap(inventory);
   const artifacts = new Map(manifest.descriptor.artifacts.filter((a) => a.name !== undefined).map((a) => [a.name, a]));
   const named = (manifest.descriptor.dependencies ?? []).filter((d) => d.name !== undefined);
@@ -89,8 +89,11 @@ export function verifyManifest(manifest, inventory, { release = false, deep = tr
   const linked = sorted(found.linked ?? []);
   const unsafeName = sorted([...new Set([...(found.unsafeNames ?? []), ...[...inv.keys()].filter(isUnsafeName)])]);
   const missing = [], wrongSize = [], wrongHash = [], unverified = [];
+  // a bundle holds a runtime's files ONCE, under runtime/<last segment of the dependency's id>/ at the bundle root, shared by every model that uses that runtime; the same file BESIDE the weights is accepted too
+  const rtKey = (d) => `runtime/${String(d.id ?? "").slice(String(d.id ?? "").lastIndexOf("/") + 1)}/${d.name}`;
+  const depGot = new Map(); for (const d of deps) depGot.set(d.name, bundleRoot?.get(rtKey(d)) ?? null);
   const judge = (name, want, required) => {
-    const got = inv.get(name);
+    const got = inv.get(name) ?? (depGot.get(name) ?? undefined);
     if (!got) { if (required) missing.push(name); }
     else if (got.bytes !== want.bytes) wrongSize.push({ name, want: want.bytes, got: got.bytes });
     else if (got.sha256 === undefined) unverified.push(name);
@@ -151,7 +154,7 @@ export function withVerifiedSlots(manifest, report) {
  *   profile:      {id, label, models: [{id, manifest, dir?}], remoteProviders?: string[]}
  *   inventories:  {[dir]: inventory}   ("" for the root)
  */
-export function evaluateProfile(profile, inventories, { release = false, deep = true, closure = null, validateSlot = null } = {}) {
+export function evaluateProfile(profile, inventories, { release = false, deep = true, closure = null, validateSlot = null, bundleRoot = null } = {}) {
   const groups = new Map();
   for (const m of profile.models) { const d = m.dir ?? ""; if (!groups.has(d)) groups.set(d, []); groups.get(d).push(m); }
   const models = {};
@@ -159,7 +162,7 @@ export function evaluateProfile(profile, inventories, { release = false, deep = 
     const inv = asMap(inventories[dir] ?? {});
     const declaredByOthers = (self) => new Set(members.filter((x) => x !== self).flatMap((x) => [...x.manifest.view.files.map((f) => f.name), ...(x.manifest.descriptor.dependencies ?? []).map((d) => d.name).filter(Boolean), ...(x.manifest.view.slots ?? []).map((s) => s.name)]));
     for (const m of members) {
-      const r = verifyManifest(m.manifest, inv, { release, deep, closure, validateSlot });
+      const r = verifyManifest(m.manifest, inv, { release, deep, closure, validateSlot, bundleRoot: bundleRoot ? asMap(bundleRoot) : null });
       const others = declaredByOthers(m);
       r.undeclaredExtra = r.undeclaredExtra.filter((n) => !others.has(n));
       const own = new Set([...m.manifest.view.files.map((f) => f.name), ...(m.manifest.descriptor.dependencies ?? []).map((d) => d.name), ...(m.manifest.view.slots ?? []).map((s) => s.name)]);
@@ -168,13 +171,21 @@ export function evaluateProfile(profile, inventories, { release = false, deep = 
       models[m.id] = r;
     }
   }
+  // what sits at the bundle root that no model's directory and no runtime directory accounts for (bundle.json aside) is an undeclared extra of the BUNDLE, and a credential-like one fails in every mode
+  let undeclaredRoot = [], rootCredentialLike = [];
+  if (bundleRoot) {
+    const root = asMap(bundleRoot); const dirs = [...new Set(profile.models.map((m) => (m.dir ?? "").replace(/\/$/, "")))];
+    const declaredRuntime = new Set(profile.models.flatMap((m) => (m.manifest.descriptor.dependencies ?? []).filter((d) => d.name !== undefined).map((d) => `runtime/${String(d.id ?? "").slice(String(d.id ?? "").lastIndexOf("/") + 1)}/${d.name}`)));
+    undeclaredRoot = sorted([...root.keys()].filter((n) => n !== "bundle.json" && !dirs.includes("") && !dirs.some((d) => d !== "" && n.startsWith(d + "/")) && !declaredRuntime.has(n)));
+    rootCredentialLike = undeclaredRoot.filter((n) => CREDENTIAL_LIKE.test(n));
+  }
   const remoteProviders = profile.remoteProviders ?? [];
   const allLocal = profile.models.every((m) => (m.manifest.view.provider ?? "local") === "local");
   const slotsFilled = Object.values(models).every((r) => !r.unfilledSlots.length);
   const reasons = [...new Set(Object.values(models).flatMap((r) => r.reasons))];   // each model keeps its own order; the profile lists each reason once
-  const ok = Object.values(models).every((r) => r.ok), offline = allLocal && !remoteProviders.length && slotsFilled;
+  const ok = Object.values(models).every((r) => r.ok) && !rootCredentialLike.length && (!release || !undeclaredRoot.length), offline = allLocal && !remoteProviders.length && slotsFilled;
   // `offline` is a CAPABILITY (local models, no remote provider, filled slots); `offlineReady` is the verdict a page may act on: capable AND every byte present and verified
-  return { ok, offline, offlineReady: ok && offline, remoteProviders: [...remoteProviders], models, reasons };
+  return { ok, offline, offlineReady: ok && offline, remoteProviders: [...remoteProviders], models, undeclaredRoot, reasons };
 }
 
 /**

@@ -218,7 +218,8 @@
    ],
    "paths": [
     "LICENSE",
-    "releases/*/runtime/voice-loop/LICENSE"
+    "releases/*/runtime/voice-loop/LICENSE",
+    "releases/*/runtime/providers/LICENSE"
    ],
    "why": "Addresses in the text of the GNU General Public License."
   },

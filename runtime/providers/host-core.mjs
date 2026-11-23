@@ -34,7 +34,7 @@ const KNOWN_FORMATS = new Set(["text", "json_object", "json_schema"]);
  *   validateRequestStage: "first" (default) | "after-messages"  where validateRequest runs: before every built-in check, or after the messages checks and before maxTokens and the format checks
  * diagnostics: true (default) | false   false drops the debug objects an adapter emits (the adapters' debug blocks are switched by the same flag: the host forces their knobs off when it is false; a release artifact has them removed)
  */
-export function createHost({ adapters, storage = {}, providerId = "provider", livenessLock = null, hooks = {}, diagnostics = true, credentialTimeoutMs = 30000 }) {
+export function createHost({ adapters, storage = {}, providerId = "provider", livenessLock = null, hooks = {}, diagnostics = true, credentialTimeoutMs = 30000, budget = null }) {   // budget: createBudget(...): a load over the page's limit is refused, never made room for by unloading something
   const knownFormats = new Set([...KNOWN_FORMATS, ...(hooks.structuredFormats || [])]);
   const errorClasses = new Set(hooks.errorClasses || []);
   let adapter = null;
@@ -360,6 +360,14 @@ export function createHost({ adapters, storage = {}, providerId = "provider", li
       const declared = others + (Number.isFinite(m.usedBytes) ? m.usedBytes : 0) + steady;
       if (declared > m.maxBytes) return send(port, { id, type: "error", error: { name: "BudgetError", class: "out-of-memory", code: "memory-over-budget", reason: "memory-over-budget", message: `loading ${engine} would hold about ${declared} bytes, over the ${m.maxBytes} the consumer allows`, advice: "Unload another model first, or choose a smaller one. Nothing was unloaded for you.", phase: "load", retryable: true, detail: { declaredBytes: declared, maxBytes: m.maxBytes, engine } } });
     }
+    let budgetAdvisory = null;
+    if (budget) {
+      let r;
+      try { r = budget.reserve(engine, { steadyBytes: m.needs?.steadyBytes, peakBytes: m.needs?.peakBytes, group: m.group ?? m.needs?.group }); }
+      catch (e) { return send(port, { id, type: "error", error: { name: "BudgetError", class: "invalid-request", code: "needs-undeclared", reason: "needs-undeclared", message: String(e?.message || e) } }); }
+      if (!r.ok) return send(port, { id, type: "error", error: { name: "BudgetError", class: "out-of-memory", code: "memory-over-budget", reason: "memory-over-budget", message: `loading ${engine} would need about ${r.numbers.requestedPeakBytes} bytes beside the ${r.numbers.heldBytes} held, over this page's limit of ${r.numbers.limitBytes}${r.numbers.limitMeasured ? "" : " (an unmeasured default)"}`, advice: "Unload something first: the runtime never unloads a model by itself.", detail: r } });
+      budgetAdvisory = r.advisory ?? null;   // over a limit nobody measured: the load goes ahead and the answer says so
+    }
     const previous = families.get(engine);
     if (previous) { try { await previous.adapter.unload?.(); } catch { /* replaced anyway */ } families.delete(engine); }
     let instance = null;
@@ -369,9 +377,10 @@ export function createHost({ adapters, storage = {}, providerId = "provider", li
       const info = await instance.load(config, { onProgress: (p) => send(port, { id, type: "progress", progress: p }) });
       families.set(engine, { adapter: instance, info, config, needs: m.needs || null, chain: Promise.resolve(), ahead: 0 });
       broadcast({ type: "engine-state", engine, state: "ready", at: Date.now() });
-      send(port, { id, type: "result", value: { engine, ...info } });
+      send(port, { id, type: "result", value: { engine, ...info, ...(budgetAdvisory ? { budgetAdvisory } : {}) } });
     } catch (err) {
       try { await instance?.unload?.(); } catch { /* the load failed already */ }
+      budget?.release(engine);
       const c = classifyEngineError(err, { phase: "load" }, hooks);
       broadcast({ type: "engine-state", engine, state: "faulted", detail: { class: c.class, code: c.code, message: c.message.slice(0, 300) }, at: Date.now() });
       send(port, { id, type: "error", error: { ...serializeError(err), message: c.message, code: c.code, class: c.class, reason: c.reason, advice: c.advice, phase: "load", retryable: true } });
@@ -381,6 +390,7 @@ export function createHost({ adapters, storage = {}, providerId = "provider", li
   async function onEngineUnload(port, id, m) {
     const f = families.get(m.engine);
     if (!f) return send(port, { id, type: "result", value: { unloaded: false, engine: m.engine } });
+    budget?.release(m.engine);
     for (const inv of [...invocations.values()]) if (inv.engine === m.engine) abortInvocation(inv.invocationId, { by: "supervisor", reason: "engine-unload" });
     try { await f.adapter.unload?.(); families.delete(m.engine); broadcast({ type: "engine-state", engine: m.engine, state: "unloaded", at: Date.now() }); send(port, { id, type: "result", value: { unloaded: true, engine: m.engine } }); }
     catch (err) { families.delete(m.engine); broadcast({ type: "engine-state", engine: m.engine, state: "faulted", detail: { phase: "unload", message: String(err?.message || err) }, at: Date.now() }); send(port, { id, type: "error", error: { ...serializeError(err), class: "runtime-fault" } }); }

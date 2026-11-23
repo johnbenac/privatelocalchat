@@ -121,12 +121,16 @@
     },
     {
       "files": {
+        "LICENSE": "0d96a4ff68ad6d4b6f1f30f713b18d5184912ba8dd389f86aa7710db079abcb0",
+        "THIRD-PARTY-NOTICES.md": "281a2d993c63be3434ba69054053780c00c5064076675d1c05d7341138ca94aa",
         "adapters/mock.mjs": "324dc12052489883f65c0795719fda75674b3c4271fa76c762b2079c2967c304",
         "adapters/webgpu.mjs": "1bef792ac631b65f7e28d2c151db7f6dea77b0e9d4b0f85141e995827da415c3",
         "adapters/webllm.mjs": "5250acbf6412780e9779c4c28f3588ecdec86cb96e0c2959e2648fc6c1b0d1d7",
         "adapters/wllama.mjs": "2ad93e31fa1b825314be0cd3bfe7bbb9baf2a370f5398424a0bfb914cc62f40b",
         "app-config.mjs": "71f41d87b848fe582ca5a4156520cd176d1b5633acab5b45e0854dd9a0a41ca3",
         "auto-tier.mjs": "266345693d831bc3a054bfdb3cde7266cf5d33b90c711efd90bcef3b9d01fb84",
+        "budget-profiles.mjs": "86acf395757eb58afb529f89b57363da105c06578935b0d419bb7bf98232c246",
+        "budget.mjs": "3db6f48124d4296c295122a026d2012b90756c43155629e48ee15a2d83be6e08",
         "cache-api-backend.mjs": "99000d1032d8368735cc11ccfad32a15fbb45715959bb0f0ac25a3f8c80479dc",
         "capability-probe.mjs": "a6a574f0c6dcefa76bc608fe11b424baa480e615b36d60bd134c041b709ac4cd",
         "catalog-core.mjs": "3ff17d1a1fd49e9be6fabda4be651c7d3ebb099955a97e7d0572c9b2cae6045d",
@@ -141,7 +145,7 @@
         "hash-blob-chunks.mjs": "3a88d13936c95cc1446460ca9a41e491518e9a8374c87a6ad273a09eb994ef44",
         "hash-blob-worker.mjs": "c65298300f4846e278ffc2874cd8cc7ad77bea5b012bb1f19dc6acb973aaec4e",
         "hash-blob.mjs": "522d58a7e2b61105d9fc464e8f0b58ac90bc9df5590e9cd2921ceec363a59798",
-        "host-core.mjs": "9df5573439805f53ac1912cb46fd678fa130a01dc6566ef4fb814d648b5e5ea7",
+        "host-core.mjs": "6af35b686a78c6478927f3fea9aa9270b6b9deb74e7c730e77f9043033c8e1d8",
         "host.worker.mjs": "f1dd77990bdd27ebfc13e7cf3ec64e4f03cc98069f74ebd48475d28f8cf91205",
         "index.mjs": "b20b7f5fc052869ef8ac334c0abd48f444219bb618037a02b15b91cc3afed4c4",
         "manifest-shipped.mjs": "1f352dd7933041117db43dd5081f574a5b0cb20c3fc9a9f2c3dadf309cfbc040",
@@ -152,6 +156,7 @@
         "native-shutdown.mjs": "8c8f14207e79e01833d7be5ef152cb25dcc1e18c31f8457fe06aecc834080f10",
         "opfs-stream-writer.mjs": "2860f9e8834524a4ce4e35520c455d7009bb4d63fc7514dd32b83f91b15018f8",
         "opfs-write-worker.mjs": "d9eabaf9498bc59e22027daeb2ec8190ebc8da7c9158de320e78c1bf847646c7",
+        "ort-share.mjs": "e54721e29a32ce2ffe8e54d120aa77c8b59fca3a447b052f930ab42495639289",
         "production-runtime.json": "7ffe6a49dedaafd181e5d067b6148f19adc8e727149285b1bfb554d405a1be41",
         "registry-core.mjs": "1590992026c06dac69506d079742dc9cbd3000cdda8ed08955e0b88168ff0817",
         "registry.mjs": "d0f7c2eae2e1a8fb16f0fb8090cbd879396c64a643d2030ed11b2490aad0457d",
@@ -178,20 +183,20 @@
         "vendor/wllama/v1q/compat.wasm": "e7aa8820a87ad1bdf262fc5d3f2f65978b4de81d9c118287b1506d1450b3369a",
         "vendor/wllama/v1q/default.wasm": "b72350ef4391729724af4798f4491948148aa3745c1aa4d11b9491bc4fd34f67",
         "vendor/wllama/v1q/wllama.js": "267d7e3d29d273934c8c756ed719f971f84d7d3428e479c64bb2b8346721f6a6",
-        "verify.mjs": "53585dae226e6a13e6daa8fa48e4561251b5bc54ff85789e36594bd4b3c498f6",
+        "verify.mjs": "fa07c705dd0d9f5d2c576e6f3ae48928bf0fce1691e67e8b1a4e996aaac250fb",
         "worker-entry.mjs": "6e4cb2c234df3dc45c6962fbf96694f2421251b5f0063dd01013418b14b2d301"
       },
-      "license": "AGPL-3.0",
+      "license": "AGPL-3.0-only",
       "name": "model-runtime",
       "owner": "plc",
       "package": {
-        "file": "model-runtime-1.1.0.tar.gz",
-        "sha256": "9911978f7d16c300cb326c2dbc423eb2d17108bfa61c994caeb27082556aeb67",
+        "file": "model-runtime-1.2.0.tar.gz",
+        "sha256": "33497b4e7d48ab0b1234e87f20324e7e5257490c40bb825814090f9ad83358c1",
         "type": "generic"
       },
       "path": "runtime/providers",
-      "tree_sha256": "a4d7e01d4bfff663df9dea581df0c737907979680656beff86a87832bfec3463",
-      "version": "1.1.0"
+      "tree_sha256": "8da757940584e8c68c3f257d1d8f6963b3726e04a0745a8f696f8a32d954fda6",
+      "version": "1.2.0"
     },
     {
       "files": {
