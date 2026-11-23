@@ -71,7 +71,7 @@ export function createContextUi(host) {
     const S = STATUS();
     const overflow = msg.status === S.FAILED && /context|too long|exceed|overflow/i.test(msg.error || '');
     if (ctx.isLast && !ctx.busy && msg.role === 'assistant' && (msg.status === S.LENGTH || overflow) && host.M().context.planSummary(thread, contextWindowTokens()))
-      actions.appendChild(actionButton('summarize', '🗜 Summarize earlier messages', 'Summarize the earlier conversation so the model has room again'));
+      actions.appendChild(actionButton('summarize', '@summarize Summarize earlier messages', 'Summarize the earlier conversation so the model has room again'));
   });
   messageActionHandlers['summarize'] = thread => summarizeEarlier(thread.id);
   return { updateMeter: updateContextMeter, renderSummaryDivider, summarizeEarlier };

@@ -83,8 +83,8 @@ try{
  // the reasons: what the page says about the connection
  const state=await page.evaluate(()=>({status:document.querySelector('#offlineStatus')?.textContent,online:navigator.onLine}));
  check('B: the browser reports offline',state.online===false);
- // what the person sees: the pill (calm, on-device chat works) and the checklist (everything ready)
- check('B: the connection pill says Offline, and that on-device chat still works',await page.waitForSelector('#connectionPill',{state:'visible',timeout:8000}).then(async()=>/Offline/.test(await page.locator('#connectionPill').innerText())&&/On-device chat still works/.test(await page.locator('#connectionPill').getAttribute('title')),()=>false));
+ // what the person sees: the note (calm, on-device chat works) and the checklist (everything ready)
+ check('B: the connection note says you are offline, and that on-device chat works',await page.waitForSelector('#connectionNote',{state:'visible',timeout:8000}).then(async()=>/You are offline/.test(await page.locator('#connectionNote').innerText())&&/on-device model works as usual/.test(await page.locator('#connectionNote').innerText()),()=>false));
  await page.evaluate(()=>window.plcShell.openSettings('models'));
  await page.waitForSelector('#offlineSection .off-item[data-id="model"]');
  await page.waitForFunction(()=>/^Ready for offline use/.test(document.querySelector('#offlineSummary')?.innerText||''),null,{timeout:15000}).catch(()=>{});

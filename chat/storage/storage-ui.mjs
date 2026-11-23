@@ -67,7 +67,7 @@ export function createStorageUi(host) {
     backupNudge.hidden = !(hasChats && stale && !(prefs.nudgeUntil > Date.now()));
     if (backupNudge.hidden) return;
     backupNudge.textContent = '';
-    const icon = el('span', 'backup-nudge-icon'); icon.setAttribute('aria-hidden', 'true'); host.M().icons.setIconLabel(icon, '💾');
+    const icon = el('span', 'backup-nudge-icon'); icon.setAttribute('aria-hidden', 'true'); host.M().icons.setIconLabel(icon, '@storage');
     const text = el('div', 'backup-nudge-text');
     text.append(el('strong', null, 'Back up your chats'), el('p', null, prefs.lastExportAt ? 'Your last backup was ' + Math.round((Date.now() - prefs.lastExportAt) / 864e5) + ' days ago.' : 'These chats exist only in this browser, which can clear them.'));
     const go = el('button', 'primary', 'Back up now'); go.type = 'button'; go.addEventListener('click', openStorage);

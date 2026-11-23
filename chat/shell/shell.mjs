@@ -5,7 +5,7 @@
 import { iconNode } from "../icons.mjs";
 import { createRegistry } from "./registry.mjs";
 import { buildModelsPage } from "./models-page.mjs";
-import { mountConnectionPill } from "./connection-pill.mjs";
+import { mountConnectionNote } from "./connection-note.mjs";
 import { rowParts, renderRowText } from "./model-row.mjs";
 import { languageRows as langVMs, voiceRows as voiceVMs, stateLine as vmLine } from "../models/models-view.mjs";
 import { hybridSearch, passagesFor, defaultFilters } from "./hybrid-search.mjs";
@@ -247,8 +247,8 @@ export function createShell(app) {
   const voicePill = h("button", { type: "button", class: "shell-model shell-voicepick", id: "voicePill", "aria-haspopup": "menu", "aria-label": "Choose voice", title: "Choose voice", hidden: true },
     h("span", { class: "shell-model-dot", "aria-hidden": "true" }), icon("volume"), h("span", { class: "shell-model-name", text: "System" }));
   bar.insertBefore(voicePill, tools);
-  // ---- connection pill: only there when offline (or for a moment after coming back) ----
-  if (app.offline) mountConnectionPill({ h, icon, bar, before: tools, offline: app.offline, popover, closePopover, openSettings: () => shell.openSettings("models") });
+  // ---- connection note: a plain sentence above the composer, only when offline (or for a moment after coming back) ----
+  if (app.offline) mountConnectionNote({ h, bar, offline: app.offline, openSettings: () => shell.openSettings("models") });
   let voiceCtl = null;
   function syncVoice(snap) {
     const busy = voiceBusy(snap), sel = snap.voices.find((v) => v.selected);

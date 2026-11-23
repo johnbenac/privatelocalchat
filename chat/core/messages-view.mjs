@@ -7,6 +7,7 @@
 // host: el, M() (pure modules), messagesEl, STATUS(), gen() (the running answer or null), currentThread(), currentThreadId(), updateContextMeter(thread), renderSummaryDivider,
 // actionButton, messageDecorators, events, openProviderSettings, openAbout, showToast, clockText, copyText, plus whatever a message needs (see the destructure below)
 import { siteLinks } from '../site/site-links.mjs';
+import { iconNode } from '../icons.mjs';
 export function createMessagesView(host) {
   const { el, messagesEl, STATUS, showToast, clockText, renderSources, actionButton, messageDecorators, openProviderSettings, openAbout, currentThread, renderSummaryDivider } = host;
   const { } = host;
@@ -140,7 +141,7 @@ export function createMessagesView(host) {
     applyAttribution(div, thread, msg);
     if (msg.attachments?.length) {
       const chips = el('div', 'message-attachments');
-      msg.attachments.forEach(a => chips.appendChild(el('span', 'chip', '📎 ' + a.name)));
+      msg.attachments.forEach(a => { const chip = el('span', 'chip'); chip.append(iconNode('paperclip'), ' ' + a.name); chips.appendChild(chip); });
       div.appendChild(chips);
     }
     const body = el('div', 'message-body');
@@ -168,9 +169,9 @@ export function createMessagesView(host) {
     actions.setAttribute('aria-label', (msg.role === 'user' ? 'Your' : 'Assistant') + ' message actions');
     if (!streaming && !msg.notice && msg.role !== 'system') {
       if (msg.role === 'user') {
-        if (!ctx.busy) actions.appendChild(actionButton('edit-message', '✏️ Edit', 'Edit message'));
+        if (!ctx.busy) actions.appendChild(actionButton('edit-message', '@edit Edit', 'Edit message'));
       }
-      actions.appendChild(actionButton('copy-message', '📋 Copy', msg.role === 'assistant' ? 'Copy response' : 'Copy message'));
+      actions.appendChild(actionButton('copy-message', '@copy Copy', msg.role === 'assistant' ? 'Copy response' : 'Copy message'));
       if (msg.role === 'assistant') {
         if (msg.versions?.length > 1) {
           const sw = el('span', 'version-switch');
@@ -181,14 +182,14 @@ export function createMessagesView(host) {
           actions.appendChild(sw);
         }
         if (isLast && !ctx.busy) {
-          if (msg.status === S.FAILED && !msg.content) actions.appendChild(actionButton('retry', '↻ Retry', 'Retry response'));
+          if (msg.status === S.FAILED && !msg.content) actions.appendChild(actionButton('retry', '@refresh Retry', 'Retry response'));
           else {
-            if (host.M().model.CONTINUABLE.has(msg.status) && msg.content) actions.appendChild(actionButton('continue', '▶ Continue', 'Continue response'));
-            actions.appendChild(actionButton('regenerate', '↻ Regenerate', 'Generate another response'));
+            if (host.M().model.CONTINUABLE.has(msg.status) && msg.content) actions.appendChild(actionButton('continue', '@play Continue', 'Continue response'));
+            actions.appendChild(actionButton('regenerate', '@refresh Regenerate', 'Generate another response'));
           }
         }
       }
-      const hide = actionButton('toggle-context', msg.excluded ? '➕ Include in context' : '➖ Leave out of context', msg.excluded ? 'Include this message in what the model sees' : 'Leave this message out of what the model sees');
+      const hide = actionButton('toggle-context', msg.excluded ? '@plus Include in context' : '@minus Leave out of context', msg.excluded ? 'Include this message in what the model sees' : 'Leave this message out of what the model sees');
       hide.setAttribute('aria-pressed', msg.excluded ? 'true' : 'false');
       actions.appendChild(hide);
       messageDecorators.forEach(fn => fn(thread, msg, index, ctx, actions, div));
@@ -204,7 +205,7 @@ export function createMessagesView(host) {
     const extra = [...actions.children].filter(n => n.matches?.('button[data-action]') && !PRIMARY_ACTIONS.has(n.dataset.action));
     if (!extra.length) return;
     extra.forEach(n => n.remove());
-    const more = actionButton('more', '⋮', 'More actions');
+    const more = actionButton('more', '@more', 'More actions');
     more._extra = extra;
     actions.appendChild(more);
   }

@@ -6,6 +6,8 @@
 //       models() (the chat model controller), prefs(), currentThread(), threads(), folders(), generateThreadId(), getChatState(), updateSendButtonDisabled(ready),
 //       showToast, openAppDialog
 
+import { iconNode, setIconLabel } from "../icons.mjs";
+
 export function createDocumentsUi(host) {
   const { el, events, messageActionHandlers, messageForm, messageInput, showToast, openAppDialog } = host;
   let docModules = null;
@@ -72,8 +74,8 @@ export function createDocumentsUi(host) {
     chipsRow.textContent = '';
     pendingAttachments.forEach((a, i) => {
       const chip = el('span', 'chip');
-      chip.append((a.kind === 'image' ? '🖼️ ' : '📎 ') + a.name + (a.pages ? ' · ' + a.pages + ' pages' : ''));
-      const x = el('button', null, '✕'); x.type = 'button'; x.setAttribute('aria-label', 'Remove ' + a.name);
+      chip.append(iconNode(a.kind === 'image' ? 'image' : 'paperclip'), ' ' + a.name + (a.pages ? ' · ' + a.pages + ' pages' : ''));
+      const x = el('button'); setIconLabel(x, '@close'); x.type = 'button'; x.setAttribute('aria-label', 'Remove ' + a.name);
       x.addEventListener('click', () => { pendingAttachments.splice(i, 1); renderChips(); host.updateSendButtonDisabled(host.getChatState().ready); });
       chip.appendChild(x); chipsRow.appendChild(chip);
     });

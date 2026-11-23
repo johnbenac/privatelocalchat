@@ -20,7 +20,7 @@ try{
  ok('online: the download is under way ('+Math.round(before/1e6)+' MB)');
 
  await context.setOffline(true);
- await page.waitForSelector('#connectionPill',{state:'visible',timeout:10000});
+ await page.waitForSelector('#connectionNote',{state:'visible',timeout:10000});
  // the app knows it is offline within a couple of seconds; the download must read as waiting at once, not as frozen or failed
  await page.waitForFunction(()=>/Waiting for a connection/.test(window.localModels.view.status),null,{timeout:15000});
  const text=await page.evaluate(()=>window.localModels.view.status);

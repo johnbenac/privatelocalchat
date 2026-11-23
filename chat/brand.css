@@ -320,7 +320,7 @@ textarea::placeholder, input::placeholder { color: var(--plc-muted); opacity: 1;
 @media (pointer: coarse) { .message-actions [data-action='more'], .message-actions [data-action='prev-version'], .message-actions [data-action='next-version'] { min-width: var(--plc-control-min); } }
 
 /* ---- dialogs on small screens: stack the storage rows instead of squeezing three columns ---------------------------------- */
-.icon-action { min-width: 2.25rem; min-height: 2.25rem; border: 0; background: transparent; border-radius: 8px; color: var(--plc-muted); display: inline-flex; align-items: center; justify-content: center; padding: 0; }
+.icon-action { min-width: 2.75rem; min-height: 2.75rem; border: 0; background: transparent; border-radius: 8px; color: var(--plc-muted); display: inline-flex; align-items: center; justify-content: center; padding: 0; }
 .icon-action:hover { background: var(--plc-accent-tint); color: var(--plc-ink); }
 @media (max-width: 599px) {
   .app-dialog { padding: 0; align-items: flex-end; }
