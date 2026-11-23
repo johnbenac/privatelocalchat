@@ -461,13 +461,13 @@ The app's own statements about data are not in this document. They are listed in
 | The vault setting is named Remember my API keys | `chat/lock/lock.mjs` | `Remember my API keys` |
 | A key travels in a transfer only if the person includes it | `chat/transfer/settings-transfer.mjs` | `includeToken` |
 | A received key is saved like a typed one | `chat/transfer/transfer-ui.mjs` | `app.tokens.set` |
-| The default model is kept in Cache Storage | `runtime/providers/catalog.mjs` | `webllm/model` |
+| The default model is kept in Cache Storage | `runtime/providers/catalog-tiers.mjs` | `webllm/model` |
 | The smaller models are kept in OPFS, with Cache Storage as the fallback | `runtime/providers/adapters/wllama.mjs` | `CACHE_API_NAME` |
 | Voice files are kept in OPFS | `chat/voice/voice-engine.mjs` | `getDirectory` |
 | The matching model's files are kept in Cache Storage | `chat/embedding/embedding-saved.mjs` | `embeddingSaved` |
 | The matching model's vectors are kept in memory only | `chat/shell/hybrid-search.mjs` | `kept in memory only` |
 | The offline copy is one cache per build; older ones are deleted | `scripts/service-worker.js` | `plc-shell-` |
-| The app asks the browser to keep the models when the person asks | `runtime/providers/model-host.mjs` | `requestPersist` |
+| The app asks the browser to keep the models when the person asks | `runtime/providers/model-host-core.mjs` | `requestPersist` |
 | Turning the vault on asks the browser to keep the data | `chat/vault/vault-control.mjs` | `persist` |
 | The time of the last export is kept for the backup reminder | `chat/history/history-io.mjs` | `lastExportAt` |
 | The chat history file is readable and holds no credentials | `chat/transfer/transfer-ui.mjs` | `None. The file is readable.` |
@@ -527,7 +527,7 @@ The app's own statements about data are not in this document. They are listed in
 | Settings says a custom source is set by whoever runs the copy | `chat/shell/models-page.mjs` | `set by whoever runs this copy` |
 | Downloaded model files are refused on a size or SHA-256 mismatch (WebLLM) | `runtime/providers/adapters/webllm.mjs` | `checksum mismatch` |
 | Downloaded model files are refused on a size or SHA-256 mismatch (wllama) | `runtime/providers/adapters/wllama.mjs` | `checksum mismatch` |
-| Every model install checks hashes | `runtime/providers/model-host.mjs` | `verifyHash: true` |
+| Every model install checks hashes | `runtime/providers/model-host-core.mjs` | `verifyHash: true` |
 | The matching model's folder name is content-addressed and no hash is pinned | `chat/embedding/embedding-config.mjs` | `EMBEDDING_ASSET_VERSION` |
 | The matching model's files come from the configured source | `chat/vendor/embedding/worker.js` | `remotePathTemplate` |
 | The fetch tool has no file list for the matching model | `scripts/models-manifest.mjs` | `embedding: []` |
@@ -554,7 +554,7 @@ The app's own statements about data are not in this document. They are listed in
 | The shared content is fixed | `chat/transfer/product-share.mjs` | `shareData` |
 | A copy with no site identity has nothing to share | `chat/transfer/transfer-ui.mjs` | `names no public address` |
 | The cookie fallback of a bundled library cannot run in the model worker | `runtime/providers/vendor/webllm/web-llm-0.2.86.js` | `Use session cookie as fallback` |
-| The model runtime runs in a worker | `runtime/providers/host.worker.mjs` | `lazyAdapter` |
+| The model runtime runs in a worker | `runtime/providers/registry-core.mjs` | `lazyAdapter` |
 | The build declares Cross-Origin-Embedder-Policy | `scripts/headers.mjs` | `Cross-Origin-Embedder-Policy` |
 | The build declares the referrer policy | `scripts/headers.mjs` | `strict-origin-when-cross-origin` |
 | Development diagnostics are built only for the development site | `scripts/targets.mjs` | `devTooling` |

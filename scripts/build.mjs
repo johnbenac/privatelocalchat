@@ -95,8 +95,10 @@ if(targetInfo.devTooling) {
   execFileSync(process.execPath,['ops/native/compiler-control.mjs','verify',path.join(debugRuntime,'compat.wasm'),native.compilerControl.receipt],{stdio:'pipe'});
  }
  for(const [file,pin] of Object.entries(native.files)){const bytes=await readFile(path.join(debugRuntime,file));if(bytes.length!==pin.bytes||createHash('sha256').update(bytes).digest('hex')!==pin.sha256)throw new Error('Diagnostic runtime checksum mismatch: '+file);await writeFile(path.join(out,releasePath,'runtime/providers/vendor/wllama/v1q',file),bytes);}
- const catalogFile=path.join(out,releasePath,'runtime/providers/catalog.mjs');
- await writeFile(catalogFile,(await readFile(catalogFile,'utf8')).replaceAll(native.catalogBaseBuildId||native.baseBuildId,native.buildId));
+ for(const catalogName of ['catalog.mjs','catalog-tiers.mjs']){   // the build id constant moved to catalog-tiers.mjs with model-runtime 1.1.0; both files are patched so either layout works
+  const catalogFile=path.join(out,releasePath,'runtime/providers',catalogName);
+  await writeFile(catalogFile,(await readFile(catalogFile,'utf8')).replaceAll(native.catalogBaseBuildId||native.baseBuildId,native.buildId));
+ }
 
  await mkdir(path.join(out,releasePath,'dev-tools'),{recursive:true});
  for(const file of ['start.js','ui.mjs','telemetry-core.mjs','native-journal.mjs','conversation-capture.mjs','remote-control.mjs'])await cp(path.join('dev-tools',file),path.join(out,releasePath,'dev-tools',file));
