@@ -21,6 +21,17 @@
   --plc-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
   color-scheme: dark;
 }
+/* The role names of the programme's dark-mode rules (one vocabulary for every app), carrying THIS app's own values: the cool paper and the one blue stay ours.
+   Components may use a role instead of a --plc-* name; nothing here changes how the app looks. tests/theme-roles.test.mjs checks the pairs in both schemes. */
+:root, [data-theme="light"] {
+  --role-surface-sunken: var(--plc-background); --role-surface: var(--plc-surface); --role-surface-raised: var(--plc-surface); --role-surface-overlay: var(--plc-surface);
+  --role-text: var(--plc-ink); --role-text-muted: var(--plc-muted); --role-text-subtle: var(--plc-muted);
+  --role-accent: var(--plc-accent); --role-accent-strong: var(--plc-accent-hover); --role-accent-fill: var(--plc-accent); --role-on-accent: var(--plc-on-accent);
+  --role-border: var(--plc-border); --role-border-strong: color-mix(in srgb, var(--plc-border) 35%, var(--plc-muted)); --role-link: var(--plc-accent); --role-link-visited: var(--plc-accent-hover); --role-focus: var(--plc-focus);
+  --role-ok: var(--plc-success); --role-bad: var(--plc-danger); --role-warn: var(--plc-warning); --role-ok-bg: var(--plc-success-tint); --role-bad-bg: var(--plc-danger-tint); --role-warn-bg: var(--plc-warning-tint);
+  --role-disabled-surface: #E9EDF3; --role-disabled-text: #5B6778;
+}
+[data-theme="dark"] { --role-border-strong: color-mix(in srgb, var(--plc-border) 60%, var(--plc-muted)); --role-disabled-surface: #1F2D3B; --role-disabled-text: #9DABBB; }
 @media (prefers-reduced-motion: reduce) { :root { --plc-motion-fast: 0ms; --plc-motion-normal: 0ms; } }
 
 /* the app's existing variables, pointed at the brand */
@@ -39,7 +50,7 @@
   --color-system-prompt-border: var(--plc-border); --color-system-prompt-label: var(--plc-muted);
   --color-messages-bg: var(--plc-background); --color-message-user-bg: var(--plc-accent-tint); --color-message-assistant-bg: transparent;
   --color-message-system-bg: var(--plc-warning-tint); --color-message-system-border: var(--plc-warning);
-  --color-form-border: color-mix(in srgb, var(--plc-border) 55%, var(--plc-muted)); --color-form-disabled-bg: var(--plc-background);
+  --color-form-border: var(--role-border-strong); --color-form-disabled-bg: var(--plc-background);
   --color-toast-bg: var(--plc-ink); --color-toast-text: var(--plc-background);
   --color-notice-bg: var(--plc-warning-tint); --color-notice-border: var(--plc-warning); --color-notice-text: var(--plc-warning);
   --color-action-text: var(--plc-ink); --color-danger: var(--plc-danger); --color-loading-track: var(--plc-border);
