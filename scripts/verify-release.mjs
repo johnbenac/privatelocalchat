@@ -17,7 +17,7 @@ for(let attempt=0;attempt<20;attempt++){
   if(!html.includes('issues/new/choose')||!html.includes('View source'))throw Error('Code or feedback link missing');
   if(!html.includes('"@type":"WebApplication"')||!html.includes('<link rel="canonical" href="https://privatelocal.chat/"'))throw Error('Search metadata missing from the app page');
   // the public pages, feed and crawl files are part of the release
-  for(const [path,mustHave] of [['/help/','id="what-is-private-local-chat"'],['/about/','Private Local Chat is a free place to use AI in your browser.'],['/privacy/','Last reviewed'],['/updates/','rss.xml'],['/updates/rss.xml','<rss'],['/sitemap.xml','https://privatelocal.chat/help/'],['/robots.txt','Sitemap: https://privatelocal.chat/sitemap.xml']]){
+  for(const [path,mustHave] of [['/help/','id="what-is-private-local-chat"'],['/about/','Private Local Chat is a place to use AI in your browser.'],['/privacy/','Last reviewed'],['/updates/','rss.xml'],['/updates/rss.xml','<rss'],['/sitemap.xml','https://privatelocal.chat/help/'],['/robots.txt','Sitemap: https://privatelocal.chat/sitemap.xml']]){
    const r=await fetch(origin+path+'?verify='+commit,{cache:'no-store'});
    if(!r.ok)throw Error(path+' HTTP '+r.status);
    const body=await r.text();
