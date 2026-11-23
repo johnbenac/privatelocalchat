@@ -7,7 +7,7 @@
 //   <!--plc:name--> ... <!--/plc:name-->
 // and the build replaces what is between them. The committed pages hold the unconfigured rendering, so they are complete documents
 // as they stand, and a test fails when they drift from the data they are generated from (the site's updates/entries.json, and content/known-issues.json).
-import {readFile, writeFile, access, mkdir, copyFile} from 'node:fs/promises';
+import {readFile, writeFile, access, mkdir, copyFile, readdir} from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 
@@ -259,6 +259,21 @@ export async function pagesPresent(siteDir) {
   return found;
 }
 
+/** Copy a folder tree into the output without replacing anything that is already there; a missing source folder is no error. */
+export async function copyStatic(from, to) {
+  let entries;
+  try { entries = await readdir(from, {withFileTypes: true}); } catch { return []; }
+  const written = [];
+  for (const entry of entries) {
+    const source = path.join(from, entry.name), target = path.join(to, entry.name);
+    if (entry.isDirectory()) { written.push(...await copyStatic(source, target)); continue; }
+    if (!entry.isFile()) continue;
+    try { await access(target); throw new Error('the site\'s static file ' + entry.name + ' would replace ' + path.relative(path.dirname(to), target) + ', which the build already wrote'); } catch (error) { if (error.code !== 'ENOENT') throw error; }
+    await mkdir(to, {recursive: true}); await copyFile(source, target); written.push(target);
+  }
+  return written;
+}
+
 /**
  * Everything the build adds for the public site, from a site directory. `origin` is the public address of the site (its manifest's `site.url`, without the trailing slash) or null:
  * without it there is no sitemap, no robots.txt and no feed. Returns the sitemap entries.
@@ -269,8 +284,9 @@ export async function buildPublicSite({siteDir, outDir, releasePath, config, roo
   const urls = origin ? [{loc: origin + '/', lastmod: rootLastmod}] : [];
   const written = [];
   for (const page of pages) await mkdir(path.join(outDir, page.name), {recursive: true});
-  // A site may bring its own colours: <site>/theme.css is served as /site-theme.css and a page of the site links it after the shared stylesheet (a copy without the file names none).
-  try { await access(path.join(siteDir, 'theme.css')); await copyFile(path.join(siteDir, 'theme.css'), path.join(outDir, 'site-theme.css')); } catch { /* this site has no theme of its own */ }
+  // A site may bring its own files (its colours, fonts, a stylesheet): everything under <site>/static/ is served from the root of the site, exactly as it is.
+  // A file never replaces one the build already wrote, so a site cannot change the app; a copy without a static folder adds nothing.
+  await copyStatic(path.join(siteDir, 'static'), outDir);
   const hasUpdates = pages.some(p => p.name === 'updates') && data.entries.length > 0;
   if (hasUpdates && origin) { await mkdir(path.join(outDir, 'updates'), {recursive: true}); await writeFile(path.join(outDir, 'updates/rss.xml'), renderRss(data, origin)); }
   for (const page of pages) {

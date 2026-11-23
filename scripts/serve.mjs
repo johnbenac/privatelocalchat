@@ -18,7 +18,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {parsePagesHeaders,headersFor} from './headers.mjs';
 
-const TYPES = {'.html':'text/html; charset=utf-8','.js':'application/javascript','.mjs':'application/javascript','.wasm':'application/wasm','.css':'text/css','.json':'application/json','.webmanifest':'application/manifest+json','.svg':'image/svg+xml','.png':'image/png','.ico':'image/x-icon','.jpg':'image/jpeg','.jpeg':'image/jpeg','.webp':'image/webp','.txt':'text/plain; charset=utf-8','.xml':'application/xml','.md':'text/markdown; charset=utf-8','.gguf':'application/octet-stream','.bin':'application/octet-stream','.onnx':'application/octet-stream','.npz':'application/octet-stream'};
+const TYPES = {'.html':'text/html; charset=utf-8','.js':'application/javascript','.mjs':'application/javascript','.wasm':'application/wasm','.woff2':'font/woff2','.css':'text/css','.json':'application/json','.webmanifest':'application/manifest+json','.svg':'image/svg+xml','.png':'image/png','.ico':'image/x-icon','.jpg':'image/jpeg','.jpeg':'image/jpeg','.webp':'image/webp','.txt':'text/plain; charset=utf-8','.xml':'application/xml','.md':'text/markdown; charset=utf-8','.gguf':'application/octet-stream','.bin':'application/octet-stream','.onnx':'application/octet-stream','.npz':'application/octet-stream'};
 const typeOf = (file, root) => file === path.join(root, 'updates', 'rss.xml') ? 'application/rss+xml' : path.basename(file) === 'LICENSE' ? 'text/plain; charset=utf-8' : TYPES[path.extname(file).toLowerCase()] || 'application/octet-stream';
 
 /** The part of a Range header this server answers: one byte range. null means "send everything" (no header, or a form it does not take); 'bad' means unsatisfiable. */
