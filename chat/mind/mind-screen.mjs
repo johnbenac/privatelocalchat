@@ -16,7 +16,7 @@ export function createMindScreen({ doc = document, onSend, onAction, onConnectio
   const titles = h(doc, 'div', 'mind-titles');
   const title = h(doc, 'h1', 'mind-title'); title.id = 'mindTitle';
   const reach = h(doc, 'p', 'mind-reach', REACH_ONLY); reach.id = 'mindReach';
-  titles.append(title, reach);
+  titles.append(reach);   // the h1 is in the page only while this screen is shown (the page has exactly one h1 at any time)
   const connection = h(doc, 'button', 'mind-btn secondary', 'Connection'); connection.type = 'button'; connection.id = 'mindConnection';
   connection.addEventListener('click', () => onConnection?.());
   head.append(titles, connection);
@@ -152,8 +152,8 @@ export function createMindScreen({ doc = document, onSend, onAction, onConnectio
       sync();
       if (model.announce && model.announce.n !== lastAnnounced) { lastAnnounced = model.announce.n; announce.textContent = ''; announce.textContent = model.announce.text; }   // `n` counts the announcements: the same sentence twice is heard twice
     },
-    show() { root.hidden = false; },
-    hide() { root.hidden = true; },
+    show() { root.hidden = false; if (!title.isConnected) titles.prepend(title); },
+    hide() { root.hidden = true; title.remove(); },
     resetAnnounce() { lastAnnounced = null; announce.textContent = ''; },
     destroyItems() { for (const [, p] of nodes) p.li.remove(); nodes.clear(); lastKind = null; actions.dataset.k = ''; }
   };
