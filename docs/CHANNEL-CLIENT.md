@@ -46,3 +46,36 @@ known before the first message).
 The loop asks every `pollMs` (1.5 s) for 30 s after anything happened (a send, `transport.nudge()` for Check status, a reply, the tab shown again); then the wait doubles up to 15 s while nothing arrives. A tab hidden for
 more than a minute is not polled and is asked at once when shown. The page tracks only the last 20 sent message ids, and keeps asking about a message after its reply came, because the host records the
 later receipts (Understood, Saved) only when her own cognition does, minutes later or never: not reached is "not yet", never a failure.
+
+## The relay binding (T1124)
+
+`chat/channel/relay-transport.mjs` is the same interface as the HTTP transport (`request`, `subscribe`, `track`, `untrack`, `nudge`, `stop`, a `probeId` that is accepted and not needed) over **one WebSocket to a content-blind
+relay** that both this page and the mind's host dial out to, so a page served over https reaches a mind from any browser: no loopback address, no mixed content. The wire is the platform's draft
+(`/cosmoshot/platform/contracts/relay/0.1.0-draft.1/RELAY.md`, provisional). The app never names a relay: the address and the channel are the person's (setup) or an operator's, like a model source.
+
+* **One contract frame per WebSocket message**, after one routing line: `{"t":"msg"}`, a newline, the frame. A frame over 1 MiB (bytes, not characters) is never sent: it is a refusal `over-limit`.
+* **The token** is a WebSocket subprotocol (`relay.v1`, `bearer.<token>`), never in the address and never in a frame. `getToken()` is asked at every (re)connect, so a fresh token the person put in is used and
+  none is ever invented. It is kept for the tab only (session storage, key `plc.mind.relayToken.v1`, `chat/mind/relay-token.mjs`), never in the chat or in a saved file.
+* **Pushed, not polled.** Receipts, refusals, status and replies arrive when the host sends them. `request(frame)` resolves with the first frame the host answers for it; later ones go to `onRecord`; each reply
+  to `onFrame(frame, seq)`. A `status-query` can still be sent (Check status). The relay has no cursor and replays nothing, so after the host is (back) present the transport asks about the last 20 tracked messages.
+* **Dedupe.** A reply is passed on once by its reply id AND by its occurrence key `{source, id}`: the same reply twice, across a reconnect, or after a host restart with the same id, is shown and stored once
+  (the client's seen set and the chat's own occurrence keys back it up).
+* **States** (what `availability` says; the exact sentences are in `RELAY_COPY`, `chat/mind/mind-model.mjs`):
+
+  | what happened | state | sentence |
+  |---|---|---|
+  | host-present, or any frame | available | Connected to Ada through a relay. |
+  | host-absent, or refused: no-host (the relay answered) | unavailable | The mind is not connected to the relay right now. Nothing can be sent. |
+  | no answer (a silence, a lost link) | unreachable, reconnects | No answer from the relay at relay.example. Nothing was sent. It may be slow, the address may be wrong, or your access token may have run out. |
+  | failed before opening on a secure address | unreachable (insecure), reconnects | Could not connect securely. (The browser does not say why. Nothing was sent.) |
+  | close 4000 `superseded` | superseded, never retried | This conversation was opened in another tab, so it stopped here. (Use it here) |
+  | close 4001 `revoked` | revoked, never retried | You are not allowed to use this connection any more. Nothing can be sent. |
+  | no token | needs-token, nothing opened | Add your access token to connect. Nothing can be sent. |
+
+  A browser tells a page nothing about WHY a WebSocket failed to open: an expired token (the relay's bare 401), a wrong address and a certificate it does not trust all look alike. The unreachable sentence therefore names
+  the token among the possible causes, and a secure address that fails before opening says only that it could not connect securely.
+* **Reconnect**: after any other close, 1.5 s doubling to 15 s, reset by any message. A tab hidden for more than a minute is not reconnected until it is shown (then at once). `superseded` and `revoked` are left
+  only by the person (`subscribe` again: "Use it here", "Change connection" with a fresh token).
+* `suspend()` lets go of the connection without a way back by itself (the setup dialog does it, because its Check connects as the same person and the relay lets the newer connection win).
+* **Tested** by `tests/channel-relay-transport.test.mjs` (a scripted WebSocket), `tests/mind-relay-token.test.mjs` (the token record, concurrency and recovery), and `node scripts/e2e.mjs mind-relay` (a fake relay with the
+  relay's wire, and the platform's real test relay with a real resident when they are there).

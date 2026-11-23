@@ -309,6 +309,15 @@
       "since": "v0.6.0"
     },
     {
+      "key": "plc.mind.relayToken.v1",
+      "store": "sessionStorage",
+      "class": "transient",
+      "owner": "chat/mind/relay-token.mjs",
+      "note": "the access token of each conversation with a mind through a relay, by chat id: for this tab only, gone when it closes, never in an address, a frame or a saved file",
+      "format": 1,
+      "since": "unreleased"
+    },
+    {
       "key": "plc.pendingToken.v1",
       "store": "sessionStorage",
       "class": "transient",
@@ -459,6 +468,7 @@
       "chat/list/conversation-list.mjs",
       "chat/lock/lock.mjs",
       "chat/mind/mind-store.mjs",
+      "chat/mind/relay-token.mjs",
       "chat/presentation/keeper.mjs",
       "chat/provider/provider-settings.mjs",
       "chat/shell/registry.mjs",

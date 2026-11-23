@@ -44,7 +44,7 @@ try {
   ok('the entry is in the plus menu and in Explore');
 
   await openSetupFromPlus();
-  assert(await page.locator('.app-dialog [role=dialog] h2, .app-dialog .sheet h2').first().innerText() === 'A mind on this computer', 'setup opens in the app dialog');
+  assert(await page.locator('.app-dialog [role=dialog] h2, .app-dialog .sheet h2').first().innerText() === 'A mind', 'setup opens in the app dialog');
   await fill({ ...CONFIG, address: 'not an address' });
   await page.click('#mindCheck');
   await page.waitForFunction(() => /not a web address/.test(document.getElementById('mindCheckAlert').textContent));
@@ -272,7 +272,7 @@ try {
   assert(!dbs.some((n) => /mind/i.test(n)), 'no database of its own');
   ok('deleting the chat removes her words from every store');
 
-  // ---- a phone: the entry is there, Open is off with the sentence, and the network is never tried ----------------------------------------------------------------------------------
+  // ---- a phone: the entry is there and can be opened (a relay reaches a mind from anywhere); "On this computer" cannot be chosen there, with its sentence, and the network is never tried ----------
   const phoneCtx = await t.browser.newContext({ isMobile: true, hasTouch: true, viewport: { width: 390, height: 800 }, serviceWorkers: 'block' });
   const phone = await phoneCtx.newPage(); extras.push(phone);
   await phone.addInitScript(() => localStorage.setItem('plc.lockSplash.v1', 'off'));
@@ -282,12 +282,15 @@ try {
   await phone.waitForFunction(() => Boolean(window.plcShell));
   await phone.click('#shellPlus');
   const prow = phone.locator('.shell-pop-row', { hasText: 'Talk with a mind on this computer' });
-  assert(await prow.isVisible() && await prow.isDisabled(), 'on a phone the entry is shown and Open is disabled');
-  assert((await prow.innerText()).includes(REACH), 'with the sentence: ' + await prow.innerText());
-  assert(host.log.length === hostLog, 'and the host was never asked');
+  assert(await prow.isVisible() && await prow.isEnabled(), 'on a phone the entry is shown and can be opened');
+  assert((await prow.innerText()).includes('reached through a relay'), 'with the sentence about the relay: ' + await prow.innerText());
   assert((await prow.boundingBox()).height >= 44, 'a finger-sized target');
+  await prow.click(); await phone.waitForSelector('#mind-setup-relayAddress');
+  assert(await phone.locator('#mind-setup-via-relay').isChecked() && await phone.locator('#mind-setup-via-computer').isDisabled(), 'the relay is chosen and "On this computer" cannot be');
+  assert((await phone.locator('#mindHowNote').innerText()) === REACH, 'and the sentence says why');
+  assert(host.log.length === hostLog, 'and the host was never asked');
   await phoneCtx.close();
-  ok('a phone: shown, disabled, with the sentence, nothing tried');
+  ok('a phone: the entry opens the relay setup, "On this computer" is off with its sentence, nothing tried');
 
   // ---- the page on another origin than the one the host allows: exact-origin CORS, then the right origin ------------------------------------------------------------------------
   const other = `http://localhost:${PORT + Number(process.env.E2E_PORT_OFFSET || 0)}`;

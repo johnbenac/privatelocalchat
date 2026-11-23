@@ -32,6 +32,7 @@ export const KEY_CLASSES = Object.freeze({
   "chatModels": { store: "session", class: "setting", format: 1 },
   "chatEndpointTokens": { store: "session", class: "user", format: 1 },
   "plc.draft": { store: "session", class: "transient", format: 1 },
+  "plc.mind.relayToken.v1": { store: "session", class: "transient", format: 1 },
   "plc.pendingToken.v1": { store: "session", class: "transient", format: 1 },
   "plc.update.tried": { store: "session", class: "plain", format: 1 },
   "promoDismissed": { store: "session", class: "plain", format: 1 },

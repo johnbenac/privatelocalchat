@@ -70,7 +70,7 @@ Browsers offer to clear the site data of an address. In current browsers that re
 | `user` | what the person wrote or chose to keep (chats, drafts, memory, documents, API keys): goes into the vault |
 | `vault` | the encrypted store itself: nothing in it is readable without the passphrase |
 
-**Keys in local and session storage (36)**
+**Keys in local and session storage (37)**
 
 | Key | Where | Class | What it holds | Format | First release |
 | --- | --- | --- | --- | --- | --- |
@@ -90,6 +90,7 @@ Browsers offer to clear the site data of an address. In current browsers that re
 | `plc.lock.v1` | local storage | `plain` | lock verifier and auto-lock minutes; replaced by the vault header | 1 | v0.8.0 |
 | `plc.lockSplash.v1` | local storage | `plain` | the not-locked reminder is on or off | 1 | v0.33.0 |
 | `plc.memory.v1` | local storage | `user` | memory items. It was shared with the model-memory switch until 2026-11-04, which overwrote it | 1 | v0.8.0 |
+| `plc.mind.relayToken.v1` | session storage | `transient` | the access token of each conversation with a mind through a relay, by chat id: for this tab only, gone when it closes, never in an address, a frame or a saved file | 1 | unreleased |
 | `plc.mind.v1` | local storage | `user` | bookkeeping of each conversation with a mind on this computer: ids and receipts of the person's messages, the stream cursor, the last accepted message. No words (hers and the person's are messages of the chat). An entry is removed when its chat is removed | 1 | unreleased |
 | `plc.modelMemory.v1` | local storage | `setting` | One model at a time, and whether the offer was declined | 1 | v0.47.0 |
 | `plc.modelSourceNotice.v1` | local storage | `plain` | the model-source notice was shown | 1 | v0.61.0 |
@@ -127,12 +128,12 @@ Browsers offer to clear the site data of an address. In current browsers that re
 | OPFS model and voice files | `device` | runtime/providers/, chat/voice/voice-engine.mjs |
 | throw-away IndexedDB probe databases | `plain` | chat/connection/connection-glue.mjs, chat/connection/private-mode.mjs |
 
-40 source files read or write browser storage; the list is in `files.list` of docs/evidence/encryption/storage-inventory.json.
+41 source files read or write browser storage; the list is in `files.list` of docs/evidence/encryption/storage-inventory.json.
 <!-- data-handling:storage:end -->
 
 ## 2. What the app sends over the network
 
-What the app sends depends on the mode the person is in. This section goes mode by mode. In all of them the requests the app's own code makes are of three kinds only: to the host that serves the copy (its own files and `/version.json`), to the configured model source (downloads), and, in connected provider mode only, to the provider the person chose. The app has no code that sends a report, a count, an error log or a measurement of use to anyone. Speech services belong to the browser, not the app (section 2c).
+What the app sends depends on the mode the person is in. This section goes mode by mode. In all of them the requests the app's own code makes are of four kinds only: to the host that serves the copy (its own files and `/version.json`), to the configured model source (downloads), in connected provider mode only, to the provider the person chose, and, only in a conversation with a mind that the person set up (section 2l), to the host or relay the person named. The app has no code that sends a report, a count, an error log or a measurement of use to anyone. Speech services belong to the browser, not the app (section 2c).
 
 ### a. On-device text chat
 
@@ -221,6 +222,15 @@ The chat menu has "Copy link with current title/system/prompt". It writes a link
 - **Spell-check.** The message box (`#messageInput`) does not set `spellcheck="false"`. Only the API key field and the password boxes of the transfer dialogs do; no other box in the app's own files sets it. Whether text typed in a box with spell-check on is sent to a spell-check service is up to the browser, and some browsers do send it. The app cannot tell which.
 - **The clipboard.** The app writes to it when the person presses a copy button: the copy button of the API key field writes the key, as plain text; "Copy link ..." writes the link of section j; other copy buttons write what they name (a message, a settings link). For the key and for the link, if the clipboard cannot be written, the app shows the text in a box to copy by hand. The app does not clear the clipboard afterwards. Nothing in the app reads the clipboard; pasting into a box is the browser's.
 
+### l. A conversation with a mind
+
+Only when the person has set one up ("Talk with a mind", docs/MIND-CONVERSATION.md); nothing is contacted before that and nothing is contacted by the app on its own account.
+
+- **On this computer.** The person's messages go by HTTP to the address of the host the person typed (the loopback address of this computer).
+- **Through a relay.** One WebSocket to the relay address and channel the person typed (or an operator configured). The app never names a relay. The person's messages and the mind's answers pass through it as one contract frame per message; the relay is built to pass them along without reading or keeping them, which is the relay operator's promise, not something this page can check. A frame over 1 MiB is never sent.
+- **The access token** for a relay is typed by the person, kept for the tab only in session storage (`plc.mind.relayToken.v1`) and presented to the relay as a WebSocket subprotocol. It is never put in an address, in a message, in a saved chat, in a chat history file or in a backup. The channel's address and the relay's address are part of the chat and travel with a chat history file.
+- **Check** in the setup connects once and sends nothing. It connects as the same person, so a conversation open in another tab is stopped by it.
+
 ### Hosts the app's files name
 
 Some names in the table below are not destinations at all. `api.example.com` is placeholder text in an input field of `index.html`; `example.org` appears in a comment of `chat/site/site-links.mjs`, and `host` in a message of that file that shows the shape `https://host/`; `schema.org` is the context name of the page's descriptive data, and `www.w3.org` is an XML namespace name in SVG files and in code that draws icons. `plc-model-files.invalid` is an internal label (a made-up address under a top-level domain that cannot exist) that the on-device model storage uses as a key in Cache Storage; it is never requested. `localhost` is the stand-in for relative addresses in the address-handling code, and also the address of the local servers in the provider list. All of these are placeholders or internal labels and are never contacted by the app, except `localhost` when the person chooses a local server. `github.com` and the documentation and console sites in the provider list are pages the person may open by clicking a link; the app does not request them. The second table names hosts that appear only inside vendored libraries, as defaults or in comments; the app gives those libraries its own addresses for the files it needs, and `tests/model-urls.test.mjs` checks that every model address the app requests is under the configured source.
@@ -230,7 +240,7 @@ Some names in the table below are not destinations at all. `api.example.com` is 
 
 A host named in the source is not a host the app contacts: the provider list and the documentation links name hosts that are only used when a person chooses them.
 
-**Hosts named by the app's own files (71)**
+**Hosts named by the app's own files (72)**
 
 | Host | Files that name it |
 | --- | --- |
@@ -296,6 +306,7 @@ A host named in the source is not a host the app contacts: the provider list and
 | `platform.kimi.ai` | `chat/provider/endpoint-options.mjs` |
 | `platform.openai.com` | `chat/provider/endpoint-options.mjs` |
 | `plc-model-files.invalid` | `runtime/providers/cache-api-backend.mjs` |
+| `relay.example` | `chat/mind/mind-setup.mjs` |
 | `router.huggingface.co` | `chat/provider/endpoint-options.mjs` |
 | `schema.org` | `index.html` |
 | `tokenfactory.nebius.com` | `chat/provider/endpoint-options.mjs` |
@@ -425,7 +436,7 @@ These are the decisions the code cannot make for whoever runs a copy. Each one b
 
 Each row gives a statement of sections 1 to 4 in a few words, the file whose code makes it true, and a name or a short piece of text that appears in that file. `tests/data-handling-references.test.mjs` checks that every file written in backticks in this document exists, and that every file and symbol in this table exists and is found in the file. It checks that the place is there, not that the sentence is still true of it: when you change the code in one of these places, read the row.
 
-Statements that something does not happen (no cookie, no beacon, no WebSocket, no script from another address, no analytics, no request other than the ones listed) cannot be tied to a name in a file. They were checked by searching the source for `document.cookie`, `sendBeacon`, `WebSocket`, `XMLHttpRequest`, `EventSource` and for script and style references to other addresses, and for every call of `fetch`. `scripts/network-inventory.mjs` fails when a host or a path fetched from the app's own origin appears that `docs/evidence/split/network-origins.json` does not list, which catches a new address but not a new use of a listed one.
+Statements that something does not happen (no cookie, no beacon, no WebSocket other than the one a person sets up for a mind through a relay (section 2l), no script from another address, no analytics, no request other than the ones listed) cannot be tied to a name in a file. They were checked by searching the source for `document.cookie`, `sendBeacon`, `WebSocket`, `XMLHttpRequest`, `EventSource` and for script and style references to other addresses, and for every call of `fetch`. `scripts/network-inventory.mjs` fails when a host or a path fetched from the app's own origin appears that `docs/evidence/split/network-origins.json` does not list, which catches a new address but not a new use of a listed one.
 
 The app's own statements about data are not in this document. They are listed in a register, `docs/evidence/data-statements.json`: the assistant's `privacy.cloud`, `privacy.storage`, `privacy.provider` and `privacy.account` answers, the notes in Settings about storage and the vault, the note on the unlock screen, and the model-source notice. A test finds a new assistant answer by its id and fails until it is registered. It cannot find a new free-text note written elsewhere, so for those the register is kept by hand. This document and the register have to be read together whenever either changes.
 
@@ -470,6 +481,8 @@ The app's own statements about data are not in this document. They are listed in
 | The offline copy is one cache per build; older ones are deleted | `scripts/service-worker.js` | `plc-shell-` |
 | The app asks the browser to keep the models when the person asks | `runtime/providers/model-host-core.mjs` | `requestPersist` |
 | Turning the vault on asks the browser to keep the data | `chat/vault/vault-control.mjs` | `persist` |
+| The access token of a relay conversation is kept for the tab only | `chat/mind/relay-token.mjs` | `appSession` |
+| The token goes to the relay only as a WebSocket subprotocol | `chat/channel/relay-transport.mjs` | `'bearer.' + token` |
 | The time of the last export is kept for the backup reminder | `chat/history/history-io.mjs` | `lastExportAt` |
 | The chat history file is readable and holds no credentials | `chat/transfer/transfer-ui.mjs` | `None. The file is readable.` |
 | A protected backup is encrypted under the person's password | `chat/transfer/transfer-glue.mjs` | `createProtectedBackup` |
