@@ -45,12 +45,13 @@ try {
   await h.wait('started'); note('body process started');
   t = await launch({ port: PORT });
   const { page } = t;
+  page.on('response', async (r) => { if (r.url().startsWith(endpoint.origin) && r.request().method() === 'POST') { const b = JSON.parse(r.request().postData() || '{}'); const t = await r.text().catch(() => ''); if (b.kind === 'message' || /refusal/.test(t)) note('host answered ' + r.status() + ' to ' + b.kind + ': ' + t.trim().split('\n').map((l) => l.slice(0, 160)).join(' | ')); } });
   await page.click('#shellPlus');
   await page.locator('.shell-pop-row', { hasText: 'Talk with a mind on this computer' }).click();
   const set = { name: 'Real host', address: endpoint.origin, resident: fixture.resident, encounter: fixture.encounter, participant: fixture.admitted[0], timeoutSeconds: 10 };
   for (const [k, v] of Object.entries(set)) await page.fill('#mind-setup-' + k, String(v));
   await page.click('.app-dialog button:has-text("Check")');
-  await page.waitForFunction(() => document.getElementById('mindCheckResult').textContent || document.getElementById('mindCheckAlert').textContent);
+  await page.waitForFunction(() => /answered|No answer|not running|does not know|refused|not a web/.test(document.getElementById('mindCheckResult').textContent + document.getElementById('mindCheckAlert').textContent));
   note('Check said: ' + await page.evaluate(() => document.getElementById('mindCheckResult').textContent + document.getElementById('mindCheckAlert').textContent));
   await page.click('.app-dialog button:has-text("Open the conversation")');
   await page.waitForSelector('#mindScreen:not([hidden])');

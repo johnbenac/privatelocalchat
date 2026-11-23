@@ -87,7 +87,7 @@ export function createMind({ app, events, doc = document, win = window, options 
     const a = { threadId: t.id, transport, client: null, inflight: new Set(), notRecorded: new Set(), tick: null, nextId: () => nextId, setNext: (id) => { nextId = id; } };
     active = a;
     a.client = createChannelClient({
-      transport, store, source: 'plc:' + t.id, encounter: cfg.encounter, resident: { individualId: cfg.resident, host: { kind: 'own-computer', address: cfg.address } },
+      transport, store, source: 'plc:' + t.id, encounter: cfg.encounter, resident: { individualId: cfg.resident, host: { kind: 'own-computer', address: url } },
       participant: { id: cfg.participant, kind: 'human', name: 'You', standing: 'guest', individualId: null }, newId: () => nextId || uuid(),
       onChange: () => render(), onReply: (reply) => { void receive(reply); }
     });
