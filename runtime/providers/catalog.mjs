@@ -9,7 +9,7 @@ import { W, L, LFM, GRANITE, MINI, NANO, WEBLLM_VARIANTS, DEFAULT_VARIANT } from
 export { TIERS, TIER_ORDER, VARIANT_INFO, DEFAULT_VARIANT, WEBLLM_VARIANTS, WLLAMA_TIERS, TINY_TIERS, isTinyTier, isWllamaTier, chooseWebllmVariant } from "./catalog-tiers.mjs";
 
 const CONFIG = appConfig();
-// the origin of an address ("" for a path on this host), without naming a host of our own
+// the origin of an address ("" for a path on this host), without naming any host
 const originOf = (u) => /^https:\/\/[^/]+/.exec(String(u))?.[0] ?? "";
 const ROOT = CONFIG.modelRoot();
 // The 9B model's WebLLM builds are laid out like the Hugging Face repositories they were copied from: <name>/resolve/<revision>/, which WebLLM requires. The weights and config are data and come from the model root.

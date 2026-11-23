@@ -137,7 +137,7 @@
         "catalog-data.mjs": "24acb0c679c64bd4b211167bdbb03947eacdc918ca9b4cb68f95e5d4fad54692",
         "catalog-default.mjs": "708038f8ed7b530fac53fb9445d30334ba57ab68ad600c9e70f4e35e387e6cc6",
         "catalog-tiers.mjs": "c964bab46d6d5977755972061bc5954a16974bb22320744fdd447e97c0756214",
-        "catalog.mjs": "4f55d2efe20cac1527f62f90e0ff08e0579b72e79eed0f9d9c184420cc104757",
+        "catalog.mjs": "2898319266f9fed82b6849dfa7e3345d67eba31278f643e4907555f0fbbef3df",
         "client.mjs": "06cace61167608bc7255efc10fad39cb7d533a56af8d1bce140278b4abeaf7c1",
         "download-retry.mjs": "ffe90f1bc3c4c9acb96dfeb884de80f4abb4cac55b4e7aefdb99ba2f2956e6e5",
         "engine-config.mjs": "c2259b73236bbdf2c5d7ec13cd031dd85b1b7b1877dc902178d0d5163bb78a37",
@@ -190,13 +190,13 @@
       "name": "model-runtime",
       "owner": "plc",
       "package": {
-        "file": "model-runtime-1.3.1.tar.gz",
-        "sha256": "75ba91fdf0f894a14afece25107816cb6a8a182a6d5928275cd58c25c694f5ec",
+        "file": "model-runtime-1.3.2.tar.gz",
+        "sha256": "3dd6111096cf6af310c4defe635f1e121c9fa02c4893376557f0df41dfac35b9",
         "type": "generic"
       },
       "path": "runtime/providers",
-      "tree_sha256": "723bb82db312d9dc918fc126ed67b62c9e7595296476256f690675468141cc8b",
-      "version": "1.3.1"
+      "tree_sha256": "99db3ad0960ecd4d9431432c71908c65abff67069957e9c10802180494f4d9a9",
+      "version": "1.3.2"
     },
     {
       "files": {
