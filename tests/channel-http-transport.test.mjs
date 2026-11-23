@@ -110,3 +110,26 @@ test('with the channel client on top: a message is sent, its replies are shown o
   const t2 = createHttpTransport({ url: srv.url, timeoutMs: 200 });
   await assert.rejects(t2.request({ kind: 'status-query', messageId: 'x' }), 'a closed host gives no answer: the client then says unreachable, never a substitute');
 });
+
+test('a poll that gets a refusal or a status passes it on as a record (the host ANSWERED); no answer at all is reported as unreachable, and the client says unreachable, not unavailable', async () => {
+  let mode = 'status';
+  const srv = await server((frame, res) => {
+    res.writeHead(mode === 'refuse' ? 503 : 200, { 'Content-Type': ND });
+    res.end(lines([mode === 'refuse' ? { kind: 'refusal', class: 'unavailable', messageId: frame.messageId, reason: 'stopped' } : { kind: 'status', messageId: frame.messageId, known: false, states: [] }]));
+  });
+  try {
+    const probeId = '00000000-0000-4000-8000-0000000000aa';
+    const transport = createHttpTransport({ url: srv.url, pollMs: 20, timeoutMs: 200, probeId });
+    let n = 0;
+    const client = createChannelClient({ transport, resident: { individualId: 'i', host: { kind: 'own-computer', address: srv.url } }, encounter: 'enc:test', participant: { id: 'p:t', kind: 'human', name: 'T', standing: 'guest', individualId: null }, source: 'plc:test', newId: () => '00000000-0000-4000-8000-' + String(++n).padStart(12, '0') });
+    client.connect();
+    const states = async () => { await new Promise((r) => setTimeout(r, 150)); return client.view().availability.state; };
+    assert.equal(await states(), 'available', 'with nothing tracked it asks about the probe id and learns the host is there');
+    assert.ok(srv.seen.every((s) => s.frame.messageId === probeId), 'only the probe id was asked about');
+    mode = 'refuse'; assert.equal(await states(), 'unavailable', 'a refusal is unavailable');
+    mode = 'status'; assert.equal(await states(), 'available', 'and it recovers when the host answers again');
+    await srv.close();
+    assert.equal(await states(), 'unreachable', 'no answer at all is unreachable, never unavailable');
+    client.disconnect(); transport.stop();
+  } finally { await srv.close(); }
+});

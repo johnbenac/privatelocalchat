@@ -6,7 +6,10 @@
 //
 //   createHttpTransport({ url, fetch?, pollMs?, timeoutMs?, timers? }) -> { request(frame), subscribe({after}, onFrame, onClose), track(ids), untrack(ids), stop() }
 //   request(frame)  POST the frame, resolve the answer records; REJECTS when nothing answered (a refusal is an ANSWER, not a rejection)
-//   subscribe(...)  starts a poll loop over the tracked message ids; each new reply record is passed to onFrame(frame, seq) with a growing seq
+//   subscribe(...)  starts a poll loop over the tracked message ids; each new reply record is passed to onFrame(frame, seq) with a growing seq; every OTHER record of an answer (a status, a
+//                   refusal) is passed to onRecord(frame) with no seq, so the client learns the receipts, and that the host answered at all (or refused: a refusal is an answer)
+//                   onClose('unreachable') means a poll got NO answer (a refusal is never that); the client says `unreachable`, not `unavailable`
+//   probeId         a message id nobody sent (a UUID): while nothing is tracked, the loop asks about it, so the state of the host is known before the first message
 //   track(ids)      the message ids to ask about (the page adds the ids of messages it sent, also after a reload)
 export const DEFAULT_POLL_MS = 1500;
 export const DEFAULT_TIMEOUT_MS = 15000;
@@ -25,12 +28,12 @@ export function parseRecords(text) {
   return out;
 }
 
-export function createHttpTransport({ url, fetch: fetchImpl = globalThis.fetch?.bind(globalThis), pollMs = DEFAULT_POLL_MS, timeoutMs = DEFAULT_TIMEOUT_MS,
+export function createHttpTransport({ url, fetch: fetchImpl = globalThis.fetch?.bind(globalThis), pollMs = DEFAULT_POLL_MS, timeoutMs = DEFAULT_TIMEOUT_MS, probeId = null,
   timers = { set: (fn, ms) => globalThis.setTimeout(fn, ms), clear: (id) => globalThis.clearTimeout(id) } } = {}) {
   if (typeof url !== 'string' || !/^https?:\/\//.test(url)) throw new TypeError('url must be the http(s) address of the message handoff route');
   if (typeof fetchImpl !== 'function') throw new TypeError('a fetch function is required');
   const tracked = new Set(), seen = new Set(), log = [];
-  let seq = 0, loop = null, onFrameFn = null, onCloseFn = null, stopped = false, running = false;
+  let seq = 0, loop = null, onFrameFn = null, onCloseFn = null, onRecordFn = null, stopped = false, running = false;
 
   async function post(frame, signal) {
     const controller = new AbortController();
@@ -55,11 +58,14 @@ export function createHttpTransport({ url, fetch: fetchImpl = globalThis.fetch?.
     if (running || stopped || !onFrameFn) return;
     running = true;
     try {
-      for (const id of [...tracked]) {
+      const ids = tracked.size ? [...tracked] : probeId ? [probeId] : [];
+      for (const id of ids) {
         let records;
-        try { records = await post({ kind: 'status-query', messageId: id }); } catch { onCloseFn?.('unreachable'); continue; }
+        try { records = await post({ kind: 'status-query', messageId: id }); } catch { if (!stopped) onCloseFn?.('unreachable'); break; }   // no answer: the others would only wait as long
+
+        if (stopped) return;
         for (const frame of records) {
-          if (frame.kind !== 'reply') continue;
+          if (frame.kind !== 'reply') { try { onRecordFn?.(frame); } catch { /* a listener must not stop the poll */ } continue; }
           const key = occKey(frame);
           if (key === null || seen.has(key)) continue;
           seen.add(key);
@@ -72,8 +78,8 @@ export function createHttpTransport({ url, fetch: fetchImpl = globalThis.fetch?.
 
   return {
     request: (frame) => post(frame),
-    subscribe({ after = 0 } = {}, onFrame, onClose) {
-      onFrameFn = onFrame; onCloseFn = onClose || null; stopped = false;
+    subscribe({ after = 0 } = {}, onFrame, onClose, onRecord) {
+      onFrameFn = onFrame; onCloseFn = onClose || null; onRecordFn = onRecord || null; stopped = false;
       for (const item of log) if (item.seq > after) onFrame(item.frame, item.seq);   // what this transport already saw, after the cursor
       const tick = () => { if (stopped) return; void pollOnce().finally(() => { if (!stopped) loop = timers.set(tick, pollMs); }); };
       loop = timers.set(tick, 0);
@@ -82,6 +88,6 @@ export function createHttpTransport({ url, fetch: fetchImpl = globalThis.fetch?.
     track(ids) { for (const id of [].concat(ids)) tracked.add(String(id)); },
     untrack(ids) { for (const id of [].concat(ids)) tracked.delete(String(id)); },
     pollNow: pollOnce,
-    stop() { stopped = true; if (loop !== null) timers.clear(loop); loop = null; onFrameFn = null; }
+    stop() { stopped = true; if (loop !== null) timers.clear(loop); loop = null; onFrameFn = null; onRecordFn = null; }
   };
 }

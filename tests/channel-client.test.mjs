@@ -169,7 +169,7 @@ test('a closed tab is shown as unavailable, nothing is queued, nothing answers, 
 });
 test('the client has no way to answer in her place: no model, prompt or fallback is part of it', () => {
   const lp = loop(INIT);
-  assert.deepEqual(Object.keys(lp.client).sort(), ['connect', 'cursor', 'disconnect', 'flush', 'retry', 'revoke', 'send', 'view']);
+  assert.deepEqual(Object.keys(lp.client).sort(), ['adopt', 'checkStatus', 'connect', 'cursor', 'disconnect', 'flush', 'retry', 'revoke', 'send', 'view']);
   const source = fs.readFileSync(path.join(ROOT, 'chat/channel/client.mjs'), 'utf8').replace(/^\s*\/\/.*$/gm, '');
   for (const word of [/localModels/, /generate\(/, /prompt/i, /fetch\(/, /localStorage/, /sessionStorage/, /indexedDB/, /document\./, /window\./]) assert.doesNotMatch(source, word, String(word));
 });
@@ -293,4 +293,23 @@ test('control: states are reached once, in order; a repeat or a skip would show 
   const good = loop(INIT); good.client.connect();
   const g = await good.client.send('Hi'); good.push([{ kind: 'receipt', state: 'persisted', messageId: g.id, encounter: 'enc:ext:3f2a' }]);
   assert.equal(good.client.view().messages[0].state, 'delivered', 'the real client ignores the skip');
+});
+
+test('adopt: a message the client has no record of is UNKNOWN, never assumed; checkStatus asks once and resolves known, or says to resend', async () => {
+  const lp = loop(INIT);
+  const id = '00000000-0000-4000-8000-0000000000a1';
+  assert.equal(lp.client.adopt({ id, words: 'did it arrive' }), true);
+  assert.equal(lp.client.adopt({ id, words: 'again' }), false, 'once');
+  assert.equal(lp.client.view().messages[0].state, 'unknown'); assert.equal(lp.sent.length, 0, 'adopting sends nothing');
+  assert.equal(await lp.client.checkStatus(id), 'resend', 'the endpoint never recorded it');
+  assert.equal(lp.sent.filter((f) => f.kind === 'message').length, 0, 'asking is not sending');
+  await lp.client.retry(id, { force: true });
+  assert.ok(lp.client.view().messages[0].states.length > 0);
+});
+test('a message that was in flight when the page went away comes back as unknown, and every receipt carries the time it was learned', async () => {
+  const saved = { messages: { m1: { id: 'm1', words: 'w', state: 'sending', states: [], audience: { kind: 'encounter' }, expression: 'typed', after: [], occ: { source: 'plc:x', id: 'occ:m1', digest: sha('w') } } }, order: ['m1'], seen: [], cursor: 0, replies: [], lastAccepted: {} };
+  const lp = loop(INIT, { store: { load: () => saved, save: () => {} } });
+  assert.equal(lp.client.view().messages[0].state, 'unknown');
+  const sent = await lp.client.send('hello');
+  assert.ok(Object.keys(sent.times).length >= 1 && Object.values(sent.times).every((x) => typeof x === 'number'));
 });

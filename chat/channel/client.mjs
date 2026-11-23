@@ -20,11 +20,12 @@ const REFUSED = new Set(['not-admitted', 'revoked', 'malformed', 'over-limit']);
 const clone = (v) => (v === undefined ? v : JSON.parse(JSON.stringify(v)));
 const occKey = (occ) => occ.source + '\u0000' + occ.id;
 
-export function createChannelClient({ transport, resident, encounter, participant, source, newId, store = null, maxAttempts = 3, onChange = () => {}, onReply = () => {} } = {}) {
+export function createChannelClient({ transport, resident, encounter, participant, source, newId, store = null, maxAttempts = 3, now = () => Date.now(), onChange = () => {}, onReply = () => {} } = {}) {
   if (!transport?.request || !transport?.subscribe) throw new TypeError('a transport with request() and subscribe() is required');
   if (!resident?.individualId || !encounter || !participant?.id || !source || typeof newId !== 'function') throw new TypeError('resident, encounter, participant, source and newId are required');
   const saved = (() => { try { return clone(store?.load?.()) || null; } catch { return null; } })();
   const st = { messages: saved?.messages || {}, order: saved?.order || [], seen: new Set(saved?.seen || []), cursor: saved?.cursor ?? 0, replies: saved?.replies || [], lastAccepted: saved?.lastAccepted || {} };
+  for (const id of st.order) if (st.messages[id]?.state === 'sending') st.messages[id].state = 'unknown';   // a page that went away mid-send does not know what happened to it: it asks (checkStatus), it never assumes
   let availability = { state: 'idle', reason: null }, subscription = null, saving = Promise.resolve();
 
   const persist = () => {   // saves are serialized: a later state can never be overwritten by an earlier, slower save
@@ -38,7 +39,7 @@ export function createChannelClient({ transport, resident, encounter, participan
   function view() {
     return clone({
       availability,
-      messages: st.order.map((id) => { const m = st.messages[id]; return { id, words: m.words, state: m.state, states: m.states, waitingFor: m.waitingFor ?? null, refusal: m.refusal ?? null, corrects: m.corrects ?? null, worldSeq: m.worldSeq ?? null }; }),
+      messages: st.order.map((id) => { const m = st.messages[id]; return { id, words: m.words, state: m.state, states: m.states, waitingFor: m.waitingFor ?? null, refusal: m.refusal ?? null, corrects: m.corrects ?? null, worldSeq: m.worldSeq ?? null, times: m.times ?? {} }; }),
       replies: st.replies
     });
   }
@@ -47,7 +48,7 @@ export function createChannelClient({ transport, resident, encounter, participan
   function reach(m, state) {   // each state once, in order; a repeat or an out-of-order one changes nothing
     const next = STATES.indexOf(state);
     if (next < 0 || next !== m.states.length) return;
-    m.states.push(state); m.state = state;
+    m.states.push(state); m.state = state; (m.times ||= {})[state] = now();   // when THIS client learned of it
   }
   function apply(frame) {
     if (!frame || typeof frame !== 'object') return;
@@ -82,6 +83,17 @@ export function createChannelClient({ transport, resident, encounter, participan
     const status = frames.find((f) => f.kind === 'status' && f.messageId === id);
     return status?.known ? 'known' : 'resend';
   }
+  /** The person asks what became of a message whose outcome is unknown: one status query. Resolves 'known' (the host has it; the receipts are updated), 'resend' (the host never recorded it:
+   * nothing arrived; the SAME message may be sent again with retry), 'unavailable' (a refusal) or 'unreachable' (no answer: still unknown). */
+  async function checkStatus(id) {
+    const m = st.messages[id];
+    if (!m) throw new Error('no such message: ' + id);
+    const outcome = await resolve(id);
+    if (outcome === 'known') { if (m.state === 'unknown' || m.state === 'sending') m.state = m.states.at(-1) || 'accepted'; }
+    else if (outcome === 'unreachable') setAvailability('unreachable', 'no answer from the host');
+    changed();
+    return outcome;
+  }
   async function deliver(id) {
     const m = st.messages[id];
     for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
@@ -99,6 +111,14 @@ export function createChannelClient({ transport, resident, encounter, participan
     m.state = 'unknown'; setAvailability('unreachable', 'no answer from the host'); changed();
   }
 
+  /** Take over a message the page holds but this client has no record of (the page went away between keeping it and hearing from the host, or another tab sent it): its outcome is UNKNOWN,
+   * never assumed. The next poll or checkStatus(id) learns what the host has. Nothing is sent. */
+  function adopt({ id, words, occId = null, audience = { kind: 'encounter' }, expression = 'typed' } = {}) {
+    if (!id || typeof words !== 'string' || st.messages[id]) return false;
+    st.messages[id] = { id, words, states: [], state: 'unknown', audience: clone(audience), expression, after: [], occ: { source, id: occId || 'occ:' + id, digest: digestOf(words) } };
+    if (!st.order.includes(id)) st.order.push(id);
+    return true;
+  }
   /** Send a person's words. The `after` default is the previous message of this chat that was not refused (the contract: never after a refused message). Resolves with this message's view. */
   async function send(words, { audience = { kind: 'encounter' }, expression = 'typed', corrects = null, occId = null, after = null } = {}) {
     if (typeof words !== 'string' || [...words].length < 1) throw new TypeError('words must be at least one character');
@@ -146,16 +166,25 @@ export function createChannelClient({ transport, resident, encounter, participan
     } else if (frame && frame.kind && frame.kind !== 'reply') apply(frame);
     changed();
   }
+  function onRecord(frame) {   // a record a poll brought that is not a reply: a status (the receipts), a refusal. Either way the host ANSWERED.
+    if (!frame || typeof frame !== 'object') return;
+    if (frame.kind !== 'refusal' && availability.state !== 'available') availability = { state: 'available', reason: null };
+    apply(frame); changed();
+  }
   /** Open (or reopen) the stream from the last sequence number seen. */
   function connect() {
     if (subscription) { try { subscription.close(); } catch { /* already closed */ } subscription = null; }
     setAvailability('connecting');
     try {
-      subscription = transport.subscribe({ after: st.cursor }, onStreamFrame, (reason) => { subscription = null; setAvailability('unavailable', reason ? String(reason) : 'connection closed'); });
+      subscription = transport.subscribe({ after: st.cursor }, onStreamFrame, (reason) => {
+        // `unreachable`: the poll got no answer at all (the contract's UNREACHABLE). Anything else closing the stream is the host going away (UNAVAILABLE).
+        if (reason === 'unreachable') { setAvailability('unreachable', 'no answer from the host'); return; }
+        subscription = null; setAvailability('unavailable', reason ? String(reason) : 'connection closed');
+      }, onRecord);
     } catch (error) { subscription = null; setAvailability('unreachable', String(error?.message || error)); }
     return subscription;
   }
   function disconnect() { if (subscription) { try { subscription.close(); } catch { /* ignore */ } subscription = null; } setAvailability('idle'); }
 
-  return { send, retry, revoke, connect, disconnect, view, flush: () => saving, cursor: () => st.cursor };
+  return { send, retry, checkStatus, adopt, revoke, connect, disconnect, view, flush: () => saving, cursor: () => st.cursor };
 }
