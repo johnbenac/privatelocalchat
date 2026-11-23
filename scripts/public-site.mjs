@@ -299,6 +299,13 @@ export async function buildPublicSite({siteDir, outDir, releasePath, config, roo
     written.push(page.name);
     if (origin) urls.push({loc: origin + page.path, lastmod: page.name === 'updates' ? data.entries[0].date : pageLastUpdated(html, rootLastmod)});
   }
+  // A site may bring its own page for an address that does not exist (<site>/404.html); without one the build's plain page stays.
+  try {
+    const source = await readFile(path.join(siteDir, '404.html'), 'utf8');
+    const html = releaseRewrite(source, releasePath);
+    await assertAssetsExist(html, outDir, '/404.html');
+    await writeFile(path.join(outDir, '404.html'), html);
+  } catch (error) { if (error.code !== 'ENOENT') throw error; }
   if (origin) { await writeFile(path.join(outDir, 'sitemap.xml'), renderSitemap(urls)); await writeFile(path.join(outDir, 'robots.txt'), robotsTxt(origin)); }
   return {urls, pages: written};
 }

@@ -153,7 +153,7 @@ for(const file of LICENCE_FILES)await cp(file,path.join(out,file));
   if(text.includes('<!--attribution-->'))await writeFile(file,text.replace(/<!--attribution-->[\s\S]*?<!--\/attribution-->/,()=>'<!--attribution-->'+block.trim()+'<!--/attribution-->'));
  }
 }
-await writeFile(path.join(out,'404.html'),'<!doctype html><title>Not found</title><h1>Page not found</h1><a href="/">Open Private Local Chat</a>');
+if(!existsSync(path.join(out,'404.html')))await writeFile(path.join(out,'404.html'),'<!doctype html><title>Not found</title><h1>Page not found</h1><a href="/">Open Private Local Chat</a>');   // a site that brings its own 404.html (public-site.mjs) keeps it
 await writeFile(path.join(out,'version.json'),JSON.stringify(build,null,2)+'\n');
 await writeFile(path.join(out,'manifest.webmanifest'),JSON.stringify({name:'Private Local Chat',short_name:'Private Local',description:'Free AI chat on your device. Choose a supported model, keep on-device conversations local, or connect a provider when you choose.',start_url:'/',scope:'/',display:'standalone',background_color:'#F6F8FB',theme_color:'#F6F8FB',categories:['productivity','utilities'],icons:[{src:'/brand/app-icon-192.png',sizes:'192x192',type:'image/png',purpose:'any'},{src:'/brand/app-icon-512.png',sizes:'512x512',type:'image/png',purpose:'any'},{src:'/brand/app-icon-maskable-512.png',sizes:'512x512',type:'image/png',purpose:'maskable'}]}));
 await writeFile(path.join(out,'_headers'),toPagesHeaders()); // the rules are in scripts/headers.mjs, and scripts/serve.mjs applies this file

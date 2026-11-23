@@ -59,3 +59,13 @@ test('nested static folders are copied whole', async () => {
     assert.equal(await readFile(path.join(s.out, 'brand/x/fonts/a.woff2'), 'utf8'), 'f');
   } finally { await rm(s.dir, { recursive: true }); await rm(s.out, { recursive: true }); }
 });
+
+test('a site may bring its own 404 page, rewritten to the release paths', async () => {
+  const s = await site(true, true);
+  try {
+    await writeFile(path.join(s.dir, '404.html'), '<!doctype html><html lang="en"><head><title>x</title><link rel="stylesheet" href="/chat/public-pages.css"></head><body><main><h1>Gone</h1></main></body></html>');
+    await run(s);
+    const html = await readFile(path.join(s.out, '404.html'), 'utf8');
+    assert.match(html, /<html lang="en">/); assert.match(html, /href="\/releases\/test\/chat\/public-pages\.css"/);
+  } finally { await rm(s.dir, { recursive: true }); await rm(s.out, { recursive: true }); }
+});
