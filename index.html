@@ -130,7 +130,7 @@
       });
       function failed(detail) {
         if (window.__plcBooted || window.__plcVaultLocked || (bar && bar.dataset.failed)) return; // an encrypted vault waiting for its passphrase is not a failed start
-        show('PrivateLocal.Chat did not start properly. ' + (build.commit ? '(build ' + String(build.commit).slice(0, 7) + ') ' : '') + (detail ? String(detail).slice(0, 160) : ''), 'Update the app', updateNow);
+        show('Private Local Chat did not start properly. ' + (build.commit ? '(build ' + String(build.commit).slice(0, 7) + ') ' : '') + (detail ? String(detail).slice(0, 160) : ''), 'Update the app', updateNow);
         if (bar) bar.dataset.failed = '1';
       }
       window.addEventListener('error', function (e) { failed(e && e.message); });
@@ -186,7 +186,7 @@
     <!-- Sidebar containing configuration and thread list -->
     <aside class="sidebar" aria-label="Settings panel" aria-hidden="true">
       <div class="sidebar-header">
-        <a class="brand" href="/" aria-label="PrivateLocal.Chat home"><span class="brand-logo"><img class="logo-light" src="/brand/wordmark-light.svg" alt="PrivateLocal.Chat" width="198" height="25" /><img class="logo-dark" src="/brand/wordmark-dark.svg" alt="" aria-hidden="true" width="198" height="25" /></span></a>
+        <a class="brand" href="/" aria-label="Private Local Chat home"><span class="brand-logo"><img class="logo-light" src="/brand/wordmark-light.svg" alt="PrivateLocal.Chat" width="198" height="25" /><img class="logo-dark" src="/brand/wordmark-dark.svg" alt="" aria-hidden="true" width="198" height="25" /></span></a>
         <button type="button" id="closeSidebarBtn" class="sidebar-close icon-btn" aria-label="Close navigation">
           <span class="emoji-icon" aria-hidden="true">❌</span>
         </button>
@@ -401,14 +401,14 @@
   <div id="aboutModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="aboutTitle" hidden>
     <div class="sheet" role="document">
       <div class="modal-header">
-        <h2 id="aboutTitle">About PrivateLocal.Chat</h2>
+        <h2 id="aboutTitle">About Private Local Chat</h2>
         <button type="button" class="modal-close" id="aboutCloseBtn" aria-label="Close">
           <span class="emoji-icon" aria-hidden="true">❌</span>
         </button>
       </div>
       <div class="modal-body">
         <p class="lede">Private AI chat on your device.</p>
-        <p>PrivateLocal.Chat gives you a straightforward place to ask questions and work through ideas. Choose a model for your device or explicitly connect an outside provider.</p>
+        <p>Private Local Chat gives you a straightforward place to ask questions and work through ideas. Choose a model for your device or explicitly connect an outside provider.</p>
 
         <h3 id="aboutLocal">On this device</h3>
         <p>In on-device mode, the model processes conversation content on this device.</p>

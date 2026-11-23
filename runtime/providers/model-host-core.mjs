@@ -39,7 +39,7 @@ export function createModelHost({
   tiers = catalog?.tiers,
   loadConfigOverride = null,     // tests: (tier, base) => config, e.g. to run a mock adapter through the whole manager
   now = () => Date.now(),
-  envProbe = () => gatherEnv(),
+  envProbe = null,                // async () => env; default: the package's own reading of the browser (it honours readUserAgent)
   userAgent = () => globalThis.navigator?.userAgent || "",
   maxTouchPoints = () => globalThis.navigator?.maxTouchPoints || 0,
   readUserAgent = true,          // false: the host NEVER reads the user agent or the touch points (the functions above are not called; a backend policy and the packaged auto-tier see "" and 0), for a consumer whose own policy says nothing that ships reads them; the default reproduces today
@@ -60,6 +60,7 @@ export function createModelHost({
   const loadConfigFor = (t, o) => catalog.loadConfigFor(t, o), isWllamaTier = (t) => catalog.runsOnProcessor(t);
   const src = resolveSources(sourceOverrides);
   const subscribers = new Set();
+  const readEnv = envProbe ?? (() => gatherEnv(undefined, { identity: readUserAgent }));
   const ua = () => (readUserAgent ? String(userAgent() ?? "") : "");   // a null user agent is the empty string: the capability rules never need it
   let variant = DEFAULT_VARIANT;
   let offered = null;            // the tier keys the device gate offered, or null when there is no gate (no restriction)
@@ -115,7 +116,7 @@ export function createModelHost({
     for (const t of TIER_ORDER) state.tiers[t].info = catalog.applyVariant ? catalog.applyVariant(t, tiers[t], v) : tiers[t];
   }
   async function chooseVariantFromGpu() {
-    let env; try { env = await envProbe(); for (const probe of probes) { try { Object.assign(env, (await probe({ env })) ?? {}); } catch (e) { notice("probe", `A device probe failed (${e?.message || e}); the facts it measures are missing.`); } } } catch (e) { notice("probe", `Could not read the GPU's capabilities (${e?.message || e}); using the ${DEFAULT_VARIANT} build.`); return; }
+    let env; try { env = await readEnv(); for (const probe of probes) { try { Object.assign(env, (await probe({ env })) ?? {}); } catch (e) { notice("probe", `A device probe failed (${e?.message || e}); the facts it measures are missing.`); } } } catch (e) { notice("probe", `Could not read the GPU's capabilities (${e?.message || e}); using the ${DEFAULT_VARIANT} build.`); return; }
     state.device = env;
     const lb = backendPolicy ? backendPolicy(env, { tier: "light", userAgent: ua(), maxTouchPoints: readUserAgent ? maxTouchPoints() : 0 }) : lightBackend({ env, userAgent: ua(), maxTouchPoints: readUserAgent ? maxTouchPoints() : 0 });
     state.backend = { light: lb, why: backendPolicy ? "set by the consumer's backend policy" : lb === "cpu" ? "no usable graphics card here, so the small model runs on the processor (slower)" : "the graphics card runs the small model" };
@@ -398,14 +399,14 @@ export function createModelHost({
     },
 
     /** Startup/re-probe: real load attempts down the main ladder (catalogue tiers only). Leaves the first rung that works loaded. */
-    async probe({ timeoutMs = undefined, texts = undefined, humanChoice = state.selection.chosenBy === "human" && state.selection.tier === (catalog.ladderStartTier ?? catalog.defaultTier) ? tiers[state.selection.tier]?.modelId ?? null : null, embedderAttempt = null, rerankerAttempt = null } = {}) {
+    async probe({ timeoutMs = undefined, texts = undefined, labels = undefined, humanChoice = state.selection.chosenBy === "human" && state.selection.tier === (catalog.ladderStartTier ?? catalog.defaultTier) ? tiers[state.selection.tier]?.modelId ?? null : null, embedderAttempt = null, rerankerAttempt = null } = {}) {
       const { runProbe } = await import("./capability-probe.mjs");
       const rung = (t, v = null) => { const vi = v ? VARIANT_INFO[v] : null; return { id: vi ? vi.modelId : tiers[t].modelId, tier: t, variant: v, needsF16: vi ? vi.needsF16 : false, peakBytes: (vi ? vi.memory : tiers[t].memory).peakBytes, downloadBytes: vi ? vi.downloadBytes : tiers[t].downloadBytes, installed: state.tiers[t].install.state === "complete" && (!v || v === variant) }; };
-      const main = (catalog.ladder?.length ? catalog.ladder : TIER_ORDER.map((tier) => ({ tier }))).map((r) => (r.notCatalogued ? { id: r.id, notCatalogued: true } : rung(r.tier, r.variant ?? null)));
+      const main = (catalog.ladder?.length ? catalog.ladder : TIER_ORDER.map((tier) => ({ tier }))).filter((r) => r.notCatalogued || !offered || offered.includes(r.tier)).map((r) => (r.notCatalogued ? { id: r.id, notCatalogued: true } : rung(r.tier, r.variant ?? null)));
       const ladders = { main };
       if (embedderAttempt) ladders.embedder = [{ id: "memory-embedder", requiresWebGPU: false }];   // the memory loader (engine.js probeEmbedder / createEmbedClient) supplies the real attempt
       if (rerankerAttempt) ladders.reranker = [{ id: "memory-reranker", requiresWebGPU: false }];
-      const profile = await runProbe({ ladders, humanChoice, ...(timeoutMs === undefined ? {} : { timeoutMs }), ...(texts === undefined ? {} : { texts }), modelSource: globalThis.__cfpModelSource ?? null, attempt: async (name, r) => {
+      const profile = await runProbe({ ladders, humanChoice, ...(timeoutMs === undefined ? {} : { timeoutMs }), ...(texts === undefined ? {} : { texts }), ...(labels === undefined ? {} : { labels }), ...(state.device ? { env: state.device } : {}), modelSource: globalThis.__cfpModelSource ?? null, attempt: async (name, r) => {
         if (name === "embedder") return embedderAttempt(); if (name === "reranker") return rerankerAttempt();
         if (r.variant && r.variant !== variant) applyVariant(r.variant, "capability probe ladder"); const info = await api.load(r.tier); return { loadMs: info.loadMs };
       } });

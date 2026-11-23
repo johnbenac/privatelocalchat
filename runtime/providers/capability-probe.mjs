@@ -16,8 +16,8 @@ export function wasmSupport(wasm = globalThis.WebAssembly) {
 }
 
 /** Read what the browser says about itself. `nav` is injectable. Every field states "unavailable" rather than guessing. */
-export async function gatherEnv(nav = globalThis.navigator) {
-  const env = { webgpu: { available: false }, deviceMemoryGB: nav?.deviceMemory ?? null, storage: null, userAgentMemory: "unavailable", crossOriginIsolated: !!globalThis.crossOriginIsolated, secureContext: globalThis.isSecureContext ?? null, userAgent: nav?.userAgent ?? null, platform: nav?.userAgentData?.platform ?? nav?.platform ?? null };
+export async function gatherEnv(nav = globalThis.navigator, { identity = true } = {}) {
+  const env = { webgpu: { available: false }, deviceMemoryGB: nav?.deviceMemory ?? null, storage: null, userAgentMemory: "unavailable", crossOriginIsolated: !!globalThis.crossOriginIsolated, secureContext: globalThis.isSecureContext ?? null, userAgent: identity ? nav?.userAgent ?? null : null, platform: identity ? nav?.userAgentData?.platform ?? nav?.platform ?? null : null };   // identity false: the user agent, platform and userAgentData are NOT read
   try {
     if (!nav?.gpu) env.webgpu = { available: false, hasApi: false, reason: "navigator.gpu is undefined" };
     else {
@@ -91,7 +91,7 @@ async function ladder(name, rungs, env, attempt, { timeoutMs, startAt = 0, now }
  * attempt(ladderName, rung) -> Promise: really loads it (and leaves it loaded if it is the chosen main rung). Throws on failure.
  * humanChoice: rung id the user chose explicitly; the main ladder STARTS there and never climbs above it on its own.
  */
-export async function runProbe({ ladders, attempt, env = null, humanChoice = null, timeoutMs = 120000, now = () => performance.now(), concurrencyFor = defaultConcurrency, geometryFor = defaultGeometry, modelSource = null, texts = {}, nav }) {
+export async function runProbe({ ladders, attempt, env = null, humanChoice = null, timeoutMs = 120000, now = () => performance.now(), concurrencyFor = defaultConcurrency, geometryFor = defaultGeometry, modelSource = null, texts = {}, labels = {}, nav }) {
   const t0 = now(); const e = env ?? await gatherEnv(nav);
   const timings = { env: Math.round(now() - t0) };
   const startAt = humanChoice ? Math.max(0, ladders.main.findIndex((r) => r.id === humanChoice)) : 0;
@@ -106,7 +106,7 @@ export async function runProbe({ ladders, attempt, env = null, humanChoice = nul
   else if (main.tried.some((t) => t.outcome !== "succeeded")) result.reasons.push("main model is below the top rung because: " + main.tried.filter((t) => t.outcome !== "succeeded").map((t) => `${t.id} ${t.outcome} (${t.reason || t.message})`).join("; "));
   if (humanChoice && startAt > 0) result.reasons.push(`ladder started at ${humanChoice} because the user chose it; moving up needs an explicit action`);
   // keyword-only is allowed ONLY where the embedder genuinely cannot load, and the profile says why
-  result.embedderMode = result.chosen.embedder ? "embedder" : emb ? "keyword-only" : "not-tried"; // (no ladder supplied: the embedder was never attempted, which says nothing about whether it can load)
+  result.embedderMode = result.chosen.embedder ? (labels.embedder ?? "embedder") : emb ? (labels.embedderUnavailable ?? "keyword-only") : (labels.embedderNotTried ?? "not-tried"); // (no ladder supplied: the embedder was never attempted, which says nothing about whether it can load)
   if (!result.chosen.embedder) result.reasons.push(emb ? (texts.embedderUnavailable ?? ((tried) => "keyword-only retrieval: no embedder rung loaded: " + tried))(emb.tried.map((t) => `${t.id}: ${t.reason || t.message}`).join("; ")) : (texts.embedderNotTried ?? "the embedder was not tried: no embedder ladder was supplied to this probe, so nothing is known about whether it can load"));
   // Model source (mirror vs official hosts) is chosen at startup by the app (public/src/runtime/models.js selectModelSource, also exposed as
   // window.__cfpModelSource). It is one of the stated startup selections, recorded here verbatim with its forced/offline-reuse flags.

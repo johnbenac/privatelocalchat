@@ -84,6 +84,9 @@ test('an unreachable host is reported as closed with the reason unreachable and 
   assert.deepEqual(got, []); assert.ok(reasons.includes('unreachable'));
 });
 
+// Wait for a condition instead of a fixed time, so a loaded machine only makes the test slower, never wrong.
+const until = async (fn, ms = 8000) => { const end = Date.now() + ms; while (Date.now() < end) { if (await fn()) return true; await new Promise((r) => setTimeout(r, 10)); } return false; };
+
 test('with the channel client on top: a message is sent, its replies are shown once, a closed host is unavailable and nothing answers in her place', async () => {
   const replies = new Map();
   const srv = await server((frame, res) => {
@@ -103,7 +106,8 @@ test('with the channel client on top: a message is sent, its replies are shown o
     client.connect();
     const m = await client.send('hello');
     transport.track(m.id);
-    await new Promise((r) => setTimeout(r, 250));
+    await until(() => shown.length >= 1);
+    await new Promise((r) => setTimeout(r, 120));   // a few more polls: the same reply must not be shown again
     assert.deepEqual(shown, ['hello back'], 'shown once however often it was polled');
     client.disconnect(); transport.stop();
   } finally { await srv.close(); }
@@ -123,13 +127,13 @@ test('a poll that gets a refusal or a status passes it on as a record (the host 
     let n = 0;
     const client = createChannelClient({ transport, resident: { individualId: 'i', host: { kind: 'own-computer', address: srv.url } }, encounter: 'enc:test', participant: { id: 'p:t', kind: 'human', name: 'T', standing: 'guest', individualId: null }, source: 'plc:test', newId: () => '00000000-0000-4000-8000-' + String(++n).padStart(12, '0') });
     client.connect();
-    const states = async () => { await new Promise((r) => setTimeout(r, 150)); return client.view().availability.state; };
-    assert.equal(await states(), 'available', 'with nothing tracked it asks about the probe id and learns the host is there');
+    const states = async (want) => { await until(() => client.view().availability.state === want); return client.view().availability.state; };
+    assert.equal(await states('available'), 'available', 'with nothing tracked it asks about the probe id and learns the host is there');
     assert.ok(srv.seen.every((s) => s.frame.messageId === probeId), 'only the probe id was asked about');
-    mode = 'refuse'; assert.equal(await states(), 'unavailable', 'a refusal is unavailable');
-    mode = 'status'; assert.equal(await states(), 'available', 'and it recovers when the host answers again');
+    mode = 'refuse'; assert.equal(await states('unavailable'), 'unavailable', 'a refusal is unavailable');
+    mode = 'status'; assert.equal(await states('available'), 'available', 'and it recovers when the host answers again');
     await srv.close();
-    assert.equal(await states(), 'unreachable', 'no answer at all is unreachable, never unavailable');
+    assert.equal(await states('unreachable'), 'unreachable', 'no answer at all is unreachable, never unavailable');
     client.disconnect(); transport.stop();
   } finally { await srv.close(); }
 });

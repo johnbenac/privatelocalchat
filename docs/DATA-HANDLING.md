@@ -555,7 +555,7 @@ The app's own statements about data are not in this document. They are listed in
 | The shared content is fixed | `chat/transfer/product-share.mjs` | `shareData` |
 | A copy with no site identity has nothing to share | `chat/transfer/transfer-ui.mjs` | `names no public address` |
 | The cookie fallback of a bundled library cannot run in the model worker | `runtime/providers/vendor/webllm/web-llm-0.2.86.js` | `Use session cookie as fallback` |
-| The model runtime runs in a worker | `runtime/providers/registry-core.mjs` | `lazyAdapter` |
+| The model runtime runs in a worker | `runtime/providers/engine-registry.mjs` | `lazyAdapter` |
 | The build declares Cross-Origin-Embedder-Policy | `scripts/headers.mjs` | `Cross-Origin-Embedder-Policy` |
 | The build declares the referrer policy | `scripts/headers.mjs` | `strict-origin-when-cross-origin` |
 | Development diagnostics are built only for the development site | `scripts/targets.mjs` | `devTooling` |
