@@ -32,6 +32,19 @@ def browser_samples(rows, pids=()):
     return selected
 
 
+def make_tunnel(transport, serial):
+    """A userspace tunnel for this device. The keyword remotepairing_fallback exists in some pymobiledevice3 versions only (9.30.1 rejects it), so it is passed only when the class takes it."""
+    import inspect
+    cls = transport.UserspaceRsdTunnel
+    options = dict(serial=serial, autopair=False)
+    try:
+        if 'remotepairing_fallback' in inspect.signature(cls).parameters:
+            options['remotepairing_fallback'] = False
+    except (TypeError, ValueError):
+        pass   # a signature that cannot be read: the plain call below is the one every version accepts
+    return cls(**options)
+
+
 async def collect(args):
     # Optional device libraries stay out of ordinary builds and stdlib-only tests.
     from pymobiledevice3.lockdown import create_using_usbmux
@@ -57,7 +70,7 @@ async def collect(args):
     # in this standalone process; never alter Mac interfaces or global asyncio networking.
     previous = transport.create_using_usbmux
     transport.create_using_usbmux = trusted_connection
-    tunnel = transport.UserspaceRsdTunnel(serial=serial, autopair=False, remotepairing_fallback=False)
+    tunnel = make_tunnel(transport, serial)
     count = total_bytes = 0
     started = time.monotonic()
     try:

@@ -18,3 +18,21 @@ class DeviceMemoryTests(unittest.TestCase):
         rows = [{'pid': True, 'name': 'MobileSafari', 'physFootprint': 1},
                 {'pid': 2, 'name': 'MobileSafari', 'physFootprint': float('nan'), 'memResidentSize': -1, 'memCompressed': True, 'cpuUsage': 0.5}]
         self.assertEqual(module.browser_samples(rows), [{'pid': 2, 'name': 'MobileSafari', 'cpuUsage': 0.5}])
+
+    def test_the_tunnel_gets_remotepairing_fallback_only_when_the_library_takes_it(self):
+        class Old:
+            def __init__(self, serial, autopair):
+                self.options = {'serial': serial, 'autopair': autopair}
+
+        class New:
+            def __init__(self, serial, autopair, remotepairing_fallback=True):
+                self.options = {'serial': serial, 'autopair': autopair, 'remotepairing_fallback': remotepairing_fallback}
+
+        class Transport:
+            pass
+
+        Transport.UserspaceRsdTunnel = Old
+        self.assertEqual(module.make_tunnel(Transport, 'S1').options, {'serial': 'S1', 'autopair': False})
+        Transport.UserspaceRsdTunnel = New
+        self.assertEqual(module.make_tunnel(Transport, 'S1').options, {'serial': 'S1', 'autopair': False, 'remotepairing_fallback': False})
+
