@@ -7,7 +7,7 @@ export const PRODUCT = Object.freeze({
   /** The public address of the site that serves this copy (the site manifest, chat/site/site-links.mjs), or null: a copy that names no site has nothing to share. */
   get url() { return siteLinks().site?.url ?? null; },
   title: "Private Local Chat",
-  text: "Free AI chat in your browser. Run a supported model on your device, or choose an outside provider."
+  text: "AI chat in your browser, on your device or on a provider you choose."
 });
 export const PANEL_COPY = "Share Private Local Chat with someone who might find it useful. This shares the public app address. Your conversations and settings stay on your device.";
 

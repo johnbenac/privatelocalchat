@@ -68,7 +68,7 @@ try{
  assert(await page.locator('#productShareBtn').count()===1&&await page.locator('#productCopyBtn').count()===1&&await page.locator('#productQrBtn').count()===1,'Share, Copy link and Show QR code');
  await page.click('#productShareBtn');await page.waitForFunction(()=>window.__shared.length===1);
  const shared=await page.evaluate(()=>window.__shared[0]);
- assert(JSON.stringify(shared)===JSON.stringify({url:PRODUCT,title:'Private Local Chat',text:'Free AI chat in your browser. Run a supported model on your device, or choose an outside provider.'}),'the fixed public payload: '+JSON.stringify(shared));
+ assert(JSON.stringify(shared)===JSON.stringify({url:PRODUCT,title:'Private Local Chat',text:'AI chat in your browser, on your device or on a provider you choose.'}),'the fixed public payload: '+JSON.stringify(shared));
  assert(!/sk-synthetic|private question|health|127\.0\.0\.1|fake-model/.test(JSON.stringify(shared)),'nothing private in the payload: '+JSON.stringify(shared));
  await page.click('#productCopyBtn');await page.waitForFunction(()=>/Link copied/.test(document.querySelector('.product-share-status').textContent));
  assert(await clip()===PRODUCT,'Copy link copies the public address');

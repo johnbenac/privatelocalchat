@@ -7,8 +7,8 @@
     name="viewport"
     content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content"
   />
-  <title>Private Local Chat | Free AI chat in your browser</title>
-  <meta name="description" content="Free AI chat in your browser. Run a supported model on your device, or choose an outside provider." />
+  <title>Private Local Chat | AI chat in your browser</title>
+  <meta name="description" content="AI chat in your browser, on your device or on a provider you choose." />
   <!--site-head-->
   <link rel="canonical" href="{{SITE_URL}}" />
   <!--/site-head-->
@@ -17,7 +17,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Private Local Chat" />
   <meta property="og:title" content="Private Local Chat" />
-  <meta property="og:description" content="Free AI chat in your browser. Run a supported model on your device, or choose an outside provider." />
+  <meta property="og:description" content="AI chat in your browser, on your device or on a provider you choose." />
   <!--site-head-->
   <meta property="og:url" content="{{SITE_URL}}" />
   <!--/site-head-->
@@ -31,13 +31,13 @@
   <!--/site-head-->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Private Local Chat" />
-  <meta name="twitter:description" content="Free AI chat in your browser. Run a supported model on your device, or choose an outside provider." />
+  <meta name="twitter:description" content="AI chat in your browser, on your device or on a provider you choose." />
   <!--site-head-->
   <meta name="twitter:image" content="{{SITE_IMAGE}}" />
   <meta name="twitter:image:alt" content="The Private Local Chat wordmark with the phrase Your thinking stays yours." />
   <!--/site-head-->
   <!--site-head-->
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Private Local Chat","url":"{{SITE_URL}}","description":"Free AI chat in your browser. Run a supported model on your device, or choose an outside provider.","applicationCategory":"UtilitiesApplication","operatingSystem":"Any device with a modern web browser","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":["Run a supported model on your own device","Connect an outside provider of your choice","Conversations are saved in your browser's storage","On-device text chat can work offline once the app and model are saved"]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Private Local Chat","url":"{{SITE_URL}}","description":"AI chat in your browser, on your device or on a provider you choose.","applicationCategory":"UtilitiesApplication","operatingSystem":"Any device with a modern web browser","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":["Run a supported model on your own device","Connect an outside provider of your choice","Conversations are saved in your browser's storage","On-device text chat can work offline once the app and model are saved"]}</script>
   <!--/site-head-->
   <link rel="icon" href="/brand/favicon.svg" type="image/svg+xml" />
   <link rel="icon" href="/brand/favicon.ico" sizes="48x48" />
@@ -211,7 +211,7 @@
         <select id="endpointSelect"></select>
       </div>
       <p id="endpointOnboardingHint" class="hint-text" role="note">
-        Tip: Pick an API endpoint above to get started. Already configured this app on another device?
+        Tip: Pick a provider above, or use a model on your device. Already configured this app on another device?
         <button type="button" id="importSettingsShortcut" class="link-btn">Import your settings file</button>
         instead.
       </p>
@@ -355,10 +355,10 @@
         hidden
       >
         <p>
-          <strong>Trouble authenticating?</strong>
+          <strong>The provider did not accept your key.</strong>
           <span id="authHintText"
-            >No API key is currently saved. Add one under Settings → API key if your provider requires it. Local endpoints
-            and public routes such as OpenRouter’s model list may work without a key.</span
+            >No API key is currently saved. Add one under Settings → API key if your provider requires it. An endpoint on your own machine,
+            and some public lists, may work without a key.</span
           >
           Double-check your endpoint or import your saved settings file.
         </p>
@@ -407,7 +407,7 @@
         </button>
       </div>
       <div class="modal-body">
-        <p class="lede">Private AI chat on your device.</p>
+        <p class="lede">Chat that runs a model on your device, or on a provider you choose.</p>
         <p>Private Local Chat gives you a straightforward place to ask questions and work through ideas. Choose a model for your device or explicitly connect an outside provider.</p>
 
         <h3 id="aboutLocal">On this device</h3>
@@ -422,7 +422,7 @@
         <h3>Keep the app close at hand</h3>
         <p>Use your browser’s install or Add to Home Screen option when available. Check offline readiness before relying on the app without a connection.</p>
 
-        <p>Free to use on your device. Optional providers may charge. You decide when you are done.</p>
+        <p>It costs nothing to use on your device. Providers you connect may charge.</p>
 
         <div class="cta-row">
           <a
