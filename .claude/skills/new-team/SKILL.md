@@ -19,8 +19,8 @@ for a long time by an agent of its own. There are three separate lists, each wit
 
 A folder may map to an existing team, and several folders may map to one team. A team name is not a project. The board name is the
 canonical one; `cosmo-msg` maps it where it differs (`simulator` to `simulation`, `planner` to `claude`), in one place, `BOARD_TO_MSG` in
-`/cosmoshot/tools/msg/cosmo_msg.py`. `brand` and `aiofourown` are separate teams with their own inboxes (a folder owned by
-`aiofourown` in `program.json`, such as `lipsync`, follows `aiofourown`); `branding` is only an address that sends one copy to each.
+`/cosmoshot/tools/msg/cosmo_msg.py`. `brand`, `aiofourown` and `lipsync` are separate teams with their own inboxes (a folder that `teams.json` does not list belongs to the owner named in its
+`program.json`; `lipsync` is listed, so it is its own team); `branding` is only an address that sends one copy to `brand` and `aiofourown`.
 
 ## Level 1: a small place (the usual case)
 
