@@ -26,7 +26,7 @@ import * as model from '../chat/threads.mjs';
 const shim = () => { const m = new Map(); return { getItem: (k) => (m.has(k) ? m.get(k) : null), setItem: (k, v) => { m.set(k, String(v)); }, removeItem: (k) => { m.delete(k); }, clear: () => m.clear(), key: (i) => [...m.keys()][i] ?? null, get length() { return m.size; } }; };
 globalThis.localStorage ??= shim(); globalThis.sessionStorage ??= shim();
 globalThis.Option ??= class { constructor(label, value) { this.label = label; this.value = value; } };
-globalThis.document ??= { querySelectorAll: () => [], getElementById: () => ({ hidden: false, textContent: '' }) };
+globalThis.document ??= { querySelectorAll: () => [], getElementById: () => ({ hidden: false, textContent: '' }), createElementNS: () => ({ setAttribute() {}, appendChild() {}, innerHTML: '' }) };
 const { createThreadState } = await import('../chat/core/thread-state.mjs');
 const { createSender: realSender } = await import('../chat/core/sender.mjs');
 const { createConversationList: realList } = await import('../chat/list/conversation-list.mjs');
