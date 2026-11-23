@@ -18,6 +18,7 @@ export const KEY_CLASSES = Object.freeze({
   "plc.voice.v1": { store: "local", class: "setting", format: 1 },
   "plc.inferenceMode.v1": { store: "local", class: "setting", format: 1 },
   "plc.models.v1": { store: "local", class: "setting", format: 1 },
+  "plc.mind.v1": { store: "local", class: "user", format: 1 },
   "plc.shell.pins.v1": { store: "local", class: "user", format: 1 },
   "plc.shell.collapsed": { store: "local", class: "plain", format: 1 },
   "plc.downloadIntent.v1": { store: "local", class: "plain", format: 1 },

@@ -874,7 +874,7 @@
       // ---- dialogs (chat/dialogs.mjs) ----
       const dialogs = createDialogs({ el, showToast });
       const { openAppDialog, confirmDialog, alertDialog, copyTextDialog, promptDialog } = dialogs;
-      window.plcDialogs = { confirm: (...a) => confirmDialog(...a), alert: (...a) => alertDialog(...a), copyText: (...a) => copyTextDialog(...a) };
+      window.plcDialogs = { confirm: (...a) => confirmDialog(...a), alert: (...a) => alertDialog(...a), copyText: (...a) => copyTextDialog(...a), open: (...a) => openAppDialog(...a) };
 
       // ---- conversation list (chat/list/conversation-list.mjs) ----
       const convoList = createConversationList({
@@ -1258,7 +1258,7 @@
         toast: (text, duration, action) => showToast(text, duration, action), // the shell's messages (a voice busy, a model error in Settings) had no toast before
         lock: { reminderOn: () => lock.reminderOn(), setReminder: on => lock.setReminder(on) },
         threads: () => threads, folders: () => convoList.folders(), currentThreadId: () => currentThreadId, currentThread: () => getThread(currentThreadId) || null,
-        newThread: opts => newThread(opts || {}), toggleThreadMenu: (id, anchor) => toggleThreadMenu(id, anchor), moduleBase, loadRoberta,
+        newThread: opts => newThread(opts || {}), createThread: opts => createThread(opts || {}), selectThread: id => selectThread(id), persistThreads: (ids, what) => persistThreads(ids, what), renderThreadList: () => renderThreadList(), toggleThreadMenu: (id, anchor) => toggleThreadMenu(id, anchor), moduleBase, loadRoberta,
         createProject: () => createFolder(),
         openLibrary: () => openLibrary(), openCharacters: () => characters.openLibrary(), openPreferences: () => openPreferences(), openStorage: () => openStorage(), openLockSettings: () => lock.openLockSettings(),
         openHelp: async () => (await loadTransferUi()).openHelp(), openShare: async () => (await loadTransferUi()).openShare(),
@@ -1271,7 +1271,10 @@
       };
       offline.gate(refreshModelsBtn, 'refresh', () => offline.providerPlace() === 'internet'); // a provider on this device or network can still answer
       window.plcApp = plcApp;
-      import(moduleBase() + 'chat/shell/shell.mjs').then(mod => { window.plcShell = mod.createShell(plcApp); renderThreadList(); })
+      // a conversation with a mind on this computer (chat/mind/, docs/MIND-CONVERSATION.md): a thread kind with its own screen; it joins the page through plcApp, the event list and the shell registry only
+      let mindFeature = null;
+      const startMind = async shell => { try { mindFeature = (await import(moduleBase() + 'chat/mind/mind.mjs')).createMind({ app: plcApp, events }); mindFeature.attach(shell.registry); mindFeature.sync(); } catch (err) { console.error('A conversation with a mind could not start.', err); } };
+      import(moduleBase() + 'chat/shell/shell.mjs').then(mod => { window.plcShell = mod.createShell(plcApp); renderThreadList(); startMind(window.plcShell); })
         .catch(err => { console.error('The app shell failed to start.', err); showToast('Part of the app did not load. Reload the page; if it happens again, see Help.'); });
       // the welcome screen's links to our pages: set where this copy has the page, removed where it does not (chat/site/site-links.mjs)
       { const links = (await import(moduleBase() + 'chat/site/site-links.mjs')).siteLinks();

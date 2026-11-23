@@ -31,7 +31,7 @@ function headFor(ledger, threadId, messageId, version) {
 
 export function observeThread(ledger, { thread, stored = null, hints = {}, now = 0 }) {
   const refused = [];
-  if (!thread || thread.temporary || !isRef(thread.id)) return { refused, changed: false };
+  if (!thread || thread.temporary || thread.mind || !isRef(thread.id)) return { refused, changed: false };   // a conversation with a mind keeps her words only as messages of the chat (docs/MIND-CONVERSATION.md): no second copy in the ledger
   const tid = thread.id;
   const encResult = ensureEncounter(ledger, tid, now, hints.imported && !stored ? 'imported' : 'local');
   if (!encResult.ok) { refused.push({ message: null, code: encResult.code, detail: encResult.message }); return { refused, changed: false }; }

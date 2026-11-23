@@ -154,7 +154,7 @@ export function createShell(app) {
   ], { above: true, cls: "wide" }));
   function exploreRows() {
     return registry.list("explore").map((i) => ({
-      label: i.label, desc: i.desc, icon: i.icon, onClick: i.open,
+      label: i.label, desc: typeof i.desc === "function" ? i.desc() : i.desc, disabled: typeof i.disabled === "function" ? i.disabled() : i.disabled, icon: i.icon, onClick: i.open,
       right: h("span", { class: "shell-pin" + (registry.isPinned(i.id) ? " on" : ""), role: "button", tabindex: "0", title: registry.isPinned(i.id) ? "Unpin from the rail" : "Pin to the rail", "aria-label": (registry.isPinned(i.id) ? "Unpin " : "Pin ") + i.label, onclick: (e) => { e.stopPropagation(); registry.setPinned(i.id, !registry.isPinned(i.id)); closePopover(); renderRail(); } }, icon("pin"))
     }));
   }
@@ -290,7 +290,7 @@ export function createShell(app) {
   registry.register("plus", { id: "project", label: "Work in a project", desc: "Start a chat in a project", icon: "folder", order: 30, open: () => app.moveCurrentToProject() });
   registry.register("plus", { id: "instructions", label: "Instructions for this chat", desc: "Tell the model how to answer", icon: "edit", order: 40, open: () => { const d = $("systemPromptContainer"); d.open = true; d.scrollIntoView({ block: "nearest" }); $("systemPromptInput")?.focus(); } });
   registry.register("plus", { id: "voice-note", label: "Record a voice note", desc: "Speak, then send it as a message", icon: "waveform", order: 50, open: () => app.toggleVoiceNote(), visible: () => app.canRecordNote() });
-  function plusRows() { return registry.list("plus").map((i) => ({ label: i.label, desc: i.desc, icon: i.icon, onClick: i.open })); }
+  function plusRows() { return registry.list("plus").map((i) => ({ label: i.label, desc: typeof i.desc === "function" ? i.desc() : i.desc, disabled: typeof i.disabled === "function" ? i.disabled() : i.disabled, icon: i.icon, onClick: i.open })); }
 
   // the mic is the dictation button; the voice button becomes the round waveform button; both swap for Send once there is text
   const decorate = () => {

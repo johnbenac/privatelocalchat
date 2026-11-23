@@ -164,6 +164,15 @@
       "since": "v0.6.0"
     },
     {
+      "key": "plc.mind.v1",
+      "store": "localStorage",
+      "class": "user",
+      "owner": "chat/mind/mind-store.mjs",
+      "note": "bookkeeping of each conversation with a mind on this computer: ids and receipts of the person's messages, the stream cursor, the last accepted message. No words (hers and the person's are messages of the chat). An entry is removed when its chat is removed",
+      "format": 1,
+      "since": "unreleased"
+    },
+    {
       "key": "plc.shell.pins.v1",
       "store": "localStorage",
       "class": "user",
@@ -449,6 +458,7 @@
       "chat/history/history-io.mjs",
       "chat/list/conversation-list.mjs",
       "chat/lock/lock.mjs",
+      "chat/mind/mind-store.mjs",
       "chat/presentation/keeper.mjs",
       "chat/provider/provider-settings.mjs",
       "chat/shell/registry.mjs",

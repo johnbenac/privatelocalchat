@@ -37,6 +37,7 @@ const P = {
   file: '<path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/>',
   image: '<rect x="4" y="5" width="16" height="14" rx="2"/><circle cx="9" cy="10" r="1.5"/><path d="M5 17l5-5 4 4 2-2 3 3"/>',
   summarize: '<path d="M5 8h14M8 12h8M10 16h4"/>',
+  mind: '<circle cx="12" cy="9" r="5"/><path d="M9 14.5V18a3 3 0 0 0 6 0v-3.5M9.5 9h5M12 6.5V9"/><path d="M7 21h10"/>',
   ghost: '<circle cx="12" cy="12" r="8" stroke-dasharray="3 3"/>',
   device: '<rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/>',
   cloud: '<path d="M7 18a4 4 0 0 1-.6-7.9A5.5 5.5 0 0 1 17 9.5a4.2 4.2 0 0 1 0 8.5z"/>',

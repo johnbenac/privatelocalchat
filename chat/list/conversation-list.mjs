@@ -6,6 +6,7 @@
 // exportThreadMarkdown, buildPreloadUrl, saveThreads, generateThreadId, generation() (the running answer, or null), threadList (the <ul>), messageInput, createEmoji, actionButton,
 // messageDecorators, messageActionHandlers, closeThreadMenu, placeMenu, openThreadMenu() (the open menu or null), updateThreadListMinHeight, promptDialog, confirmDialog, copyTextDialog, openAppDialog, showToast
 import { appLocal } from "../vault/vault-store.mjs";
+import { iconNode } from "../icons.mjs";
 export function createConversationList(host) {
   const { el, events, readJson, writeJson, getThread, createThread, selectThread, renameThread, exportThreadMarkdown, buildPreloadUrl, saveThreads, persistThreads: persist,
     generateThreadId, threadList, messageInput, createEmoji, actionButton, messageDecorators, messageActionHandlers, closeThreadMenu, placeMenu,
@@ -59,6 +60,7 @@ export function createConversationList(host) {
     const pick = el('button', 'thread-name'); pick.type = 'button';
     if (thread.pinned) pick.appendChild(el('span', 'pin-mark', '📌'));
     if (thread.temporary) pick.appendChild(el('span', 'pin-mark', '🕶️'));
+    if (thread.mind) { const mark = el('span', 'pin-mark mind-mark'); mark.setAttribute('aria-hidden', 'true'); mark.append(iconNode('mind')); pick.appendChild(mark); }   // a conversation with a mind on this computer (chat/mind/)
     pick.append(name);
     pick.title = name;
     if (thread.id === host.currentThreadId()) pick.setAttribute('aria-current', 'true');
@@ -217,7 +219,7 @@ export function createConversationList(host) {
     menuItem(menu, thread.pinned ? '📍' : '📌', thread.pinned ? 'Unpin' : 'Pin to top', async () => { const back = keepFields(thread, ['pinned']); if (thread.pinned) delete thread.pinned; else thread.pinned = true; const o = await persist(threadId, 'The pin was not saved'); if (!o.saved) back(); renderThreadList(); });
     menuItem(menu, '🗄️', thread.archived ? 'Unarchive' : 'Archive', async () => { const back = keepFields(thread, ['archived']); if (thread.archived) delete thread.archived; else thread.archived = true; const o = await persist(threadId, 'The archive change was not saved'); if (!o.saved) { back(); renderThreadList(); return; } renderThreadList(); showToast(thread.archived ? 'Archived' : 'Moved back to your chats'); });
     menuItem(menu, '📁', 'Move to project…', async () => { await moveToFolder(threadId); });
-    menuItem(menu, '🧬', 'Duplicate', () => duplicateThread(threadId));
+    if (!thread.mind) menuItem(menu, '🧬', 'Duplicate', () => duplicateThread(threadId));   // a copy would speak to the same host as the same participant
     menuItem(menu, '📤', 'Export (.md)', () => exportThreadMarkdown(threadId));
     menuItem(menu, '🔗', 'Copy link with current title/system/prompt', async () => { const url = buildPreloadUrl(); try { await navigator.clipboard.writeText(url); showToast('Link copied to clipboard'); } catch (err) { copyTextDialog('Copy this link', url); } });
     menuItem(menu, '🗑️', 'Delete', () => trashThread(threadId), 'delete');
