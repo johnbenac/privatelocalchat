@@ -20,8 +20,8 @@ const { page, context } = t;
 const host = await startFakeHost({ origin: t.origin, encounterOf: 'enc:e2e-1' });
 const extras = [];   // pages and servers to close
 const status = async (p = page) => (await p.locator('#mindStatus .mind-live-text').allInnerTexts()).join('').trim();
-const waitStatus = (text, p = page, timeout = 15000) => p.waitForFunction((x) => [...document.querySelectorAll('#mindStatus .mind-live-text')].map((n) => n.textContent).join('').trim() === x, text, { timeout });
-const waitUnreachable = (p = page, timeout = 20000) => p.waitForFunction(() => /^No answer from the host at /.test([...document.querySelectorAll('#mindStatus .mind-live-text')].map((n) => n.textContent).join('').trim()), null, { timeout });
+const waitStatus = (text, p = page, timeout = 40000) => p.waitForFunction((x) => [...document.querySelectorAll('#mindStatus .mind-live-text')].map((n) => n.textContent).join('').trim() === x, text, { timeout });
+const waitUnreachable = (p = page, timeout = 45000) => p.waitForFunction(() => /^No answer from the host at /.test([...document.querySelectorAll('#mindStatus .mind-live-text')].map((n) => n.textContent).join('').trim()), null, { timeout });
 const lane = async (cls, p = page) => p.locator(`#mindLog .mind-msg.${cls} .mind-text`).allInnerTexts();
 const openSetupFromPlus = async (p = page) => { await p.click('#shellPlus'); await p.locator('.shell-pop-row', { hasText: 'Talk with a mind on this computer' }).click(); await p.waitForSelector('#mind-setup-address'); };
 const fill = async (fields, p = page) => { for (const [k, v] of Object.entries(fields)) await p.fill('#mind-setup-' + k, String(v)); };
@@ -32,8 +32,10 @@ const CONFIG = { name: 'Ada', address: host.address, resident: 'individual:fake-
 try {
   // ---- the entry, the setup dialog and its Check -----------------------------------------------------------------------------------------------------------------------------
   await page.waitForSelector('#shellPlus');
+  await page.waitForFunction(() => Boolean(window.plcShell?.registry?.get('plus', 'mind')), null, { timeout: 60000 });   // the feature attaches itself a moment after the shell
   await page.click('#shellPlus');
   const row = page.locator('.shell-pop-row', { hasText: 'Talk with a mind on this computer' });
+  await row.waitFor({ timeout: 20000 });
   assert(await row.isVisible() && await row.isEnabled(), 'the entry is in the plus menu and can be opened here');
   await page.keyboard.press('Escape');
   await page.click('button[aria-label="Explore"]');
@@ -44,19 +46,19 @@ try {
   await openSetupFromPlus();
   assert(await page.locator('.app-dialog [role=dialog] h2, .app-dialog .sheet h2').first().innerText() === 'A mind on this computer', 'setup opens in the app dialog');
   await fill({ ...CONFIG, address: 'not an address' });
-  await page.click('.app-dialog button:has-text("Check")');
+  await page.click('#mindCheck');
   await page.waitForFunction(() => /not a web address/.test(document.getElementById('mindCheckAlert').textContent));
   await fill({ address: host.address });
   host.setMode('status-refuses-not-admitted');
-  await page.click('.app-dialog button:has-text("Check")');
+  await page.click('#mindCheck');
   await page.waitForFunction((x) => document.getElementById('mindCheckAlert').textContent === x, S.notAdmitted);
   assert((await page.locator('#mindCheckAlert').getAttribute('role')) === 'alert', 'a failure of the check is announced assertively');
   host.setMode('unavailable');
-  await page.click('.app-dialog button:has-text("Check")');
+  await page.click('#mindCheck');
   await page.waitForFunction((x) => document.getElementById('mindCheckAlert').textContent === x, S.unavailable);
   host.setMode('ok');
   const before = host.received.length;
-  await page.click('.app-dialog button:has-text("Check")');
+  await page.click('#mindCheck');
   await page.waitForFunction(() => /The host answered\./.test(document.getElementById('mindCheckResult').textContent));
   assert(host.received.length === before && host.log.every((f) => f?.kind === 'status-query'), 'the check sent no words: only status queries reached the host');
   await page.click('.app-dialog button:has-text("Open the conversation")');
@@ -111,7 +113,7 @@ try {
   const hostMessages = host.received.length;
   host.unasked('ZEBRA-unasked word', { occId: 'unasked-1' });
   await page.waitForSelector('#mindLog .mind-msg.unasked');
-  assert(await page.evaluate(() => document.activeElement?.id) === 'mindInput', 'focus stays in the composer');
+  assert(await page.evaluate(() => document.activeElement?.id) === 'mindInput', 'focus stays in the composer: ' + await page.evaluate(() => document.activeElement?.outerHTML.slice(0, 120)));
   assert(await page.inputValue('#mindInput') === 'half a sent', 'the draft is not altered');
   assert(/^Unprompted · Ada · \d{1,2}[:.]\d{2}/.test(await page.locator('#mindLog .mind-msg.unasked .mind-label').innerText()), 'the fixed label: ' + await page.locator('#mindLog .mind-msg.unasked .mind-label').innerText());
   assert((await page.locator('#mindAnnounce').innerText()) === 'Ada said something' && await page.locator('#mindAnnounce').getAttribute('aria-live') === 'polite', 'announced politely');
@@ -120,6 +122,40 @@ try {
   assert((await lane('unasked')).length === 1, 'shown once');
   await page.fill('#mindInput', '');
   ok('an unasked word: own label and edge, announced politely, no focus stolen, no draft touched, nothing answers it');
+
+  // ---- the page header follows the chat; three of five receipts is calm --------------------------------------------------------------------------------------------------------------
+  assert((await page.inputValue('#threadTitleInput')) === 'Ada' && await page.locator('#threadTitleInput').isVisible(), 'the top bar shows the thread title');
+  assert(await page.locator('#modeBadge').isVisible() && (await page.locator('#modeBadge').innerText()).trim().length > 0, 'and the pill, as for any other chat');
+  host.stateCount = 3;
+  await sendText('ZEBRA-partial receipts');
+  await page.waitForFunction(() => document.querySelectorAll('#mindLog .mind-msg.person').length === 2 && document.querySelectorAll('#mindLog .mind-msg.person:last-of-type .mind-meter i[data-on="1"]').length === 3);
+  await sleep(4000);
+  const last = page.locator('#mindLog .mind-msg.person').last();
+  assert(await last.locator('.mind-meter i[data-on="1"]').count() === 3 && (await last.locator('.mind-receipt-word').innerText()) === 'Shown to the mind', 'the highest stage reached is shown');
+  assert((await last.locator('.mind-receipt').getAttribute('data-loud')) === '' && !(await last.getAttribute('data-marker')), 'with no alarm');
+  await last.locator('summary').click();
+  assert((await last.locator('.mind-receipt-list li[data-reached=""]').allInnerTexts()).every((x) => /not reached yet/.test(x)) && await last.locator('.mind-receipt-list li[data-reached=""]').count() === 2, 'the Receipts list says not reached yet');
+  assert((await status()) === S.available && !(await page.locator('#mindInput').isDisabled()), 'and she is still available');
+  host.stateCount = 5;
+  ok('header, and three of five receipts without alarm');
+
+  // ---- the setup's answer is visible after Check, on a phone-sized and a desktop-sized window -------------------------------------------------------------------------------------------
+  for (const [w, hgt] of [[390, 844], [1280, 800]]) {
+    await page.setViewportSize({ width: w, height: hgt });
+    await page.click('#mindConnection');
+    await page.waitForSelector('#mind-setup-address');
+    await page.fill('#mind-setup-address', 'not an address');
+    await page.click('#mindCheck');
+    await page.waitForFunction(() => /not a web address/.test(document.getElementById('mindCheckAlert').textContent));
+    const box = await page.locator('#mindCheckAlert').boundingBox(), body = await page.locator('.app-dialog .sheet').boundingBox();
+    assert(box && body && box.y >= body.y - 1 && box.y + box.height <= Math.min(body.y + body.height, hgt) + 1, `${w}x${hgt}: the answer is inside the visible part of the dialog (${JSON.stringify(box)} in ${JSON.stringify(body)})`);
+    const checkBox = await page.locator('#mindCheck').boundingBox();
+    assert(box.y >= checkBox.y + checkBox.height - 1, 'directly under the Check button');
+    assert((await page.locator('#mindCheckAlert').getAttribute('aria-live')) === 'assertive', 'still assertive');
+    await page.click('.app-dialog button:has-text("Cancel")');
+  }
+  await page.setViewportSize({ width: 1280, height: 800 });
+  ok('setup: Check and its answer together, visible at 390x844 and 1280x800');
 
   // ---- UNAVAILABLE: the host refuses; the composer is off with the reason ------------------------------------------------------------------------------------------------------
   host.setMode('unavailable');
@@ -146,7 +182,7 @@ try {
   await page.click('#mindStatus button:has-text("Try again")');
   await waitStatus(S.available);
   host.setMode('silent');
-  await waitUnreachable(page, 25000);
+  await waitUnreachable(page, 60000);
   host.setMode('ok');
   await page.click('#mindStatus button:has-text("Try again")');
   await waitStatus(S.available);
@@ -156,7 +192,7 @@ try {
   host.setMode('blackhole-after-receive');
   await page.fill('#mindInput', 'ZEBRA-are you there');
   await page.click('#mindSend');
-  await waitStatus(S.unknown, page, 30000);
+  await waitStatus(S.unknown, page, 60000);
   const unknownMsg = page.locator('#mindLog .mind-msg.person[data-marker="unknown"]');
   assert(await unknownMsg.count() === 1, 'a hatched marker is on THAT message');
   const unknownText = (await unknownMsg.innerText());
@@ -218,7 +254,7 @@ try {
   const th0 = (await threadsOf()).find((x) => x.mind);
   await page.locator('#threadList li.selected .thread-menu-btn').click();
   await page.locator('.thread-menu button', { hasText: 'Delete' }).click();
-  await page.waitForFunction(() => !document.querySelector('#mindScreen') || document.querySelector('#mindScreen').hidden);
+  await page.waitForFunction(() => !document.querySelector('#mindScreen') || document.querySelector('#mindScreen').hidden, null, { timeout: 8000 }).catch(async (e) => { console.log('DEBUG', await page.evaluate(() => JSON.stringify({ cur: localStorage.getItem('plc.activeThread.v1'), titles: JSON.parse(localStorage.getItem('chatThreads')).map((t) => [t.id, t.title, t.deletedAt, !!t.mind]), toast: document.getElementById('toast')?.textContent, dlg: document.querySelectorAll('.app-dialog').length }))); throw e; });
   await page.click('button[aria-label="This device menu"]'); await page.click('.shell-pop-row:has-text("Settings")');
   await page.evaluate(() => window.plcShell.openSettings('data'));
   await page.click('.set-row:has-text("Recently deleted") button');

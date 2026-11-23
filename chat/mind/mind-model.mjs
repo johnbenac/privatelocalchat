@@ -28,7 +28,8 @@ export const UNPROMPTED_LABEL = 'Unprompted';
 
 /** The sentences, exactly as designed. `name` and `address` are filled in. */
 export const COPY = Object.freeze({
-  available: (name) => `Connected to ${name} on this computer.`,
+  // a configured name is a name: "Connected to Ada on this computer."; the neutral default already says where she is
+  available: (name) => (name === DEFAULT_NAME ? `Connected to ${DEFAULT_NAME}.` : `Connected to ${name} on this computer.`),
   unavailable: () => 'The host is not running, or its tab is closed. Nothing can be sent.',
   unreachable: (address) => `No answer from the host at ${address}. Nothing was sent. It may be slow, or the address may be wrong.`,
   unknown: () => 'Sent, but the host did not confirm. It may or may not have arrived. Send again only if you are happy to say it twice.',
@@ -40,7 +41,7 @@ export const COPY = Object.freeze({
   // not in the design: said when the host answers a status query for a message and has never recorded it
   notRecorded: () => 'The host has no record of that message. It did not arrive. You can send it again.',
   stillUnknown: () => 'Still no answer from the host. The message may or may not have arrived.',
-  said: (speaker) => `${speaker} said something`
+  said: (speaker) => `${speaker.charAt(0).toUpperCase()}${speaker.slice(1)} said something`
 });
 
 export const ACTIONS = Object.freeze({

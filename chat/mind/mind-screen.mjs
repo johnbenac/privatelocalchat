@@ -118,7 +118,7 @@ export function createMindScreen({ doc = document, onSend, onAction, onConnectio
     const sig = r.list.map((x) => (x.reached ? '1' : '0') + (x.at || '')).join(',');
     if (parts.list.dataset.sig !== sig) {
       parts.list.dataset.sig = sig; parts.list.textContent = '';
-      for (const x of r.list) { const li = h(doc, 'li', null); li.dataset.reached = x.reached ? '1' : ''; li.append(h(doc, 'span', 'mind-tick', x.reached ? '✓' : '–'), h(doc, 'span', null, ' ' + x.word + (x.reached && x.at ? ' · ' + clock(x.at) : '')), ); parts.list.append(li); }
+      for (const x of r.list) { const li = h(doc, 'li', null); li.dataset.reached = x.reached ? '1' : ''; li.append(h(doc, 'span', 'mind-tick', x.reached ? '✓' : '–'), h(doc, 'span', x.reached ? null : 'mind-notyet', ' ' + x.word + (x.reached ? (x.at ? ' · ' + clock(x.at) : '') : ' · not reached yet'))); parts.list.append(li); }
     }
   }
 

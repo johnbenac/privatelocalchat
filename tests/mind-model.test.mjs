@@ -2,7 +2,7 @@
 // the occurrence identity of her words, where a host can be reached from, and the blocked-by-the-browser rule. Pure: no DOM, no network.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { statusOf, receiptView, classifyReply, replyMessageId, replyToMessage, threadOccKeys, occKey, canReachLoopback, blockedByBrowser, handoffUrl, waitingLine, elapsedWords, COPY, RECEIPT_WORDS, markerOf } from '../chat/mind/mind-model.mjs';
+import { DEFAULT_NAME, statusOf, receiptView, classifyReply, replyMessageId, replyToMessage, threadOccKeys, occKey, canReachLoopback, blockedByBrowser, handoffUrl, waitingLine, elapsedWords, COPY, RECEIPT_WORDS, markerOf } from '../chat/mind/mind-model.mjs';
 
 const base = { name: 'Ada', address: 'http://127.0.0.1:9' };
 const st = (availability, messages = [], extra = {}) => statusOf({ ...base, availability: { state: availability }, messages, ...extra });
@@ -103,4 +103,17 @@ test('the handoff address: http(s) only, the route added once, nothing with cred
 });
 test('no sentence of this module is in her voice and none is a model', () => {
   for (const f of Object.values(COPY)) assert.equal(typeof f, 'function');
+});
+
+test('the sentence reads right for a configured name and for the neutral default', () => {
+  assert.equal(COPY.available('Ada'), 'Connected to Ada on this computer.');
+  assert.equal(COPY.available(DEFAULT_NAME), 'Connected to a mind on this computer.');
+  assert.equal(COPY.said(DEFAULT_NAME), 'A mind on this computer said something');
+  assert.equal(st('available', [], { name: DEFAULT_NAME }).sentence, 'Connected to a mind on this computer.');
+});
+test('three of five receipts is calm: the highest stage, no alarm, the rest listed as not reached', () => {
+  const r = receiptView({ state: 'exposed', states: ['accepted', 'delivered', 'exposed'] });
+  assert.equal(r.word, 'Shown to the mind'); assert.equal(r.dots, 3); assert.equal(r.loud, false);
+  assert.deepEqual(r.list.map((x) => x.reached), [true, true, true, false, false]);
+  assert.equal(st('available', [{ id: 'a', state: 'exposed', states: ['accepted', 'delivered', 'exposed'] }]).kind, 'available');
 });

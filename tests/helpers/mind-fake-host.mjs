@@ -4,6 +4,7 @@
 //
 //   const host = await startFakeHost({ origin })     host.url (the route), host.address (what a person types), host.log (every frame received), host.received (messages only)
 //   host.setMode(name)   ok | not-admitted | unavailable | silent | blackhole-after-receive | status-refuses-not-admitted
+//   host.stateCount = 3   the host reaches only that many of the five receipts (the later ones depend on her own cognition)
 //   host.say(messageId, text, { occId })   a reply to that message, returned on EVERY later poll (the client must show it once)
 //   host.unasked(text, { occId })          a reply caused by a message nobody here sent, returned on every poll
 //   host.stop() / host.start()             the port closes (connection refused) and opens again on the same port
@@ -14,7 +15,7 @@ const STATES = ['accepted', 'delivered', 'exposed', 'interpreted', 'persisted'];
 const lines = (records) => records.map((r) => JSON.stringify(r)).join('\n') + '\n';
 
 export async function startFakeHost({ origin, port = 0, encounterOf = null } = {}) {
-  const host = { mode: 'ok', log: [], received: [], known: new Map(), replies: new Map(), unaskedReplies: [], held: new Set(), sockets: new Set(), server: null, port: 0 };
+  const host = { mode: 'ok', stateCount: 5, log: [], received: [], known: new Map(), replies: new Map(), unaskedReplies: [], held: new Set(), sockets: new Set(), server: null, port: 0 };
   const cors = { 'Access-Control-Allow-Origin': origin, 'Access-Control-Allow-Methods': 'POST, OPTIONS', 'Access-Control-Allow-Headers': 'content-type', 'Access-Control-Max-Age': '60', 'Cross-Origin-Resource-Policy': 'cross-origin', Vary: 'Origin' };
   const reply = (r, causes) => ({ kind: 'reply', id: 'reply-' + r.occId, encounter: r.encounter || 'enc:fake', causes, speaker: { individualId: 'individual:fake-1' }, occ: { source: 'host:fake', id: r.occId, digest: 'sha256:' + '0'.repeat(64) },
     audience: { kind: 'encounter' }, expression: 'said', delivered: r.text, units: [{ text: r.text }], status: 'completed' });
@@ -32,9 +33,9 @@ export async function startFakeHost({ origin, port = 0, encounterOf = null } = {
       if (host.mode === 'unavailable') return send(503, [{ kind: 'refusal', class: 'unavailable', messageId: frame?.id || frame?.messageId || null, reason: 'no resident is running' }]);
       if (frame?.kind === 'message') {
         if (host.mode === 'not-admitted') return send(403, [{ kind: 'refusal', class: 'not-admitted', messageId: frame.id, reason: 'participant not admitted' }]);
-        if (!host.known.has(frame.id)) { host.known.set(frame.id, { states: [...STATES], encounter: frame.encounter }); host.received.push(frame); }
+        if (!host.known.has(frame.id)) { host.known.set(frame.id, { states: STATES.slice(0, host.stateCount), encounter: frame.encounter }); host.received.push(frame); }
         if (host.mode === 'blackhole-after-receive') { req.socket.destroy(); return; }   // the host HAS the message; the page never hears
-        return send(200, STATES.map((state, i) => ({ kind: 'receipt', state, messageId: frame.id, encounter: frame.encounter, ...(state === 'delivered' ? { worldSeq: host.received.length } : {}), ...(i < 0 ? {} : {}) })));
+        return send(200, STATES.slice(0, host.stateCount).map((state) => ({ kind: 'receipt', state, messageId: frame.id, encounter: frame.encounter, ...(state === 'delivered' ? { worldSeq: host.received.length } : {}) })));
       }
       if (frame?.kind === 'status-query') {
         if (host.mode === 'blackhole-after-receive') { req.socket.destroy(); return; }

@@ -92,19 +92,21 @@ export function openSetup({ dialogs, initial = {}, check = checkHost, doc = docu
     }
     const result = doc.createElement('p'); result.className = 'mind-check-result'; result.id = 'mindCheckResult'; result.setAttribute('role', 'status'); result.setAttribute('aria-live', 'polite');
     const alertEl = doc.createElement('p'); alertEl.className = 'mind-check-result'; alertEl.id = 'mindCheckAlert'; alertEl.setAttribute('role', 'alert'); alertEl.setAttribute('aria-live', 'assertive');
-    form.append(result, alertEl);
-    const say = (text, bad) => { (bad ? alertEl : result).textContent = text; (bad ? result : alertEl).textContent = ''; };
+    // Check sits with its answer, in the part of the dialog that scrolls: the answer is right under the button and is scrolled into view
+    const checkBtn = doc.createElement('button'); checkBtn.type = 'button'; checkBtn.className = 'secondary mind-check-btn'; checkBtn.textContent = 'Check'; checkBtn.id = 'mindCheck';
+    form.append(checkBtn, result, alertEl);
+    const say = (text, bad) => { (bad ? alertEl : result).textContent = text; (bad ? result : alertEl).textContent = ''; (bad ? alertEl : result).scrollIntoView?.({ block: 'nearest' }); };
     const values = () => Object.fromEntries(Object.entries(inputs).map(([k, el]) => [k, el.value]));
     const flag = (problems) => { for (const [k, el] of Object.entries(inputs)) el.setAttribute('aria-invalid', problems.includes(k) ? 'true' : 'false'); };
+    checkBtn.addEventListener('click', async () => {
+      const v = validateConfig(values()); flag(v.problems.filter((p) => p === 'address'));
+      if (v.problems.includes('address')) { say(await Promise.resolve(check({ address: v.config.address })).then((r) => r.sentence), true); inputs.address.focus(); return; }
+      checkBtn.setAttribute('aria-busy', 'true'); say('Asking the host. Nothing is sent but the question.', false);
+      try { const r = await check({ address: v.config.address, timeoutMs: v.config.timeoutSeconds * 1000 }); say(r.sentence, r.kind !== 'available'); }
+      finally { checkBtn.removeAttribute('aria-busy'); }
+    });
     const dlg = dialogs.open({ title: 'A mind on this computer', content: form, actions: [
       { label: 'Cancel', run: () => finish(null) },
-      { label: 'Check', close: false, run: async (_h, button) => {
-        const v = validateConfig(values()); flag(v.problems.filter((p) => p === 'address'));
-        if (v.problems.includes('address')) { say(await Promise.resolve(check({ address: v.config.address })).then((r) => r.sentence), true); inputs.address.focus(); return; }
-        button.setAttribute('aria-busy', 'true'); say('Asking the host. Nothing is sent but the question.', false);
-        try { const r = await check({ address: v.config.address, timeoutMs: v.config.timeoutSeconds * 1000 }); say(r.sentence, r.kind !== 'available'); }
-        finally { button.removeAttribute('aria-busy'); }
-      } },
       { label: initial.encounter ? 'Save' : 'Open the conversation', primary: true, close: false, run: (handle) => {
         const v = validateConfig(values()); flag(v.problems);
         if (!v.ok) { say('Fill in the fields marked invalid: ' + v.problems.map((p) => FIELDS.find((f) => f.key === p)?.label || p).join(', ') + '.', true); inputs[v.problems[0]]?.focus(); return; }

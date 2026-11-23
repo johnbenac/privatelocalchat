@@ -141,7 +141,7 @@ export function createMind({ app, events, doc = document, win = window, options 
     const outcome = await app.persistThreads(t.id, 'Your message was not sent');
     if (!outcome.saved) { const i = t.messages.findIndex((m) => m.id === id); if (i >= 0) t.messages.splice(i, 1); render(); return false; }   // not kept, so not sent: the words stay in the box
     app.renderThreadList();
-    a.inflight.add(id); a.transport.track(id); a.setNext(id); track();
+    a.inflight.add(id); a.transport.track(id); a.transport.nudge(); a.setNext(id); track();
     render();
     const done = a.client.send(text, { occId: 'occ:' + id }).finally(() => { a.setNext(null); a.inflight.delete(id); render(); });
     void done.catch(() => {});
@@ -154,6 +154,7 @@ export function createMind({ app, events, doc = document, win = window, options 
   }
   async function checkStatus(id) {
     const a = active; if (!a) return;
+    a.transport.nudge();
     const outcome = await a.client.checkStatus(id);
     if (outcome === 'resend') a.notRecorded.add(id); else a.notRecorded.delete(id);
     render();
