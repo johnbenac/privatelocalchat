@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createAppStorage,memoryStorage,VAULT_MARKER} from '../chat/vault/vault-store.mjs';
+import {createAppStorage,memoryStorage,withWriteMode,VAULT_MARKER} from '../chat/vault/vault-store.mjs';
 import {createVaultControl} from '../chat/vault/vault-control.mjs';
 import {createMemoryAdapter} from '../chat/vault/vault-db.mjs';
 import {createVault} from '../chat/vault/vault.mjs';
@@ -64,4 +64,11 @@ test('turn off: needs the passphrase, restores plain storage and documents, remo
   assert.equal(r.realLocal.getItem('chatThreads'),chats);assert.equal(r.realLocal.getItem('plc.prefs.v1'),'{"keep":1}');
   assert.ok(r.docsPlain.has('d'),'documents are back');
   assert.equal(r.realLocal.getItem(VAULT_MARKER),null);assert.equal(await r.adapter.readHeader(),null);
+});
+
+test('enable binds the adapter to the attached session, so the encrypted write mode works in the same page without a reload (T1290: saving a character right after turning the vault on)',async()=>{
+  const r=rig({local:{chatThreads:chats}});await r.control.enable('pw');
+  const raw='{"format":1,"revision":1,"records":[]}';
+  const receipt=await withWriteMode(r.app,{feature:'plc-characters',guard:()=>true},async mode=>mode.putKV('plc.characters.v1',null,raw,{operationId:'op'}));
+  assert.equal(receipt.status,'committed');assert.equal(receipt.observed,raw);
 });

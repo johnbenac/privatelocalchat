@@ -378,7 +378,7 @@ test('Make a copy whose reply is lost: the second click reconciles the SAME copy
   } finally { c.page.restore(); }
 });
 
-test('without the durable capability the controller says saving is unavailable, writes nothing, and import preview still works', async () => {
+test('a controller built WITHOUT a durable capability (the contract, not the page: see the wiring test below) says saving is unavailable, writes nothing, and import preview still works', async () => {
   const page = installPage(); // the page stand-in with NO host.runWriteScope
   try {
     const events = createEvents(); const dialogs = []; const toasts = []; const backing = new Map();
@@ -392,4 +392,13 @@ test('without the durable capability the controller says saving is unavailable, 
     await review.pressPrimary(); await yieldTurns(5);
     assert.equal(backing.size, 0, 'nothing written'); assert.equal(toasts.length, 0);
   } finally { page.restore(); }
+});
+
+test('the shipped page gives the controller a real durable write scope (T1290): it is imported, built from appLocal and the vault, and passed as runWriteScope', () => {
+  const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+  assert.match(html, /import\(modulesAt \+ 'chat\/characters\/write-scope\.mjs'\)/, 'the module is loaded by the page');
+  assert.match(html, /createCharacterWriteScope\(\{ storage: appLocal, vault: vaultApp, withWriteMode: vaultWriteMode, key: CHARACTERS_KEY \}\)/, 'built from the page storage and the vault');
+  const call = html.match(/createCharactersUi\(\{[^\n]*\}\);/)?.[0] ?? '';
+  assert.match(call, /runWriteScope: characterWriteScope/, 'passed to the controller');
+  assert.match(call, /storage: appLocal/, 'the same page storage');
 });

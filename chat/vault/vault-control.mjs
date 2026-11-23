@@ -63,7 +63,7 @@ export function createVaultControl({ app, adapter = null, realLocal = globalThis
           const guard = () => same() && claim.owned === true;
           result = await createAndMigrate({ passphrase, adapter: store(), realLocal, realSession, documents, iterations, autoMinutes, guard });
           if (!same()) { try { result.session.lock(); } catch { /* the replacement owns the vault now: nothing of it is touched */ } throw honestPartial(); }
-          app.attach(result.session, { writer: true, lease: claim }); kept = true;
+          app.attach(result.session, { writer: true, lease: claim, adapter: store() }); kept = true;
           attached = app.fence(); // the ATTACHED session + epoch, taken right after our own attach (no await in between)
         } finally { if (!kept) await claim.release(); } // only THIS action's own handle; a refused or unsupported claim releases nothing
         // After the encrypted copy is durable, the advisory storage.persist() is asked. If the session was locked, detached, replaced or the lease lost while it awaited,
@@ -178,7 +178,7 @@ export function createVaultControl({ app, adapter = null, realLocal = globalThis
           // attached again with the SAME handle. What was already written (the plain copies, any documents) is not rolled back, and a replacement session is never touched.
           if (stillOurs() && lease?.owned && !fence.session.locked) {
             let header = null; try { header = await store().readHeader(); } catch { header = null; }
-            if (header && stillOurs()) app.attach(fence.session, { writer: true, lease });
+            if (header && stillOurs()) app.attach(fence.session, { writer: true, lease, adapter: store() });
           }
           throw error;
         }

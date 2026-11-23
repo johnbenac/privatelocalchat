@@ -65,6 +65,15 @@ writes, reads back. `remove({ individualId, recordVersion })` is the same shape.
 
 Idempotency is by `admissionId`, persisted on the record. A new preparation of the same package is a new, deliberate admission. An unreadable or newer store is never repaired or migrated here.
 
+## The write scope (required, T1290)
+
+A persistent store changes nothing unless the page gives it `runWriteScope(fn, { guard })`: without it every change refuses with `no-durable-scope` (there is no fallback to `storage.setItem`). The page makes it with `createCharacterWriteScope({ storage: appLocal, vault: vaultApp, withWriteMode, key })` from `chat/characters/write-scope.mjs` (pure; the storage, vault handle and the vault's `withWriteMode` are injected) and passes it to `createCharactersUi`. `fn(mode)` gets `mode.readDurable(keys)` (a fresh read) and `mode.putKV(key, expectedRaw, nextRaw, { operationId })`, which answers with a receipt `committed`, `not-written` or `unknown`; the store acknowledges a change only for a `committed` receipt whose `observed` is exactly the bytes sent.
+
+* **Vault on** (`vault.active`): the encrypted write mode of `chat/vault/vault-store.mjs`. It needs the unlocked session, the exclusive writer lease and the attached adapter. A read-only tab, a blocked (newer format) or held key, or a missing exclusive lease is refused BEFORE the callback runs (the error codes `read-only`, `blocked`, `held`, `no-exclusive`, which the store reports as `write-refused`, nothing written); a locked or replaced session is refused by the write mode itself (`session-changed`). The caller's guard is composed into the vault's authority check. The plain path is never used while the vault is on.
+* **Vault off**: a checked compare-and-swap on `appLocal` (the browser's own storage). `putKV` compares `expectedRaw` with a fresh read (a different value is never overwritten: `unknown`, with what is there), writes, reads back, and answers `committed` only when the read-back is exactly what was sent. A thrown write (quota) is `not-written` (`write-failed`); a value unchanged after the write (refused, read-only) is `not-written` (`refused`); another writer's value or an unreadable read-back is `unknown`. The same refusals for a blocked, held or read-only key apply. The Web Lock `plc-characters` orders writers across tabs; the compare-and-swap catches a writer that got past it.
+
+Tests: `tests/character-write-scope.test.mjs` (both paths, the store on top of them, 20-repeat parallel-actor concurrency with stated invariants and a control that loses updates without the compare-and-swap, abrupt recovery) and the page wiring case in `tests/character-ui-lifecycle.test.mjs`.
+
 ## Temporary chats
 
 `createTemporaryCharacterStore({ scope })` uses memory-only storage and a first-in first-out lock for that tab, bound to the session scope. Nothing reaches browser storage or the vault; the scope changing during
