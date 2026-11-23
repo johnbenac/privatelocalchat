@@ -25,7 +25,7 @@ try{
  await open(link);
  await dialog('Open a resource from a discovery page').waitFor({timeout:15000});
  const text=await page.locator('.app-dialog').innerText();
- for(const piece of ['Emma (minimal)','A plain character preset','1.0.0',bytes.length+' bytes',listed.sha256.slice(0,8)+'…'+listed.sha256.slice(-8),'CC0-1.0','https://cosmogenitor.example/characters/emma','Nothing has been added yet','does not download this for you'])assert(text.includes(piece),'the box shows '+piece+': '+text.slice(0,500));
+ for(const piece of ['Emma (minimal)','A plain character preset','1.0.0',bytes.length+' bytes',listed.sha256,'CC0-1.0','https://cosmogenitor.example/characters/emma','Nothing has been added yet','does not download this for you'])assert(text.includes(piece),'the box shows '+piece+': '+text.slice(0,500));
  assert((await presets()).length===0,'opening the link added nothing');
  assert(page.url().endsWith(link),'the address is not changed (it stays in the address bar)');
  const a=page.locator('.app-dialog a');assert(await a.getAttribute('rel')==='noopener noreferrer'&&await a.getAttribute('target')==='_blank','the page link opens on the person\'s click only, without handing over the app');

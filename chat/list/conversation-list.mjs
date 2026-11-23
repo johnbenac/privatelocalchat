@@ -27,13 +27,13 @@ export function createConversationList(host) {
     const visible = host.M().model.listThreads(host.threads(), { archived: threadView === 'archived', trashed: threadView === 'trash' });
     if (threadView === 'active') {
       const inProject = t => t.folderId && folders.some(f => f.id === t.folderId);
-      const projectsHead = el('li', 'list-heading heading-with-action'); projectsHead.setAttribute('role', 'presentation');
+      const projectsHead = el('li', 'list-heading heading-with-action');
       projectsHead.appendChild(el('span', null, 'Projects'));
       const addProject = el('button', 'list-add'); addProject.type = 'button'; addProject.title = 'New project'; addProject.setAttribute('aria-label', 'New project');
       addProject.appendChild(createEmoji('➕')); addProject.addEventListener('click', event => { event.stopPropagation(); createFolder(); });
       projectsHead.appendChild(addProject); threadList.appendChild(projectsHead);
       folders.forEach(f => {
-        const h = el('li', 'folder-heading'); h.setAttribute('role', 'presentation');
+        const h = el('li', 'folder-heading');
         h.appendChild(el('span', 'thread-name', f.name));
         const mb = el('button', 'thread-menu-btn'); mb.type = 'button'; mb.setAttribute('aria-label', 'Options for project ' + f.name); mb.appendChild(createEmoji('⋮'));
         mb.addEventListener('click', event => { event.stopPropagation(); toggleFolderMenu(f.id, mb); });
@@ -42,7 +42,7 @@ export function createConversationList(host) {
       });
       const loose = visible.filter(t => !inProject(t));
       host.M().shellRegistry.groupThreadsByDate(loose).forEach(group => {
-        const head = el('li', 'list-heading', group.label); head.setAttribute('role', 'presentation'); threadList.appendChild(head);
+        const head = el('li', 'list-heading', group.label); threadList.appendChild(head);
         group.items.forEach(t => threadList.appendChild(threadItem(t)));
       });
     } else {

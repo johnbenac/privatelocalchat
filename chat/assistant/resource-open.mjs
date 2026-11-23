@@ -6,7 +6,7 @@
 import { readResourceFragment, checkResourceFile, RESOURCE_FAMILIES } from "./resource-link.mjs";
 
 const KIND = Object.freeze({ "preset-candidate": "A plain character preset (a name and instructions)" });
-const short = (hex) => hex.slice(0, 8) + "…" + hex.slice(-8);
+const short = (hex) => hex;   // the checksum is shown in full (it wraps): an abbreviated hash cannot be compared by eye
 
 export function createResourceOpen(host) {
   const { el, openAppDialog, reviewPreset, readPreset } = host;
@@ -21,7 +21,7 @@ export function createResourceOpen(host) {
     const facts = el("dl", "resource-facts");
     const row = (label, value) => { facts.appendChild(el("dt", null, label)); facts.appendChild(el("dd", null, value)); };
     row("Name", resource.title); row("Kind", KIND[resource.family] || resource.family); row("Version", resource.version);
-    row("Size", resource.bytes + " bytes"); row("Checksum (SHA-256)", short(resource.sha256)); row("Licence", resource.license);
+    row("Size", resource.bytes + " bytes"); row("Checksum (SHA-256)", short(resource.sha256)); facts.lastChild.classList.add("hash-full"); row("Licence", resource.license);
     const pageRow = el("dd"); const link = el("a", null, resource.page); link.href = resource.page; link.target = "_blank"; link.rel = "noopener noreferrer"; pageRow.appendChild(link);
     facts.appendChild(el("dt", null, "Page it came from")); facts.appendChild(pageRow);
     root.appendChild(facts);

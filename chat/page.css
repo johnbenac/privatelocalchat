@@ -1098,3 +1098,5 @@ body.sidebar-open #sidebarOverlay {
     transform: rotate(360deg);
   }
 }
+
+.hash-full { overflow-wrap: anywhere; word-break: break-all; font-variant-numeric: tabular-nums; }

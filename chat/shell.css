@@ -401,3 +401,11 @@ body.shell { height: 100dvh; }
 
 /* While a dialog is open, a toast must not sit on top of its buttons and swallow the tap (it covered "Remove it" on a phone). Elsewhere a toast still holds while it is touched. */
 body:has(.app-dialog) #toast, body:has(.app-dialog) .toast { pointer-events: none; }
+
+/* Touch targets: on a coarse pointer (a finger) every control a person taps is at least 44 px tall and wide (2.75rem); with a mouse the 32 px floor already holds. */
+@media (pointer: coarse) {
+  body.shell button, body.shell [role="button"], body.shell summary, body.shell select, body.shell input[type="checkbox"], body.shell input[type="radio"], body.shell a.button,
+  body.shell .thread-list li[data-id], body.shell .shell-pop-row, body.shell .thread-menu button, body.shell .settings-nav-item { min-height: 2.75rem; }
+  body.shell button.icon-btn, body.shell .icon-btn, body.shell button[aria-label], body.shell .shell-icon-btn { min-width: 2.75rem; }
+  body.shell .shell-model { min-height: 2.75rem !important; }   /* the model and voice pills fix 34 px with !important */
+}

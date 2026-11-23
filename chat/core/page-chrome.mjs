@@ -216,6 +216,7 @@ export function createPageChrome(host) {
     if (!sidebarEl) return;
     const hidden = !desktopMediaQuery.matches && !document.body.classList.contains('sidebar-open');
     sidebarEl.setAttribute('aria-hidden', hidden ? 'true' : 'false');
+    sidebarEl.inert = hidden;   // a closed drawer holds no tab stops (aria-hidden alone left its 16 controls focusable)
   }
 
   // Connection settings live on the Settings page (Models). The shell opens it; focusEl is the field to land on.

@@ -119,7 +119,7 @@ export function createCharactersUi(host) {
       const d = describeResource(r);
       const row = el('div', 'char-resource'); row.dataset.resource = r.id;
       row.append(el('p', 'char-resource-line', d.line));
-      const hash = el('p', 'muted char-hash', 'SHA-256 ' + r.sha256.slice(7, 23) + '…'); hash.title = r.sha256; row.append(hash);
+      const hash = el('p', 'muted char-hash', 'SHA-256 ' + r.sha256.slice(7)); hash.title = r.sha256; row.append(hash);
       row.append(previewNode(record, r, candidate.resourceBytes(r.sha256)));
       box.append(row);
     }
@@ -177,7 +177,7 @@ export function createCharactersUi(host) {
     const { temporary, threadId } = currentStore();
     const root = el('div', 'char-resource-step');
     root.append(note('This package keeps ' + declared.length + ' of its files outside itself. Nothing is downloaded: choose the file' + (declared.length === 1 ? '' : 's') + ' you were given with it, from this device.'));
-    const list = el('ul'); for (const d of declared) list.append(el('li', null, d.hash.slice(0, 23) + '… · ' + d.size + ' bytes')); root.append(list);
+    const list = el('ul'); for (const d of declared) list.append(el('li', null, d.hash + ' · ' + d.size + ' bytes')); root.append(list);
     const status = el('p', 'char-status'); status.setAttribute('role', 'status'); status.setAttribute('aria-live', 'polite'); root.append(status);
     let busy = false;
     let myPicker = null;
