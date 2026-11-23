@@ -111,7 +111,6 @@ main { padding-block: var(--plc-space-8) 0; display: block; }
 .issue-facts dt { font-weight: 650; color: var(--plc-muted); }
 .issue-facts dd { margin: 0; }
 @media (max-width: 34rem) { .issue-facts { grid-template-columns: 1fr; gap: 0; } .issue-facts dt { margin-top: var(--plc-space-3); } }
-.badge { display: inline-block; padding: 0.1rem 0.6rem; border-radius: 999px; background: var(--plc-warning-tint); color: var(--plc-warning); border: 1px solid var(--plc-warning); font-size: 0.88rem; font-weight: 650; }
 .issue-summary { list-style: none; padding: 0; }
 .issue-summary li { padding: var(--plc-space-2) 0; border-bottom: 1px solid var(--plc-border); }
 .update-meta, .update-links { color: var(--plc-muted); font-size: 0.95rem; }

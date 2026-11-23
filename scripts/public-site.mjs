@@ -131,8 +131,11 @@ export function renderUpdatesList({entries, knownIssues}) {
   }).join('\n');
 }
 
+/** A known issue's status as a plain sentence (a status is words in the text, not a label with its own look). */
+const statusSentence = (status) => { const t = String(status).trim(); const lower = t.charAt(0).toLowerCase() + t.slice(1); return /[.!?]$/.test(lower) ? lower : lower + '.'; };
+
 export function renderIssueSummary({knownIssues}) {
-  return '<ul class="issue-summary">\n' + knownIssues.map(i => '  <li><a href="/help/#issue-' + esc(i.id) + '">' + esc(i.title) + '</a> <span class="badge">' + esc(i.status) + '</span> <span class="muted">Last verified <time datetime="' + i.verified + '">' + i.verified + '</time></span></li>\n').join('') + '</ul>';
+  return '<ul class="issue-summary">\n' + knownIssues.map(i => '  <li><a href="/help/#issue-' + esc(i.id) + '">' + esc(i.title) + '</a> <span>Status: ' + esc(statusSentence(i.status)) + '</span> <span class="muted">Last verified <time datetime="' + i.verified + '">' + i.verified + '</time></span></li>\n').join('') + '</ul>';
 }
 
 export function renderKnownIssues({knownIssues}) {
@@ -143,7 +146,7 @@ export function renderKnownIssues({knownIssues}) {
     + '    <dt>Browsers</dt><dd>' + esc(i.browsers) + '</dd>\n'
     + '    <dt>Models</dt><dd>' + esc(i.models) + '</dd>\n'
     + '    <dt>What you see</dt><dd>' + esc(i.symptom) + '</dd>\n'
-    + '    <dt>Status</dt><dd><span class="badge">' + esc(i.status) + '</span></dd>\n'
+    + '    <dt>Status</dt><dd>' + esc(statusSentence(i.status)) + '</dd>\n'
     + '    <dt>Last verified</dt><dd><time datetime="' + i.verified + '">' + formatDate(i.verified) + '</time>' + (i.verifiedNote ? ' <span class="muted">(' + esc(i.verifiedNote) + ')</span>' : '') + '</dd>\n'
     + '    <dt>Workaround</dt><dd>' + esc(i.workaround) + '</dd>\n'
     + '  </dl>\n'

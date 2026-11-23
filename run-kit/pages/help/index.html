@@ -286,7 +286,7 @@
     <dt>Browsers</dt><dd>DuckDuckGo 26.6 and Safari automation sessions on that phone.</dd>
     <dt>Models</dt><dd>Qwen3.5-2B on-device model.</dd>
     <dt>What you see</dt><dd>The page is replaced and starts again without an error message while the model loads or a longer reply is being written. Downloaded model files stay saved.</dd>
-    <dt>Status</dt><dd><span class="badge">Open, under investigation</span></dd>
+    <dt>Status</dt><dd>open, under investigation.</dd>
     <dt>Last verified</dt><dd><time datetime="2026-10-30">30 October 2026</time> <span class="muted">(project investigation log; many sessions complete normally)</span></dd>
     <dt>Workaround</dt><dd>Reopen the app: saved conversations and drafts remain and the downloaded files are reused. For dependable use on an iPhone, set Where replies run to a connected provider, or use a computer.</dd>
   </dl>
@@ -299,7 +299,7 @@
     <dt>Browsers</dt><dd>Safari automation session.</dd>
     <dt>Models</dt><dd>Qwen3.5-2B download (about 1.20 GB).</dd>
     <dt>What you see</dt><dd>Writing downloaded files fails repeatedly with a generic message while the device has almost no free space. The app keeps retrying and keeps the files it already verified.</dd>
-    <dt>Status</dt><dd><span class="badge">Explained by device storage; the app retries automatically</span></dd>
+    <dt>Status</dt><dd>explained by device storage; the app retries automatically.</dd>
     <dt>Last verified</dt><dd><time datetime="2026-10-30">30 October 2026</time> <span class="muted">(USB system log recorded the out-of-space error)</span></dd>
     <dt>Workaround</dt><dd>Free space on the phone before downloading. The project&#39;s phone tests used at least 3 GB free as the minimum before a download.</dd>
   </dl>
@@ -312,7 +312,7 @@
     <dt>Browsers</dt><dd>DuckDuckGo on iPhone exposes speech recognition but does not let websites use it. Other in-app web views may behave the same.</dd>
     <dt>Models</dt><dd>Any (speech is separate from the model).</dd>
     <dt>What you see</dt><dd>A message says the browser does not let websites use speech recognition, and the dictation and voice controls are turned off. They stay hidden for 14 days after the failure is seen.</dd>
-    <dt>Status</dt><dd><span class="badge">Browser limitation; the app hides the controls</span></dd>
+    <dt>Status</dt><dd>browser limitation; the app hides the controls.</dd>
     <dt>Last verified</dt><dd><time datetime="2026-10-31">31 October 2026</time> <span class="muted">(release v0.11.0 documentation; not re-tested on a physical phone)</span></dd>
     <dt>Workaround</dt><dd>Open Private Local Chat in Safari or Chrome, which support speech recognition.</dd>
   </dl>
@@ -325,7 +325,7 @@
     <dt>Browsers</dt><dd>Browsers with WebAssembly SIMD. Not offered on iPhone or iPad.</dd>
     <dt>Models</dt><dd>Qwen3.5-2B only. Qwen3.5-9B needs a GPU.</dd>
     <dt>What you see</dt><dd>Replies arrive slowly. Words per second on a real processor have not been measured.</dd>
-    <dt>Status</dt><dd><span class="badge">Limitation; speed not yet measured</span></dd>
+    <dt>Status</dt><dd>limitation; speed not yet measured.</dd>
     <dt>Last verified</dt><dd><time datetime="2026-10-31">31 October 2026</time> <span class="muted">(loading and generation verified in an automated browser test with a tiny test model)</span></dd>
     <dt>Workaround</dt><dd>Turn on or fix the browser&#39;s GPU support, or connect a provider.</dd>
   </dl>
@@ -338,7 +338,7 @@
     <dt>Browsers</dt><dd>Chromium-based browsers where the optional shader-f16 feature was not enabled.</dd>
     <dt>Models</dt><dd>Qwen3.5-2B on the GPU path.</dd>
     <dt>What you see</dt><dd>The 2B model was refused because the browser lacked 16-bit shader support.</dd>
-    <dt>Status</dt><dd><span class="badge">Mitigated in v0.12.0: the model now runs on the processor when the GPU path is not possible</span></dd>
+    <dt>Status</dt><dd>mitigated in v0.12.0: the model now runs on the processor when the GPU path is not possible.</dd>
     <dt>Last verified</dt><dd><time datetime="2026-10-31">31 October 2026</time> <span class="muted">(desktop environment receipt from 2026-10-30; processor path added the next day)</span></dd>
     <dt>Workaround</dt><dd>Enable the browser&#39;s shader-f16 support if it offers it, or use the processor path, which is slower.</dd>
   </dl>
@@ -351,7 +351,7 @@
     <dt>Browsers</dt><dd>All browsers.</dd>
     <dt>Models</dt><dd>Both bundled on-device models (4,096-token window shared by the conversation and the reply).</dd>
     <dt>What you see</dt><dd>A long conversation or answer stops when the window is full. The message says so and offers Continue or a summary.</dd>
-    <dt>Status</dt><dd><span class="badge">Known limit; raising it costs memory, which matters most on iPhone</span></dd>
+    <dt>Status</dt><dd>known limit; raising it costs memory, which matters most on iPhone.</dd>
     <dt>Last verified</dt><dd><time datetime="2026-10-31">31 October 2026</time> <span class="muted">(project documentation of chat limits)</span></dd>
     <dt>Workaround</dt><dd>Choose Continue, condense older messages into a summary, or start a new conversation.</dd>
   </dl>
@@ -363,7 +363,7 @@
     <dt>Browsers</dt><dd>All browsers.</dd>
     <dt>Models</dt><dd>Both on-device models read text only.</dd>
     <dt>What you see</dt><dd>Pictures are refused with an explanation, and a scanned PDF with no text layer is refused because there is no text to read.</dd>
-    <dt>Status</dt><dd><span class="badge">Not supported yet; text recognition for scans is not available offline</span></dd>
+    <dt>Status</dt><dd>not supported yet; text recognition for scans is not available offline.</dd>
     <dt>Last verified</dt><dd><time datetime="2026-10-31">31 October 2026</time> <span class="muted">(project documentation of chat limits)</span></dd>
     <dt>Workaround</dt><dd>Attach text-based files, or use a connected provider that accepts pictures (its data practices then apply).</dd>
   </dl>
