@@ -58,3 +58,5 @@ In Settings → Models, add a source with a name and its model directory URL. Us
 **Test source** requests one pinned Qwen configuration file and checks the returned range, size and SHA-256. A mirror can pass this test while still missing other files required by the selected model. Cross-origin servers must allow CORS and expose the `Content-Range` response header. The personal list follows the app's encryption setting and is independent of provider API tokens.
 
 Set `"modelSourcePosture": "curated"` in the site's `site-config.json` to allow only the exact operator-configured model source bases. Neutral builds default to open. This policy applies to language-model sources in Settings.
+
+For a gated source, select **Requires an API token** when adding it, then save the token on that source's row. Turn on the encrypted vault and **Remember API keys** to save and use source tokens in the vault's writable tab. The vault binds a token to the configured endpoint and source entry. Recreating a source requires entering its token again. Turning off key remembering or encryption makes these tokens unavailable. Tokens stay out of source descriptions and plain settings.

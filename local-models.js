@@ -18,7 +18,25 @@ await bootVault();
 const $ = id => document.getElementById(id);
 // Where the model files come from is the configured model source (runtime/providers/app-config.mjs, docs/APP-CONFIG.md); the catalog reads it, so there is nothing to pass here.
 const posture = sourcePosture(window.SITE_CONFIG?.modelSourcePosture, window.APP_CONFIG?.modelSources);
-const host = createModelHost({settings:appLocal, posture, fallback:false});
+function sourceCredential(endpoint) {
+  const source = readPersonalSources(appLocal).find((entry) => entry.credential && entry.base === endpoint);
+  const token = source && app.modelSourceToken(endpoint, source.id);
+  return token ? {headers:{Authorization:`Bearer ${token}`}} : {refused:true};
+}
+const host = createModelHost({settings:appLocal, posture, fallback:false, credentials:({endpoint})=>sourceCredential(endpoint)});
+
+async function saveSourceCredential(id, token) {
+  token = token.trim();
+  if (token.length > 4096 || /[\r\n\0]/.test(token)) throw new Error('Enter a single API token.');
+  if (!navigator.locks?.request) throw new Error('The browser cannot securely save this credential.');
+  const epoch = app.epoch;
+  await navigator.locks.request(PERSONAL_SOURCE_KEY, async () => {
+    if (epoch !== app.epoch) throw new Error('The vault changed. Try again.');
+    const source = readPersonalSources(appLocal).find((entry) => entry.id === id && entry.credential);
+    if (!source) throw new Error('This source no longer uses credentials.');
+    await app.saveModelSourceToken(source.base, source.id, token);
+  });
+}
 
 function syncPersonalSources() {
   host.setSources(runtimeSources(readPersonalSources(appLocal)));
@@ -212,7 +230,8 @@ window.plcUpdateGuard={
 window.localModels={
   modelSources:()=>readPersonalSources(appLocal),
   editModelSources,
-  testModelSource:(source)=>probeModelSource(source, { posture, signal:AbortSignal.timeout(15000) }),
+  saveSourceCredential,
+  testModelSource:(source)=>probeModelSource(source, { posture, requestCredential:sourceCredential, signal:AbortSignal.timeout(15000) }),
   get downloadRecovery(){return downloadRecovery.state;},
   get mode(){return mode;},
   get ready(){return state?.load.state==='ready';},

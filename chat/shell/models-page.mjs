@@ -187,17 +187,32 @@ export function buildModelsPage({ app, h, row, btn, moved, chooseVoice, voiceHin
     const status = h("p", { role: "status", class: "hint-text" });
     const name = h("input", { required: true, maxlength: 80 });
     const address = h("input", { required: true, type: "url", maxlength: 2000 });
+    const auth = h("input", { type: "checkbox" });
     const add = h("button", { type: "submit", text: "Add source" });
     const form = h("form", {},
       h("label", {}, "Source name", name),
       h("label", {}, "Source address", address),
+      h("label", {}, auth, " Requires an API token"),
       add);
     const paint = () => {
       list.replaceChildren();
       const sources = lm()?.modelSources?.() ?? [];
       sources.forEach((source, index) => {
         const move = (direction) => save(() => ({ kind: "move", id: source.id, direction }));
+        const token = source.credential ? h("input", {type:"password", autocomplete:"off", maxlength:4096, "aria-label":`Token for ${source.label}`}) : null;
+        const saveToken = async (value) => {
+          try {
+            await lm().saveSourceCredential(source.id, value);
+            token.value = "";
+            status.textContent = value ? "Source token saved in the vault." : "Source token removed.";
+          } catch (error) {
+            status.textContent = error.message;
+          }
+        };
         list.append(row(source.label, index === 0 ? `Selected for language model downloads. ${source.base}` : source.base, h("div", {},
+          token,
+          token && h("button", {type:"button", text:"Save token", onclick:()=>{ if (token.value.trim()) void saveToken(token.value); }}),
+          token && h("button", {type:"button", text:"Remove token", onclick:()=>saveToken("")}),
           h("button", { type: "button", text: "Test source", onclick: async (event) => {
             const button = event.currentTarget;
             button.disabled = true;
@@ -238,7 +253,7 @@ export function buildModelsPage({ app, h, row, btn, moved, chooseVoice, voiceHin
       event.preventDefault();
       if (await save(() => ({
         kind: "add",
-        source: personalSource({ id: crypto.randomUUID(), label: name.value, base: address.value }),
+        source: personalSource({ id: crypto.randomUUID(), label: name.value, base: address.value, credential:auth.checked }),
       }))) form.reset();
     });
     sourceSection.append(h("p", { class: "hint-text", text: "Language model downloads use the first personal source in this list. Remove all personal sources to use the operator’s source." }), list, form, status);

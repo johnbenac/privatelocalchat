@@ -186,8 +186,14 @@ try{
     const section = page.locator('#modelSourceSection');
     await section.getByLabel('Source name').fill('Vault-only source');
     await section.getByLabel('Source address').fill(OTHER_ROOT);
+    await section.getByLabel('Requires an API token').check();
     await section.getByRole('button', {name:'Add source'}).click();
     await section.getByText('Vault-only source', {exact:true}).waitFor();
+    const token = 'scratch-source-token';
+    await section.getByLabel('Token for Vault-only source').fill(token);
+    await section.getByRole('button', {name:'Save token', exact:true}).click();
+    await section.getByRole('status').filter({hasText:'Source token saved in the vault.'}).waitFor();
+    assert(await page.evaluate(token => !JSON.stringify(localStorage).includes(token) && !JSON.stringify(sessionStorage).includes(token), token), 'no plain token');
     assert(await page.evaluate(() => !localStorage.getItem('plc.personalModelSources.v1')), 'no plain source descriptor');
     await page.reload();
     await page.waitForSelector('#lockScreen', {state:'visible'});
@@ -197,6 +203,20 @@ try{
     await page.waitForFunction(() => window.__plcBooted && window.localModels?.modelSources);
     assert((await sourceRow(page)).includes('Vault-only source'), 'the durable descriptor survived unlock');
     assert(requests.length === 0, 'settings edits and unlock made no model requests');
+    let authorization;
+    await page.route(OTHER_ROOT + '**', async route => {
+      authorization = (await route.request().allHeaders()).authorization;
+      await route.fulfill({status:200,body:'fixture ignores Range',headers:{'access-control-allow-origin':'*'}});
+    });
+    await section.getByRole('button', {name:'Test source', exact:true}).click();
+    await section.getByRole('status').filter({hasText:'matching partial response'}).waitFor();
+    assert(authorization === 'Bearer ' + token, 'durable token used only for its exact configured source');
+    await section.getByRole('button', {name:'Remove token', exact:true}).click();
+    await section.getByRole('status').filter({hasText:'Source token removed.'}).waitFor();
+    authorization = null;
+    await section.getByRole('button', {name:'Test source', exact:true}).click();
+    await section.getByRole('status').filter({hasText:'refused to give a credential'}).waitFor();
+    assert(authorization === null, 'no request after removing the credential');
   });
 
   await variant('curated site rejects an unapproved personal source without fetching', {SITE_CONFIG_PATH:curatedSite}, 18571, async (page, requests) => {

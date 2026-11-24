@@ -14,6 +14,7 @@ import { createCompactionScheduler } from "./compaction-scheduler.mjs";
 import { REGISTRY_KEY, parseRegistry, findNewer, stampedRegistry } from "./data-formats.mjs";
 
 export const VAULT_MARKER = "plc.vault.v1"; // plain: "1" or JSON { autoMinutes }. Lets the page paint the locked state before IndexedDB answers.
+const SOURCE_TOKENS = "meta/modelSourceTokens.v1";
 const THREADS = "chatThreads", THREAD_ORDER = "l/chatThreads.order", REMEMBER = "meta/rememberKeys";
 /** chatConfig holds the current API key too; when keys are not remembered the stored copy has it blanked (this visit keeps the full copy in memory). */
 const withoutToken = (json) => { try { const c = JSON.parse(json); if (c && typeof c === "object" && "token" in c) c.token = ""; return JSON.stringify(c); } catch { return json; } };
@@ -222,9 +223,33 @@ export function createAppStorage({ realLocal, realSession, onRemoval = () => {},
     get _adapter() { return _adapter; },
     get stats() { return { writes, failures, pending: dirty.size + (running ? 1 : 0) }; },
     get rememberKeys() { return rememberKeys; },
+    modelSourceToken(endpoint, sourceId) {
+      if (!session || session.locked || !this.exclusive || !rememberKeys) return null;
+      const values = new Map(JSON.parse(session.state.kv.get(SOURCE_TOKENS) ?? "[]"));
+      const selected = values.get(endpoint);
+      return selected?.sourceId === sourceId ? selected.token : null;
+    },
+    async saveModelSourceToken(endpoint, sourceId, token) {
+      const fence = this.fence();
+      const adapter = _adapter;
+      const leaseAtStart = lease;
+      const guard = () => this.isCurrent(fence) && lease === leaseAtStart && this.exclusive && _adapter === adapter && rememberKeys;
+      if (!guard()) throw new VaultError("source-token-vault", "Unlock the vault in its writable tab and enable Remember API keys.");
+      const values = new Map(JSON.parse(fence.session.state.kv.get(SOURCE_TOKENS) ?? "[]"));
+      if (token) values.set(endpoint, { sourceId, token });
+      else if (values.get(endpoint)?.sourceId === sourceId) values.delete(endpoint);
+      const next = JSON.stringify([...values]);
+      await fence.session.setKv(SOURCE_TOKENS, next, { guard });
+      if (!guard()) throw new VaultError("source-token-unknown", "The credential save could not be confirmed.");
+      const stored = await readbackState({ adapter, session: fence.session });
+      if (!guard() || stored.kv.get(SOURCE_TOKENS) !== next) {
+        throw new VaultError("source-token-unknown", "The credential save could not be confirmed.");
+      }
+    },
     setRememberKeys(on) {
       rememberKeys = Boolean(on);
       if (!session) return;
+      if (!on) schedule(SOURCE_TOKENS, () => session.delKv(SOURCE_TOKENS));
       schedule("meta:remember", () => session.setKv(REMEMBER, on ? "1" : "0"));
       const cfg = mirror.session.get("chatConfig");
       if (cfg != null) schedule("k:" + ns("session", "chatConfig"), () => session.setKv(ns("session", "chatConfig"), on ? cfg : withoutToken(cfg)));
