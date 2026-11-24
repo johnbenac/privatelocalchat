@@ -149,6 +149,7 @@
         "host-core.mjs": "6af35b686a78c6478927f3fea9aa9270b6b9deb74e7c730e77f9043033c8e1d8",
         "host.worker.mjs": "f1dd77990bdd27ebfc13e7cf3ec64e4f03cc98069f74ebd48475d28f8cf91205",
         "index.mjs": "b20b7f5fc052869ef8ac334c0abd48f444219bb618037a02b15b91cc3afed4c4",
+        "kokoro-session-engine.mjs": "9d9304a17245412efda12981e825fa592ab600525f65374c18de182fc3b896e8",
         "manifest-shipped.mjs": "1f352dd7933041117db43dd5081f574a5b0cb20c3fc9a9f2c3dadf309cfbc040",
         "manifest-view.mjs": "a4346838a41af177112ad2147189f972fa62bb535f35158a1757349282cca8d3",
         "model-host-core.mjs": "0bb910b809592ecbcf7290ae5c56d9936279d191da612e61f5708f32d730bfb2",
@@ -164,6 +165,9 @@
         "runtime.mjs": "19c576424b1dc2092dd14574e60007f738741b3e3c7661d0a1e1b9a549719013",
         "shipped.mjs": "a95b7fac95479aa299d08d0553d6496b6588a94629fe4b5d1575ea4dc9e5541f",
         "sources-core.mjs": "1dca7b91a84e69cd1720ed97ff5fb658f56a01793046ba22d5a2709b47d6d256",
+        "speech-kokoro.mjs": "ebb95b090bfd27ebf15b113c858a70e3747196629a85079fd10c41e110a96a56",
+        "speech-speecht5.mjs": "2afafe354b7b789d33f243e1cfc70fdacbf7bbcbe051309b143e8d774e8bc30f",
+        "speecht5-session-engine.mjs": "db1cc5cda172b60b449011f5ab99a1ea6966b3ef81d022dd03939cbb6cb5b902",
         "structured.mjs": "1de04d6694c7de2ccd9453cf12effbdbce54a00fdcf5fe8439e74f957411abfc",
         "tar-core.mjs": "63f6ae435bd3a846d08d168a2033a0aad38f01641afbc4363b52ce89b6f701c5",
         "think.mjs": "62a8326cc7d05d249e59e2d22dbd5ffb37be9a1eb5c3114918a5780a8d15e663",
@@ -190,13 +194,13 @@
       "name": "model-runtime",
       "owner": "plc",
       "package": {
-        "file": "model-runtime-1.3.2.tar.gz",
-        "sha256": "3dd6111096cf6af310c4defe635f1e121c9fa02c4893376557f0df41dfac35b9",
+        "file": "model-runtime-1.4.0.tar.gz",
+        "sha256": "a5f0f8355f51a3c74b79fea8067db54bb12391e42e89be7bd4366cf16865bcd8",
         "type": "generic"
       },
       "path": "runtime/providers",
-      "tree_sha256": "99db3ad0960ecd4d9431432c71908c65abff67069957e9c10802180494f4d9a9",
-      "version": "1.3.2"
+      "tree_sha256": "3e0c82b991f0db37f2acdf2674aa1a6ac772f22e02acf754aa232c124e084639",
+      "version": "1.4.0"
     },
     {
       "files": {
