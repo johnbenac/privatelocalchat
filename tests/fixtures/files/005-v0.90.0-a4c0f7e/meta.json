@@ -1,0 +1,31 @@
+{
+ "format": "plc-file-snapshot/1",
+ "release": "v0.90.0",
+ "commit": "a4c0f7e",
+ "commitFull": "a4c0f7ec9d8563dd167d9aec4bff9c93a2ed4060",
+ "capturedAt": "2026-11-24",
+ "app": {
+  "version": "2.0.0",
+  "commit": "a4c0f7ec9d8563dd167d9aec4bff9c93a2ed4060",
+  "branch": "main",
+  "environment": "release",
+  "builtAt": "2026-11-24T17:41:59.401Z"
+ },
+ "dataFixture": "007-v0.83.0-70fe69f",
+ "passphrase": "correct horse",
+ "files": {
+  "history.json": {
+   "name": "chat-history.json",
+   "format": "plc-history/1"
+  },
+  "encrypted-backup.json": {
+   "name": "private-local-chat-2026-11-24.encrypted.json",
+   "format": "plc-encrypted-backup/1",
+   "inner": "plc-backup/1"
+  },
+  "settings.json": {
+   "name": "private-local-chat-settings.json",
+   "format": "plc-settings-transfer/2"
+  }
+ }
+}
