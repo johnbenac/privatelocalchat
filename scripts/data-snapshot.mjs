@@ -158,6 +158,15 @@ try{
     characterStateAfterAdmission=await rawCharacters();
     await libraryCheck('before the capture');
   }
+  if (await page.evaluate(() => Boolean(window.localModels?.editModelSources))) {
+    await openSettings('models');
+    const sourceSection = page.locator('#modelSourceSection');
+    await sourceSection.getByLabel('Source name').fill('Private mirror fixture');
+    await sourceSection.getByLabel('Source address').fill('https://models.example.test/mirror/');
+    await sourceSection.getByRole('button', {name:'Add source'}).click();
+    await sourceSection.getByText('Private mirror fixture', {exact:true}).waitFor();
+    await closeSettings();
+  }
   plainProbe=await probe();
   // the same content again after a reload, so anything that changes by itself is found now and not by a later release
   await page.reload();await ready();await page.waitForTimeout(800);
