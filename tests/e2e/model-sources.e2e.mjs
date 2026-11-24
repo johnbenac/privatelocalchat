@@ -101,6 +101,75 @@ try{
     assert(row.split(LINE).length===2,'once');
   });
 
+  await variant('personal source order survives reload and selects the download destination', {SITE_JSON_PATH:''}, 18566, async (page, requests) => {
+    await sourceRow(page);
+    const section = page.locator('#modelSourceSection');
+    for (const [name, address] of [['First mirror', OTHER_ROOT], ['Second mirror', OTHER_ROOT + 'other/']]) {
+      await section.getByLabel('Source name').fill(name);
+      await section.getByLabel('Source address').fill(address);
+      await section.getByRole('button', {name:'Add source'}).click();
+      await section.getByText(name, {exact:true}).waitFor();
+    }
+    await section.getByRole('button', {name:'Move up', exact:true}).last().click();
+    await section.getByText('Selected for language model downloads. ' + OTHER_ROOT + 'other/', {exact:true}).waitFor();
+    await page.reload();
+    await page.waitForFunction(() => window.__plcBooted === true && window.plcShell);
+    assert((await sourceRow(page)).includes('Selected for language model downloads. ' + OTHER_ROOT + 'other/'));
+    await startDownload(page);
+    assert(await until(() => requests.length > 0), 'selected mirror received the model request');
+    assert(requests.every((url) => url.startsWith(OTHER_ROOT + 'other/')), 'only the selected mirror received requests');
+    await section.getByRole('button', {name:'Remove', exact:true}).first().click();
+    await section.getByText('Selected for language model downloads. ' + OTHER_ROOT, {exact:true}).waitFor();
+  });
+
+  await variant('parallel source edits and tab loss preserve a complete list', {SITE_JSON_PATH:''}, 18567, async (page, requests, harness) => {
+    const boot = target => target.waitForFunction(() => window.__plcBooted && window.localModels?.editModelSources);
+    const edit = (target, action) => target.evaluate(action => window.localModels.editModelSources(action), action);
+    const add = id => ({kind:'add', source:{id, label:id, base:`https://models.example.org/${id}/`}});
+    const list = () => page.evaluate(() => window.localModels.modelSources().map(({id}) => id));
+    const peer = await harness.context.newPage();
+    await peer.goto(harness.origin);
+    await boot(peer);
+    for (let i = 0; i < 20; i++) {
+      const a = `a-${i}`, b = `b-${i}`;
+      // Queue both writers on the real browser lock before releasing the barrier.
+      await page.evaluate(() => {
+        window.holdSourceWrite = navigator.locks.request('plc.personalModelSources.v1', () =>
+          new Promise(resolve => { window.releaseSourceWrite = resolve; }));
+      });
+      await page.waitForFunction(() => Boolean(window.releaseSourceWrite));
+      const pending = Promise.all([edit(page, add(a)), edit(peer, add(b))]);
+      await page.waitForFunction(async () => (await navigator.locks.query()).pending
+        .filter(lock => lock.name === 'plc.personalModelSources.v1').length === 2);
+      await page.evaluate(() => { window.releaseSourceWrite(); delete window.releaseSourceWrite; });
+      await pending;
+      assert(JSON.stringify((await list()).sort()) === JSON.stringify([a,b]), 'both parallel edits committed exactly once');
+      await Promise.all([edit(page, {kind:'remove',id:a}), edit(peer, {kind:'remove',id:b})]);
+      assert((await list()).length === 0, 'parallel removals both committed');
+    }
+    await peer.close();
+    for (let i = 0; i < 20; i++) {
+      const leaving = await harness.context.newPage();
+      await leaving.goto(harness.origin);
+      await leaving.evaluate(() => {
+        navigator.locks.request('plc.personalModelSources.v1', () => {
+          window.heldSourceWrite = true;
+          return new Promise(() => {});
+        });
+      });
+      await leaving.waitForFunction(() => window.heldSourceWrite);
+      const id = `after-close-${i}`;
+      const pending = edit(page, add(id));
+      await page.waitForFunction(async () => (await navigator.locks.query()).pending
+        .some(lock => lock.name === 'plc.personalModelSources.v1'));
+      await leaving.close();
+      await pending;
+      assert(JSON.stringify(await list()) === JSON.stringify([id]), 'tab close released lock and left no partial settings');
+      await edit(page, {kind:'remove',id});
+    }
+    assert(requests.length === 0, 'editing settings did not fetch model bytes');
+  });
+
   console.log('ALL PASS');
 }catch(error){
   console.error('FAIL '+(error.stack||error));

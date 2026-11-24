@@ -212,6 +212,15 @@
       "since": "v0.37.0"
     },
     {
+      "key": "plc.personalModelSources.v1",
+      "store": "localStorage",
+      "class": "setting",
+      "owner": "chat/models/personal-sources.mjs",
+      "note": "ordered personal model source descriptors without credentials",
+      "format": 1,
+      "since": "unreleased"
+    },
+    {
       "key": "plc.modelSourceNotice.v1",
       "store": "localStorage",
       "class": "plain",

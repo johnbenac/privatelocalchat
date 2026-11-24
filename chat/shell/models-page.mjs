@@ -7,6 +7,7 @@ import { rowParts, renderRowText } from "./model-row.mjs";
 import { buildOfflineSection } from "./offline-section.mjs";
 import { siteLinks } from "../site/site-links.mjs";
 import { appConfig } from "../../runtime/providers/app-config.mjs";
+import { personalSource } from "../models/personal-sources.mjs";
 import { sourceLabelAndHost } from "../models/source-notice.mjs";
 import { languageRows, voiceRows, otherRows, stateLine, toggleAction, ACTION_LABEL, sizeText } from "../models/models-view.mjs";
 
@@ -181,6 +182,68 @@ export function buildModelsPage({ app, h, row, btn, moved, chooseVoice, voiceHin
     row("Model files come from", sourceLabelAndHost(cfg) + (cfg.isDefaultSource() ? "" : ", set by whoever runs this copy"), null),
     updatedByHostLineApplies() ? row("Updates", UPDATED_BY_HOST_LINE, null) : null,
     h("p", { class: "hint-text", text: "Every model and voice file is checked against its published size and SHA-256 before it is used, whichever source it comes from. The small model that matches memory is published under a path that names its content, and is not checked by the app. Whoever runs a copy sets the source in config/app-config.json." })) : null;
+  if (sourceSection) {
+    const list = h("div");
+    const status = h("p", { role: "status", class: "hint-text" });
+    const name = h("input", { required: true, maxlength: 80 });
+    const address = h("input", { required: true, type: "url", maxlength: 2000 });
+    const add = h("button", { type: "submit", text: "Add source" });
+    const form = h("form", {},
+      h("label", {}, "Source name", name),
+      h("label", {}, "Source address", address),
+      add);
+    const paint = () => {
+      list.replaceChildren();
+      const sources = lm()?.modelSources?.() ?? [];
+      sources.forEach((source, index) => {
+        const move = (direction) => save(() => ({ kind: "move", id: source.id, direction }));
+        list.append(row(source.label, index === 0 ? `Selected for language model downloads. ${source.base}` : source.base, h("div", {},
+          h("button", { type: "button", text: "Test source", onclick: async (event) => {
+            const button = event.currentTarget;
+            button.disabled = true;
+            status.textContent = "Checking a pinned model file…";
+            try {
+              const { bytes } = await lm().testModelSource(source);
+              status.textContent = `Verified ${bytes} bytes by SHA-256 using a range request.`;
+            } catch (error) {
+              status.textContent = error.message;
+            } finally {
+              button.disabled = false;
+            }
+          } }),
+          h("button", { type: "button", text: "Move up", disabled: index === 0, onclick: () => move(-1) }),
+          h("button", { type: "button", text: "Move down", disabled: index === sources.length - 1, onclick: () => move(1) }),
+          h("button", { type: "button", text: "Remove", onclick: () => save(() => ({ kind: "remove", id: source.id })) }))));
+      });
+    };
+    let saving = false;
+    async function save(makeEdit) {
+      if (saving) return;
+      saving = true;
+      add.disabled = true;
+      try {
+        await lm().editModelSources(makeEdit());
+        status.textContent = "Model sources saved.";
+        paint();
+        return true;
+      } catch (error) {
+        status.textContent = error.message;
+        return false;
+      } finally {
+        saving = false;
+        add.disabled = false;
+      }
+    }
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (await save(() => ({
+        kind: "add",
+        source: personalSource({ id: crypto.randomUUID(), label: name.value, base: address.value }),
+      }))) form.reset();
+    });
+    sourceSection.append(h("p", { class: "hint-text", text: "Language model downloads use the first personal source in this list. Remove all personal sources to use the operator’s source." }), list, form, status);
+    try { paint(); } catch { status.textContent = "The saved model source list could not be read."; }
+  }
   w.append(offlineNote, langSection, offlineSection, providerSection, voiceSection, otherSection, memSection, sourceSection);
   paintLanguage(); paintProvider(); startVoice(); startMemory();
   w.addEventListener("shell-refresh", () => { paintLanguage(); paintProvider(); if (vctl) { paintVoice(vctl.snapshot()); vctl.advise(); } if (mm) { paintMemory(mm.snapshot()); paintOther(mm.snapshot()); } });

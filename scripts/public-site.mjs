@@ -22,7 +22,7 @@ export const PAGES = Object.freeze([
   {name: 'privacy', title: 'Privacy', path: '/privacy/'},
   {name: 'updates', title: 'Updates', path: '/updates/'}
 ]);
-export const CONFIG_KEYS = Object.freeze(['supportEmail', 'supportOwner', 'discussionsUrl', 'discussionsOwner', 'verifiedOn', 'demo', 'hostingLogs', 'umbrella']);
+export const CONFIG_KEYS = Object.freeze(['supportEmail', 'supportOwner', 'discussionsUrl', 'discussionsOwner', 'verifiedOn', 'demo', 'hostingLogs', 'umbrella', 'modelSourcePosture']);
 export const EMPTY_CONFIG = Object.freeze(Object.fromEntries(CONFIG_KEYS.map(key => [key, null])));
 
 // robots.txt: the plain "allow everything" policy with the sitemap line. A copy that names no address of its own (no `site.url` in its manifest) writes neither robots.txt nor a sitemap.
@@ -48,6 +48,9 @@ export function checkSiteConfig(raw) {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) throw new Error('The site configuration must be an object');
   for (const key of Object.keys(raw)) if (!CONFIG_KEYS.includes(key)) throw new Error('Unknown site configuration key: ' + key);
   const config = {...EMPTY_CONFIG, ...raw};
+  if (config.modelSourcePosture !== null && !['open', 'curated'].includes(config.modelSourcePosture)) {
+    throw new Error('Site configuration modelSourcePosture must be open, curated or null');
+  }
   const text = key => { if (config[key] != null && (typeof config[key] !== 'string' || !config[key].trim() || /[\r\n<>]/.test(config[key]))) throw new Error('Site configuration ' + key + ' must be a single line of plain text or null'); };
   for (const key of ['supportOwner', 'discussionsOwner', 'hostingLogs']) text(key);
   if (config.supportEmail != null && !(typeof config.supportEmail === 'string' && /^[^\s@<>"',;:?&]+@[^\s@<>"',;:?&]+\.[^\s@<>"',;:?&]+$/.test(config.supportEmail))) throw new Error('Site configuration supportEmail is not an email address');
@@ -69,7 +72,7 @@ export function checkSiteConfig(raw) {
 }
 
 /** The part of the configuration the running app may read (window.SITE_CONFIG). */
-export const clientConfig = config => ({supportEmail: config.supportEmail, supportOwner: config.supportOwner, discussionsUrl: config.discussionsUrl});
+export const clientConfig = config => ({supportEmail: config.supportEmail, supportOwner: config.supportOwner, discussionsUrl: config.discussionsUrl, ...(config.modelSourcePosture ? {modelSourcePosture: config.modelSourcePosture} : {})});
 /** A script element carrying it. "<" is escaped so the value can never end the element early. */
 export const siteConfigScript = config => '<script>window.SITE_CONFIG=' + JSON.stringify(clientConfig(config)).replace(/</g, '\\u003c') + ';</script>';
 

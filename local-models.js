@@ -6,7 +6,10 @@ import {cpuBackendSupport,gpuRunsLight} from './runtime/providers/auto-tier.mjs'
 import {createOfflineStatusProbe} from './runtime/offline-status.mjs';
 import {createModelHost} from './runtime/providers/model-host.mjs';
 import {gatherEnv} from './runtime/providers/capability-probe.mjs';
-import {bootVault,appLocal,appSession} from './chat/vault/vault-store.mjs';
+import {bootVault,app,appLocal,appSession,createWriteMode} from './chat/vault/vault-store.mjs';
+import {PERSONAL_SOURCE_KEY,readPersonalSources,runtimeSources,savePersonalSourceEdit} from './chat/models/personal-sources.mjs';
+import {probeModelSource} from './chat/models/source-probe.mjs';
+import {sourcePosture} from './chat/models/source-posture.mjs';
 import {ensureSourceNotice} from './chat/models/source-notice.mjs';
 
 // If the person has an encrypted vault, nothing below may read a saved setting until it is unlocked (the page's own script waits for the same answer).
@@ -14,7 +17,44 @@ await bootVault();
 
 const $ = id => document.getElementById(id);
 // Where the model files come from is the configured model source (runtime/providers/app-config.mjs, docs/APP-CONFIG.md); the catalog reads it, so there is nothing to pass here.
-const host = createModelHost({settings:appLocal});
+const posture = sourcePosture(window.SITE_CONFIG?.modelSourcePosture, window.APP_CONFIG?.modelSources);
+const host = createModelHost({settings:appLocal, posture, fallback:false});
+
+function syncPersonalSources() {
+  host.setSources(runtimeSources(readPersonalSources(appLocal)));
+}
+try { syncPersonalSources(); } catch (error) {
+  console.warn("Could not read saved model sources", error.name);
+}
+window.addEventListener('storage', (event) => {
+  if (event.key === PERSONAL_SOURCE_KEY || event.key === null) syncPersonalSources();
+});
+
+async function editModelSources(edit) {
+  if (edit.kind === 'add' && posture.mode === 'curated' && !posture.approve(edit.source.base)) {
+    throw new Error('This site has not approved that source.');
+  }
+  const epoch = app.epoch;
+  const result = await savePersonalSourceEdit({
+    storage: appLocal,
+    locks: navigator.locks,
+    async commit(next) {
+      if (app.epoch !== epoch) throw new Error('The vault changed. Try again.');
+      if (app.active) {
+        const mode = createWriteMode(app, {feature:'model-sources'});
+        const expected = appLocal.getItem(PERSONAL_SOURCE_KEY);
+        const receipt = await mode.putKV(PERSONAL_SOURCE_KEY, expected, next, {operationId:crypto.randomUUID()});
+        if (receipt.status !== 'committed' || !mode.isCurrent()) throw new Error('The source edit could not be verified.');
+        app.adopt([PERSONAL_SOURCE_KEY]);
+      } else {
+        appLocal.setItem(PERSONAL_SOURCE_KEY, next);
+      }
+      if (appLocal.getItem(PERSONAL_SOURCE_KEY) !== next) throw new Error('The source edit could not be saved.');
+    },
+  }, edit);
+  syncPersonalSources();
+  return result;
+}
 /* DEV_DIAGNOSTICS_START */
 window.__plcDebugModelHost=host;
 let diagnosticsStarted;
@@ -127,7 +167,7 @@ function applyMode() {
 }
 async function action(fn) {try {await fn();} catch(e) {showError(e);} }
 downloadRecovery=createDownloadRecovery({host,
- beforeInstall:()=>ensureSourceNotice({storage:appLocal,dialogs:window.plcDialogs}), // the model-source notice, once, on a copy that is not our own site
+ beforeInstall:()=>readPersonalSources(appLocal).length ? true : ensureSourceNotice({storage:appLocal,dialogs:window.plcDialogs}), // the model-source notice, once, on a copy that is not our own site
 /* DEV_DIAGNOSTICS_START */
  beforeLoad:()=>new Promise(resolve=>{const timeout=setTimeout(resolve,5000);diagnosticsReady.then(()=>{clearTimeout(timeout);resolve();});}),
 /* DEV_DIAGNOSTICS_END */
@@ -170,6 +210,9 @@ window.plcUpdateGuard={
   prepare(){const input=document.querySelector('#messageInput');try{if(input&&input.value)appSession.setItem('plc.draft',input.value);}catch{/* the reload still works */}}
 };
 window.localModels={
+  modelSources:()=>readPersonalSources(appLocal),
+  editModelSources,
+  testModelSource:(source)=>probeModelSource(source, { posture, signal:AbortSignal.timeout(15000) }),
   get downloadRecovery(){return downloadRecovery.state;},
   get mode(){return mode;},
   get ready(){return state?.load.state==='ready';},
