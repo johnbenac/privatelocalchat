@@ -4,6 +4,27 @@ import { manifestFromDescriptor, wllamaRuntimeManifest } from "../../runtime/pro
 
 const artifactName = "weights.gguf";
 
+function runtimeDependencies(runtime) {
+  const { resource, artifacts } = wllamaRuntimeManifest(runtime).descriptor;
+  return artifacts.map(({ name, sha256, bytes }) => ({
+    id: resource.id, revision: resource.revision,
+    name, sha256, bytes, kind: "executable", role: name.replace(/\./g, "-"), need: "required",
+  }));
+}
+
+function requireRuntimeClosure(manifest, runtime) {
+  const expected = runtimeDependencies(runtime);
+  const actual = manifest.descriptor.dependencies;
+  if (!Array.isArray(actual) || actual.length !== expected.length ||
+      !expected.every(pin => actual.some(dependency =>
+        Object.keys(pin).every(field => dependency?.[field] === pin[field])))) {
+    throw Object.assign(new Error(
+      "This private model was registered for a different runtime build. Open it in the compatible release."
+    ), { code: "private-model-runtime-mismatch" });
+  }
+}
+
+
 export async function preparePrivateGguf(file, { runtime, signal, id = crypto.randomUUID(), hash = sha256OfBlob }) {
   const header = new DataView(await file.slice(0, 24).arrayBuffer());
   if (header.byteLength < 24 || header.getUint32(0, false) !== 0x47475546 || ![2, 3].includes(header.getUint32(4, true))) {
@@ -11,7 +32,6 @@ export async function preparePrivateGguf(file, { runtime, signal, id = crypto.ra
   }
   const sha256 = await hash(file, { signal });
   if (!/^[0-9a-f]{64}$/.test(sha256)) throw new Error("The model checksum is invalid.");
-  const pinnedRuntime = wllamaRuntimeManifest(runtime).descriptor;
   const manifest = manifestFromDescriptor({
     resource: {
       id: "resource:model/user-gguf-" + id,
@@ -21,10 +41,7 @@ export async function preparePrivateGguf(file, { runtime, signal, id = crypto.ra
     },
     artifacts: [{ name:artifactName, role:"weights", bytes:file.size, sha256, mediaType:"application/octet-stream" }],
     runtime: { engine:"wllama", version:"1" },
-    dependencies: pinnedRuntime.artifacts.map(({ name, sha256, bytes }) => ({
-      id:pinnedRuntime.resource.id, revision:pinnedRuntime.resource.revision,
-      name, sha256, bytes, kind:"executable", role:name.replace(/\./g, "-"), need:"required",
-    })),
+    dependencies: runtimeDependencies(runtime),
   }, {
     needs:{ opfs:true },
     note:"User supplied. Not verified by Private Local Chat.",
@@ -55,6 +72,7 @@ export function readPrivateGguf(raw) {
 }
 
 export function privateGgufCatalogOptions(manifest, { runtime, origin }) {
+  requireRuntimeClosure(manifest, runtime);
   const { resource, artifacts: [weights] } = manifest.descriptor;
   const tier = resource.id.split("/").at(-1);
   return {

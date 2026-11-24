@@ -59,3 +59,25 @@ test('persisted private model metadata cannot refer to foreign artifacts', async
   assert.throws(() => readPrivateGguf(JSON.stringify(manifest)), /unreadable/);
   assert.equal(readPrivateGguf('null'), null);
 });
+
+test('the saved private model activates only with the exact runtime closure', async () => {
+  const { manifest } = await preparePrivateGguf(new File([fileBytes], 'custom.gguf'), {runtime, hash, id:'fixture'});
+  const bind = descriptor => privateGgufCatalogOptions(
+    readPrivateGguf(JSON.stringify({...manifest, descriptor})), {runtime, origin:'http://localhost'}
+  );
+  const {descriptor} = manifest;
+  assert.equal(bind(descriptor).loadOptions.buildId, runtime.buildId);
+  const [pin, ...otherPins] = descriptor.dependencies;
+  assert.throws(() => bind({...descriptor, dependencies:otherPins}), {code:'private-model-runtime-mismatch'});
+  assert.throws(() => bind({...descriptor, dependencies:[pin, pin, ...otherPins.slice(1)]}), {
+    code:'private-model-runtime-mismatch',
+  });
+  for (const [field, replacement] of Object.entries({
+    id: 'resource:runtime/other', revision: 'different',
+    name: 'other.wasm', bytes: pin.bytes + 1, sha256: 'f'.repeat(64),
+  })) {
+    assert.throws(() => bind({...descriptor, dependencies:[{...pin, [field]:replacement}, ...otherPins]}), {
+      code:'private-model-runtime-mismatch',
+    }, field);
+  }
+});
