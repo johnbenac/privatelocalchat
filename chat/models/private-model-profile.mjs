@@ -71,6 +71,54 @@ export function readPrivateGguf(raw) {
   });
 }
 
+const privateProfileFormat = "cosmoshot/resource-profile/0";
+
+export function exportPrivateGgufProfile(manifest, runtime) {
+  requireRuntimeClosure(manifest, runtime);
+  const { resource, artifacts: [weight] } = manifest.descriptor;
+  return {
+    format: privateProfileFormat,
+    resource: {
+      id: resource.id, kind: "inert", class: "model-resource",
+      revision: resource.revision, label: "User-supplied GGUF",
+    },
+    artifacts: [{
+      name: artifactName, role: "weights", bytes: weight.bytes,
+      sha256: weight.sha256, mediaType: "application/octet-stream",
+    }],
+    runtime: { engine: "wllama", version: "1" },
+    dependencies: runtimeDependencies(runtime),
+    rights: { licence: "User supplied; not verified", redistribution: "user-supplied-only" },
+  };
+}
+
+function exactFields(actual, expected) {
+  return actual && !Array.isArray(actual) && Object.keys(actual).length === Object.keys(expected).length &&
+    Object.keys(expected).every(field => actual[field] === expected[field]);
+}
+
+export async function importPrivateGgufProfile(profile, file, options) {
+  const {id = ""} = profile?.resource ?? {};
+  if (profile?.format !== privateProfileFormat || typeof id !== "string" ||
+      !/^resource:model\/user-gguf-[a-z0-9-]{1,40}$/.test(id)) {
+    throw new Error("Select a supported private GGUF resource descriptor.");
+  }
+
+  requireRuntimeClosure({descriptor: profile}, options.runtime);
+  const prepared = await preparePrivateGguf(file, {...options, id: id.slice("resource:model/user-gguf-".length)});
+  const expected = exportPrivateGgufProfile(prepared.manifest, options.runtime);
+  if (Object.keys(profile).length !== Object.keys(expected).length ||
+      !["resource", "runtime", "rights"].every(field => exactFields(profile[field], expected[field])) ||
+      !Array.isArray(profile.artifacts) || profile.artifacts.length !== 1 ||
+      !exactFields(profile.artifacts[0], expected.artifacts[0]) ||
+      !profile.dependencies.every(pin => expected.dependencies.some(required => exactFields(pin, required)))) {
+    throw Object.assign(new Error("The descriptor does not match this model file and runtime."), {
+      code: "private-model-descriptor-mismatch",
+    });
+  }
+  return prepared;
+}
+
 export function privateGgufCatalogOptions(manifest, { runtime, origin }) {
   requireRuntimeClosure(manifest, runtime);
   const { resource, artifacts: [weights] } = manifest.descriptor;

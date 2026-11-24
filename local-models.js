@@ -6,7 +6,7 @@ import {cpuBackendSupport,gpuRunsLight} from './runtime/providers/auto-tier.mjs'
 import {createOfflineStatusProbe} from './runtime/offline-status.mjs';
 import {legacyCatalog} from './runtime/providers/catalog.mjs';
 import {createCatalog} from './runtime/providers/catalog-core.mjs';
-import {catalogWithPrivateGguf,preparePrivateGguf,privateGgufCatalogOptions,readPrivateGguf} from './chat/models/private-model-profile.mjs';
+import {catalogWithPrivateGguf,preparePrivateGguf,privateGgufCatalogOptions,readPrivateGguf,exportPrivateGgufProfile,importPrivateGgufProfile} from './chat/models/private-model-profile.mjs';
 import {createModelHost} from './runtime/providers/model-host.mjs';
 import {gatherEnv} from './runtime/providers/capability-probe.mjs';
 import {bootVault,app,appLocal,appSession,createWriteMode} from './chat/vault/vault-store.mjs';
@@ -76,12 +76,18 @@ async function withPrivateModelWrite(run) {
   });
 }
 
-async function importPrivateModel(file) {
+async function importPrivateModel(file, descriptorFile) {
   return withPrivateModelWrite(async ({expected,check,write}) => {
     if (!env?.opfs || !cpuOk('light')) throw new Error('Private GGUF import needs desktop CPU/WASM and browser file storage.');
     const existing = readPrivateGguf(expected);
     const runtime = await privateRuntime();
-    const {manifest,source} = await preparePrivateGguf(file,{runtime});
+    if (descriptorFile && descriptorFile.size > 16384) throw new Error('The private model descriptor is too large.');
+    const {manifest,source} = descriptorFile
+      ? await importPrivateGgufProfile(JSON.parse(await descriptorFile.text()),file,{runtime})
+      : await preparePrivateGguf(file,{runtime});
+    if (descriptorFile && existing && existing.descriptor.resource.id !== manifest.descriptor.resource.id) {
+      throw new Error('Remove the registered private model before importing a different model identity.');
+    }
     if (existing && manifest.descriptor.artifacts[0].sha256 !== existing.descriptor.artifacts[0].sha256) {
       throw new Error('This file has a different checksum. Remove the registered private model before importing another.');
     }
@@ -327,6 +333,11 @@ window.plcUpdateGuard={
 };
 window.localModels={
   importPrivateModel,
+  async exportPrivateModelProfile() {
+    const manifest = readPrivateGguf(appLocal.getItem(privateKey));
+    if (!manifest) throw new Error('There is no private model registration to export.');
+    return exportPrivateGgufProfile(manifest,await privateRuntime());
+  },
   removePrivateModel,
   hasPrivateModel:()=>Boolean(privateTier),
   privateModelIssue:()=>privateModelIssue,

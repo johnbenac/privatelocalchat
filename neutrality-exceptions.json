@@ -7,6 +7,12 @@
  "visibleFiles": [],
  "exceptions": [
   {
+   "rule": "programme-internal-name",
+   "paths": ["releases/*/chat/models/private-model-profile.mjs"],
+   "why": "The descriptor wire-format identifier identifies an interoperable file and implies no hosting or programme dependency.",
+   "match": "cosmoshot/resource-profile/0"
+  },
+  {
    "rule": "family-name",
    "paths": [
     "index.html"

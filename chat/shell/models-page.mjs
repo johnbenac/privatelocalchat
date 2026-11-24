@@ -272,6 +272,18 @@ export function buildModelsPage({ app, h, row, btn, moved, chooseVoice, voiceHin
       },
     }));
     const privateFile = h("input", {type:"file", accept:".gguf", "aria-label":"Private GGUF"});
+    const descriptorFile = h("input", {type:"file", accept:".json", "aria-label":"Private model descriptor (optional)"});
+    const exportDescriptor = lm()?.hasPrivateModel?.() ? h("button", {type:"button", text:"Export private model descriptor", onclick:async()=>{
+      try {
+        const descriptor = await lm().exportPrivateModelProfile();
+        const url = URL.createObjectURL(new Blob([JSON.stringify(descriptor, null, 2)], {type:"application/json"}));
+        const link = h("a", {href:url, download:"private-model-descriptor.json"});
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      } catch (error) {
+        status.textContent = error.message;
+      }
+    }}) : null;
     const reload = h("button", {type:"button", text:"Reload to use private model", hidden:true, onclick:()=>lm().reloadApp()});
     const importGguf = h("button", {type:"button", text:"Import private GGUF", onclick:async event=>{
       const button = event.currentTarget;
@@ -280,8 +292,9 @@ export function buildModelsPage({ app, h, row, btn, moved, chooseVoice, voiceHin
       button.disabled = true;
       try {
         status.textContent = "Hashing and installing the private model…";
-        await lm().importPrivateModel(file);
+        await lm().importPrivateModel(file, descriptorFile.files[0]);
         privateFile.value = "";
+        descriptorFile.value = "";
         status.textContent = "Private model saved. Reload to add it to the Models list.";
         reload.hidden = false;
       } catch (error) {
@@ -325,7 +338,7 @@ export function buildModelsPage({ app, h, row, btn, moved, chooseVoice, voiceHin
         lm().selectSourceFiles(null);
         status.textContent = "Local selection cleared.";
       }}),
-      h("div", {}, privateFile, importGguf, removeGguf, reload), status);
+      h("div", {}, privateFile, descriptorFile, importGguf, exportDescriptor, removeGguf, reload), status);
     try { paint(); status.textContent = lm()?.privateModelIssue?.() ?? ""; } catch { status.textContent = "The saved model source list could not be read."; }
   }
   w.append(offlineNote, langSection, offlineSection, providerSection, voiceSection, otherSection, memSection, sourceSection);

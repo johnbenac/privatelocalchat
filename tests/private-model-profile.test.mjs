@@ -5,7 +5,7 @@ import { readFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { legacyCatalog } from '../runtime/providers/catalog.mjs';
 import { createCatalog } from '../runtime/providers/catalog-core.mjs';
-import { preparePrivateGguf, privateGgufCatalogOptions, catalogWithPrivateGguf, readPrivateGguf } from '../chat/models/private-model-profile.mjs';
+import { preparePrivateGguf, privateGgufCatalogOptions, catalogWithPrivateGguf, readPrivateGguf, exportPrivateGgufProfile, importPrivateGgufProfile } from '../chat/models/private-model-profile.mjs';
 
 const runtime = JSON.parse(await readFile(new URL('../runtime/providers/production-runtime.json', import.meta.url)));
 const fileBytes = new Uint8Array(24);
@@ -80,4 +80,24 @@ test('the saved private model activates only with the exact runtime closure', as
       code:'private-model-runtime-mismatch',
     }, field);
   }
+});
+
+test('a portable GGUF profile preserves identity and refuses conflicting or private metadata', async () => {
+  const file = new File([fileBytes], 'do-not-export-this-name.gguf');
+  const {manifest} = await preparePrivateGguf(file, {runtime, hash, id:'portable'});
+  const profile = exportPrivateGgufProfile(manifest, runtime);
+  assert.doesNotMatch(JSON.stringify(profile), /do-not-export|https?:|credential/);
+  const received = await importPrivateGgufProfile(JSON.parse(JSON.stringify(profile)), file, {runtime,hash});
+  assert.equal(received.manifest.descriptor.resource.id, manifest.descriptor.resource.id);
+  assert.equal(received.manifest.descriptor.resource.revision, manifest.descriptor.resource.revision);
+  assert.deepEqual(received.manifest.descriptor.artifacts, manifest.descriptor.artifacts);
+
+  const changedBytes = new Uint8Array(fileBytes);
+  changedBytes[23] = 1;
+  await assert.rejects(importPrivateGgufProfile(profile, new File([changedBytes], file.name), {runtime,hash}),
+    {code:'private-model-descriptor-mismatch'});
+  await assert.rejects(importPrivateGgufProfile({...profile, locations:[]}, file, {runtime,hash}),
+    {code:'private-model-descriptor-mismatch'});
+  await assert.rejects(importPrivateGgufProfile({...profile, dependencies:[]}, file, {runtime,hash}),
+    {code:'private-model-runtime-mismatch'});
 });
