@@ -41,7 +41,7 @@ async function saveSourceCredential(id, token) {
 let selectedFiles = null;
 
 function syncPersonalSources() {
-  host.setSources(selectedFiles ? [selectedFiles] : runtimeSources(readPersonalSources(appLocal)));
+  host.setSources(runtimeSources(readPersonalSources(appLocal)));
 }
 try { syncPersonalSources(); } catch (error) {
   console.warn("Could not read saved model sources", error.name);
@@ -187,7 +187,7 @@ function applyMode() {
 }
 async function action(fn) {try {await fn();} catch(e) {showError(e);} }
 downloadRecovery=createDownloadRecovery({host,
- beforeInstall:()=>selectedFiles || readPersonalSources(appLocal).length ? true : ensureSourceNotice({storage:appLocal,dialogs:window.plcDialogs}), // the model-source notice, once, on a copy that is not our own site
+ beforeInstall:()=>readPersonalSources(appLocal).length ? true : ensureSourceNotice({storage:appLocal,dialogs:window.plcDialogs}), // the model-source notice, once, on a copy that is not our own site
 /* DEV_DIAGNOSTICS_START */
  beforeLoad:()=>new Promise(resolve=>{const timeout=setTimeout(resolve,5000);diagnosticsReady.then(()=>{clearTimeout(timeout);resolve();});}),
 /* DEV_DIAGNOSTICS_END */
@@ -234,7 +234,17 @@ window.localModels={
   selectedSourceFiles:()=>selectedFiles?.files.size ?? 0,
   selectSourceFiles(selection) {
     selectedFiles = selection ? localModelSource(selection) : null;
-    syncPersonalSources();
+  },
+  async installSourceFiles() {
+    await initFinished;
+    if (!selectedFiles) throw new Error('Select local model files first.');
+    if (host.getState().busy || downloadRecovery.state.pending) throw new Error('Finish or cancel the current model transfer first.');
+    host.setSources([selectedFiles]);
+    try {
+      return await host.install();
+    } finally {
+      syncPersonalSources();
+    }
   },
   editModelSources,
   saveSourceCredential,
