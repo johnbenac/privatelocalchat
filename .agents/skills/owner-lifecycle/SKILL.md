@@ -49,7 +49,7 @@ a Codex agent unused for days has stale rules, so it starts **fresh** (not `resu
 | Step | Who | What |
 | --- | --- | --- |
 | 1 Say go | John | Names the owner and the incoming harness. Until step 7 the outgoing agent stays the primary. |
-| 2 Drain | outgoing | Finish or park in-flight work: commit and push, end executors and watchers, set board statuses true (see `board`). |
+| 2 Drain | outgoing | Finish or park in-flight work: commit and push, end executors and watchers. Leave NOTHING in progress on the board: split each task in work (the finished part as its own done task linked as a dependency, the remainder not started); add, merge, edit or drop tasks as the work really is (see `board`). The gate fails while any task is in progress. |
 | 3 Write the pack | outgoing | ONE handover note, template below: the memory note `handover` (`OWNER-handover` in `program`) and, if long, a repo file it points to. Refresh it; never pile up dated copies. |
 | 4 Start the terminal | devops | Checklist below. Registry `harness` set to the new one; the new terminal is a helper until step 7. |
 | 5 Read | incoming | `AGENTS.md` (comes with the folder), the pack, the owner's board tasks, waiting mail, `cosmo-mem read STORE _index.md`. |
