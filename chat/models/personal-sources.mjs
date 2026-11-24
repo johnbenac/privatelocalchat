@@ -71,3 +71,21 @@ export async function savePersonalSourceEdit({ storage, locks, commit }, edit) {
     return sources;
   });
 }
+
+export function localModelSource(selection) {
+  const files = new Map();
+  for (const file of selection) {
+    const name = file.webkitRelativePath || file.name;
+    const parts = name.split("/");
+    if (parts.some(part => !part || part === "." || part === ".." || part.includes("\\"))) {
+      throw sourceError("source-file-path", "The selection contains an invalid file path.");
+    }
+    const relative = file.webkitRelativePath ? parts.slice(1).join("/") : name;
+    if (!relative || files.has(relative)) {
+      throw sourceError("source-file-path", "The selection contains duplicate or invalid file paths.");
+    }
+    files.set(relative, file);
+  }
+  if (!files.size) throw sourceError("source-file-empty", "Select at least one model file.");
+  return { id:"local-selection", label:"Selected local files", kind:"files", files };
+}

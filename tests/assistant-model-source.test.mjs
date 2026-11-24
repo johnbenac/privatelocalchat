@@ -42,9 +42,9 @@ test('no configured source: a plain sentence, no host', () => {
   assert.match(say(),/from the source set for this copy\./);
 });
 
-test('outside-provider answer and the Settings row text are untouched', () => {
+test('outside-provider answer is unchanged and Settings identifies the operator source', () => {
   install(null);
   assert.match(NODES['privacy.cloud'].say({mode:'api'}).join(' '),/outside provider, so the messages/);
   const page=readFileSync(new URL('../chat/shell/models-page.mjs',import.meta.url),'utf8');
-  assert.ok(page.includes('row("Model files come from", sourceLabelAndHost(cfg) + (cfg.isDefaultSource() ? "" : ", set by whoever runs this copy"), null)'));
+  assert.ok(page.includes('row("Operator model source", sourceLabelAndHost(cfg) + (cfg.isDefaultSource() ? "" : ", set by whoever runs this copy"), null)'));
 });

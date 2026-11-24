@@ -7,7 +7,7 @@ import {createOfflineStatusProbe} from './runtime/offline-status.mjs';
 import {createModelHost} from './runtime/providers/model-host.mjs';
 import {gatherEnv} from './runtime/providers/capability-probe.mjs';
 import {bootVault,app,appLocal,appSession,createWriteMode} from './chat/vault/vault-store.mjs';
-import {PERSONAL_SOURCE_KEY,readPersonalSources,runtimeSources,savePersonalSourceEdit} from './chat/models/personal-sources.mjs';
+import {PERSONAL_SOURCE_KEY,localModelSource,readPersonalSources,runtimeSources,savePersonalSourceEdit} from './chat/models/personal-sources.mjs';
 import {probeModelSource} from './chat/models/source-probe.mjs';
 import {sourcePosture} from './chat/models/source-posture.mjs';
 import {ensureSourceNotice} from './chat/models/source-notice.mjs';
@@ -38,8 +38,10 @@ async function saveSourceCredential(id, token) {
   });
 }
 
+let selectedFiles = null;
+
 function syncPersonalSources() {
-  host.setSources(runtimeSources(readPersonalSources(appLocal)));
+  host.setSources(selectedFiles ? [selectedFiles] : runtimeSources(readPersonalSources(appLocal)));
 }
 try { syncPersonalSources(); } catch (error) {
   console.warn("Could not read saved model sources", error.name);
@@ -185,7 +187,7 @@ function applyMode() {
 }
 async function action(fn) {try {await fn();} catch(e) {showError(e);} }
 downloadRecovery=createDownloadRecovery({host,
- beforeInstall:()=>readPersonalSources(appLocal).length ? true : ensureSourceNotice({storage:appLocal,dialogs:window.plcDialogs}), // the model-source notice, once, on a copy that is not our own site
+ beforeInstall:()=>selectedFiles || readPersonalSources(appLocal).length ? true : ensureSourceNotice({storage:appLocal,dialogs:window.plcDialogs}), // the model-source notice, once, on a copy that is not our own site
 /* DEV_DIAGNOSTICS_START */
  beforeLoad:()=>new Promise(resolve=>{const timeout=setTimeout(resolve,5000);diagnosticsReady.then(()=>{clearTimeout(timeout);resolve();});}),
 /* DEV_DIAGNOSTICS_END */
@@ -229,6 +231,11 @@ window.plcUpdateGuard={
 };
 window.localModels={
   modelSources:()=>readPersonalSources(appLocal),
+  selectedSourceFiles:()=>selectedFiles?.files.size ?? 0,
+  selectSourceFiles(selection) {
+    selectedFiles = selection ? localModelSource(selection) : null;
+    syncPersonalSources();
+  },
   editModelSources,
   saveSourceCredential,
   testModelSource:(source)=>probeModelSource(source, { posture, requestCredential:sourceCredential, signal:AbortSignal.timeout(15000) }),

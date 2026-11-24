@@ -256,7 +256,29 @@ export function buildModelsPage({ app, h, row, btn, moved, chooseVoice, voiceHin
         source: personalSource({ id: crypto.randomUUID(), label: name.value, base: address.value, credential:auth.checked }),
       }))) form.reset();
     });
-    sourceSection.append(h("p", { class: "hint-text", text: "Language model downloads use the first personal source in this list. Remove all personal sources to use the operator’s source." }), list, form, status);
+    const chooseFiles = (label, attrs) => h("label", {}, label, h("input", {
+      type:"file", ...attrs,
+      onchange(event) {
+        const input = event.currentTarget;
+        if (!input.files.length) return;
+        try {
+          lm().selectSourceFiles(input.files);
+          status.textContent = `Selected ${lm().selectedSourceFiles()} local files. Choose a compatible language model and download to verify and install these bytes.`;
+        } catch (error) {
+          status.textContent = error.message;
+        } finally {
+          input.value = "";
+        }
+      },
+    }));
+    sourceSection.append(h("p", { class: "hint-text", text: "Language model downloads use the first personal source in this list. Remove all personal sources to use the operator’s source." }), list, form,
+      chooseFiles("Select local model files", { multiple:true }),
+      chooseFiles("Select a model folder", { webkitdirectory:true }),
+      h("button", {type:"button", text:"Clear local selection", onclick:()=>{
+        lm().selectSourceFiles(null);
+        status.textContent = "Local selection cleared.";
+      }}),
+      status);
     try { paint(); } catch { status.textContent = "The saved model source list could not be read."; }
   }
   w.append(offlineNote, langSection, offlineSection, providerSection, voiceSection, otherSection, memSection, sourceSection);
