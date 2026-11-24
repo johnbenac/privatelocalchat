@@ -31,7 +31,7 @@ A source decides where bytes come from, never what they are. Every model file an
 
 ## What you see
 
-- **Settings, Models, Model source** (read-only): the label and host in use, and "set by whoever runs this copy" when it is not the shipped source. The choice is made in the copy's configuration, not in the app.
+- **Settings, Models, Model source** shows the operator source label and host, and lets the person choose a source for their language-model downloads.
 - **Settings, Models, Model source, Updates** (read-only): "This copy is updated by whoever hosts it." It is shown whenever the site manifest has no `site` identity, that is, on every copy that is not our own site, including one whose operator chose their own model source (a wider condition than the notice below, which also needs the shipped source). It is never shown on our own site. It adds no stored key, link or request.
 - **The model-source notice**: the first time a download is about to start, on a copy that uses the shipped source and has no site identity in its manifest (that is, a copy that is not our own site), the app says the models come from the project's content delivery network, names the host, and says where to set another source. Download goes on; Cancel stops it. It is shown once (`plc.modelSourceNotice.v1`). It is not shown on our own site, nor when the operator chose the source.
 
@@ -50,3 +50,11 @@ The page head (canonical, Open Graph and social-card addresses, structured data)
 - `tests/site-identity.test.mjs`: the `site` block, the assistant's sentences, the share panel, and the page head with and without it.
 - `tests/e2e/model-sources.e2e.mjs`: four builds in a real browser: our site, a copy that is not our site (notice first, once; declining downloads nothing), an operator's source (only it is asked; wrong bytes are refused).
 - `tests/e2e/site-identity.e2e.mjs`: the three Share entry points and the share dialog with and without a site identity.
+
+## Personal language-model sources
+
+In Settings → Models, add a source with a name and its model directory URL. Use HTTPS for remote sources. HTTP loopback is supported for a source on the same machine. The first personal source supplies language-model downloads that need bytes. Move another source to the top to select it, or remove all personal sources to return to the operator's source. Already installed models use the usual verified cache.
+
+**Test source** requests one pinned Qwen configuration file and checks the returned range, size and SHA-256. A mirror can pass this test while still missing other files required by the selected model. Cross-origin servers must allow CORS and expose the `Content-Range` response header. The personal list follows the app's encryption setting and is independent of provider API tokens.
+
+Set `"modelSourcePosture": "curated"` in the site's `site-config.json` to allow only the exact operator-configured model source bases. Neutral builds default to open. This policy applies to language-model sources in Settings.

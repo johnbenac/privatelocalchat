@@ -179,7 +179,7 @@ export function buildModelsPage({ app, h, row, btn, moved, chooseVoice, voiceHin
   // Where the model files come from (docs/APP-CONFIG.md): what is in use, and where whoever runs this copy sets it. Read-only: the choice is made in the copy's configuration.
   const cfg = appConfig(), src = cfg.activeSource();
   const sourceSection = src ? h("section", { id: "modelSourceSection", "aria-labelledby": "sourceHead" }, h("h3", { class: "set-sub", id: "sourceHead", text: "Model source" }),
-    row("Model files come from", sourceLabelAndHost(cfg) + (cfg.isDefaultSource() ? "" : ", set by whoever runs this copy"), null),
+    row("Operator model source", sourceLabelAndHost(cfg) + (cfg.isDefaultSource() ? "" : ", set by whoever runs this copy"), null),
     updatedByHostLineApplies() ? row("Updates", UPDATED_BY_HOST_LINE, null) : null,
     h("p", { class: "hint-text", text: "Every model and voice file is checked against its published size and SHA-256 before it is used, whichever source it comes from. The small model that matches memory is published under a path that names its content, and is not checked by the app. Whoever runs a copy sets the source in config/app-config.json." })) : null;
   if (sourceSection) {

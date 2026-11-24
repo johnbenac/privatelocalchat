@@ -14,11 +14,13 @@ const DEFAULT_ROOT='https://cdn.aiofourown.com/models/';
 const OTHER_ROOT='https://models.example.org/m/';
 const dir=mkdtempSync(path.join(tmpdir(),'plc-sources-'));
 const overrideFile=path.join(dir,'app-config.json');
+const curatedSite=path.join(dir,'curated-site.json');
+writeFileSync(curatedSite, JSON.stringify({modelSourcePosture:'curated'}));
 writeFileSync(overrideFile,JSON.stringify({modelSources:[{id:'mine',label:'My models',base:OTHER_ROOT}]}));
 
 /** Start the app built with `env`, answer every model request with bytes that are not the model, and hand the page and the list of requests to `run`. */
 async function variant(name,env,port,run){
-  for(const k of ['SITE_JSON_PATH','APP_CONFIG_OVERRIDE'])delete process.env[k];
+  for(const k of ['SITE_JSON_PATH','APP_CONFIG_OVERRIDE','SITE_CONFIG_PATH'])delete process.env[k];
   process.env.SITE_DIR='tests/fixtures/site'; // a site that names itself, so "our site" below means this one
   Object.assign(process.env,env);
   const h=await launch({port});
@@ -168,6 +170,44 @@ try{
       await edit(page, {kind:'remove',id});
     }
     assert(requests.length === 0, 'editing settings did not fetch model bytes');
+  });
+
+  await variant('encrypted vault persists source edits across an unlock', {SITE_JSON_PATH:''}, 18570, async (page, requests) => {
+    const pass = 'scratch-source-vault';
+    await page.evaluate(() => window.plcShell.openSettings('security'));
+    await page.click('.set-row:has-text("App lock") button');
+    await page.check('#lockEncrypt');
+    await page.fill('#lockNew1', pass);
+    await page.fill('#lockNew2', pass);
+    await page.click('.app-dialog button:has-text("Lock the app")');
+    await page.waitForSelector('.app-dialog:has-text("Remove the unencrypted copy")');
+    await page.click('.app-dialog button:has-text("Remove it")');
+    await sourceRow(page);
+    const section = page.locator('#modelSourceSection');
+    await section.getByLabel('Source name').fill('Vault-only source');
+    await section.getByLabel('Source address').fill(OTHER_ROOT);
+    await section.getByRole('button', {name:'Add source'}).click();
+    await section.getByText('Vault-only source', {exact:true}).waitFor();
+    assert(await page.evaluate(() => !localStorage.getItem('plc.personalModelSources.v1')), 'no plain source descriptor');
+    await page.reload();
+    await page.waitForSelector('#lockScreen', {state:'visible'});
+    await page.fill('#unlockPass', pass);
+    await page.press('#unlockPass', 'Enter');
+    await page.waitForSelector('#lockScreen', {state:'hidden'});
+    await page.waitForFunction(() => window.__plcBooted && window.localModels?.modelSources);
+    assert((await sourceRow(page)).includes('Vault-only source'), 'the durable descriptor survived unlock');
+    assert(requests.length === 0, 'settings edits and unlock made no model requests');
+  });
+
+  await variant('curated site rejects an unapproved personal source without fetching', {SITE_CONFIG_PATH:curatedSite}, 18571, async (page, requests) => {
+    await sourceRow(page);
+    const section = page.locator('#modelSourceSection');
+    await section.getByLabel('Source name').fill('Unapproved mirror');
+    await section.getByLabel('Source address').fill(OTHER_ROOT);
+    await section.getByRole('button', {name:'Add source'}).click();
+    await section.getByRole('status').filter({hasText:'This site has not approved that source.'}).waitFor();
+    assert(await page.evaluate(() => window.localModels.modelSources().length === 0), 'the refused source was not saved');
+    assert(requests.length === 0, 'the refused source was not contacted');
   });
 
   console.log('ALL PASS');
