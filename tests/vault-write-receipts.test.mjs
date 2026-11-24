@@ -773,3 +773,33 @@ test('CAUSAL missing exclusive lease writes nothing', async () => {
   // Verify nothing was written
   assert.equal(session.state.kv.get('l/plc.prefs.v1'), undefined, 'no unauthorized write');
 });
+
+test('source credential write stays fenced across vault loss before or after durable append', async () => {
+  const endpoint = 'https://mirror.example/models/';
+  const source = 'one';
+  for (const durable of [false, true]) {
+    for (let repeat = 0; repeat < 20; repeat++) {
+      const ctx = makeCtx();
+      const original = await attachNew(ctx);
+      await ctx.store.saveModelSourceToken(endpoint, source, 'old-fixture');
+      const append = ctx.adapter.append.bind(ctx.adapter);
+      ctx.adapter.append = async (record, options) => {
+        if (durable) await append(record, options);
+        ctx.store.detach();
+        if (!durable) await append(record, options);
+      };
+      await assert.rejects(ctx.store.saveModelSourceToken(endpoint, source, 'new-fixture'));
+      assert.equal(ctx.store.modelSourceToken(endpoint, source), null, 'detached sessions issue no credentials');
+      original.lock();
+      ctx.adapter.append = append;
+      const recovered = await ctx.vault.unlock('pw');
+      ctx.store.attach(recovered, {writer:true, lease:{supported:true, owned:true}, adapter:ctx.adapter});
+      assert.equal(ctx.store.modelSourceToken(endpoint, source), durable ? 'new-fixture' : 'old-fixture');
+      assert.equal(ctx.store.modelSourceToken(endpoint, 'replacement'), null);
+      assert.equal(ctx.store.modelSourceToken('https://mirror.example/elsewhere/', source), null);
+      assert.deepEqual(ctx.store.snapshot().local, {}, 'metadata is excluded from plaintext projections');
+      recovered.lock();
+      ctx.store.detach();
+    }
+  }
+});
