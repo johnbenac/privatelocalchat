@@ -28,7 +28,7 @@
       "section": "2",
       "says": "On this device nothing typed goes to the cloud for replies; the app comes from the address the copy was opened from and the model files from the configured source; the browser's speech service may process audio; an outside provider gets the messages.",
       "verified": "corrected",
-      "note": "Corrected earlier in stage 9: it used to name the project's file host for every copy. The source is named with sourceLabelAndHost, the helper the Settings row 'Model files come from' uses."
+      "note": "Corrected earlier in stage 9: it used to name the project's file host for every copy. The source is named with sourceLabelAndHost, the helper the Settings row 'Operator model source' uses."
     },
     {
       "id": "privacy.storage",
@@ -204,11 +204,11 @@
       "kind": "ui-note",
       "file": "chat/shell/models-page.mjs",
       "pieces": [
-        "\"Model files come from\"",
+        "\"Operator model source\"",
         ", set by whoever runs this copy"
       ],
       "section": "2",
-      "says": "The Settings row says which source the model files come from and whether whoever runs the copy set it.",
+      "says": "The Settings row identifies the operator source and says when whoever runs the copy set it.",
       "verified": "true"
     },
     {

@@ -70,7 +70,7 @@ Browsers offer to clear the site data of an address. In current browsers that re
 | `user` | what the person wrote or chose to keep (chats, drafts, memory, documents, API keys): goes into the vault |
 | `vault` | the encrypted store itself: nothing in it is readable without the passphrase |
 
-**Keys in local and session storage (37)**
+**Keys in local and session storage (38)**
 
 | Key | Where | Class | What it holds | Format | First release |
 | --- | --- | --- | --- | --- | --- |
@@ -97,6 +97,7 @@ Browsers offer to clear the site data of an address. In current browsers that re
 | `plc.models.v1` | local storage | `setting` | which on-device model is chosen | 1 | v0.6.0 |
 | `plc.offlineHint.v1` | local storage | `plain` | the offline hint was shown | 1 | v0.37.0 |
 | `plc.pendingToken.v1` | session storage | `transient` | a settings link waiting for the person's choice | 1 | v0.13.0 |
+| `plc.personalModelSources.v1` | local storage | `setting` | ordered personal model source descriptors without credentials | 1 | unreleased |
 | `plc.prefs.v1` | local storage | `setting` | composer preferences; the theme is the one value the lock screen would like to read | 1 | v0.8.0 |
 | `plc.presentations.v1` | local storage | `user` | the look (layout, palette, pictures) a person chose to keep for a preset, one record per preset id | 1 | v0.74.0 |
 | `plc.presets.v1` | local storage | `user` | the person's own prompt presets | 1 | v0.8.0 |
