@@ -4,6 +4,9 @@ import {explainGpu} from './runtime/gpu-help.mjs';
 import {createPreparer} from './runtime/prepare.mjs';
 import {cpuBackendSupport,gpuRunsLight} from './runtime/providers/auto-tier.mjs';
 import {createOfflineStatusProbe} from './runtime/offline-status.mjs';
+import {legacyCatalog} from './runtime/providers/catalog.mjs';
+import {createCatalog} from './runtime/providers/catalog-core.mjs';
+import {catalogWithPrivateGguf,preparePrivateGguf,privateGgufCatalogOptions,readPrivateGguf} from './chat/models/private-model-profile.mjs';
 import {createModelHost} from './runtime/providers/model-host.mjs';
 import {gatherEnv} from './runtime/providers/capability-probe.mjs';
 import {bootVault,app,appLocal,appSession,createWriteMode} from './chat/vault/vault-store.mjs';
@@ -23,7 +26,92 @@ function sourceCredential(endpoint) {
   const token = source && app.modelSourceToken(endpoint, source.id);
   return token ? {headers:{Authorization:`Bearer ${token}`}} : {refused:true};
 }
-const host = createModelHost({settings:appLocal, posture, fallback:false, credentials:({endpoint})=>sourceCredential(endpoint)});
+const privateKey = 'plc.privateGguf.v1';
+const privateRuntime = async () => {
+  const response = await fetch(new URL('./runtime/private-gguf-runtime.json',import.meta.url));
+  if (!response.ok) throw new Error('The pinned model runtime description is unavailable.');
+  return response.json();
+};
+let privateManifest = null, privateModelIssue = null;
+let modelCatalog = legacyCatalog();
+try {
+  const saved = readPrivateGguf(appLocal.getItem(privateKey));
+  if (saved) {
+    modelCatalog = catalogWithPrivateGguf(modelCatalog,saved,{runtime:await privateRuntime(),origin:location.origin});
+    privateManifest = saved;
+  }
+} catch (error) {
+  privateModelIssue = error.message;
+}
+const privateTier = privateManifest ? modelCatalog.order.at(-1) : null;
+const isPrivateTier = tier => privateTier !== null && tier === privateTier;
+const host = createModelHost({catalog:modelCatalog, settings:appLocal, posture, fallback:false, credentials:({endpoint})=>sourceCredential(endpoint)});
+
+async function withPrivateModelWrite(run) {
+  await initFinished;
+  if (!navigator.locks?.request) throw new Error('This browser cannot safely register a private model.');
+  const epoch = app.epoch;
+  return navigator.locks.request(privateKey, async () => {
+    const check = () => {
+      if (app.epoch !== epoch) throw new Error('The vault changed. Try again.');
+      if (activeGeneration || host.getState().busy || downloadRecovery.state.pending) throw new Error('Finish the current model operation first.');
+      if (app.active && !app.exclusive) throw new Error('Open the vault in its writable tab.');
+    };
+    check();
+    const expected = appLocal.getItem(privateKey);
+    const write = async manifest => {
+      check();
+      const next = JSON.stringify(manifest);
+      if (app.active) {
+        const mode = createWriteMode(app,{feature:'private-model'});
+        const receipt = await mode.putKV(privateKey,expected,next,{operationId:crypto.randomUUID()});
+        if (receipt.status !== 'committed' || !mode.isCurrent()) throw new Error('The private model change could not be confirmed.');
+        app.adopt([privateKey]);
+      } else {
+        appLocal.setItem(privateKey,next);
+      }
+      if (appLocal.getItem(privateKey) !== next) throw new Error('The private model change could not be saved.');
+    };
+    return run({expected, check, write});
+  });
+}
+
+async function importPrivateModel(file) {
+  return withPrivateModelWrite(async ({expected,check,write}) => {
+    if (!env?.opfs || !cpuOk('light')) throw new Error('Private GGUF import needs desktop CPU/WASM and browser file storage.');
+    const existing = readPrivateGguf(expected);
+    const runtime = await privateRuntime();
+    const {manifest,source} = await preparePrivateGguf(file,{runtime});
+    if (existing && manifest.descriptor.artifacts[0].sha256 !== existing.descriptor.artifacts[0].sha256) {
+      throw new Error('This file has a different checksum. Remove the registered private model before importing another.');
+    }
+    check();
+    const catalogue = createCatalog(privateGgufCatalogOptions(existing??manifest,{runtime,origin:location.origin}));
+    const {sources} = catalogue.resolveSources();
+    const files = catalogue.tierFiles(catalogue.defaultTier,sources);
+    const result = await host.provider().storage('wllama','install',{
+      files, runtimeDir:new URL('./runtime/providers/vendor/wllama/v1q/',import.meta.url).href,
+      verifyHash:true, deep:true, sourceList:[source], fallback:false,
+    });
+    if (!result.ok) throw new Error('The private model could not be verified and saved.');
+    await write(existing??manifest);
+  });
+}
+
+async function removePrivateModel() {
+  return withPrivateModelWrite(async ({expected,check,write}) => {
+    const registered = readPrivateGguf(expected);
+    if (!privateTier || registered?.descriptor.resource.id !== privateManifest.descriptor.resource.id) {
+      throw new Error('The private model registration changed. Reload before removing it.');
+    }
+    if (isPrivateTier(host.getState().selection.tier)) {
+      await host.selectTier(modelCatalog.defaultTier,{confirmed:true});
+      check();
+    }
+    await host.remove(privateTier,{confirmed:true});
+    await write(null);
+  });
+}
 
 async function saveSourceCredential(id, token) {
   token = token.trim();
@@ -166,9 +254,9 @@ function renderReadiness(s,supported,ready) {
 }
 // The wllama models run on the graphics card, or on the processor when there is no usable card (slower); the tiny ones can on iPhone and iPad too. The WebLLM model needs the card.
 const cpuOk=(tier)=>Boolean(env)&&cpuBackendSupport({env,userAgent:navigator.userAgent,maxTouchPoints:navigator.maxTouchPoints||0,tier}).ok;
-const isWllama=t=>t==='light'||t==='lfm'||t==='granite'||t==='mini'||t==='nano';
-const isSupported=s=>{const tier=s.selection.tier;return isWllama(tier)?gpuRunsLight(env)||cpuOk(tier):!!env?.webgpu.available;};
-const onCpu=s=>isWllama(s.selection.tier)&&!gpuRunsLight(env)&&cpuOk(s.selection.tier);
+const isWllama=t=>isPrivateTier(t)||t==='light'||t==='lfm'||t==='granite'||t==='mini'||t==='nano';
+const isSupported=s=>{const tier=s.selection.tier;return isPrivateTier(tier)?cpuOk('light'):isWllama(tier)?gpuRunsLight(env)||cpuOk(tier):!!env?.webgpu.available;};
+const onCpu=s=>isPrivateTier(s.selection.tier)||isWllama(s.selection.tier)&&!gpuRunsLight(env)&&cpuOk(s.selection.tier);
 // The model memory manager (runtime/memory-manager.mjs) is created by the page; with "One model at a time" on, using the chat model first unloads the others.
 const memoryLease=async(options)=>{try{const m=await window.plcMemoryReady?.();if(m)return await m.acquire('chat-llm',options);}catch{/* the manager is optional */}return {release(){}};};
 // A downloaded model loads by itself when the app opens (or when on-device chat is chosen), so chatting just works.
@@ -217,7 +305,10 @@ window.__plcDebugDownloadControl = action => {
 };
 /* DEV_DIAGNOSTICS_END */
 // Sending a message is enough: choose a model for this device, download it, load it, then answer (see runtime/prepare.mjs).
-preparer=createPreparer({host,recovery:downloadRecovery,getEnv:()=>env,subscribe:fn=>{window.addEventListener('local-model-state',fn);return()=>window.removeEventListener('local-model-state',fn);},userAgent:()=>navigator.userAgent,maxTouchPoints:()=>navigator.maxTouchPoints||0});
+preparer=createPreparer({host,
+ selectedChoice:state=>isPrivateTier(state.selection.tier)
+  ? {tier:state.tiers[privateTier].install.ok===true?privateTier:null,reason:'user-supplied',backend:'cpu'}
+  : null,recovery:downloadRecovery,getEnv:()=>env,subscribe:fn=>{window.addEventListener('local-model-state',fn);return()=>window.removeEventListener('local-model-state',fn);},userAgent:()=>navigator.userAgent,maxTouchPoints:()=>navigator.maxTouchPoints||0});
 window.addEventListener('online',()=>downloadRecovery.wake());
 window.addEventListener('connection-changed',()=>{if(state)render(host.getState());}); // the connection layer (chat/connection/) says offline or back
 window.addEventListener('pageshow',()=>downloadRecovery.synchronize());
@@ -235,6 +326,10 @@ window.plcUpdateGuard={
   prepare(){const input=document.querySelector('#messageInput');try{if(input&&input.value)appSession.setItem('plc.draft',input.value);}catch{/* the reload still works */}}
 };
 window.localModels={
+  importPrivateModel,
+  removePrivateModel,
+  hasPrivateModel:()=>Boolean(privateTier),
+  privateModelIssue:()=>privateModelIssue,
   modelSources:()=>readPersonalSources(appLocal),
   selectedSourceFiles:()=>selectedFiles?.files.size ?? 0,
   selectSourceFiles(selection) {
@@ -283,10 +378,10 @@ window.localModels={
   get qualityAvailable(){return qualityAvailable;},
   setMode(m){if(!['local','api'].includes(m)||m===mode)return;mode=m;applyMode();},
   selectTier(tier){return action(()=>host.selectTier(tier,{confirmed:true}));},
-  download(){return action(()=>downloadRecovery.start(host.getState().selection.tier));},
+  download(){return action(()=>{const {tier}=host.getState().selection;if(isPrivateTier(tier))throw new Error('Use local model files to install this private model.');return downloadRecovery.start(tier);});},
   load(){return action(async()=>{const lease=await memoryLease();try{return await host.load();}finally{lease.release();}});},
   restartEngine(){return action(async()=>{await host.restartHost();await host.inspect();});},
-  repair(){downloadRecovery.cancel();return action(()=>host.repair());},
+  repair(){downloadRecovery.cancel();return action(()=>{if(isPrivateTier(host.getState().selection.tier))throw new Error('Use local model files to restore this private model.');return host.repair();});},
   removeSelected(){downloadRecovery.cancel();return action(()=>host.remove(undefined,{confirmed:true}));},
   persist(){return action(()=>host.requestPersist());},
   async copyDetails(){const text=V.diagnostics;try{await navigator.clipboard.writeText(text);return true;}catch{window.plcDialogs?.copyText('Copy your device details',text);return false;}},

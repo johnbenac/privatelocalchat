@@ -167,6 +167,15 @@ try{
     await sourceSection.getByText('Private mirror fixture', {exact:true}).waitFor();
     await closeSettings();
   }
+  const privateGguf = opt('private-gguf');
+  if (privateGguf) {
+    await openSettings('models');
+    const sourceSection = page.locator('#modelSourceSection');
+    await sourceSection.getByLabel('Private GGUF').setInputFiles(resolve(privateGguf));
+    await sourceSection.getByRole('button', {name:'Import private GGUF', exact:true}).click();
+    await sourceSection.getByRole('status').filter({hasText:'Private model saved'}).waitFor({timeout:90000});
+    await closeSettings();
+  }
   plainProbe=await probe();
   // the same content again after a reload, so anything that changes by itself is found now and not by a later release
   await page.reload();await ready();await page.waitForTimeout(800);
@@ -228,6 +237,7 @@ try{
   const app=await page.evaluate(()=>window.APP_BUILD);
   checkBuildIdentity(app,commitFull);   // final check, for every kind of capture
   const scenario='two chats (one with a document), a project, a pinned chat, memory, a preset, a character package added as a preset with its look, personal instructions, an unsent draft'+(hasCharacters?', three authentic producer characters saved through Import character, Review and Save (Pip, Neri with a text file and a picture, Bex with a sound)':'')+'; then the encrypted vault'+(hasCharacters?', locked, unlocked and reloaded':'')
+    +(privateGguf?'; a locally registered private GGUF manifest':'')
     +(privateBuild||rehearsal?'. A post-release private writer build, unpublished: '+release+' is only the nearest earlier release.':'');
   const meta={format:'plc-data-snapshot/1',release,commit,commitFull,capturedAt:new Date().toISOString().slice(0,10),app,formats,...provenance,scenario,projection:plainProbe.projection};
   writeDurable(join(staging,'meta.json'),JSON.stringify(meta,null,1)+'\n');

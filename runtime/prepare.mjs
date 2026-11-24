@@ -20,11 +20,11 @@ export function progressOf(s, r = {}) {
   return { ...base, phase: "starting" };
 }
 
-export function createPreparer({ host, recovery, getEnv, subscribe, userAgent = () => "", maxTouchPoints = () => 0, onChosen = () => {} }) {
+export function createPreparer({ host, recovery, getEnv, subscribe, selectedChoice = () => null, userAgent = () => "", maxTouchPoints = () => 0, onChosen = () => {} }) {
   let switching = false;
   const choice = () => {
     const s = host.getState();
-    return pickTier({ env: getEnv(), installed: Object.fromEntries(Object.entries(s.tiers).map(([t, v]) => [t, v.install.ok === true])), selection: s.selection, userAgent: userAgent(), maxTouchPoints: maxTouchPoints() });
+    return selectedChoice(s) ?? pickTier({ env: getEnv(), installed: Object.fromEntries(Object.entries(s.tiers).map(([t, v]) => [t, v.install.ok === true])), selection: s.selection, userAgent: userAgent(), maxTouchPoints: maxTouchPoints() });
   };
   const waitIdle = async () => { for (let i = 0; i < 200 && host.getState().busy; i++) await new Promise((r) => setTimeout(r, 50)); };
 

@@ -70,7 +70,7 @@ Browsers offer to clear the site data of an address. In current browsers that re
 | `user` | what the person wrote or chose to keep (chats, drafts, memory, documents, API keys): goes into the vault |
 | `vault` | the encrypted store itself: nothing in it is readable without the passphrase |
 
-**Keys in local and session storage (38)**
+**Keys in local and session storage (39)**
 
 | Key | Where | Class | What it holds | Format | First release |
 | --- | --- | --- | --- | --- | --- |
@@ -101,6 +101,7 @@ Browsers offer to clear the site data of an address. In current browsers that re
 | `plc.prefs.v1` | local storage | `setting` | composer preferences; the theme is the one value the lock screen would like to read | 1 | v0.8.0 |
 | `plc.presentations.v1` | local storage | `user` | the look (layout, palette, pictures) a person chose to keep for a preset, one record per preset id | 1 | v0.74.0 |
 | `plc.presets.v1` | local storage | `user` | the person's own prompt presets | 1 | v0.8.0 |
+| `plc.privateGguf.v1` | local storage | `setting` | locally verified manifest for the registered private GGUF model | 1 | unreleased |
 | `plc.shell.collapsed` | local storage | `plain` | side panel open or closed | 1 | v0.15.0 |
 | `plc.shell.pins.v1` | local storage | `user` | pinned items; may name chats | 1 | v0.15.0 |
 | `plc.speechInputUnusable` | local storage | `plain` | this browser's speech input did not work | 1 | v0.11.0 |

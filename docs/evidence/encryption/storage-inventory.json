@@ -212,6 +212,15 @@
       "since": "v0.37.0"
     },
     {
+      "key": "plc.privateGguf.v1",
+      "store": "localStorage",
+      "class": "setting",
+      "owner": "local-models.js",
+      "note": "locally verified manifest for the registered private GGUF model",
+      "format": 1,
+      "since": "unreleased"
+    },
+    {
       "key": "plc.personalModelSources.v1",
       "store": "localStorage",
       "class": "setting",

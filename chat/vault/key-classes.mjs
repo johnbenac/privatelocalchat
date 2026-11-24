@@ -24,6 +24,7 @@ export const KEY_CLASSES = Object.freeze({
   "plc.downloadIntent.v1": { store: "local", class: "plain", format: 1 },
   "plc.offlineHint.v1": { store: "local", class: "plain", format: 1 },
   "plc.lockSplash.v1": { store: "local", class: "plain", format: 1 },
+  "plc.privateGguf.v1": { store: "local", class: "setting", format: 1 },
   "plc.personalModelSources.v1": { store: "local", class: "setting", format: 1 },
   "plc.modelSourceNotice.v1": { store: "local", class: "plain", format: 1 },
   "plc.lock.v1": { store: "local", class: "plain", format: 1 },

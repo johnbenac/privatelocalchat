@@ -54,7 +54,7 @@ export function languageRows(lmState, { mode = "local", notes = TIER_NOTES, hide
     else if (isSel && (lmState.busy === "load" || lmState.load?.state === "loading")) state = "loading";
     else if (isSel && lmState.busy === "install") state = "downloading";
     const failed = isSel && lmState.lastError && state !== "loaded" && !lmState.busy;
-    return { id: tier, kind: "language", label: item.info?.label || item.info?.modelId || tier, modelId: item.info?.modelId, note: notes[tier] || "",
+    return { id: tier, kind: "language", label: item.info?.label || item.info?.modelId || tier, modelId: item.info?.modelId, note: notes[tier] || (item.info?.provenance === "user-supplied-unverified" ? item.info.strengths : ""),
       sizeBytes: item.info?.downloadBytes ?? null, memoryBytes: item.info?.memory?.steadyBytes ?? null, bytesOnDevice: present, installed, partial: present > 0 && !installed,
       inUse: mode === "local" && isSel, state: failed ? "failed" : state, progress, error: failed ? (lmState.lastError.message || String(lmState.lastError)) : null };
   });

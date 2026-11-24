@@ -271,6 +271,40 @@ export function buildModelsPage({ app, h, row, btn, moved, chooseVoice, voiceHin
         }
       },
     }));
+    const privateFile = h("input", {type:"file", accept:".gguf", "aria-label":"Private GGUF"});
+    const reload = h("button", {type:"button", text:"Reload to use private model", hidden:true, onclick:()=>lm().reloadApp()});
+    const importGguf = h("button", {type:"button", text:"Import private GGUF", onclick:async event=>{
+      const button = event.currentTarget;
+      const file = privateFile.files[0];
+      if (!file) { status.textContent = "Select a GGUF model file first."; return; }
+      button.disabled = true;
+      try {
+        status.textContent = "Hashing and installing the private model…";
+        await lm().importPrivateModel(file);
+        privateFile.value = "";
+        status.textContent = "Private model saved. Reload to add it to the Models list.";
+        reload.hidden = false;
+      } catch (error) {
+        status.textContent = error.message;
+      } finally {
+        button.disabled = false;
+      }
+    }});
+    const removeGguf = lm()?.hasPrivateModel?.() ? h("button", {type:"button", text:"Remove private GGUF", onclick:async event=>{
+      const button = event.currentTarget;
+      button.disabled = true;
+      try {
+        if (!await ask("Remove private GGUF?", "This deletes the installed model file from the browser. Your original file and chats stay on this device.", "Remove")) return;
+        await lm().removePrivateModel();
+        status.textContent = "Private model removed. Reload to update the Models list.";
+        reload.textContent = "Reload Models list";
+        reload.hidden = false;
+      } catch (error) {
+        status.textContent = error.message;
+      } finally {
+        button.disabled = false;
+      }
+    }}) : null;
     sourceSection.append(h("p", { class: "hint-text", text: "Language model downloads use the first personal source in this list. Remove all personal sources to use the operator’s source." }), list, form,
       chooseFiles("Select local model files", { multiple:true }),
       chooseFiles("Select a model folder", { webkitdirectory:true }),
@@ -291,8 +325,8 @@ export function buildModelsPage({ app, h, row, btn, moved, chooseVoice, voiceHin
         lm().selectSourceFiles(null);
         status.textContent = "Local selection cleared.";
       }}),
-      status);
-    try { paint(); } catch { status.textContent = "The saved model source list could not be read."; }
+      h("div", {}, privateFile, importGguf, removeGguf, reload), status);
+    try { paint(); status.textContent = lm()?.privateModelIssue?.() ?? ""; } catch { status.textContent = "The saved model source list could not be read."; }
   }
   w.append(offlineNote, langSection, offlineSection, providerSection, voiceSection, otherSection, memSection, sourceSection);
   paintLanguage(); paintProvider(); startVoice(); startMemory();
