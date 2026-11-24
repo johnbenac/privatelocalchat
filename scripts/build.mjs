@@ -159,6 +159,11 @@ await writeFile(path.join(out,'manifest.webmanifest'),JSON.stringify({name:'Priv
 await writeFile(path.join(out,'_headers'),toPagesHeaders()); // the rules are in scripts/headers.mjs, and scripts/serve.mjs applies this file
 // Pages control files at the root (_headers, _worker.js, _redirects) are not part of the app. Matched by exact name: a file such as
 // vendor/noble-hashes/_md.js is an ordinary module that the app imports and must be saved for offline use.
+const privateModelNative=targetInfo.devTooling?developmentNative:productionNative;
+const {buildId,baseBuildId,files:nativeFiles}=privateModelNative;
+await writeFile(path.join(out,releasePath,'runtime/private-gguf-runtime.json'),JSON.stringify({
+ buildId,baseBuildId:baseBuildId||buildId,files:nativeFiles,
+}));
 // What is in this release's folder, with a checksum for each file. A later deploy uses it to keep this folder available while tabs that started on this build are still open
 // (scripts/retain-releases.mjs, docs/UPGRADE-BEHAVIOUR.md). releases/index.json says which release folders this site holds: the current one, and the deploy adds the ones it keeps.
 {
@@ -175,11 +180,6 @@ const shell=[];
 async function walk(dir){for(const ent of await readdir(dir,{withFileTypes:true})){const p=path.join(dir,ent.name);if(ent.isDirectory())await walk(p);else if(!(dir===out&&NOT_SHELL_ROOT_FILES.includes(ent.name))&&!(dir===out&&LICENCE_FILES.includes(ent.name))&&!/\/chat\/vendor\/(voice|embedding\/ort)\//.test('/'+path.relative(out,p).split(path.sep).join('/')))shell.push('/'+path.relative(out,p).split(path.sep).join('/'));}}
 await walk(out);
 let template=await readFile('scripts/service-worker.js','utf8');
-const privateModelNative=targetInfo.devTooling?developmentNative:productionNative;
-const {buildId,baseBuildId,files:nativeFiles}=privateModelNative;
-await writeFile(path.join(out,releasePath,'runtime/private-gguf-runtime.json'),JSON.stringify({
- buildId,baseBuildId:baseBuildId||buildId,files:nativeFiles,
-}));
 if(!targetInfo.devTooling)template=template.replace(/\/\* DEV_DIAGNOSTICS_START \*\/[\s\S]*?\/\* DEV_DIAGNOSTICS_END \*\//g,'');
 template=template.replace('__DEV_OFFLINE_FAULT__',targetInfo.devTooling?await readFile('dev-tools/offline-fault-sw.js','utf8'):'');
 // the service worker is told which pages this build has: offline, a path of a page it does not have opens the app

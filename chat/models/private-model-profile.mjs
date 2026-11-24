@@ -13,7 +13,6 @@ export async function preparePrivateGguf(file, { runtime, signal, id = crypto.ra
   if (!/^[0-9a-f]{64}$/.test(sha256)) throw new Error("The model checksum is invalid.");
   const pinnedRuntime = wllamaRuntimeManifest(runtime).descriptor;
   const manifest = manifestFromDescriptor({
-    format: "cosmoshot/resource-profile/0",
     resource: {
       id: "resource:model/user-gguf-" + id,
       kind: "inert", class: "model-resource",
