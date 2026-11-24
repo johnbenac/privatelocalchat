@@ -3,11 +3,11 @@ import assert from 'node:assert/strict';
 import {createDownloadRecovery} from '../runtime/download-recovery.mjs';
 const KEY='plc.downloadIntent.v1';
 const flush=async()=>{for(let i=0;i<12;i++)await Promise.resolve();};
-function fixture(storage=new Map()){
+function fixture(storage=new Map(), sourceBinding=()=>null){
  const jobs=[],states=[];let complete=false,failures=0,installs=0,loads=0,cancels=0,connected=true;
  const store={getItem:k=>storage.get(k)??null,setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)};
  const host={getState:()=>({busy:null,host:{state:'running'},selection:{tier:'light'},tiers:{light:{install:{ok:complete}}}}),inspect:async()=>{},install:async()=>{installs++;if(failures-->0)throw Object.assign(Error('Something entirely unexpected happened'),{name:'UnrecognizedFailure'});complete=true;},load:async()=>{assert.equal(store.getItem(KEY),null);loads++;},cancelTransfer:()=>cancels++};
- const recovery=createDownloadRecovery({host,storage:store,online:()=>connected,lock:null,onState:s=>states.push(s),schedule:(fn,ms)=>{const job={fn,ms};jobs.push(job);return job;},unschedule:job=>job.cancelled=true});
+ const recovery=createDownloadRecovery({host,storage:store,online:()=>connected,sourceBinding,lock:null,onState:s=>states.push(s),schedule:(fn,ms)=>{const job={fn,ms};jobs.push(job);return job;},unschedule:job=>job.cancelled=true});
  return {recovery,host,store,storage,jobs,states,set complete(v){complete=v;},set failures(v){failures=v;},set connected(v){connected=v;},get installs(){return installs;},get loads(){return loads;},get cancels(){return cancels;},async step(){const job=jobs.find(j=>!j.cancelled&&!j.ran);assert.ok(job,'scheduled recovery expected');job.ran=true;job.fn();await flush();return job.ms;}};
 }
 test('unrecognized failures retain intent, back off and eventually load without another click',async()=>{
@@ -101,4 +101,20 @@ test('the same failure three times in a row is reported with its message, and th
  await f.step();assert.equal(f.recovery.state.reason,null);
  await f.step();assert.equal(f.recovery.state.reason,'repeated: Failed to write to file');assert.equal(f.recovery.state.phase,'retrying');assert.ok(f.store.getItem(KEY),'the request is still kept');
  f.host.install=async()=>{f.complete=true;};await f.step();assert.equal(f.recovery.state.phase,'ready');assert.equal(f.recovery.state.reason,null);
+});
+
+test('a recovered download cannot retarget to a different source or the operator default', async () => {
+ for (const next of ['replacement-mirror', null]) {
+  const old = fixture(new Map(), () => 'original-mirror');
+  old.recovery.start('light');
+  const fresh = fixture(old.storage, () => next);
+  fresh.recovery.resume();
+  await fresh.step();
+  assert.equal(fresh.recovery.state.phase, 'source-changed');
+  assert.equal(fresh.installs, 0);
+  assert.equal(fresh.store.getItem(KEY), null);
+  fresh.recovery.start('light');
+  await fresh.step();
+  assert.equal(fresh.installs, 1);
+ }
 });

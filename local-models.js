@@ -137,6 +137,7 @@ function render(s) {
   const waitingForConnection=recovery?.pending&&(recovery.phase==='offline'||(['install','repair'].includes(s.busy)&&window.plcApp?.offline?.connection?.state==='offline'));
   if(waitingForConnection){V.statusError=false;V.status='Waiting for a connection. The download carries on by itself, and what is saved is kept'+(t?.bytesDone?' ('+gb(t.bytesDone)+' of '+gb(t.bytesTotal||item.info.downloadBytes)+' so far)':'')+'.';}
   if(recovery?.pending&&String(recovery.reason||'').startsWith('repeated:'))V.status+=` · The download keeps failing (${recovery.reason.slice(10)}). The browser may have no room left to save files for this site: free some space, close other tabs, or choose a smaller model. Saved files are kept and it keeps trying.`;
+  if(recovery?.phase==='source-changed')V.status+=' · '+recovery.reason;
   if(recovery?.pending&&!recovery.remembered)V.status+=' Keep this page open: the browser could not save the download request yet.';
   qualityAvailable=!(!env?.webgpu.available || (env.deviceMemoryGB !== null && env.deviceMemoryGB < 8) || /iPhone|iPad|iPod|Android/.test(navigator.userAgent));
   V.diagnostics=JSON.stringify({device:env,selection:s.selection,variant:s.variant,storage:s.storage,host:s.host,load:s.load,lastError:s.lastError},null,2);
@@ -187,7 +188,11 @@ function applyMode() {
 }
 async function action(fn) {try {await fn();} catch(e) {showError(e);} }
 downloadRecovery=createDownloadRecovery({host,
- beforeInstall:()=>readPersonalSources(appLocal).length ? true : ensureSourceNotice({storage:appLocal,dialogs:window.plcDialogs}), // the model-source notice, once, on a copy that is not our own site
+ sourceBinding:()=>readPersonalSources(appLocal)[0]?.id??null,
+ beforeInstall:()=>{
+  syncPersonalSources();
+  return readPersonalSources(appLocal).length ? true : ensureSourceNotice({storage:appLocal,dialogs:window.plcDialogs});
+ }, // the model-source notice, once, on a copy that is not our own site
 /* DEV_DIAGNOSTICS_START */
  beforeLoad:()=>new Promise(resolve=>{const timeout=setTimeout(resolve,5000);diagnosticsReady.then(()=>{clearTimeout(timeout);resolve();});}),
 /* DEV_DIAGNOSTICS_END */
