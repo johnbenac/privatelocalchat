@@ -1,6 +1,6 @@
 // Sources, mirrors and the one integrity path (T1067). Pure apart from the injected services: no window global, no storage, no worker. Runs in the host Worker and in tests.
 //
-//   source   {id, label?, base, kind?: "https"|"path"|"files"|"archive", privacy?, credentials?: "request"|"none", files?: Map<name, Blob>, blob?: Blob}
+//   source   {id, label?, base, kind?: "https"|"path"|"files"|"archive", privacy?, credentials?: "request"|"none", credentialScope?: "endpoint", files?: Map<name, Blob>, blob?: Blob}
 //            https/path: a base address a file's relative place is appended to. files: a Map of relative name -> File/Blob (a picked folder). archive: ONE uncompressed tar as a Blob.
 //   file     {path, bytes, sha256, url (the CANONICAL address: the cache key whichever source served it), rel (its place under a source's base), scope}
 //   services {fetch, readFile(source, rel) => Promise<Blob>, requestCredential(endpoint) => Promise<{headers}|{none:true}|{refused:true}>}
@@ -12,6 +12,32 @@ import { sha256 } from "./vendor/noble-hashes/2.4.0/sha2.js";
 
 export const DEFAULT_PRIVACY = "this source learns the address of the person fetching";
 const KINDS = new Set(["https", "path", "files", "archive"]);
+
+// Match the portable connection contract's credential-shaped query keys.
+const secretQuery = /(^|[-_])(sig|signature|token|secret|password|passwd|credential|key|sas|auth|access[-_]?token|x-amz-[a-z-]+|x-goog-[a-z-]+)($|[-_=])/i;
+const secretQueryKeys = new Set(["key", "api_key", "api-key", "apikey", "access_token", "access-key",
+  "refresh_token", "id_token", "token", "jwt", "password", "secret", "client_secret", "secret_key",
+  "private_key", "authorization", "auth", "bearer", "code", "cookie", "session", "sessionid",
+  "session_id", "signature", "sig"]);
+const hasSecretQuery = url => [...url.searchParams.keys()].some(key => secretQuery.test(key) || secretQueryKeys.has(key.toLowerCase()));
+
+function sourceBase(source) {
+  if (typeof source.base !== "string") return "";
+  if (source.credentialScope !== "endpoint") return source.base.endsWith("/") ? source.base : source.base + "/";
+  const url = new URL(source.base);
+  if (!["http:", "https:"].includes(url.protocol) || url.username || url.password || url.hash || hasSecretQuery(url)) {
+    throw new RangeError("Invalid endpoint-scoped source URL");
+  }
+  if (!url.pathname.endsWith("/")) url.pathname += "/";
+  return url.href;
+}
+
+function sourceUrl(source, rel) {
+  if (source.credentialScope !== "endpoint") return source.base + rel;
+  const url = new URL(source.base);
+  url.pathname += rel;
+  return url.href;
+}
 
 export function normalizeSources(list) {
   if (list === null || list === undefined) return [];
@@ -25,7 +51,11 @@ export function normalizeSources(list) {
     if ((kind === "https" || kind === "path") && typeof s.base !== "string") throw new TypeError(`source ${id}: ${kind} needs a base`);
     if (kind === "files" && !(s.files instanceof Map)) throw new TypeError(`source ${id}: files needs a Map of relative name -> File/Blob`);
     if (kind === "archive" && !(typeof Blob !== "undefined" && s.blob instanceof Blob)) throw new TypeError(`source ${id}: archive needs one tar Blob`);
-    return { id, label: String(s.label ?? id), base: typeof s.base === "string" ? (s.base.endsWith("/") ? s.base : s.base + "/") : "", kind, privacy: s.privacy ?? DEFAULT_PRIVACY, credentials: s.credentials ?? "none", ...(s.files ? { files: s.files } : {}), ...(s.blob ? { blob: s.blob } : {}) };
+    if (s.credentialScope !== undefined && s.credentialScope !== "endpoint") throw new RangeError("Unknown credential scope");
+    return { id, label: String(s.label ?? id), base: sourceBase(s), kind, privacy: s.privacy ?? DEFAULT_PRIVACY, credentials: s.credentials ?? "none", ...(s.credentialScope ? {
+      credentialScope: s.credentialScope,
+      credentialEndpoint: s.credentialEndpoint ?? s.base,
+    } : {}), ...(s.files ? { files: s.files } : {}), ...(s.blob ? { blob: s.blob } : {}) };
   });
 }
 
@@ -41,7 +71,7 @@ export function candidatesFor(file, { sources = [], fallback = true } = {}) {
   const canonical = { source: "canonical", kind: /^https?:\/\//i.test(file.url) ? "https" : "path", url: file.url, credentials: "none" };
   if (!sources.length) return [canonical];
   const one = (s) => (usesNetwork(s)
-    ? (file.rel ? { source: s.id, kind: s.kind, url: s.base + file.rel, credentials: s.credentials } : { source: s.id, kind: s.kind, unservable: `${s.label} cannot serve ${file.path}: it has no place under a source's base (a runtime file, or an entry with its own host or an absolute directory); it comes only from its catalogue address` })
+    ? (file.rel ? { source: s.id, kind: s.kind, url: sourceUrl(s, file.rel), credentials: s.credentials, ...(s.credentialScope ? { credentialScope: s.credentialScope } : {}) } : { source: s.id, kind: s.kind, unservable: `${s.label} cannot serve ${file.path}: it has no place under a source's base (a runtime file, or an entry with its own host or an absolute directory); it comes only from its catalogue address` })
     : { source: s.id, kind: s.kind, rel: file.bundleRel ?? file.rel ?? file.path, name: file.path });
   const list = sources.map(one);
   return fallback ? [...list, ...(list.some((c) => c.url === file.url) ? [] : [canonical])] : list.slice(0, 1);
@@ -51,6 +81,32 @@ export function candidatesFor(file, { sources = [], fallback = true } = {}) {
 export const originOfUrl = (u) => /^(https?:\/\/[^/?#]+)/i.exec(String(u))?.[1]?.toLowerCase() ?? null;
 
 const refusal = (code, message, detail) => Object.assign(new Error(message), { name: "SourceError", code, ...(detail ? { detail } : {}) });
+
+function credentialEndpoint(candidate, source) {
+  const origin = originOfUrl(candidate.url);
+  if (!origin) throw refusal("credential-needs-https", "a credential needs an absolute address");
+  if (candidate.credentialScope !== "endpoint") return origin;
+  let base, target, endpoint;
+  try {
+    base = new URL(source?.base);
+    target = new URL(candidate.url);
+    endpoint = new URL(source.credentialEndpoint);
+  } catch {
+    throw refusal("credential-endpoint-mismatch", "the source endpoint could not be verified");
+  }
+  const ambiguousPath = /%25|%2e|%2f|%5c/i;
+  const endpointDirectory = endpoint.pathname.endsWith("/") ? endpoint.pathname : endpoint.pathname + "/";
+  if (endpoint.origin !== base.origin || endpointDirectory !== base.pathname ||
+      endpoint.search !== base.search || hasSecretQuery(endpoint) || endpoint.hash || endpoint.username || endpoint.password ||
+      base.origin !== target.origin || !base.pathname.endsWith("/") ||
+      !target.pathname.startsWith(base.pathname) || target.search !== base.search ||
+      base.hash || target.hash || base.username || base.password || target.username || target.password ||
+      ambiguousPath.test(base.pathname) || ambiguousPath.test(target.pathname)) {
+    throw refusal("credential-endpoint-mismatch", "the requested asset is outside the selected source endpoint");
+  }
+  endpoint.hostname = endpoint.hostname.replace(/\.$/, "");
+  return endpoint.href;
+}
 
 const archives = new WeakMap();   // tar Blob -> Promise<Map name -> {offset, bytes}>
 async function archiveIndex(blob, signal) {
@@ -86,7 +142,8 @@ const isLoopback = (u) => /^(localhost|127\.\d+\.\d+\.\d+|\[::1\])$/i.test(new U
 const sameOrigin = (a, b) => new URL(a).origin === new URL(b).origin;
 
 /** One request that never lets a credential follow a redirect to another origin: redirects are followed here, by hand, and the headers are dropped as soon as the origin changes. */
-async function fetchNoLeak(fetch, url, { signal, headers }) {
+async function fetchNoLeak(fetch, url, { signal, headers, scopedEndpoint }) {
+  if (scopedEndpoint) return fetch(url, { signal, credentials: "omit", cache: "no-store", redirect: "error", ...(headers ? { headers } : {}) });
   let current = url, sendHeaders = headers, hops = 0;
   for (;;) {
     const res = await fetch(current, { signal, credentials: "omit", cache: "no-store", redirect: headers ? "manual" : "follow", ...(sendHeaders ? { headers: sendHeaders } : {}) });
@@ -103,7 +160,7 @@ async function fetchNoLeak(fetch, url, { signal, headers }) {
  * Fetch one file from its candidates through the one integrity path. `hash(blob) => sha256 hex` is the caller's (a Worker-side hasher). Returns {blob, servedBy, tried}: `tried` lists every
  * candidate that failed and why (never the headers). Throws the LAST failure when every candidate failed (code from the failure; `candidates-exhausted` carries the list in detail).
  * With `sink` ({write(stream, file) => Promise, discard() => Promise}) a NETWORK file is streamed into the store while it is hashed incrementally (memory stays bounded by a chunk, not the file),
- * and a file from a picked folder or an archive is hashed by slices and then streamed; the result has no `blob`. A size or digest mismatch discards what was written.
+ * and a file from a picked folder or an archive is hashed by slices and then streamed; the result has no `blob`. A size or digest mismatch fails the stream before a sink can publish it, then discards what was written.
  */
 export async function fetchVerified(file, candidates, services, { hash, signal, onBytes, sourcesById = new Map(), posture = null, sink = null, dead = null } = {}) {
   const tried = [];
@@ -120,21 +177,36 @@ export async function fetchVerified(file, candidates, services, { hash, signal, 
         let headers; if (c.credentials === "request") {
           if (!/^https:/i.test(c.url) && !isLoopback(c.url)) throw refusal("credential-needs-https", "a credential is never sent over plain http");
           if (!services.requestCredential) throw refusal("credential-unavailable", "this source needs a credential and the page supplies none");
-          const origin = originOfUrl(c.url); if (!origin) throw refusal("credential-needs-https", "a credential is asked for only for an absolute https address"); const a = await services.requestCredential(origin);
+          const a = await services.requestCredential(credentialEndpoint(c, src));
           if (a?.unavailable) throw refusal("credential-unavailable", "this source needs a credential and the page supplies no handler for one");
           if (a?.timedOut) throw refusal("credential-timeout", "the page did not answer the credential request in time");
           if (a?.refused) throw refusal("credential-refused", "the page refused to give a credential for this source");
           headers = a?.headers ? checkCredentialHeaders(a.headers) : undefined;
         }
-        const res = await fetchNoLeak(services.fetch, c.url, { signal, headers });
+        const res = await fetchNoLeak(services.fetch, c.url, { signal, headers, scopedEndpoint: c.credentialScope === "endpoint" });
         if (!res.ok || !res.body) throw Object.assign(refusal("download-failed", `HTTP ${res.status} for ${c.source}`), { status: res.status });
         if (sink) {
-          const hasher = hash ? sha256.create() : null; let n = 0;
-          const t = new TransformStream({ transform(chunk, ctl) { n += chunk.byteLength; hasher?.update(chunk); onBytes?.(chunk.byteLength); ctl.enqueue(chunk); } });
-          try { await sink.write(res.body.pipeThrough(t), file); } catch (e) { await sink.discard?.(); throw e; }
-          const got = hasher ? Array.from(hasher.digest(), (b) => b.toString(16).padStart(2, "0")).join("") : null; streamed = true;
-          if (n !== file.bytes) { await sink.discard?.(); throw refusal("cache-corrupt", `size mismatch for ${file.path}: got ${n} bytes, the catalogue says ${file.bytes}`); }
-          if (file.sha256 && got !== null && got !== file.sha256) { await sink.discard?.(); throw refusal("cache-corrupt", `checksum mismatch for ${file.path}: sha256 ${got}, the catalogue says ${file.sha256}`); }
+          const hasher = hash ? sha256.create() : null;
+          let n = 0;
+          const checked = new TransformStream({
+            transform(chunk, controller) {
+              n += chunk.byteLength;
+              hasher?.update(chunk);
+              onBytes?.(chunk.byteLength);
+              controller.enqueue(chunk);
+            },
+            // The cache may publish its ready marker as soon as the stream closes.
+            flush() {
+              if (n !== file.bytes) throw refusal("cache-corrupt", `size mismatch for ${file.path}: got ${n} bytes, the catalogue says ${file.bytes}`);
+              if (file.sha256 && hasher) {
+                const got = Array.from(hasher.digest(), (byte) => byte.toString(16).padStart(2, "0")).join("");
+                if (got !== file.sha256) throw refusal("cache-corrupt", `checksum mismatch for ${file.path}: sha256 ${got}, the catalogue says ${file.sha256}`);
+              }
+            },
+          });
+          try { await sink.write(res.body.pipeThrough(checked), file); }
+          catch (error) { await sink.discard?.(); throw error; }
+          streamed = true;
         } else {
           const reader = res.body.getReader(); const chunks = []; let n = 0;
           for (;;) { const { value, done } = await reader.read(); if (done) break; chunks.push(value); n += value.byteLength; onBytes?.(value.byteLength); }

@@ -64,6 +64,14 @@ export function legacyCatalog() {
     texts: { defaultReason: "The smaller Qwen3.5-2B model is the starting choice. Select the quality model if this device supports it.", reasonFor: (tier, at) => { const when = at ? ` on ${new Date(at).toLocaleString()}` : ""; if (tier === "light") return `Light tier, chosen by you${when}. It uses less memory than the quality model.`; if (tier === "default") return `Quality tier, chosen by you${when}.`; return null; } },
     chooseVariant: pure.chooseWebllmVariant,
     applyVariant: (tier, info, v) => (tier === "default" && info.engine === "webllm" ? { ...info, modelId: pure.VARIANT_INFO[v].modelId, quantization: v, downloadBytes: pure.VARIANT_INFO[v].downloadBytes, memory: pure.VARIANT_INFO[v].memory } : info),
+    relFor(tier, file, variant = DEFAULT_VARIANT) {
+      if (file.scope === "webllm/wasm") return null;
+      const base = tier === "default" ? OFFICIAL_SOURCES.webllmModelBase[variant]
+        : tier === "light" ? OFFICIAL_SOURCES.wllamaModelBase
+        : OFFICIAL_SOURCES.wllamaTierBase[tier];
+      return base && base.startsWith(ROOT) && file.url === base + file.path
+        ? base.slice(ROOT.length) + file.path : null;
+    },
     runsOnProcessor: pure.isWllamaTier, resolveSources, tierFiles, loadConfigFor
   });
 }

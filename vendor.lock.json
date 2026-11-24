@@ -126,7 +126,7 @@
         "adapters/mock.mjs": "324dc12052489883f65c0795719fda75674b3c4271fa76c762b2079c2967c304",
         "adapters/webgpu.mjs": "1bef792ac631b65f7e28d2c151db7f6dea77b0e9d4b0f85141e995827da415c3",
         "adapters/webllm.mjs": "5250acbf6412780e9779c4c28f3588ecdec86cb96e0c2959e2648fc6c1b0d1d7",
-        "adapters/wllama.mjs": "2ad93e31fa1b825314be0cd3bfe7bbb9baf2a370f5398424a0bfb914cc62f40b",
+        "adapters/wllama.mjs": "a4a5f0834ca4a8146ad618a661aba168781114ec532060544ba89cf38ac71de9",
         "app-config.mjs": "71f41d87b848fe582ca5a4156520cd176d1b5633acab5b45e0854dd9a0a41ca3",
         "auto-tier.mjs": "266345693d831bc3a054bfdb3cde7266cf5d33b90c711efd90bcef3b9d01fb84",
         "budget-profiles.mjs": "4fc02b51c8c25b7dd6b9e9a4c4c7c074ef96dabdb09dc0ccd21c7a5e69e62555",
@@ -137,7 +137,7 @@
         "catalog-data.mjs": "24acb0c679c64bd4b211167bdbb03947eacdc918ca9b4cb68f95e5d4fad54692",
         "catalog-default.mjs": "708038f8ed7b530fac53fb9445d30334ba57ab68ad600c9e70f4e35e387e6cc6",
         "catalog-tiers.mjs": "c964bab46d6d5977755972061bc5954a16974bb22320744fdd447e97c0756214",
-        "catalog.mjs": "2898319266f9fed82b6849dfa7e3345d67eba31278f643e4907555f0fbbef3df",
+        "catalog.mjs": "2b779eec4142012c67b443c6358edfa204f6a7e69527adeb5a654a1be6a335d2",
         "client.mjs": "06cace61167608bc7255efc10fad39cb7d533a56af8d1bce140278b4abeaf7c1",
         "download-retry.mjs": "ffe90f1bc3c4c9acb96dfeb884de80f4abb4cac55b4e7aefdb99ba2f2956e6e5",
         "engine-config.mjs": "c2259b73236bbdf2c5d7ec13cd031dd85b1b7b1877dc902178d0d5163bb78a37",
@@ -152,7 +152,7 @@
         "kokoro-session-engine.mjs": "ca9c0d2a5e728da3afc61aefa6edffd31ec9e3f29adda042607fd46bb95a8167",
         "manifest-shipped.mjs": "1f352dd7933041117db43dd5081f574a5b0cb20c3fc9a9f2c3dadf309cfbc040",
         "manifest-view.mjs": "a4346838a41af177112ad2147189f972fa62bb535f35158a1757349282cca8d3",
-        "model-host-core.mjs": "0bb910b809592ecbcf7290ae5c56d9936279d191da612e61f5708f32d730bfb2",
+        "model-host-core.mjs": "b46fcfea207177603adba56e3ca3502cf718d38e8703bc52795a7c16a5afdb4a",
         "model-host.mjs": "d1e3e48d7adee2011808fdf65ee66e9a46d5a977d6f0da9b984640d1bdd38257",
         "model-selection.mjs": "9af207bb0d22fb718eb17e024cd6d3f42ed4e217b6f2401ac6b54b1504210a7f",
         "native-shutdown.mjs": "8c8f14207e79e01833d7be5ef152cb25dcc1e18c31f8457fe06aecc834080f10",
@@ -164,7 +164,7 @@
         "registry.mjs": "d0f7c2eae2e1a8fb16f0fb8090cbd879396c64a643d2030ed11b2490aad0457d",
         "runtime.mjs": "19c576424b1dc2092dd14574e60007f738741b3e3c7661d0a1e1b9a549719013",
         "shipped.mjs": "a95b7fac95479aa299d08d0553d6496b6588a94629fe4b5d1575ea4dc9e5541f",
-        "sources-core.mjs": "1dca7b91a84e69cd1720ed97ff5fb658f56a01793046ba22d5a2709b47d6d256",
+        "sources-core.mjs": "290b66a16de7a610408315277304ea6cba0c59a4d4fb4838728fb86df5ab0e95",
         "speech-kitten.mjs": "ed5ddb456584f2e2b0fc3cfedadbecad245118dfdafac67842a4eada10fcfb62",
         "speech-kokoro.mjs": "ebb95b090bfd27ebf15b113c858a70e3747196629a85079fd10c41e110a96a56",
         "speech-speecht5.mjs": "2afafe354b7b789d33f243e1cfc70fdacbf7bbcbe051309b143e8d774e8bc30f",
@@ -196,13 +196,13 @@
       "name": "model-runtime",
       "owner": "plc",
       "package": {
-        "file": "model-runtime-1.5.0.tar.gz",
-        "sha256": "202ee587e362040570d729c1b0136deb4acef3c3ad23f5e894d5201211c1a90f",
+        "file": "model-runtime-1.6.0.tar.gz",
+        "sha256": "fe4de980560938e9865e4cf1ed688ba9d8ee2202274523da991e37ab277168fc",
         "type": "generic"
       },
       "path": "runtime/providers",
-      "tree_sha256": "7bc60c5fcca70b18d6b885857f2689813f0db5a6991b787322598573144a7359",
-      "version": "1.5.0"
+      "tree_sha256": "b158dd27dc0c85a8ccd2b445595958d10a5b8dfeecc85a666610e57e43afd43b",
+      "version": "1.6.0"
     },
     {
       "files": {

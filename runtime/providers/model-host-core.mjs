@@ -245,9 +245,12 @@ export function createModelHost({
 
   // ---- inventory ---------------------------------------------------------------------------------------------------
   function filesOf(tier) { return tierFiles(tier, src.sources, variant); }
-  const listedSources = normalizeSources(sourceList);
-  const posted = applyPosture(listedSources, posture);
-  if (posted.refused.length) queueMicrotask(() => notice("source", `Not approved on this page, never contacted: ${posted.refused.join(", ")}.`, "source-not-approved"));
+  let listedSources = normalizeSources(sourceList);
+  let posted = applyPosture(listedSources, posture);
+  function reportRefusedSources(refused) {
+    if (refused.length) notice("source", `Not approved on this page, never contacted: ${refused.join(", ")}.`, "source-not-approved");
+  }
+  queueMicrotask(() => reportRefusedSources(posted.refused));
   /** What a storage job needs to use the list: data only (functions stay on the page). */
   function sourceArgs() { return listedSources.length ? { sourceList: listedSources, fallback, refusedSources: posted.refused } : {}; }
   // with a source list each file also says where it sits under a source's base (`rel`), so a mirror, a folder or an archive can be asked for it
@@ -300,6 +303,16 @@ export function createModelHost({
       const o = originsOf({ files: files.filter((f) => f.scope !== "webllm/wasm"), runtimeFiles, sources: listedSources });
       // hosts a consumer knows its sources redirect to (a model hub's download hosts), by use: `origins({connect: [...]})`; they are added, never guessed
       return Object.fromEntries(Object.entries(o).map(([k, v]) => [k, [...new Set([...v, ...(extra[k] ?? [])])].sort()]));
+    },
+    /** Apply the person's ordered sources to subsequent transfers without changing an installed or active model. */
+    setSources(list) {
+      const next = normalizeSources(list);
+      const allowed = applyPosture(next, posture);
+      listedSources = next;
+      posted = allowed;
+      reportRefusedSources(allowed.refused);
+      emit();
+      return { sources: next.map(({id, label}) => ({id, label})), refused: [...allowed.refused] };
     },
     getState: snapshot,
     subscribe(fn) { subscribers.add(fn); fn(snapshot()); return () => subscribers.delete(fn); },
@@ -358,8 +371,9 @@ export function createModelHost({
     /** Download everything missing or bad (complete files are kept: that is resume). Checks size and SHA-256 of every file. */
     async install(tier = state.selection.tier) {
       assertOffered(tier);
+      const sources = sourceArgs();
       return runTransfer("install", tier, async (c, signal, onProgress) => {
-        const res = await c.storage(engineOf(tier), "install", storageArgs(tier, { verifyHash: true, ...sourceArgs() }), { signal, onProgress });
+        const res = await c.storage(engineOf(tier), "install", storageArgs(tier, { verifyHash: true, ...sources }), { signal, onProgress });
         state.tiers[tier].install = summarize(res); state.tiers[tier].lastInstall = { fetchedBytes: res.fetchedBytes, keptBytes: res.keptBytes, replaced: res.replaced, at: now(), ...(res.servedBy ? { sources: res.servedBy } : {}) };   // which source served each file: a person can see it
         return res;
       });
@@ -378,9 +392,10 @@ export function createModelHost({
     async repair(tier = state.selection.tier) {
       assertOffered(tier);
       if (state.load.state === "ready" && state.load.tier === tier) await api.unload();
+      const sources = sourceArgs();
       return runTransfer("repair", tier, async (c, signal, onProgress) => {
         // repair goes through the same source list, fallback and posture as install: it never contacts a host the person's policy forbids
-        const res = await c.storage(engineOf(tier), "repair", storageArgs(tier, { verifyHash: true, ...sourceArgs() }), { signal, onProgress });
+        const res = await c.storage(engineOf(tier), "repair", storageArgs(tier, { verifyHash: true, ...sources }), { signal, onProgress });
         state.tiers[tier].install = summarize(res); state.tiers[tier].lastInstall = { fetchedBytes: res.fetchedBytes, keptBytes: res.keptBytes, replaced: res.replaced, at: now(), ...(res.servedBy ? { sources: res.servedBy } : {}) };
         return res;
       });

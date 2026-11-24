@@ -186,12 +186,31 @@ async function install({ files, runtimeDir, verifyHash = true, deep = false, sou
   return { ...after, fetchedBytes: fetched, keptBytes: plan.bytesKept, replaced: plan.deleteFirst, filesFetched: plan.todo.length, servedBy: servedBy.sort((a, b) => (a.name < b.name ? -1 : 1)) };
 }
 
-export const storageOps = { inspect, verify, install, remove: removeFiles, repair: (args, hooks) => install({ ...args, deep: true }, hooks) };
+// All runtime variants share the same origin's model cache. Coordinate
+// through the storage operation, including publication of its metadata.
+function useCacheLock(mode, signal, work) {
+  const locks = globalThis.navigator?.locks;
+  return locks?.request
+    ? locks.request("wllama-model-cache", { mode, ...(signal ? { signal } : {}) }, work)
+    : work();
+}
+
+export const storageOps = {
+  inspect: (args, hooks) => useCacheLock("shared", hooks?.signal, () => inspect(args)),
+  verify: (args, hooks) => useCacheLock("shared", hooks?.signal, () => verify(args, hooks)),
+  install: (args, hooks) => useCacheLock("exclusive", hooks?.signal, () => install(args, hooks)),
+  remove: (args, hooks) => useCacheLock("exclusive", hooks?.signal, () => removeFiles(args)),
+  repair: (args, hooks) => useCacheLock("exclusive", hooks?.signal, () => install({ ...args, deep: true }, hooks))
+};
 
 export class WllamaAdapter {
   constructor() { this.w = null; this.info = null; this.cfg = null; }
 
-  async load(config, { onProgress }) {
+  async load(config, hooks) {
+    return useCacheLock("shared", hooks.signal, () => this.loadFromCache(config, hooks));
+  }
+
+  async loadFromCache(config, { onProgress }) {
     const cfg = this.cfg = config;
     const rt = cfg.runtime;
     if (!Array.isArray(cfg.files) || cfg.files.length === 0) throw Object.assign(new Error("wllama load config needs the catalogue file list (config.files)"), { name: "ConfigError" });
