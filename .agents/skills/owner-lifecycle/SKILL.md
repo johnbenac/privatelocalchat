@@ -40,20 +40,35 @@ So an owner without a store of its own writes to `program` (which today is read-
 `what-this-project-is` and `handover` notes are named by the owner: `brand-handover`, `lipsync-what-this-project-is`, so they do not
 collide with another owner's notes in the same store. An owner with its own store names them `handover` and `what-this-project-is`.
 
-## Moving the work to another harness (the same owner)
+## Handing an owner to another harness (Claude to Codex or back): the process
 
-The outgoing session, before it stops:
+Same owner, same key, same folder; only the terminal changes. **The outgoing agent writes the handover; it knows what matters.**
+Memory keeps this process and the template; devops starts the terminal; John says when. A new session knows only what it is given:
+a Codex agent unused for days has stale rules, so it starts **fresh** (not `resume`) unless it ran in the last day.
 
-1. Write or refresh **one note named `handover`** (`OWNER-handover` in the shared `program` store, see the table) in the owner's memory store
-   (`cosmo-mem write STORE handover.md ...`, then `cosmo-mem index STORE set handover "..." --domain "How we work"`): what is in progress (task numbers and their real status),
-   what is blocked and on whom, where the working evidence lives (paths), the next step, what not to redo. Plain statements, no
-   transcript, no secrets. Refresh the same note; do not pile up dated copies.
-2. Put the same facts as notes on the board tasks (the board is the plan; see the `board` skill).
-3. Leave no executor or watcher running that the successor will not know about; name any that is.
+| Step | Who | What |
+| --- | --- | --- |
+| 1 Say go | John | Names the owner and the incoming harness. Until step 7 the outgoing agent stays the primary. |
+| 2 Drain | outgoing | Finish or park in-flight work: commit and push, end executors and watchers, set board statuses true (see `board`). |
+| 3 Write the pack | outgoing | ONE handover note, template below: the memory note `handover` (`OWNER-handover` in `program`) and, if long, a repo file it points to. Refresh it; never pile up dated copies. |
+| 4 Start the terminal | devops | Checklist below. Registry `harness` set to the new one; the new terminal is a helper until step 7. |
+| 5 Read | incoming | `AGENTS.md` (comes with the folder), the pack, the owner's board tasks, waiting mail, `cosmo-mem read STORE _index.md`. |
+| 6 Read-back | incoming, then outgoing | Incoming posts a board note: what it understood, what it will do first, questions. Outgoing answers on the same note. |
+| 7 Cut over | John | Primary flag moves. Outgoing stops answering mail and closes its terminal. Never two primaries. |
 
-The incoming session reads `cosmo-mem read STORE _index.md`, the `handover` note and its tasks on the board before it acts, then
-confirms in a board note that it took over. Memory never assumes one session id per owner: session, harness and model are only
-provenance on each commit.
+**Template of the pack** (plain statements, no transcript, no secrets): (1) what the owner is for, its folders and repositories;
+(2) board: every open task with its real one-line state and what to do first; (3) in flight: branches, worktrees, uncommitted files,
+running processes, who else is involved; (4) decisions already taken, by whom, and the traps (what looks right and is not);
+(5) mail and people: who waits for what, open threads; (6) what changed in the programme since the incoming agent last ran
+(rules, tools, owners: point at memory notes and skills); (7) what not to do without asking John; (8) the first hour.
+
+**Test of a good pack:** the incoming agent can say, without asking, what the three most urgent tasks are and why, what it must
+not touch, and who is waiting on it. If not, the pack is incomplete: the outgoing agent adds to it.
+
+**Starting a Codex terminal (devops):** the folder is trusted in `~/.codex/config.toml`; `.codex/config.toml` has the token-env block
+(`COSMO_TEAM`); the hooks in `~/.codex/hooks.json` are trusted; Codex quota is not exhausted; skip the self-update prompt; the pane is in
+the registered tmux session; `cosmo-msg waiting --to TEAM` is read once. Codex has no `SendMessage` and no background key: mail
+reaches an idle Codex pane by a typed wake line, a busy one at its next hook.
 
 ## Closing an owner (Brand's checklist)
 
