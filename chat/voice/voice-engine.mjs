@@ -197,7 +197,7 @@ export function createVoiceEngine({
       const files = Object.fromEntries(manifest.files.filter((f) => f.role !== "voice").map((f) => [f.role, f.name]));
       // several voice files (Kokoro): { voiceId: fileName }, the id being the file name without ".bin"
       const voiceFiles = Object.fromEntries(manifest.files.filter((f) => f.role === "voice").map((f) => [f.name.replace(/\.bin$/, ""), f.name]));
-      const start = (n) => { worker = makeWorker(workerUrl || workerUrlFor(kind.worker)); wire(worker); return call({ op: "load", dir: dirName, files, ...(Object.keys(voiceFiles).length ? { voiceFiles } : {}), threads: n }); };
+      const start = (n) => { worker = makeWorker(workerUrl || workerUrlFor(kind.worker)); wire(worker); return call({ op: "load", dir: dirName, files, ...(Object.keys(voiceFiles).length ? { voiceFiles, artifactPins: manifest.files } : {}), threads: n }); };
       let reply;
       try { reply = await start(threads); }
       catch (error) {

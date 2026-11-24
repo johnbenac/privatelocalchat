@@ -149,7 +149,7 @@
         "host-core.mjs": "6af35b686a78c6478927f3fea9aa9270b6b9deb74e7c730e77f9043033c8e1d8",
         "host.worker.mjs": "f1dd77990bdd27ebfc13e7cf3ec64e4f03cc98069f74ebd48475d28f8cf91205",
         "index.mjs": "b20b7f5fc052869ef8ac334c0abd48f444219bb618037a02b15b91cc3afed4c4",
-        "kokoro-session-engine.mjs": "9d9304a17245412efda12981e825fa592ab600525f65374c18de182fc3b896e8",
+        "kokoro-session-engine.mjs": "ca9c0d2a5e728da3afc61aefa6edffd31ec9e3f29adda042607fd46bb95a8167",
         "manifest-shipped.mjs": "1f352dd7933041117db43dd5081f574a5b0cb20c3fc9a9f2c3dadf309cfbc040",
         "manifest-view.mjs": "a4346838a41af177112ad2147189f972fa62bb535f35158a1757349282cca8d3",
         "model-host-core.mjs": "0bb910b809592ecbcf7290ae5c56d9936279d191da612e61f5708f32d730bfb2",
@@ -191,16 +191,17 @@
         "verify.mjs": "fa07c705dd0d9f5d2c576e6f3ae48928bf0fce1691e67e8b1a4e996aaac250fb",
         "worker-entry.mjs": "6e4cb2c234df3dc45c6962fbf96694f2421251b5f0063dd01013418b14b2d301"
       },
+      "license": "AGPL-3.0-only",
       "name": "model-runtime",
       "owner": "plc",
       "package": {
-        "file": "model-runtime-1.4.0.tar.gz",
-        "sha256": "a5f0f8355f51a3c74b79fea8067db54bb12391e42e89be7bd4366cf16865bcd8",
+        "file": "model-runtime-1.4.1.tar.gz",
+        "sha256": "e3f496158916533761c6bf25364f21184fa23619cd89916b6f2a61ec4a96612d",
         "type": "generic"
       },
       "path": "runtime/providers",
-      "tree_sha256": "3e0c82b991f0db37f2acdf2674aa1a6ac772f22e02acf754aa232c124e084639",
-      "version": "1.4.0"
+      "tree_sha256": "06510c5ba9b8d713c17f5e18ef740a4a9994f0bf54692074730d4405fcfbd3dc",
+      "version": "1.4.1"
     },
     {
       "files": {

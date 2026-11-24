@@ -4,15 +4,15 @@
 const fault = (code, message) => Object.assign(new Error(message), {name: 'KokoroEngineError', code});
 const abortFault = () => new DOMException('Speech cancelled.', 'AbortError');
 
-export function createKokoroSessionEngine({loadOrt, readVerified, pipeline, phonemize}) {
+export function createKokoroSessionEngine({loadOrt, readVerified, pipeline, phonemize, maxThreads = 1}) {
   if (typeof loadOrt !== 'function' || typeof readVerified !== 'function' ||
-      typeof phonemize !== 'function' || !pipeline) {
+      typeof phonemize !== 'function' || !pipeline || !Number.isInteger(maxThreads) || maxThreads < 1 || maxThreads > 4) {
     throw fault('bad-config', 'Kokoro needs its ONNX, verified file and phonemizer services.');
   }
   let config, loaded, pendingLoad, speaking;
   const decoder = new TextDecoder('utf-8', {fatal: true});
 
-  async function build({signal, onProgress}) {
+  async function build({signal, onProgress, threads}) {
     const {base, files} = config;
     const read = async file => {
       signal.throwIfAborted();
@@ -24,7 +24,7 @@ export function createKokoroSessionEngine({loadOrt, readVerified, pipeline, phon
       return bytes;
     };
     const readRole = role => read(files.find(file => file.role === role));
-    const ort = await loadOrt({signal});
+    const ort = await loadOrt({signal, threads});
     const tokenizer = pipeline.createTokenizer(JSON.parse(decoder.decode(await readRole('tokenizer'))),
       JSON.parse(decoder.decode(await readRole('tokenizer_config'))));
     const voices = new Map();
@@ -38,7 +38,7 @@ export function createKokoroSessionEngine({loadOrt, readVerified, pipeline, phon
       await session.release();
       signal.throwIfAborted();
     }
-    return {session, ort, tokenizer, voices};
+    return {session, ort, tokenizer, voices, threads};
   }
 
   async function unload() {
@@ -65,15 +65,16 @@ export function createKokoroSessionEngine({loadOrt, readVerified, pipeline, phon
       config = {base, files: structuredClone(files)};
     },
     async load({signal, onProgress, threads = 1} = {}) {
-      if (!config || pendingLoad || threads !== 1) {
-        throw fault('bad-config', 'The shared Kokoro engine needs an initialized single-thread profile.');
+      if (!config || pendingLoad || !Number.isInteger(threads) || threads < 1 || threads > maxThreads ||
+          (loaded && loaded.threads !== threads)) {
+        throw fault('bad-config', 'The Kokoro thread count must match the initialized host profile.');
       }
       if (loaded) return {voices: [...loaded.voices.keys()]};
       const controller = new AbortController();
       const cancel = () => controller.abort();
       if (signal?.aborted) cancel();
       signal?.addEventListener('abort', cancel, {once: true});
-      const job = {controller, done: build({signal:controller.signal, onProgress})};
+      const job = {controller, threads, done: build({signal:controller.signal, onProgress, threads})};
       pendingLoad = job;
       try {
         loaded = await job.done;
@@ -109,15 +110,21 @@ export function createKokoroSessionEngine({loadOrt, readVerified, pipeline, phon
           if (ids.length <= 2) continue;
           check();
           const style = pipeline.styleFor(voices.get(voiceId), ids.length);
-          const outputs = await session.run({
-            input_ids: new ort.Tensor('int64', BigInt64Array.from(ids, BigInt), [1, ids.length]),
-            style: new ort.Tensor('float32', style, [1, style.length]),
-            speed: new ort.Tensor('float32', Float32Array.of(speed), [1]),
-          });
-          const waveform = outputs.waveform ?? Object.values(outputs)[0];
+          const inputs = {};
+          let outputs;
           let audio;
-          try { check(); audio = new Float32Array(waveform.data); }
-          finally { for (const out of Object.values(outputs)) out.dispose?.(); }
+          try {
+            inputs.input_ids = new ort.Tensor('int64', BigInt64Array.from(ids, BigInt), [1, ids.length]);
+            inputs.style = new ort.Tensor('float32', style, [1, style.length]);
+            inputs.speed = new ort.Tensor('float32', Float32Array.of(speed), [1]);
+            outputs = await session.run(inputs);
+            check();
+            const waveform = outputs.waveform ?? Object.values(outputs)[0];
+            audio = new Float32Array(waveform.data);
+          } finally {
+            for (const output of Object.values(outputs ?? {})) output.dispose?.();
+            for (const input of Object.values(inputs)) input.dispose?.();
+          }
           if (!audio.length) continue;
           if (!chunks) firstAudioMs = performance.now() - start;
           chunks++;
@@ -133,6 +140,6 @@ export function createKokoroSessionEngine({loadOrt, readVerified, pipeline, phon
     },
     cancel() {speaking?.controller.abort(abortFault());},
     unload,
-    status() {return {state:loaded ? 'ready' : pendingLoad ? 'loading' : 'idle', threads:1};},
+    status() {return {state:loaded ? 'ready' : pendingLoad ? 'loading' : 'idle', threads:loaded?.threads ?? pendingLoad?.threads ?? 1};},
   };
 }
