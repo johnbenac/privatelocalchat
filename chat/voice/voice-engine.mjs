@@ -197,7 +197,7 @@ export function createVoiceEngine({
       const files = Object.fromEntries(manifest.files.filter((f) => f.role !== "voice").map((f) => [f.role, f.name]));
       // several voice files (Kokoro): { voiceId: fileName }, the id being the file name without ".bin"
       const voiceFiles = Object.fromEntries(manifest.files.filter((f) => f.role === "voice").map((f) => [f.name.replace(/\.bin$/, ""), f.name]));
-      const start = (n) => { worker = makeWorker(workerUrl || workerUrlFor(kind.worker)); wire(worker); return call({ op: "load", dir: dirName, files, ...(Object.keys(voiceFiles).length ? { voiceFiles, artifactPins: manifest.files } : {}), threads: n }); };
+      const start = (n) => { worker = makeWorker(workerUrl || workerUrlFor(kind.worker)); wire(worker); return call({ op: "load", dir: dirName, files, ...(Object.keys(voiceFiles).length ? { voiceFiles } : {}), artifactPins: manifest.files, threads: n }); };
       let reply;
       try { reply = await start(threads); }
       catch (error) {
@@ -270,7 +270,11 @@ export function createVoiceEngine({
         const reply = await new Promise((resolve, reject) => {
           if (!worker) { reject(new Error("the voice worker is not running")); return; }
           const id = ++seq; target = id;
-          pending.set(id, { onChunk, resolve, reject });
+          pending.set(id, {
+            onChunk: chunk => { if (!signal?.aborted) onChunk?.(chunk); },
+            resolve,
+            reject,
+          });
           if (signal?.aborted) { pending.delete(id); reject(abortError()); return; }
           worker.postMessage({ id, op: "speak", text: String(text ?? ""), speed, voice });
         });

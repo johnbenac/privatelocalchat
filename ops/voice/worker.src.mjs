@@ -1,98 +1,95 @@
-// The voice worker, bundled by ops/voice/build-worker.mjs into chat/vendor/voice/worker.js.
-// Kitten TTS nano 0.8 (int8) on ONNX Runtime Web (WASM, SIMD, threaded when the page is cross-origin isolated) with the phonemizer package
-// (an espeak-ng build, GPL-3.0). The text is synthesised here, on the device; the worker never touches the network: the model files are read
-// from the page's private storage (OPFS) directory the main thread installed them into.
-//
-// Protocol (requests carry an id; every reply carries the same id):
-//   { op: "load", dir, files: { model, voices, config }, threads? }  -> { ok: true, voices: [...], loadMs }
-//   { op: "speak", text, voice?, speed? }  -> zero or more { event: "chunk", samples: Float32Array (transferred), index, count, text }
-//                                             then { ok: true, chunks, samples, synthMs, firstAudioMs }
-//   { op: "cancel", target }               -> stops the speak with id `target` after the chunk in progress
-//   { op: "unload" }                       -> { ok: true }
-// A failure is { ok: false, error: { name, message } }.
-
-import "./stream-polyfill.mjs"; // first: the phonemizer needs async iteration on streams, which Safari lacks
+// Preserve PLC's voice-worker protocol while the shared engine owns Kitten's
+// model session, tensor and cancellation lifecycle.
+import "./stream-polyfill.mjs";
 import * as ort from "onnxruntime-web/wasm";
 import { phonemize } from "phonemizer";
-import { unzipSync } from "fflate";
-import {
-  SAMPLE_RATE, speechChunks, chunkToIds, parseNpz, resolveVoice, effectiveSpeed, styleFor, trimAudio,
-} from "../../chat/voice/voice-kitten.mjs";
+import { unzipSync as unzip } from "fflate";
+import * as pipeline from "../../chat/voice/voice-kitten.mjs";
+import { sha256 } from "../../runtime/providers/vendor/noble-hashes/2.4.0/sha2.js";
+import { createEngineRegistry } from "../../runtime/providers/engine-registry.mjs";
+import { registerKitten } from "../../runtime/providers/speech-kitten.mjs";
 
-let session = null;
-let voices = null;
-let config = null;
-const cancelled = new Set();
+const modelId = "resource:model/kitten-tts-nano-0.8-int8";
+const revision = "84781d74e29ee25217551556398b42f80593a813";
+const base = new URL("./", self.location.href).href;
+ort.env.wasm.wasmPaths = {
+  mjs: base + "ort-wasm-simd-threaded.mjs", wasm: base + "ort-wasm-simd-threaded.wasm",
+};
+ort.env.wasm.proxy = false;
 
-async function readFile(dir, name) {
-  const root = await navigator.storage.getDirectory();
-  const folder = await root.getDirectoryHandle(dir);
-  const handle = await folder.getFileHandle(name);
-  return new Uint8Array(await (await handle.getFile()).arrayBuffer());
-}
-
-async function load({ dir, files, threads }) {
-  const t0 = performance.now();
-  if (session) return { voices: Object.keys(voices), loadMs: 0 };
-  const base = new URL("./", self.location.href).href;
-  ort.env.wasm.wasmPaths = { mjs: base + "ort-wasm-simd-threaded.mjs", wasm: base + "ort-wasm-simd-threaded.wasm" };
-  ort.env.wasm.proxy = false;
-  const cores = self.navigator?.hardwareConcurrency || 1;
-  ort.env.wasm.numThreads = Number.isInteger(threads) ? threads : self.crossOriginIsolated ? Math.min(4, cores) : 1;
-  const [model, npz, cfg] = await Promise.all([readFile(dir, files.model), readFile(dir, files.voices), readFile(dir, files.config)]);
-  config = JSON.parse(new TextDecoder().decode(cfg));
-  voices = parseNpz(npz, unzipSync);
-  session = await ort.InferenceSession.create(model, { executionProviders: ["wasm"] });
-  return { voices: Object.keys(voices), loadMs: Math.round(performance.now() - t0) };
-}
-
-async function synthesiseChunk(text, voiceId, speed) {
-  const ids = await chunkToIds(text, phonemize);
-  const voice = voices[voiceId];
-  const style = styleFor(voice, text.length);
-  const out = await session.run({
-    input_ids: new ort.Tensor("int64", BigInt64Array.from(ids, BigInt), [1, ids.length]),
-    style: new ort.Tensor("float32", style, [1, style.length]),
-    speed: new ort.Tensor("float32", Float32Array.of(speed), [1]),
+let adapter, voices, active;
+let loading;
+async function load({ dir, artifactPins, threads }) {
+  if (voices) return { voices, loadMs: 0 };
+  if (loading) return loading;
+  const started = performance.now();
+  const registry = registerKitten(createEngineRegistry(), {
+    manifest: { descriptor: {
+      resource: { id: modelId, revision }, runtime: { engine: "kitten", version: "kitten-engine-files/1" },
+      artifacts: artifactPins.map(file => ({...file, role:file.role === "voices" ? "voice" : file.role})),
+    } },
+    pipeline, phonemize, unzip, maxThreads: 4,
+    async loadOrt({ threads }) {
+      ort.env.wasm.numThreads = threads;
+      return ort;
+    },
+    async readVerified(file, { signal }) {
+      const root = await navigator.storage.getDirectory();
+      const folder = await root.getDirectoryHandle(dir);
+      const handle = await folder.getFileHandle(file.name);
+      const bytes = new Uint8Array(await (await handle.getFile()).arrayBuffer());
+      signal.throwIfAborted();
+      const hash = Array.from(sha256(bytes), byte => byte.toString(16).padStart(2, "0")).join("");
+      if (hash !== file.sha256) throw new Error("Installed Kitten artifact failed verification: " + file.name);
+      return bytes;
+    },
   });
-  const audio = Object.values(out)[0].data;
-  return trimAudio(new Float32Array(audio)); // a copy we own and can transfer
-}
-
-async function speak(id, { text, voice, speed }) {
-  if (!session) throw new Error("the voice model is not loaded");
-  const voiceId = resolveVoice(config, voices, voice);
-  const finalSpeed = effectiveSpeed(config, voiceId, typeof speed === "number" && speed > 0 ? speed : 1);
-  const chunks = speechChunks(text); // normalise for speech first, then chunk, as the reference does
-  const t0 = performance.now();
-  let firstAudioMs = null, samples = 0, done = 0;
-  for (let index = 0; index < chunks.length; index++) {
-    if (cancelled.has(id)) break;
-    const audio = await synthesiseChunk(chunks[index], voiceId, finalSpeed);
-    if (cancelled.has(id)) break;
-    if (firstAudioMs === null) firstAudioMs = Math.round(performance.now() - t0);
-    samples += audio.length; done++;
-    self.postMessage({ id, event: "chunk", samples: audio, index, count: chunks.length, text: chunks[index] }, [audio.buffer]);
+  const instance = registry.hostOptions().adapters.kitten();
+  adapter = instance;
+  const count = self.crossOriginIsolated
+    ? Math.min(4, Number.isInteger(threads) && threads > 0 ? threads : self.navigator?.hardwareConcurrency || 1)
+    : 1;
+  loading = (async () => {
+    const loaded = await instance.load({ modelId, revision, threads: count });
+    voices = loaded.capabilities.voices;
+    return { voices, loadMs: Math.round(performance.now() - started) };
+  })();
+  try {
+    return await loading;
+  } finally {
+    loading = undefined;
   }
-  return { chunks: done, samples, synthMs: performance.now() - t0, firstAudioMs: firstAudioMs ?? 0, sampleRate: SAMPLE_RATE, cancelled: cancelled.has(id) };
 }
 
 self.onmessage = async ({ data }) => {
   const { id, op } = data;
-  const reply = (payload) => self.postMessage({ id, ...payload });
-  if (op === "cancel") { cancelled.add(data.target); return; }
+  const reply = payload => self.postMessage({ id, ...payload });
+  if (op === "cancel") {
+    if (active?.id === data.target) active.controller.abort();
+    return;
+  }
   try {
-    if (op === "load") return reply({ ok: true, ...(await load(data)) });
-    if (op === "speak") return reply({ ok: true, ...(await speak(id, data)) });
+    if (op === "load") return reply({ ok:true, ...await load(data) });
     if (op === "unload") {
-      try { await session?.release(); } catch { /* already gone */ }
-      session = null; voices = null; config = null;
-      return reply({ ok: true });
+      await adapter?.unload();
+      adapter = undefined;
+      voices = undefined;
+      return reply({ ok:true });
     }
-    throw new Error(`unknown voice worker op "${op}"`);
+    if (op !== "speak" || !adapter || active) throw new Error("The Kitten worker is not ready.");
+    const controller = new AbortController();
+    active = { id, controller };
+    const speed = Number.isFinite(data.speed) && data.speed > 0 ? data.speed : 1;
+    try {
+      const result = await adapter.invoke("synthesize", {text:data.text, voice:data.voice, speed},
+        controller.signal, ({samples,index,count,text}, transfer) => {
+          self.postMessage({id,event:"chunk",samples,index,count,text}, transfer);
+        });
+      return reply({ ok:true, ...result, cancelled:false });
+    } finally {
+      active = undefined;
+    }
   } catch (error) {
-    reply({ ok: false, error: { name: error?.name || "Error", message: String(error?.message || error) } });
-  } finally {
-    cancelled.delete(id);
+    reply({ ok:false, error:{name:error?.name || "Error", message:String(error?.message || error)} });
   }
 };

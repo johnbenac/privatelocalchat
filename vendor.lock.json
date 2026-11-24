@@ -165,6 +165,7 @@
         "runtime.mjs": "19c576424b1dc2092dd14574e60007f738741b3e3c7661d0a1e1b9a549719013",
         "shipped.mjs": "a95b7fac95479aa299d08d0553d6496b6588a94629fe4b5d1575ea4dc9e5541f",
         "sources-core.mjs": "1dca7b91a84e69cd1720ed97ff5fb658f56a01793046ba22d5a2709b47d6d256",
+        "speech-kitten.mjs": "ed5ddb456584f2e2b0fc3cfedadbecad245118dfdafac67842a4eada10fcfb62",
         "speech-kokoro.mjs": "ebb95b090bfd27ebf15b113c858a70e3747196629a85079fd10c41e110a96a56",
         "speech-speecht5.mjs": "2afafe354b7b789d33f243e1cfc70fdacbf7bbcbe051309b143e8d774e8bc30f",
         "speecht5-session-engine.mjs": "db1cc5cda172b60b449011f5ab99a1ea6966b3ef81d022dd03939cbb6cb5b902",
@@ -195,13 +196,13 @@
       "name": "model-runtime",
       "owner": "plc",
       "package": {
-        "file": "model-runtime-1.4.1.tar.gz",
-        "sha256": "e3f496158916533761c6bf25364f21184fa23619cd89916b6f2a61ec4a96612d",
+        "file": "model-runtime-1.5.0.tar.gz",
+        "sha256": "202ee587e362040570d729c1b0136deb4acef3c3ad23f5e894d5201211c1a90f",
         "type": "generic"
       },
       "path": "runtime/providers",
-      "tree_sha256": "06510c5ba9b8d713c17f5e18ef740a4a9994f0bf54692074730d4405fcfbd3dc",
-      "version": "1.4.1"
+      "tree_sha256": "7bc60c5fcca70b18d6b885857f2689813f0db5a6991b787322598573144a7359",
+      "version": "1.5.0"
     },
     {
       "files": {
