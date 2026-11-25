@@ -47,6 +47,8 @@ function startActor(config) {
   child.stdout.on('data', chunk => { buffer += chunk; let at; while ((at = buffer.indexOf('\n')) >= 0) { try { actor.messages.push(JSON.parse(buffer.slice(0, at))); } catch { /* not ours */ } buffer = buffer.slice(at + 1); } });
   child.stderr.on('data', chunk => { actor.stderr += chunk; });
   actor.exit = new Promise(resolve => child.once('exit', (code, signal) => { actor.exited = { code, signal }; resolve(actor.exited); }));
+  // Exit establishes the signal/code. Close also waits for the result pipe to drain.
+  actor.closed = new Promise(resolve => child.once('close', resolve));
   actor.has = type => actor.messages.some(m => m.t === type);
   actor.go = () => child.stdin.write('go\n');
   return actor;
@@ -100,7 +102,7 @@ async function run({ repeat, killAt, staged, storage = 'atomic', locks = 'broker
     await broker.close();
     // whatever happened above (a timeout while the machine is busy, a failed wait), none of this run's own actors may outlive it: they would hold the test process open
     for (const a of actors) if (a.exited === null) { try { process.kill(-a.pid, 'SIGKILL'); } catch { /* already gone */ } }
-    await Promise.all(actors.map(a => a.exit));
+    await Promise.all(actors.map(a => a.closed));
   }
   record.reads = reads; record.tornReads = torn;
   record.finalText = fs.readFileSync(stateFile, 'utf8');
