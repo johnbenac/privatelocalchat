@@ -277,7 +277,7 @@ try {
   assert.equal(config.overridden, true);
   let text = await settingsText(page, 'models');
   assert.match(text, /Model source/);
-  assert.match(text, /Model files come from[\s\S]*Lab mirror/);
+  assert.match(text, /^Operator model source\s+Lab mirror \(lab-mirror\.example\)/m);
   assert.ok(text.includes('This copy is updated by whoever hosts it.'), 'Settings, Models has the line about who updates this copy: ' + text.slice(-600));
   await closeSettings(page);
   const privacy = await fetch(origin + '/privacy/');
@@ -332,7 +332,7 @@ try {
   assert.equal(got.partStatus, 206, 'a Range request is answered with 206');
   assert.equal(got.partLength, 10);
   text = await settingsText(page, 'models');
-  assert.match(text, /Model files come from[\s\S]*This computer/, 'Settings names "This computer": ' + text.slice(-700));
+  assert.match(text, /^Operator model source\s+This computer/m, 'Settings names "This computer": ' + text.slice(-700));
   await closeSettings(page);
   assert.deepEqual(errors, [], 'the page reported errors: ' + errors.join(' | '));
   ok('fetch-models fills models/ from a local source, leaves an existing config alone, --use-local creates it when missing, the app serves /models/ with Range and says "This computer"');
