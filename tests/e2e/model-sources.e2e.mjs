@@ -228,6 +228,19 @@ try{
     await section.getByRole('status').filter({hasText:'This site has not approved that source.'}).waitFor();
     assert(await page.evaluate(() => window.localModels.modelSources().length === 0), 'the refused source was not saved');
     assert(requests.length === 0, 'the refused source was not contacted');
+
+    // A browser may already have this source from an earlier open configuration.
+    await page.evaluate(base => localStorage.setItem('plc.personalModelSources.v1', JSON.stringify([
+      {id:'existing-mirror', label:'Previously saved mirror', base, credential:false},
+    ])), OTHER_ROOT);
+    await page.reload();
+    await page.waitForFunction(() => window.__plcBooted && window.plcShell);
+    await sourceRow(page);
+    await section.getByRole('button', {name:'Test source'}).click();
+    await section.getByRole('status').filter({hasText:'not approved on this page'}).waitFor();
+    assert(await page.evaluate(() => window.localModels.modelSources()[0]?.id === 'existing-mirror'),
+      'the existing source stays visible without being usable');
+    assert(requests.length === 0, 'the existing unapproved source was not contacted');
   });
 
   console.log('ALL PASS');
